@@ -1,0 +1,4 @@
+World Lab Pixel is a Unicode subset of TakWolf’s Ark Pixel 12px Proportional (Simplified Chinese).
+Upstream release: https://github.com/TakWolf/ark-pixel-font/releases/tag/2026.11.10
+The subset retains existing glyph outlines and covers printable ASCII and the demo’s static Chinese interface and case text. The internal family was renamed, and unused glyphs were removed. For dynamic or absent glyphs, use a system font fallback.
+Licensed under the SIL Open Font License 1.1. See pixel-font-OFL.txt.

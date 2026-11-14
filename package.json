@@ -1,0 +1,11 @@
+{
+  "name": "world-lab",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node start.mjs",
+    "test": "node --test"
+  }
+}
