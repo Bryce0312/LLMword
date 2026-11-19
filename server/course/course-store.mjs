@@ -5,6 +5,7 @@ import { DatabaseSync } from 'node:sqlite'
 import { digest, domainFailure, identifier, json, validDate } from '../domain/contracts.mjs'
 import { requiresWeatherObservation } from './course-context.mjs'
 import { buildMemorySnapshot } from './memory-policy.mjs'
+import { deriveForecastStatus } from './forecast-facts.mjs'
 
 export const courseFailure = (code, message, status = 400) => Object.assign(domainFailure(code, message, status), { courseSafe: true })
 const terminal = new Set(['completed', 'insufficient', 'failed', 'cancelled'])
@@ -305,6 +306,7 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
           baseline: request.normalized?.baseline || request.normalized?.currentReference || null,
           scoringEligible: currentPrediction.scoringEligible !== false && !request.normalized?.baseline?.synthetic && !request.normalized?.conditionalOnly && run.modelMode === 'live' && run.sourceMode === 'live' && cited.every((item) => item.sourceMode === 'live' && !item.fixture),
           label: run.modelMode === 'mock' || run.sourceMode !== 'live' ? '协议模拟或回放资料结果，不是真实预测' : '模型事件概率估计' }
+        Object.assign(value, deriveForecastStatus(value))
         db.prepare('INSERT INTO course_forecasts VALUES (?,?,?,?)').run(value.forecastId, runId, hash, json(value))
         append(run, { eventId: `${runId}_forecast`, type: 'forecast.published', payload: value })
         writeRequest({ ...request, latestForecastId: value.forecastId, updatedAt: at })

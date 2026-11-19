@@ -1,4 +1,6 @@
 /** Bounded historical retrieval. This module performs no IO and never updates archives. */
+import { deriveForecastStatus } from './forecast-facts.mjs'
+
 export const MEMORY_POLICY_V2 = Object.freeze({
   version: '2.0', shortTermDays: 7, maxJudgments: 4, maxReports: 8,
   longTermDays: 90, maxRelations: 8, maxEvidence: 12,
@@ -85,6 +87,7 @@ export function buildMemorySnapshot({ requestId, predictionVersion = null, exclu
     issuedAt: item.issuedAt ?? item.publishedAt, summary: text(item.summary),
     modelMode: item.modelMode || null, modelRef: item.modelRef || null, sourceMode: item.sourceMode || null,
     historical: true, ageMs: cutoff - time(item.issuedAt ?? item.publishedAt),
+    ...deriveForecastStatus(item),
   })
   const previousForecast = projectForecast(visibleForecasts[0]) || null
   const recentJudgments = selected.map((run) => {
@@ -95,6 +98,7 @@ export function buildMemorySnapshot({ requestId, predictionVersion = null, exclu
       completedAt: run.updatedAt, historical: true, hasForecast: Boolean(forecast), forecastId: forecast?.forecastId ?? null,
       probabilityYes: forecast ? forecast.probabilityYes : null, issuedAt: forecast?.issuedAt ?? forecast?.publishedAt ?? null,
       summary: forecast ? text(forecast.summary) : text(run.message || runReports.map((item) => item.report.summary).join('；')),
+      ...(forecast ? deriveForecastStatus(forecast) : {}),
       factors, unresolvedFactors: strings(runReports.flatMap((item) => item.report.missingEvidence || []), 6, 300),
       dissent: strings(forecast?.dissent, 6, 300), reportCount: runReports.length,
       modelMode: run.modelMode || null, sourceMode: run.sourceMode || null,

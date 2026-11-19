@@ -208,13 +208,15 @@ LangGraph、Graphiti 等出现在调研及实验记录中，当前正式课程�
 
 以下是待办清单，不表示这些功能已经做完，也不自动授权持续付费实验。继续开发应先完成 P0，再按课程需要取舍 P1；P2 保留方向，不扩大当前交付范围。
 
-### P0-A：公开总结必须与受控字段一致
+### P0-A：公开总结必须与受控字段一致（✅ 已完成）
 
 **现有证据：** 黄金题的 `normalized.baseline` 和 `forecast.baseline` 为 `value:null`、`verified:false`，且 `scoringEligible:false`；但模型的公开 `forecast.summary` 仍把某个报价写成已经核验的固定 P0，该文字又进入后续 `previousForecast.summary`。不能把这段模型文字当已确认的真实金价。当前防线阻止了计分，却没有完全阻止误导性解释。
 
 **要做：** 由受控字段统一生成基准、期限、证据充分度和计分状态的事实段；限制自由总结中的冲突断言，冲突时标注或重写后再公开。历史摘要保留审计原文，面向用户及记忆输入增加醒目的“未核验／条件估计”说明，避免旧总结在下一轮升格为事实。
 
 **验收：** 缺失基准的题目，结果卡、正文、记忆卡和后续模型输入均不得声称该数值已核验；可信基准存在时也只能引用匹配字段。增加有冲突摘要、旧冲突记忆和正常有效基准的回归案例。负责方向：后端＋模型输出校验，前端配合。
+
+**已完成（2026-11-19）：** 新增 `server/course/forecast-facts.mjs`（`buildForecastFacts`／`detectSummaryConflict`／`forecastStatusLabel`／`deriveForecastStatus`）。`publishForecast` 封存时写入 `statusFacts`、`summaryConflict`、`baselineVerified`、`conditionalOnly`、`statusLabel`，`summary` 保留审计原文；`memory-policy.mjs` 的 `projectForecast`／`recentJudgments` 注入派生字段；前端 `renderAnswer`／`renderMemory` 展示事实段、冲突警告与状态徽章。旧数据无需迁移：新字段只写新预测，记忆侧从既有结构化字段（`baseline`／`kind`／`scoringEligible`）现场重推导，旧冲突摘要进记忆时同样被标注。新增 `forecast-facts.test.mjs` 7 条回归，全套 260/260 通过。
 
 ### P0-B：来源时间、有效正文和题意范围再收紧一层
 
