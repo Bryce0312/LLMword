@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#251f2c">
+    <title>世界事务所 · 半导体推演室</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23251f2c' d='M1 1h22v22H1z'/%3E%3Cpath fill='%23efb85f' d='M10 4h4v6h6v4h-6v6h-4v-6H4v-4h6z'/%3E%3C/svg%3E">
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/records.css">
+    <link rel="stylesheet" href="/actors.css">
+    <script src="/app.js" type="module"></script>
+  </head>
+  <body>
+    <a href="/#/predictions" style="display:inline-block;margin-bottom:12px;padding:8px 12px;border:3px solid #efb85f;color:#f7e6ba;background:#503746;font-family:var(--display)">◀ 返回事件公告栏</a>
+    <main class="game" id="top">
+      <header class="game-header">
+        <div class="identity">
+          <span class="brand-icon" aria-hidden="true"></span>
+          <div><h1>世界事务所</h1><p>半导体推演室</p></div>
+        </div>
+        <div class="mission">
+          <span class="pixel-icon journal-icon" aria-hidden="true"></span>
+          <div><span>当前案件</span><strong id="case-title">芯片出口许可</strong></div>
+        </div>
+        <div class="telemetry">
+          <span class="mode-chip"><i aria-hidden="true"></i><span id="mode-label">连接中</span></span>
+          <span class="game-clock"><span class="pixel-icon clock-icon" aria-hidden="true"></span><strong id="world-clock">—</strong></span>
+        </div>
+      </header>
+
+      <section class="room" id="room" aria-label="像素研究室">
+        <div class="room-picture">
+          <div class="room-scene">
+            <img src="/assets/lab-play.png" alt="夜色中的半导体研究室，设有圆桌、关系黑板和旁听区。">
+            <div id="room-floor" class="room-floor" aria-label="研究员"></div>
+          </div>
+          <span id="room-phase" class="room-phase" hidden></span>
+          <div class="room-hud">
+            <span class="room-status" id="room-status"><i aria-hidden="true"></i><span>等待连接</span></span>
+            <button class="room-step" id="open-timeline" type="button" aria-haspopup="dialog">
+              <span class="pixel-icon clock-icon" aria-hidden="true"></span> 事件 <strong id="step-count">—</strong>
+            </button>
+          </div>
+          <button class="hotspot board-hotspot" type="button" data-open-panel="world" data-section="relations" aria-haspopup="dialog"><span class="pixel-icon board-icon" aria-hidden="true"></span>关系黑板</button>
+          <button class="hotspot radio-hotspot" type="button" data-open-panel="world" data-section="evidence" aria-haspopup="dialog"><span class="pixel-icon radio-icon" aria-hidden="true"></span>证据收报台</button>
+          <button class="hotspot archive-hotspot" type="button" data-open-panel="learning" aria-haspopup="dialog"><span class="pixel-icon journal-icon" aria-hidden="true"></span>学习档案柜</button>
+          <section class="speech actor-bubble live-bubble" id="live-speech" aria-label="现场发言" aria-live="polite" aria-atomic="true" hidden>
+            <div class="speech-header">
+              <strong id="live-speaker"></strong>
+              <span id="live-speech-kind">现场发言</span>
+            </div>
+            <p id="live-message"></p>
+          </section>
+          <section class="speech actor-bubble" id="speech" aria-label="圆桌发言回放" hidden>
+            <div class="speech-header">
+              <strong id="speech-speaker"></strong>
+              <button type="button" id="close-speech" class="speech-close" aria-label="关闭发言回放">×</button>
+            </div>
+            <p id="speech-message"></p>
+            <div class="speech-controls">
+              <button type="button" id="prev-speech" aria-label="上一条发言">◀</button>
+              <span id="speech-position"></span>
+              <button type="button" id="next-speech" aria-label="下一条发言">▶</button>
+              <button type="button" id="speech-record" data-open-panel="meeting" aria-haspopup="dialog">会议记录</button>
+            </div>
+          </section>
+        </div>
+        <div class="error-banner" id="error" role="alert" hidden>
+          <span id="error-message"></span><button id="retry" type="button" class="text-button">重新连接</button>
+        </div>
+      </section>
+
+      <section class="console" aria-label="研究室操作台">
+        <div class="console-actions">
+          <div class="scenario">
+            <label for="branch">推演情景</label>
+            <select id="branch" aria-describedby="branch-note" disabled>
+              <option value="base">历史主线</option>
+              <option value="narrow">假设：限制范围较窄</option>
+              <option value="broad">假设：限制范围较广</option>
+            </select>
+          </div>
+          <button id="run" class="button primary-button" type="button" disabled><span class="pixel-icon play-icon" aria-hidden="true"></span> 召集 Agent 会议</button>
+          <button id="advance" class="button secondary-button" type="button" disabled>揭示下一事件 <span aria-hidden="true">▸</span></button>
+          <button id="reset" class="text-button" type="button" title="回到第一个事件并清空本次学习记录" disabled>重开回放</button>
+          <div class="console-links">
+            <button type="button" class="console-link monitor-trigger" id="open-monitor" aria-haspopup="dialog"><span class="pixel-icon radio-icon" aria-hidden="true"></span>监测收件箱</button>
+            <button id="replay-speech" type="button" class="console-link" hidden><span class="pixel-icon replay-icon" aria-hidden="true"></span>回放发言</button>
+            <button type="button" class="console-link" data-open-panel="meeting" aria-haspopup="dialog"><span class="pixel-icon journal-icon" aria-hidden="true"></span>研究手册</button>
+          </div>
+        </div>
+        <p id="branch-note" class="branch-note" hidden></p>
+        <p id="monitor-announcement" class="monitor-announcement" role="status" hidden></p>
+        <div class="roster">
+          <div class="roster-label"><h2>研究员席位</h2><span><strong id="company-count">—</strong> 家公司 / <strong id="agent-count">—</strong> 位研究员</span></div>
+          <div id="agents" class="agent-grid"></div>
+        </div>
+      </section>
+    </main>
+
+    <dialog id="notebook" class="game-dialog notebook" aria-labelledby="notebook-heading">
+      <div class="dialog-bar">
+        <h2 id="notebook-heading"><span class="pixel-icon journal-icon" aria-hidden="true"></span> 研究手册</h2>
+        <form method="dialog"><button class="close-button" aria-label="关闭研究手册">×</button></form>
+      </div>
+      <div class="tabs" role="tablist" aria-label="研究记录">
+        <button type="button" role="tab" id="tab-world" aria-controls="panel-world" aria-selected="true" data-panel="world">世界状态</button>
+        <button type="button" role="tab" id="tab-meeting" aria-controls="panel-meeting" aria-selected="false" tabindex="-1" data-panel="meeting">会议记录</button>
+        <button type="button" role="tab" id="tab-learning" aria-controls="panel-learning" aria-selected="false" tabindex="-1" data-panel="learning">学习档案</button>
+        <button type="button" role="tab" id="tab-tools" aria-controls="panel-tools" aria-selected="false" tabindex="-1" data-panel="tools">工具箱</button>
+      </div>
+      <div class="notebook-scroll">
+        <div id="panel-world" class="tab-panel" role="tabpanel" aria-labelledby="tab-world" tabindex="0"></div>
+        <div id="panel-meeting" class="tab-panel" role="tabpanel" aria-labelledby="tab-meeting" tabindex="0" hidden></div>
+        <div id="panel-learning" class="tab-panel" role="tabpanel" aria-labelledby="tab-learning" tabindex="0" hidden></div>
+        <div id="panel-tools" class="tab-panel" role="tabpanel" aria-labelledby="tab-tools" tabindex="0" hidden></div>
+      </div>
+    </dialog>
+
+    <dialog id="timeline" class="game-dialog small-dialog" aria-labelledby="timeline-heading">
+      <div class="dialog-bar">
+        <h2 id="timeline-heading"><span class="pixel-icon clock-icon" aria-hidden="true"></span> 事件时间轴</h2>
+        <form method="dialog"><button class="close-button" aria-label="关闭事件时间轴">×</button></form>
+      </div>
+      <ol id="stages" class="stages" aria-live="polite"></ol>
+    </dialog>
+
+    <dialog id="agent-dialog" class="game-dialog small-dialog agent-dialog" aria-labelledby="agent-dialog-title">
+      <div class="dialog-bar">
+        <h2><span class="pixel-icon journal-icon" aria-hidden="true"></span> 研究员档案</h2>
+        <form method="dialog"><button class="close-button" aria-label="关闭研究员档案">×</button></form>
+      </div>
+      <div id="agent-details"></div>
+    </dialog>
+    <dialog id="monitor" class="game-dialog notebook" aria-labelledby="monitor-heading">
+      <div class="dialog-bar">
+        <h2 id="monitor-heading"><span class="pixel-icon radio-icon" aria-hidden="true"></span> 监测收件箱</h2>
+        <form method="dialog"><button class="close-button" aria-label="关闭监测收件箱">×</button></form>
+      </div>
+      <div id="monitor-pane" class="monitor-pane tab-panel"></div>
+    </dialog>
+    <div id="notice" class="visually-hidden" role="status" aria-live="polite"></div>
+  </body>
+</html>

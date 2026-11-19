@@ -1,0 +1,534 @@
+{
+  "kind": "real-user-case-usability-regression",
+  "notAccuracyBenchmark": true,
+  "model": "deepseek-v4-pro",
+  "reasoningSettings": {
+    "thinking": "enabled",
+    "reasoningEffort": "high",
+    "timeoutMs": 180000,
+    "maxOutputTokens": 8192,
+    "protocol": "deepseek"
+  },
+  "finishedAt": "2026-11-18T18:25:10.763Z",
+  "results": [
+    {
+      "requestId": "course_request_be9def53-4d1d-4a3f-8adc-cf3597085e55",
+      "question": "马斯克会不会发推特",
+      "runId": "course_run_86698a41-d484-4a00-884b-c4346e4f0b5a",
+      "previousRunCount": 1,
+      "currentRunCount": 2,
+      "status": "completed",
+      "error": null,
+      "message": "本轮判断已封存，可查看概率、证据关系及下一次检查。",
+      "normalized": {
+        "type": "binary",
+        "question": "马斯克会不会发推特（观察至：2026-11-20 01:45:50 (Asia/Shanghai, UTC+08:00)）",
+        "object": "Elon Musk 的 X 公开账号 @elonmusk",
+        "options": [],
+        "candidateUniverseRule": "",
+        "timezone": "Asia/Shanghai",
+        "forecastClosesAt": "2026-11-19T17:45:50.506Z",
+        "targetAt": "2026-11-19T17:45:50.506Z",
+        "resolutionRuleVersion": 1,
+        "resolutionRule": "固定观察窗口为2026-11-19 01:45:50 (Asia/Shanghai, UTC+08:00)至2026-11-20 01:45:50 (Asia/Shanghai, UTC+08:00)。默认核验X公开账号@elonmusk在该窗口是否有公开原创、回复、引用或转发，任一条成立即是。假设须公开展示；来源访问失败不视为未发帖，待替代公开记录核验。",
+        "resolutionSource": {
+          "kind": "public_research_reference",
+          "url": "https://x.com/elonmusk"
+        },
+        "unresolvablePolicy": "若目标时点后无法核验 @elonmusk 在窗口内的公开动态（如账号受限、平台故障、帖子被删且无存档），则标记不可判定，不默认命中或落空。",
+        "status": "ready",
+        "validation": {
+          "ready": true,
+          "missingFields": []
+        },
+        "predictionId": "prediction_course_request_be9def53-4d1d-4a3f-8adc-cf3597085e55",
+        "topicId": "topic_course_request_be9def53-4d1d-4a3f-8adc-cf3597085e55",
+        "version": 1,
+        "scoringEligible": true,
+        "createdAt": "2026-11-18T18:16:36.099Z",
+        "updatedAt": "2026-11-18T18:16:36.099Z",
+        "forecast": null,
+        "latestRun": null,
+        "activeRunId": null,
+        "watchQuery": "Elon Musk @elonmusk tweet",
+        "sourceVerified": true,
+        "sourceEvidenceId": "course_evidence_a61bde223c26480c24e17f8baab57535",
+        "interpretation": "“马斯克会不会发推特”按常见含义理解为：Elon Musk 的 X 公开账号 @elonmusk 是否在观察窗口内发布至少一条公开推文；含原创、回复、引用及转发，私信不计。身份与实际动态需联网核验。",
+        "defaultAssumptions": [
+          "默认观察窗口从本次创建 2026-11-19 01:45:50 (Asia/Shanghai, UTC+08:00) 至 2026-11-20 01:45:50 (Asia/Shanghai, UTC+08:00)；用户明确指定的条件优先。",
+          "“马斯克发推特”默认指 Elon Musk 的 X 公开账号 @elonmusk；包括原创、回复、引用及转发，私信不计。身份和实际动态仍需联网核验。",
+          "观察窗口从本次创建 2026-11-19 01:45:50 (Asia/Shanghai, UTC+08:00) 至 2026-11-20 01:45:50 (Asia/Shanghai, UTC+08:00)；用户明确指定的条件优先。",
+          "“马斯克”指 Elon Musk，账号为 X 公开账号 @elonmusk。",
+          "推文包括原创、回复、引用及转发；私信、仅自己可见帖不计。",
+          "以目标时点后公开可核验的账号动态为结算依据；历史记忆仅作比较与检索线索。"
+        ],
+        "currentReference": null,
+        "baseline": null,
+        "sourceLimitations": [
+          "X 页面可能因登录墙或反爬限制无法读取全部带时间戳的帖子；本调查已读取 @elonmusk 公开页面与新闻转述。",
+          "Polymarket 合约口径（周计数、是否含回复）与本题不完全一致，仅作活跃度参考，不作结算来源。",
+          "部分新闻原文返回 404，需以可读取的替代公开报道或账号页面为准。"
+        ],
+        "conditionalOnly": false,
+        "timeContext": {
+          "nowUtc": "2026-11-18T18:16:36.099Z",
+          "nowLocalLabel": "2026-11-19 02:16:36 (Asia/Shanghai, UTC+08:00)",
+          "windowStartsAtUtc": "2026-11-18T17:45:50.506Z",
+          "windowStartsAtLocalLabel": "2026-11-19 01:45:50 (Asia/Shanghai, UTC+08:00)",
+          "targetAtUtc": "2026-11-19T17:45:50.506Z",
+          "targetAtLocalLabel": "2026-11-20 01:45:50 (Asia/Shanghai, UTC+08:00)",
+          "forecastClosesAtUtc": "2026-11-19T17:45:50.506Z",
+          "forecastClosesAtLocalLabel": "2026-11-20 01:45:50 (Asia/Shanghai, UTC+08:00)",
+          "timezone": "Asia/Shanghai",
+          "utcOffset": "UTC+08:00",
+          "authority": "UTC instant is authoritative; local labels are server-generated and display-only."
+        },
+        "temporalPolicy": "by_target",
+        "researchBasis": {
+          "mode": "alternative-public",
+          "summary": "已读取公开研究依据；这不等同于官方已经确认未来结果。"
+        },
+        "temporalPolicyBasis": "课程首版语义启发式；目标时点状态题在T之前不能以当前状态结算。"
+      },
+      "forecast": {
+        "forecastId": "course_forecast_8bab74ef-3854-4f28-b757-6d244feca4a1",
+        "requestId": "course_request_be9def53-4d1d-4a3f-8adc-cf3597085e55",
+        "runId": "course_run_86698a41-d484-4a00-884b-c4346e4f0b5a",
+        "predictionId": "prediction_course_request_be9def53-4d1d-4a3f-8adc-cf3597085e55",
+        "predictionVersion": 1,
+        "probabilityYes": 0.97,
+        "probabilityNo": 0.030000000000000027,
+        "summary": "维持大概率命中。@elonmusk 历史发帖频率极高（约60–100条/日，含原创/回复/引用/转发），且对最近12–24个月的复核未发现任何可核实的整24小时零帖日（statswithsasa 样本内<50天约3,200帖、日均67.8条，各工作日均有发帖）。当前观察窗口刚开始约半小时，尚无已核实的窗口内帖，且X匿名读取有登录墙/反爬缺口，但这些是读取限制，不等于未发帖。窗口内 APEC 与特朗普-习近平-普京三边峰会构成额外发帖诱因，同时极端长途飞行/峰会静默构成尾部风险。综合历史高频基准率与读取缺口，24小时内至少一条公开动态的概率约0.97，较统计角色的0.999下调以计入尾部情景，高于时间线/核验角色的0.8–0.85，因零帖日无历史实证。",
+        "evidenceIds": [
+          "course_evidence_2ec6e4cc0dbaabf983f88be0aaf5d595",
+          "course_evidence_dbf296e2f0cc233933d2206afbd48a60",
+          "course_evidence_664a336e474f4271bae980978a33189f",
+          "course_evidence_edacc570a20110563bc02efcce27e210",
+          "course_evidence_a61bde223c26480c24e17f8baab57535",
+          "course_evidence_a05d8c5ba7dc8fa458df1e39cb5e6f1a",
+          "course_evidence_f517c617cfe931552b7bab6ec1b3c2f1"
+        ],
+        "evidenceAdequacy": "limited",
+        "dissent": [
+          "反证角色提醒：X匿名页无逐帖精确时间戳，仅有相对时间标注，窗口内是否确有回复/引用/转发无法精确核验；读取缺口不等于未发帖，但也不能排除极端零帖情景。",
+          "所有发帖频率样本均为2024–2025历史数据，无2026-11窗口当日直接观测；发帖量随外部事件（峰会、长途飞行）波动，不是恒定泊松过程。",
+          "Polymarket周计数合约隐含约49–54条/日，低于60–100条/日统计，提示其计数口径可能排除部分回复/转发，本题含全部互动口径，故历史基准率可能被高估。"
+        ],
+        "issuedAt": "2026-11-18T18:22:09.542Z",
+        "publishedAt": "2026-11-18T18:22:09.542Z",
+        "knowledgeCutoff": "2026-11-18T18:22:09.542Z",
+        "targetAt": "2026-11-19T17:45:50.506Z",
+        "resolutionRuleVersion": 1,
+        "modelMode": "live",
+        "modelRef": "deepseek-v4-pro",
+        "sourceMode": "live",
+        "kind": "forecast",
+        "defaultAssumptions": [
+          "默认观察窗口从本次创建 2026-11-19 01:45:50 (Asia/Shanghai, UTC+08:00) 至 2026-11-20 01:45:50 (Asia/Shanghai, UTC+08:00)；用户明确指定的条件优先。",
+          "“马斯克发推特”默认指 Elon Musk 的 X 公开账号 @elonmusk；包括原创、回复、引用及转发，私信不计。身份和实际动态仍需联网核验。",
+          "观察窗口从本次创建 2026-11-19 01:45:50 (Asia/Shanghai, UTC+08:00) 至 2026-11-20 01:45:50 (Asia/Shanghai, UTC+08:00)；用户明确指定的条件优先。",
+          "“马斯克”指 Elon Musk，账号为 X 公开账号 @elonmusk。",
+          "推文包括原创、回复、引用及转发；私信、仅自己可见帖不计。",
+          "以目标时点后公开可核验的账号动态为结算依据；历史记忆仅作比较与检索线索。"
+        ],
+        "currentReference": null,
+        "sourceLimitations": [
+          "X 页面可能因登录墙或反爬限制无法读取全部带时间戳的帖子；本调查已读取 @elonmusk 公开页面与新闻转述。",
+          "Polymarket 合约口径（周计数、是否含回复）与本题不完全一致，仅作活跃度参考，不作结算来源。",
+          "部分新闻原文返回 404，需以可读取的替代公开报道或账号页面为准。"
+        ],
+        "researchBasis": {
+          "mode": "alternative-public",
+          "summary": "已读取公开研究依据；这不等同于官方已经确认未来结果。"
+        },
+        "timeContext": {
+          "nowUtc": "2026-11-18T18:16:36.099Z",
+          "nowLocalLabel": "2026-11-19 02:16:36 (Asia/Shanghai, UTC+08:00)",
+          "windowStartsAtUtc": "2026-11-18T17:45:50.506Z",
+          "windowStartsAtLocalLabel": "2026-11-19 01:45:50 (Asia/Shanghai, UTC+08:00)",
+          "targetAtUtc": "2026-11-19T17:45:50.506Z",
+          "targetAtLocalLabel": "2026-11-20 01:45:50 (Asia/Shanghai, UTC+08:00)",
+          "forecastClosesAtUtc": "2026-11-19T17:45:50.506Z",
+          "forecastClosesAtLocalLabel": "2026-11-20 01:45:50 (Asia/Shanghai, UTC+08:00)",
+          "timezone": "Asia/Shanghai",
+          "utcOffset": "UTC+08:00",
+          "authority": "UTC instant is authoritative; local labels are server-generated and display-only."
+        },
+        "baseline": null,
+        "scoringEligible": true,
+        "label": "模型事件概率估计"
+      },
+      "team": [
+        {
+          "roleId": "timeline",
+          "name": "新闻时间线研究员",
+          "objective": "基于已读公开来源（@elonmusk 页面、Tanjug、LCX 等）并搜索替代公开报道/存档，梳理观察窗口（UTC 2026-11-18 17:45:50 至 2026-11-19 17:45:50，见 timeContext）内可能促使 Elon Musk 发帖的事件与议程（如 Trump-Xi-Putin 会晤、Nvidia 请愿等），区分 @elonmusk 本人的公开原创/回复/引用/转发与二手转述、转载。只保留有可核验时间戳落入该窗口的帖子线索；时间不明保留缺口，不猜测。",
+          "reason": "本题核心是窗口内是否存在触发他发帖的事件；时间线角色最适合按时间顺序映射候选触发点，并区分首发与转载，避免把转述当本人发帖。"
+        },
+        {
+          "roleId": "statistics",
+          "name": "统计与指标研究员",
+          "objective": "给出 @elonmusk 在典型 24 小时窗口的公开发帖频率基准率（日均帖数，含原创/回复/引用/转发；注明样本时段与口径），作为“窗口内至少一条帖”的先验参考。可参考 Polymarket #tweets 合约，但必须说明其周计数/是否含回复等口径与本题的差异，不把合约概率当本题结算依据。",
+          "reason": "二分结果需要一个可复核的基准率来定先验概率，避免凭印象；统计角色负责口径、单位与样本，缺数据须说明。"
+        },
+        {
+          "roleId": "verification",
+          "name": "反证与核验研究员",
+          "objective": "反证“窗口内必有帖”：寻找可能的静默期、删帖/无存档、登录墙或反爬导致的读取缺口；核验已读 @elonmusk 帖子的时间戳是否真正落入观察窗口，并确认是 @elonmusk 本人的公开原创/回复/引用/转发而非转载或截图。对每个关键主张标注出处与时间；来源不可读不视为未发帖。",
+          "reason": "必须核验时间戳与来源真实性，并避免把 X 页面读取失败当成无帖；反证角色负责保留异议，防止团队一致被误当事实正确。"
+        }
+      ],
+      "assignments": [
+        {
+          "roleId": "timeline",
+          "status": "completed",
+          "followUp": false,
+          "objective": "基于已读公开来源（@elonmusk 页面、Tanjug、LCX 等）并搜索替代公开报道/存档，梳理观察窗口（UTC 2026-11-18 17:45:50 至 2026-11-19 17:45:50，见 timeContext）内可能促使 Elon Musk 发帖的事件与议程（如 Trump-Xi-Putin 会晤、Nvidia 请愿等），区分 @elonmusk 本人的公开原创/回复/引用/转发与二手转述、转载。只保留有可核验时间戳落入该窗口的帖子线索；时间不明保留缺口，不猜测。",
+          "reason": "本题核心是窗口内是否存在触发他发帖的事件；时间线角色最适合按时间顺序映射候选触发点，并区分首发与转载，避免把转述当本人发帖。",
+          "reportSummary": "观察窗口（UTC 2026-11-18 17:45:50 至 11-19 17:45:50，即北京时间 11-19 01:45 至 11-20 01:45）截至观察时点仅开始约30分钟，未核验到 @elonmusk 任何落入窗口的帖子。已知其原创帖“修昔底德陷阱”（Tanjug≈UTC13:09、ChainCatcher≈UTC13:46）早于窗口起点约4小时，不计数。窗口内重大议程为11-19特朗普-习近平-普京深圳三边峰会与APEC（11/18-19），马斯克随行，构成窗口内潜在发帖诱因，但尚无窗口内帖。"
+        },
+        {
+          "roleId": "statistics",
+          "status": "completed",
+          "followUp": false,
+          "objective": "给出 @elonmusk 在典型 24 小时窗口的公开发帖频率基准率（日均帖数，含原创/回复/引用/转发；注明样本时段与口径），作为“窗口内至少一条帖”的先验参考。可参考 Polymarket #tweets 合约，但必须说明其周计数/是否含回复等口径与本题的差异，不把合约概率当本题结算依据。",
+          "reason": "二分结果需要一个可复核的基准率来定先验概率，避免凭印象；统计角色负责口径、单位与样本，缺数据须说明。",
+          "reportSummary": "@elonmusk 近期24小时公开帖频率基准约60–100条/日。RTBF统计2024-11-04至2025-04-04共约15,585条消息≈103条/日（含回复等互动）；statswithsasa称2025年初日均93.8、中位97.5条，2024年9月约67.8条；书籍口径2024年约60条/日。样本均为2024–2025历史，非2026-11窗口。按λ≥60泊松先验，24h内至少一条的概率≈0.999。"
+        },
+        {
+          "roleId": "verification",
+          "status": "completed",
+          "followUp": false,
+          "objective": "反证“窗口内必有帖”：寻找可能的静默期、删帖/无存档、登录墙或反爬导致的读取缺口；核验已读 @elonmusk 帖子的时间戳是否真正落入观察窗口，并确认是 @elonmusk 本人的公开原创/回复/引用/转发而非转载或截图。对每个关键主张标注出处与时间；来源不可读不视为未发帖。",
+          "reason": "必须核验时间戳与来源真实性，并避免把 X 页面读取失败当成无帖；反证角色负责保留异议，防止团队一致被误当事实正确。",
+          "reportSummary": "截至2026-11-19 02:17(北京)，窗口仅开启约31分钟，未发现任何可证实落入观察窗口(11-19 01:45:50–11-20 01:45:50)的@elonmusk公开帖。两个疑似\"窗口新帖\"均被排除：①\"赠股帖\"实为2026年10月19日旧闻(laohu8标注\"央视财经10-19\"，多家媒体指向October 19, 2026)，非11-19；②\"修昔底德陷阱\"帖为11-18发布、早于窗口起点(原文404，仅见搜索摘要)。X匿名页不渲染逐帖精确时间戳(仅一处\"8小时\"相对标注)，存在登录墙/反爬读取缺口；按合约读取失败≠未发帖。结论为条件性判断，非确证。"
+        },
+        {
+          "roleId": "statistics",
+          "status": "completed",
+          "followUp": true,
+          "objective": "核查 @elonmusk 在最近12–24个月里是否出现过整段24小时(UTC)零公开帖的日期（口径含原创、回复、引用、转发，与本题一致），尤其在国际峰会、长途飞行、行程密集期；若存在，给出可复核的次数与大致日期，并说明来源。目的：校准统计角色“λ≥60泊松先验→24h至少一帖概率≈0.999”的尾部风险——该先验假设发帖频率恒定、无零帖日，而时间线与核验角色因峰会语境及X读取缺口给出0.8–0.85，分歧核心正是“是否存在零帖日”这一尾部情景。",
+          "reason": "统计角色以λ≥60推出P(0帖)≈e^-60≈0，但未检验零帖日历史反例；时间线/核验角色的较低概率部分来自峰会/旅行情景的不确定。若历史上零帖日罕见或不存在，0.99+成立；若确有系统性零帖日（如飞行或峰会日），需下调。",
+          "reportSummary": "核查最近12–24个月@elonmusk是否存在整24小时(UTC)零公开帖日。本轮可复核的statswithsasa(2024-09)分析显示：因X滚动上限(~3,000帖)仅能回溯<50天，其间约3,200帖、日均67.8条，日度图表各工作日均有发帖；该文2025更新称“近乎100帖/日”。未发现任何来源明确记载零帖日。但聚合日均值未逐日检验零帖事件，且回溯仅<50天，无法绝对排除更早或未覆盖时段的零帖日。结论：样本内无零帖日，尾部风险主要源于读取缺口而非已证实的零帖日。"
+        }
+      ],
+      "triage": {
+        "kind": "initial",
+        "reason": "首次按题选择差异职责。",
+        "selectedRoleIds": [
+          "timeline",
+          "statistics",
+          "verification"
+        ],
+        "newEvidenceIds": [],
+        "duplicateCount": 0
+      },
+      "memory": {
+        "historical": true,
+        "sourceRunIds": [
+          "course_run_1ecf719c-02ca-4daf-96b9-55747733d78f"
+        ],
+        "previousForecast": null,
+        "reportCount": 0,
+        "relationCount": 0,
+        "summary": "历史记忆：0份报告、0条关系。这些是历史上下文，不是本轮新取得证据；必须重新读取才能引用为当前证据。"
+      },
+      "usage": {
+        "modelRequests": 24,
+        "toolCalls": 32,
+        "totalTokens": 238323,
+        "unknownUsage": false
+      },
+      "sourceCount": 11,
+      "watch": {
+        "status": "active",
+        "nextDueAt": "2026-11-18T19:22:09.547Z",
+        "intervalMs": 3600000
+      },
+      "createdAt": "2026-11-18T18:15:30.389Z",
+      "publishedAt": "2026-11-18T18:22:09.542Z"
+    },
+    {
+      "requestId": "course_request_7a60cf4b-4ad3-4be0-bcd1-b5bde239df59",
+      "question": "比特币回升",
+      "runId": "course_run_9fdece31-dd1e-49c0-bdb9-43d222cf789e",
+      "previousRunCount": 1,
+      "currentRunCount": 2,
+      "status": "completed",
+      "error": null,
+      "message": "本轮判断已封存，可查看概率、证据关系及下一次检查。",
+      "normalized": {
+        "type": "binary",
+        "question": "比特币回升（观察至：2026-11-20 01:46:51 (Asia/Shanghai, UTC+08:00)）",
+        "object": "BTC-USD 现货价格（Coinbase）在目标时点高于本轮基准价",
+        "options": [],
+        "candidateUniverseRule": "",
+        "timezone": "Asia/Shanghai",
+        "forecastClosesAt": "2026-11-19T17:46:51.293Z",
+        "targetAt": "2026-11-19T17:46:51.293Z",
+        "resolutionRuleVersion": 1,
+        "resolutionRule": "固定观察窗口为2026-11-19 01:46:51 (Asia/Shanghai, UTC+08:00)至2026-11-20 01:46:51 (Asia/Shanghai, UTC+08:00)。目标时点BTC-USD公开价格高于固定基准63091.745 USD记为是，否则为否；基准来自https://api.coinbase.com/v2/prices/BTC-USD/spot，系统观察于2026-11-18T18:22:13.475Z。来源不可得时暂不结算。",
+        "resolutionSource": {
+          "kind": "public_research_reference",
+          "url": "https://api.coinbase.com/v2/prices/BTC-USD/spot"
+        },
+        "unresolvablePolicy": "若目标时点无法取得可验证的 Coinbase BTC-USD 现价，或基准价快照失效，则标记为不可结算（unresolvable），不强行判定为是或否。",
+        "status": "ready",
+        "validation": {
+          "ready": true,
+          "missingFields": []
+        },
+        "predictionId": "prediction_course_request_7a60cf4b-4ad3-4be0-bcd1-b5bde239df59",
+        "topicId": "topic_course_request_7a60cf4b-4ad3-4be0-bcd1-b5bde239df59",
+        "version": 1,
+        "scoringEligible": true,
+        "createdAt": "2026-11-18T18:23:05.208Z",
+        "updatedAt": "2026-11-18T18:23:05.208Z",
+        "forecast": null,
+        "latestRun": null,
+        "activeRunId": null,
+        "watchQuery": "比特币 价格 回升 BTC-USD",
+        "sourceVerified": true,
+        "sourceEvidenceId": "course_evidence_e1730238d3273d0b3b1380d333f50e75",
+        "interpretation": "“回升”解读为：目标时点 BTC-USD 现货价格高于本轮实际取得的最近可验证现价（基准价 63,091.745 USD）。观察窗口与目标时点以 UTC 为准；Asia/Shanghai 仅作显示。用户未指定交易所、账号、发帖类型或涨幅阈值，按上述默认执行。",
+        "defaultAssumptions": [
+          "默认观察窗口从本次创建 2026-11-19 01:46:51 (Asia/Shanghai, UTC+08:00) 至 2026-11-20 01:46:51 (Asia/Shanghai, UTC+08:00)；用户明确指定的条件优先。",
+          "“回升”默认指目标时点 BTC-USD 价格高于本轮实际取得的最近可验证现价，不另设任意涨幅阈值；拿不到数值基准时只作有资料依据的条件性方向估计，不计分。",
+          "基准价为本轮经 Coinbase 取得的 BTC-USD 现价 63,091.745 USD，作为“回升”的比较基线（快照已保存）。",
+          "“回升”指目标时点 BTC-USD 价格高于该基准价，不另设任意涨幅阈值。",
+          "结算以 Coinbase BTC-USD 现货现价为准；若 Coinbase 不可用，采用可验证的主要现货交易所价格并说明替代来源。",
+          "观察窗口与目标时点以 UTC 为权威；本地标签仅作显示。",
+          "用户未指定交易所、发帖类型、账号或阈值等，按默认常识假设继续，不把常见缺项退回用户。"
+        ],
+        "currentReference": {
+          "kind": "price",
+          "value": 63091.745,
+          "unit": "USD",
+          "currency": "USD",
+          "pair": "BTC-USD",
+          "observedAt": "2026-11-18T18:22:13.475Z",
+          "url": "https://api.coinbase.com/v2/prices/BTC-USD/spot",
+          "evidenceId": "course_evidence_e1730238d3273d0b3b1380d333f50e75",
+          "verified": true,
+          "synthetic": false,
+          "timestampMeaning": "system-observation-time"
+        },
+        "baseline": {
+          "kind": "price",
+          "value": 63091.745,
+          "unit": "USD",
+          "currency": "USD",
+          "pair": "BTC-USD",
+          "observedAt": "2026-11-18T18:22:13.475Z",
+          "url": "https://api.coinbase.com/v2/prices/BTC-USD/spot",
+          "evidenceId": "course_evidence_e1730238d3273d0b3b1380d333f50e75",
+          "verified": true,
+          "synthetic": false,
+          "timestampMeaning": "system-observation-time"
+        },
+        "sourceLimitations": [
+          "本轮直接读取到 Coinbase 现价快照与一篇 KuCoin 市场评论（发布于观察窗口开始前），评论仅作背景，不作结算依据。",
+          "部分搜索片段（OKX、Gate 广场）所述价格区间（约 7.3–7.5 万美元）与当前基准价（约 6.31 万美元）不符，疑为旧文或不同时段，未采信。",
+          "无法访问私有账户/订单流/交易所内部数据，不评估单一主体持仓或资金流向的精确数值。",
+          "报价时间为系统取得该公开价格的观察时间，不冒充交易所逐笔成交时间。"
+        ],
+        "conditionalOnly": false,
+        "timeContext": {
+          "nowUtc": "2026-11-18T18:23:05.207Z",
+          "nowLocalLabel": "2026-11-19 02:23:05 (Asia/Shanghai, UTC+08:00)",
+          "windowStartsAtUtc": "2026-11-18T17:46:51.293Z",
+          "windowStartsAtLocalLabel": "2026-11-19 01:46:51 (Asia/Shanghai, UTC+08:00)",
+          "targetAtUtc": "2026-11-19T17:46:51.293Z",
+          "targetAtLocalLabel": "2026-11-20 01:46:51 (Asia/Shanghai, UTC+08:00)",
+          "forecastClosesAtUtc": "2026-11-19T17:46:51.293Z",
+          "forecastClosesAtLocalLabel": "2026-11-20 01:46:51 (Asia/Shanghai, UTC+08:00)",
+          "timezone": "Asia/Shanghai",
+          "utcOffset": "UTC+08:00",
+          "authority": "UTC instant is authoritative; local labels are server-generated and display-only."
+        },
+        "temporalPolicy": "by_target",
+        "researchBasis": {
+          "mode": "alternative-public",
+          "summary": "已读取公开研究依据；这不等同于官方已经确认未来结果。"
+        },
+        "temporalPolicyBasis": "课程首版语义启发式；目标时点状态题在T之前不能以当前状态结算。"
+      },
+      "forecast": {
+        "forecastId": "course_forecast_bb18d299-90b8-418f-a477-72d935817a83",
+        "requestId": "course_request_7a60cf4b-4ad3-4be0-bcd1-b5bde239df59",
+        "runId": "course_run_9fdece31-dd1e-49c0-bdb9-43d222cf789e",
+        "predictionId": "prediction_course_request_7a60cf4b-4ad3-4be0-bcd1-b5bde239df59",
+        "predictionVersion": 1,
+        "probabilityYes": 0.47,
+        "probabilityNo": 0.53,
+        "summary": "维持上一判断（团队中枢0.45–0.50）并取0.47。目标时点要求Coinbase BTC-USD现货高于固定基线63,091.745。核验确认当前Coinbase现价63,113.965，仅高于基线+22.22 USD（+0.04%），Binance 63,210.26、Kraken 63,142.20无实质价差，基线一致有效——即当前时刻几乎恰在基线上，24小时后方向近乎掷硬币。偏空一侧：Deribit Nov19 25Δ看跌-看涨IV价差8.92点、Wintermute称失守200周均线且\"阻力最小方向仍向下\"、现货ETF 2026年净流出约19亿美元、Fed纪要(19:00 UTC Nov18)偏鹰风险未落地。偏多一侧：$62k低点后空头回补式反弹、Binance月报称G10收紧放缓。Polymarket(Chainlink TWAP、平局记涨)与Kalshi(触及价结算至12-01)与本题Coinbase现货+固定基线规则不一致，不直接换算。综合：轻微低于中性0.5，取0.47。",
+        "evidenceIds": [
+          "course_evidence_e1730238d3273d0b3b1380d333f50e75",
+          "course_evidence_ec2cc55d9ccbed4e670ab5bc8a01e341",
+          "course_evidence_5ab359f5b9174bbf97f9fc0d16e44055",
+          "course_evidence_49761f0688fac01e52882323bdcf7bb8",
+          "course_evidence_fb6e7304924ebcdb62788664a5ceb9db",
+          "course_evidence_633f0e91fa52d4385a654598885851e8",
+          "course_evidence_7dc19bcbcf8bcf98ac3643a2e3c76cff",
+          "course_evidence_a054493eb1731e9ba3ed1cd9b13ad074",
+          "course_evidence_e399cc7ebda0f2ababa063f457222325"
+        ],
+        "evidenceAdequacy": "adequate",
+        "dissent": [
+          "Kalshi聚合页出现↓80,000=100%与↑80,000=2%并存的矛盾数值，报价质量存疑，未用作精确概率依据。",
+          "目标时点精确到小时/分钟级盘口与挂单深度缺失，0.47为'当前价≈基线+短期偏空'的条件近似，非可复算盘口概率。"
+        ],
+        "issuedAt": "2026-11-18T18:25:10.672Z",
+        "publishedAt": "2026-11-18T18:25:10.672Z",
+        "knowledgeCutoff": "2026-11-18T18:25:10.672Z",
+        "targetAt": "2026-11-19T17:46:51.293Z",
+        "resolutionRuleVersion": 1,
+        "modelMode": "live",
+        "modelRef": "deepseek-v4-pro",
+        "sourceMode": "live",
+        "kind": "forecast",
+        "defaultAssumptions": [
+          "默认观察窗口从本次创建 2026-11-19 01:46:51 (Asia/Shanghai, UTC+08:00) 至 2026-11-20 01:46:51 (Asia/Shanghai, UTC+08:00)；用户明确指定的条件优先。",
+          "“回升”默认指目标时点 BTC-USD 价格高于本轮实际取得的最近可验证现价，不另设任意涨幅阈值；拿不到数值基准时只作有资料依据的条件性方向估计，不计分。",
+          "基准价为本轮经 Coinbase 取得的 BTC-USD 现价 63,091.745 USD，作为“回升”的比较基线（快照已保存）。",
+          "“回升”指目标时点 BTC-USD 价格高于该基准价，不另设任意涨幅阈值。",
+          "结算以 Coinbase BTC-USD 现货现价为准；若 Coinbase 不可用，采用可验证的主要现货交易所价格并说明替代来源。",
+          "观察窗口与目标时点以 UTC 为权威；本地标签仅作显示。",
+          "用户未指定交易所、发帖类型、账号或阈值等，按默认常识假设继续，不把常见缺项退回用户。"
+        ],
+        "currentReference": {
+          "kind": "price",
+          "value": 63091.745,
+          "unit": "USD",
+          "currency": "USD",
+          "pair": "BTC-USD",
+          "observedAt": "2026-11-18T18:22:13.475Z",
+          "url": "https://api.coinbase.com/v2/prices/BTC-USD/spot",
+          "evidenceId": "course_evidence_e1730238d3273d0b3b1380d333f50e75",
+          "verified": true,
+          "synthetic": false,
+          "timestampMeaning": "system-observation-time"
+        },
+        "sourceLimitations": [
+          "本轮直接读取到 Coinbase 现价快照与一篇 KuCoin 市场评论（发布于观察窗口开始前），评论仅作背景，不作结算依据。",
+          "部分搜索片段（OKX、Gate 广场）所述价格区间（约 7.3–7.5 万美元）与当前基准价（约 6.31 万美元）不符，疑为旧文或不同时段，未采信。",
+          "无法访问私有账户/订单流/交易所内部数据，不评估单一主体持仓或资金流向的精确数值。",
+          "报价时间为系统取得该公开价格的观察时间，不冒充交易所逐笔成交时间。"
+        ],
+        "researchBasis": {
+          "mode": "alternative-public",
+          "summary": "已读取公开研究依据；这不等同于官方已经确认未来结果。"
+        },
+        "timeContext": {
+          "nowUtc": "2026-11-18T18:23:05.207Z",
+          "nowLocalLabel": "2026-11-19 02:23:05 (Asia/Shanghai, UTC+08:00)",
+          "windowStartsAtUtc": "2026-11-18T17:46:51.293Z",
+          "windowStartsAtLocalLabel": "2026-11-19 01:46:51 (Asia/Shanghai, UTC+08:00)",
+          "targetAtUtc": "2026-11-19T17:46:51.293Z",
+          "targetAtLocalLabel": "2026-11-20 01:46:51 (Asia/Shanghai, UTC+08:00)",
+          "forecastClosesAtUtc": "2026-11-19T17:46:51.293Z",
+          "forecastClosesAtLocalLabel": "2026-11-20 01:46:51 (Asia/Shanghai, UTC+08:00)",
+          "timezone": "Asia/Shanghai",
+          "utcOffset": "UTC+08:00",
+          "authority": "UTC instant is authoritative; local labels are server-generated and display-only."
+        },
+        "baseline": {
+          "kind": "price",
+          "value": 63091.745,
+          "unit": "USD",
+          "currency": "USD",
+          "pair": "BTC-USD",
+          "observedAt": "2026-11-18T18:22:13.475Z",
+          "url": "https://api.coinbase.com/v2/prices/BTC-USD/spot",
+          "evidenceId": "course_evidence_e1730238d3273d0b3b1380d333f50e75",
+          "verified": true,
+          "synthetic": false,
+          "timestampMeaning": "system-observation-time"
+        },
+        "scoringEligible": true,
+        "label": "模型事件概率估计"
+      },
+      "team": [
+        {
+          "roleId": "market",
+          "name": "预测市场研究员",
+          "objective": "查找与本题口径可比的对冲/预测市场盘口（如 Polymarket、Kalshi、其他加密衍生品或事件市场）中关于 BTC 短期方向、目标时点价位或日内涨跌的合约。重点对齐：期限是否覆盖到目标时点、结算是否以现货价格（优先 Coinbase 或注明替代交易所）为准、与本题“目标时点 BTC-USD > 63,091.745 USD 记是”的规则差异。记录报价时间、流动性与规则差异，给出方向性基准率；若无盘口明确说明，不编造报价。",
+          "reason": "本题核心是 BTC 在约 24 小时窗口内相对固定基线的方向判断，预测市场/衍生品盘口能提供市场隐含的方向基准率，直接帮助校准概率。"
+        },
+        {
+          "roleId": "timeline",
+          "name": "新闻时间线研究员",
+          "objective": "按发布时间梳理目标窗口前后的 BTC 价格与驱动事件（宏观数据、ETF 资金流、监管/机构消息、链上异动等），确认当前可验证的 BTC-USD 价格水平，判断目前相对基线 63,091.745 USD 的位置与近期波动方向。区分首发、更正与转载，剔除与当前价位明显不符的旧文/错误时段报价（如约 7.3–7.5 万美元的旧片段）。给出有据可查的近期催化剂清单及对目标时点方向的影响假设。",
+          "reason": "加密资产价格受新闻事件驱动明显，且本轮已发现部分搜索片段价位与基准不符，需要时间线角色厘清当前真实价格与有效催化事件，避免采用旧文。"
+        },
+        {
+          "roleId": "verification",
+          "name": "反证与核验研究员",
+          "objective": "核验结算来源与基线：确认 Coinbase BTC-USD 现货报价当前可访问、基线快照 63,091.745 USD 一致；核查已读取的 KuCoin live 证据（标题称回到 6.5 万美元附近、触及 6.33 万美元）是否与本轮基线一致、是否有矛盾。主动寻找反证：如当前价格已明显低于/高于基线、不同主要现货交易所存在实质性价差、或任何显示目标时点难以取得可验证 Coinbase 现价的线索。证据不足时保留异议，不把团队一致当作事实正确。",
+          "reason": "结算依赖 Coinbase 现货现价与固定基线，需独立核验来源可用性与一致性，并主动找反证；团队一致不等于正确。"
+        }
+      ],
+      "assignments": [
+        {
+          "roleId": "market",
+          "status": "completed",
+          "followUp": false,
+          "objective": "查找与本题口径可比的对冲/预测市场盘口（如 Polymarket、Kalshi、其他加密衍生品或事件市场）中关于 BTC 短期方向、目标时点价位或日内涨跌的合约。重点对齐：期限是否覆盖到目标时点、结算是否以现货价格（优先 Coinbase 或注明替代交易所）为准、与本题“目标时点 BTC-USD > 63,091.745 USD 记是”的规则差异。记录报价时间、流动性与规则差异，给出方向性基准率；若无盘口明确说明，不编造报价。",
+          "reason": "本题核心是 BTC 在约 24 小时窗口内相对固定基线的方向判断，预测市场/衍生品盘口能提供市场隐含的方向基准率，直接帮助校准概率。",
+          "reportSummary": "未找到与目标时点（2026-11-19 17:46:51 UTC）精确对齐的可报价盘口。最接近线索：Polymarket国际站小时/日线加密市场于11-18改用Chainlink 60秒TWAP（非Coinbase现货、平局记涨）；Kalshi聚合的11月“触及价”市场结算至12-01（成交量$10.9M），非目标时点现货比较。Deribit Nov19看跌偏度升至8.92点，短期偏空。因基准价≈当前Coinbase现价，P(>63,091.745)≈50%小幅偏下，方向性基准率约0.47。"
+        },
+        {
+          "roleId": "timeline",
+          "status": "completed",
+          "followUp": false,
+          "objective": "按发布时间梳理目标窗口前后的 BTC 价格与驱动事件（宏观数据、ETF 资金流、监管/机构消息、链上异动等），确认当前可验证的 BTC-USD 价格水平，判断目前相对基线 63,091.745 USD 的位置与近期波动方向。区分首发、更正与转载，剔除与当前价位明显不符的旧文/错误时段报价（如约 7.3–7.5 万美元的旧片段）。给出有据可查的近期催化剂清单及对目标时点方向的影响假设。",
+          "reason": "加密资产价格受新闻事件驱动明显，且本轮已发现部分搜索片段价位与基准不符，需要时间线角色厘清当前真实价格与有效催化事件，避免采用旧文。",
+          "reportSummary": "当前可验证 Coinbase BTC-USD 现价 63,113.965 USD（2026-11-18 18:23Z），比基准 63,091.745 高约 22 USD（+0.04%），基本持平、略在基线上方。近期驱动偏空：核心CPI连三月0.3%、12月加息概率约92%（Wintermute）或80-85%（Binance）、现货BTC ETF 2026年净流出约19亿美元、稳定币30天缩水约140-160亿美元；技术面失守200周均线，趋势判断\"阻力最小方向仍向下\"。但现价贴近基线，且存在空头回补式反弹。目标时点（约24小时后）无重大政策日程，判断为边际偏空、接近掷硬币，仍略倾向低于基线的下行风险。"
+        },
+        {
+          "roleId": "verification",
+          "status": "completed",
+          "followUp": false,
+          "objective": "核验结算来源与基线：确认 Coinbase BTC-USD 现货报价当前可访问、基线快照 63,091.745 USD 一致；核查已读取的 KuCoin live 证据（标题称回到 6.5 万美元附近、触及 6.33 万美元）是否与本轮基线一致、是否有矛盾。主动寻找反证：如当前价格已明显低于/高于基线、不同主要现货交易所存在实质性价差、或任何显示目标时点难以取得可验证 Coinbase 现价的线索。证据不足时保留异议，不把团队一致当作事实正确。",
+          "reason": "结算依赖 Coinbase 现货现价与固定基线，需独立核验来源可用性与一致性，并主动找反证；团队一致不等于正确。",
+          "reportSummary": "Coinbase BTC-USD 现货 API 当前可访问，返回实时价 63,113.965 USD，与基线 63,091.745 仅差 +22.22 USD（约 0.035%），基线一致、无失效迹象。KuCoin 文章正文实称 BTC 在 64,000 美元附近、未能站稳 65,000，未明确出现任务所述“触及 6.33 万/回到 6.5 万”原文，但价格区间与基线不矛盾。交叉核验 Binance 63,210.26、Kraken 63,142.20，与 Coinbase 无实质性价差，未见 Coinbase 不可用或明显偏离基线的反证。"
+        }
+      ],
+      "triage": {
+        "kind": "initial",
+        "reason": "首次按题选择差异职责。",
+        "selectedRoleIds": [
+          "market",
+          "timeline",
+          "verification"
+        ],
+        "newEvidenceIds": [],
+        "duplicateCount": 0
+      },
+      "memory": {
+        "historical": true,
+        "sourceRunIds": [
+          "course_run_4278c84c-afd8-4a22-aa4a-ddbd17a77dc2"
+        ],
+        "previousForecast": null,
+        "reportCount": 0,
+        "relationCount": 0,
+        "summary": "历史记忆：0份报告、0条关系。这些是历史上下文，不是本轮新取得证据；必须重新读取才能引用为当前证据。"
+      },
+      "usage": {
+        "modelRequests": 15,
+        "toolCalls": 18,
+        "totalTokens": 122104,
+        "unknownUsage": false
+      },
+      "sourceCount": 11,
+      "watch": {
+        "status": "active",
+        "nextDueAt": "2026-11-18T19:25:10.676Z",
+        "intervalMs": 3600000
+      },
+      "createdAt": "2026-11-18T18:15:30.438Z",
+      "publishedAt": "2026-11-18T18:25:10.672Z"
+    }
+  ]
+}

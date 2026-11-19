@@ -95,6 +95,11 @@ function sprite(id, palette) {
   return canvas.toDataURL();
 }
 
+// Shared pixel frames; the legacy room controller remains independent of V1 effects.
+export function createActorSprite(id, index = 0) {
+  return sprite(id, actors[id] ?? Object.values(actors)[index % Object.keys(actors).length]);
+}
+
 export function createRoomScene({ layer, speaker, speakerName, speakerText, speakerKind, status, onAgent, onActivity, onAnnouncement }) {
   const figures = new Map();
   const runs = new Map();

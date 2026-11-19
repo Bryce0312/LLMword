@@ -1,0 +1,130 @@
+{
+  "verifiedAt": "2026-11-19",
+  "model": "deepseek-flash",
+  "requestId": "course_request_d099c72a-4d8d-49fd-9bd9-8d2f36649d56",
+  "runId": "course_run_79ed124c-ace2-4c70-b34b-7e236aa12cad",
+  "status": "completed",
+  "question": "在未来48小时结束时，黄仁勋是否仍担任英伟达 NVIDIA 的CEO？",
+  "targetAt": "2026-11-20T17:11:24.710Z",
+  "publishedAt": "2026-11-18T17:12:16.733Z",
+  "elapsedSeconds": 52.023,
+  "probabilityYes": 0.02,
+  "probabilityNo": 0.98,
+  "medianInitialWorkerProbability": 0.04,
+  "assignments": [
+    {
+      "roleId": "official",
+      "followUp": false,
+      "status": "completed",
+      "probability": 0.04,
+      "citationCount": 1,
+      "usage": {
+        "modelRequests": 4,
+        "toolCalls": 4,
+        "totalTokens": 12527,
+        "unknownUsage": false
+      }
+    },
+    {
+      "roleId": "timeline",
+      "followUp": false,
+      "status": "completed",
+      "probability": 0.01,
+      "citationCount": 2,
+      "usage": {
+        "modelRequests": 4,
+        "toolCalls": 4,
+        "totalTokens": 16484,
+        "unknownUsage": false
+      }
+    },
+    {
+      "roleId": "verification",
+      "followUp": false,
+      "status": "completed",
+      "probability": 0.05,
+      "citationCount": 2,
+      "usage": {
+        "modelRequests": 4,
+        "toolCalls": 4,
+        "totalTokens": 15583,
+        "unknownUsage": false
+      }
+    },
+    {
+      "roleId": "verification",
+      "followUp": true,
+      "status": "completed",
+      "probability": 0.02,
+      "citationCount": 2,
+      "usage": {
+        "modelRequests": 4,
+        "toolCalls": 4,
+        "totalTokens": 23279,
+        "unknownUsage": false
+      }
+    }
+  ],
+  "usage": {
+    "modelRequests": 24,
+    "toolCalls": 21,
+    "totalTokens": 101296,
+    "unknownUsage": false
+  },
+  "sourceCount": 8,
+  "sources": [
+    {
+      "evidenceId": "course_evidence_3d54189967683731f019855bc0318aad",
+      "url": "https://www.toutiao.com/article/7709327222608069129/?wid=1794967962821",
+      "sourceMode": "live"
+    },
+    {
+      "evidenceId": "course_evidence_40764ede48fa857ed101c46059dfea35",
+      "url": "https://m.gmw.cn/2026-11/13/content_1304585682.htm",
+      "sourceMode": "live"
+    },
+    {
+      "evidenceId": "course_evidence_56a026122ec9957cecc275eb8d5a82d8",
+      "url": "https://nvidianews.nvidia.com/news/nvidia-announces-ceo-transition?ftag=YHF4eb9d17",
+      "sourceMode": "live"
+    },
+    {
+      "evidenceId": "course_evidence_596335a0dfd0ea28b0cbb2dc7df4095c",
+      "url": "https://www.stcn.com/article/detail/4335393.html",
+      "sourceMode": "live"
+    },
+    {
+      "evidenceId": "course_evidence_648d4ec123ae62149d2843dd06e8030a",
+      "url": "http://archive.fast-edgar.com/20261112/ANL2N22CZ222U2A2222P22Z2NNLMNH222282/",
+      "sourceMode": "live"
+    },
+    {
+      "evidenceId": "course_evidence_bf1a484566a1f5f6acef152ee7678c26",
+      "url": "https://nvidianews.nvidia.com/news/nvidia-announces-ceo-transition?ftag=YHF4eb9d17",
+      "sourceMode": "live"
+    },
+    {
+      "evidenceId": "course_evidence_cd5651a6c2f83b25d42bfc378ede378d",
+      "url": "https://nvidianews.nvidia.com/news/nvidia-announces-ceo-transition",
+      "sourceMode": "live"
+    },
+    {
+      "evidenceId": "course_evidence_f5a361284795f1777c93a43c4a0ada1d",
+      "url": "https://investingnews.com/nvidia-announces-ceo-transition/",
+      "sourceMode": "live"
+    }
+  ],
+  "eventCounts": {
+    "run.queued": 1,
+    "tool.started": 25,
+    "tool.completed": 24,
+    "meeting.message": 3,
+    "assignment.started": 4,
+    "tool.failed": 4,
+    "assignment.completed": 4,
+    "meeting.started": 2,
+    "forecast.published": 1,
+    "run.finished": 1
+  },
+  "interpretation": "One engineering end-to-end acceptance case; outcome not yet observed. Repeated debugging runs are not independent accuracy samples. Test watch was stopped after completion."
+}

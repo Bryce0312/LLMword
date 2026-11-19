@@ -1,0 +1,455 @@
+{
+  "kind": "real-original-weather-question-recovery",
+  "notAccuracyBenchmark": true,
+  "finishedAt": "2026-11-19T02:06:04.273Z",
+  "results": [
+    {
+      "requestId": "course_request_4b6a7ad8-c251-49b1-8e00-6f783a2ff10a",
+      "question": "红磡会下雨吗",
+      "runId": "course_run_224fe22b-1270-48b4-a17b-80c81f722aa6",
+      "status": "completed",
+      "error": null,
+      "originalCreatedAt": "2026-11-19T01:37:27.815Z",
+      "oldFailureRetained": true,
+      "runCount": 2,
+      "normalized": {
+        "type": "binary",
+        "question": "红磡会下雨吗（观察至：2026-11-20 09:37:27 (Asia/Shanghai, UTC+08:00)）",
+        "object": "红磡（香港九龙城区）是否出现降雨",
+        "options": [],
+        "candidateUniverseRule": "",
+        "timezone": "Asia/Shanghai",
+        "forecastClosesAt": "2026-11-20T01:37:27.815Z",
+        "targetAt": "2026-11-20T01:37:27.815Z",
+        "resolutionRuleVersion": 1,
+        "resolutionRule": "固定观察窗口为2026-11-19 09:37:27 (Asia/Shanghai, UTC+08:00)至2026-11-20 09:37:27 (Asia/Shanghai, UTC+08:00)。在目标时段内（目标时点前24小时至目标时点，Asia/Shanghai，与香港 HKT 同为 UTC+8），若香港天文台（HKO）或中央气象台发布的香港（红磡所在地区）实况/预报出现可测量降水——累计降水≥0.1mm，或官方天气现象标注为\"小雨/中雨/大雨/阵雨/毛毛雨/有雨\"——则判 YES；否则判 NO。以香港天文台实况记录为准；无法取得时采用中央气象台来源（nmc.cn / weather.com.cn）的香港城区数据。",
+        "resolutionSource": {
+          "kind": "public_research_reference",
+          "url": "https://www.nmc.cn/publish/forecast/AXG/xianggang.html"
+        },
+        "unresolvablePolicy": "若目标时段内无权威实况记录且各来源预报互相矛盾、无法判定是否降雨，则标为 UNRESOLVED，不退回用户，也不编造结果。",
+        "status": "ready",
+        "validation": {
+          "ready": true,
+          "missingFields": []
+        },
+        "predictionId": "prediction_course_request_4b6a7ad8-c251-49b1-8e00-6f783a2ff10a",
+        "topicId": "topic_course_request_4b6a7ad8-c251-49b1-8e00-6f783a2ff10a",
+        "version": 1,
+        "scoringEligible": true,
+        "createdAt": "2026-11-19T01:53:21.548Z",
+        "updatedAt": "2026-11-19T01:53:21.548Z",
+        "forecast": null,
+        "latestRun": null,
+        "activeRunId": null,
+        "watchQuery": "红磡 香港 天气 降雨",
+        "sourceVerified": true,
+        "sourceEvidenceId": "course_evidence_1fb80a25e269083599f929b7c2583433",
+        "interpretation": "\"红磡\"指香港九龙城区红磡（Hung Hom）；\"下雨\"指官方来源记录/预报到可测量的降水（雨、毛毛雨或阵雨，累计≥0.1mm 或官方标注小雨及以上）。红磡无独立气象观测站，采用香港城市级官方数据（香港天文台 / 中央气象台香港城区预报）作为代理。观察时段为目标时点前24小时至目标时点。",
+        "defaultAssumptions": [
+          "默认观察窗口从本次创建 2026-11-19 09:37:27 (Asia/Shanghai, UTC+08:00) 至 2026-11-20 09:37:27 (Asia/Shanghai, UTC+08:00)；用户明确指定的条件优先。",
+          "红磡指香港九龙城区红磡（Hung Hom），而非其他同名地点",
+          "下雨指官方记录到可测量降水（累计≥0.1mm 或官方标注小雨及以上）",
+          "红磡无独立气象站，采用香港城市级官方数据（香港天文台/中央气象台）作为代理",
+          "观察窗口为本次创建 2026-11-19 09:37 至 2026-11-20 09:37（Asia/Shanghai）"
+        ],
+        "currentReference": null,
+        "baseline": null,
+        "sourceLimitations": [
+          "已读取中央气象台来源（nmc.cn、weather.com.cn 香港城区预报），未直接访问香港天文台官网",
+          "两个已读来源均属中央气象台口径，来源独立性有限",
+          "数值预报会更新，目标时点临近时段的实况可能与预报有偏差"
+        ],
+        "conditionalOnly": false,
+        "timeContext": {
+          "nowUtc": "2026-11-19T01:53:21.546Z",
+          "nowLocalLabel": "2026-11-19 09:53:21 (Asia/Shanghai, UTC+08:00)",
+          "windowStartsAtUtc": "2026-11-19T01:37:27.815Z",
+          "windowStartsAtLocalLabel": "2026-11-19 09:37:27 (Asia/Shanghai, UTC+08:00)",
+          "targetAtUtc": "2026-11-20T01:37:27.815Z",
+          "targetAtLocalLabel": "2026-11-20 09:37:27 (Asia/Shanghai, UTC+08:00)",
+          "forecastClosesAtUtc": "2026-11-20T01:37:27.815Z",
+          "forecastClosesAtLocalLabel": "2026-11-20 09:37:27 (Asia/Shanghai, UTC+08:00)",
+          "timezone": "Asia/Shanghai",
+          "utcOffset": "UTC+08:00",
+          "authority": "UTC instant is authoritative; local labels are server-generated and display-only."
+        },
+        "temporalPolicy": "by_target",
+        "researchBasis": {
+          "mode": "alternative-public",
+          "summary": "已读取公开研究依据；这不等同于官方已经确认未来结果。"
+        },
+        "temporalPolicyBasis": "课程首版语义启发式；目标时点状态题在T之前不能以当前状态结算。"
+      },
+      "forecast": {
+        "forecastId": "course_forecast_22a9db68-75e3-4030-b2e1-6c58503cc96c",
+        "requestId": "course_request_4b6a7ad8-c251-49b1-8e00-6f783a2ff10a",
+        "runId": "course_run_224fe22b-1270-48b4-a17b-80c81f722aa6",
+        "predictionId": "prediction_course_request_4b6a7ad8-c251-49b1-8e00-6f783a2ff10a",
+        "predictionVersion": 1,
+        "probabilityYes": 0.85,
+        "probabilityNo": 0.15000000000000002,
+        "summary": "维持 YES 方向，概率 0.85。本轮两独立官方来源均已实际读取：香港天文台（HKO）9天预报（11-19 09:50 更新）给出19日\"大致多云，有一两阵微雨\"、20日\"多云，有几阵雨\"；中央气象台（nmc.cn）香港城区预报将19、20日均标为\"小雨\"，逐小时降水 23:00 / 02:00 / 05:00 / 08:00 均为约2.3mm，全部落入观察窗口（11-19 09:37 至 11-20 09:37，Asia/Shanghai，与 HKT 同为 UTC+8），远超 ≥0.1mm 阈值。按结算规则\"实况/预报出现可测量降水即判 YES\"，当前预报已明确支持；红磡无独立站、按约定以香港城市级官方数据为代理，弱降水的局地落空风险有限。相较 official 角色的 0.70（其前提\"无法访问 HKO\"已被本轮 industry/verification 实读到的 HKO 证据推翻），上调并维持至 0.85。残余不确定性：预报尚未转化为实况（降雨预计 23:00 才起）、\"微雨/几阵雨\"为弱分散型降水。",
+        "evidenceIds": [
+          "course_evidence_440efcacedf4d38e4d9b461e15f48593",
+          "course_evidence_0aa6c351c216f55a06356a6878e28157",
+          "course_evidence_1fb80a25e269083599f929b7c2583433",
+          "course_evidence_02fd727def411f48e893ea5c4d06a358",
+          "course_evidence_eddd27a87f608e718cd133cf3d25628c"
+        ],
+        "evidenceAdequacy": "adequate",
+        "dissent": [
+          "预报非实况：观察窗口刚开始约16分钟，HKO/NMC 均为预报，降雨预计 11-19 23:00 才起，实际降水可能偏离。",
+          "'一两阵微雨/几阵雨'为弱、分散型降水，若香港城市站累计不足0.1mm则判 NO（约定以城市级官方数据为代理，风险有限但非零）。",
+          "13/Nov 旧版 HKO 预报曾写 'Sunny intervals'（无雨），虽已被 19/Nov 更新取代，但说明数值预报存在时序变动。"
+        ],
+        "issuedAt": "2026-11-19T01:56:12.170Z",
+        "publishedAt": "2026-11-19T01:56:12.170Z",
+        "knowledgeCutoff": "2026-11-19T01:56:12.170Z",
+        "targetAt": "2026-11-20T01:37:27.815Z",
+        "resolutionRuleVersion": 1,
+        "modelMode": "live",
+        "modelRef": "deepseek-v4-pro",
+        "sourceMode": "live",
+        "kind": "forecast",
+        "defaultAssumptions": [
+          "默认观察窗口从本次创建 2026-11-19 09:37:27 (Asia/Shanghai, UTC+08:00) 至 2026-11-20 09:37:27 (Asia/Shanghai, UTC+08:00)；用户明确指定的条件优先。",
+          "红磡指香港九龙城区红磡（Hung Hom），而非其他同名地点",
+          "下雨指官方记录到可测量降水（累计≥0.1mm 或官方标注小雨及以上）",
+          "红磡无独立气象站，采用香港城市级官方数据（香港天文台/中央气象台）作为代理",
+          "观察窗口为本次创建 2026-11-19 09:37 至 2026-11-20 09:37（Asia/Shanghai）"
+        ],
+        "currentReference": null,
+        "sourceLimitations": [
+          "已读取中央气象台来源（nmc.cn、weather.com.cn 香港城区预报），未直接访问香港天文台官网",
+          "两个已读来源均属中央气象台口径，来源独立性有限",
+          "数值预报会更新，目标时点临近时段的实况可能与预报有偏差"
+        ],
+        "researchBasis": {
+          "mode": "alternative-public",
+          "summary": "已读取公开研究依据；这不等同于官方已经确认未来结果。"
+        },
+        "timeContext": {
+          "nowUtc": "2026-11-19T01:53:21.546Z",
+          "nowLocalLabel": "2026-11-19 09:53:21 (Asia/Shanghai, UTC+08:00)",
+          "windowStartsAtUtc": "2026-11-19T01:37:27.815Z",
+          "windowStartsAtLocalLabel": "2026-11-19 09:37:27 (Asia/Shanghai, UTC+08:00)",
+          "targetAtUtc": "2026-11-20T01:37:27.815Z",
+          "targetAtLocalLabel": "2026-11-20 09:37:27 (Asia/Shanghai, UTC+08:00)",
+          "forecastClosesAtUtc": "2026-11-20T01:37:27.815Z",
+          "forecastClosesAtLocalLabel": "2026-11-20 09:37:27 (Asia/Shanghai, UTC+08:00)",
+          "timezone": "Asia/Shanghai",
+          "utcOffset": "UTC+08:00",
+          "authority": "UTC instant is authoritative; local labels are server-generated and display-only."
+        },
+        "baseline": null,
+        "scoringEligible": true,
+        "label": "模型事件概率估计"
+      },
+      "team": [
+        {
+          "roleId": "official",
+          "name": "官方资料研究员",
+          "objective": "核查香港（红磡所在九龙城区）在目标时段内是否有官方可测量降水记录或预报。优先香港天文台（HKO）实况/预报，辅以中央气象台香港城区数据（nmc.cn / weather.com.cn）。区分实况与预报、明确降水等级与累计降水量口径，判定是否达到累计≥0.1mm 或官方标注小雨及以上。",
+          "reason": "本题直接依赖官方天气数据；红磡无独立气象站，需用香港城市级官方来源做代理，官方资料研究员负责锁定可复核的判定依据。"
+        },
+        {
+          "roleId": "industry",
+          "name": "行业与专业研究员",
+          "objective": "从气象专业角度评估目标时段香港/红磡是否处于降雨系统影响范围内（如锋面、季风、对流），解读数值预报中的降水概率与量级，并说明预报更新到目标时点的偏差风险与适用条件。",
+          "reason": "降水判定需把官方预报/实况转化为'是否会下雨'的可解释判断，行业研究员负责天气系统与降水成因的专业解读，避免只看标签。"
+        },
+        {
+          "roleId": "verification",
+          "name": "反证与核验研究员",
+          "objective": "交叉核验不同来源对目标时段香港降雨的描述是否一致，检查来源独立性、发布时间与目标时点的时序关系，寻找与'会下雨'相矛盾的预报或实况，并明确无法判定时保留异议。",
+          "reason": "已读来源均为中央气象台口径、独立性有限，需要反证核验防止单一来源偏差；团队一致不等于事实正确，核验是本题关键。"
+        }
+      ],
+      "usage": {
+        "modelRequests": 14,
+        "toolCalls": 19,
+        "totalTokens": 122440,
+        "unknownUsage": false
+      },
+      "watch": {
+        "status": "active",
+        "pauseReason": null,
+        "nextDueAt": "2026-11-19T02:56:12.174Z"
+      },
+      "evidence": [
+        {
+          "evidenceId": "course_evidence_02fd727def411f48e893ea5c4d06a358",
+          "url": "https://www.nmc.cn/publish/forecast/AXG/xianggangtianwentai.html",
+          "title": "香港天文台-天气预报",
+          "publishedAt": "2026-11-18T16:00:00.000Z"
+        },
+        {
+          "evidenceId": "course_evidence_0aa6c351c216f55a06356a6878e28157",
+          "url": "https://www.hko.gov.hk/tc/wxinfo/currwx/fnd.htm",
+          "title": "香港天文台提供的未來九天香港天氣預報",
+          "publishedAt": null
+        },
+        {
+          "evidenceId": "course_evidence_1fb80a25e269083599f929b7c2583433",
+          "url": "https://www.nmc.cn/publish/forecast/AXG/xianggang.html",
+          "title": "香港-天气预报",
+          "publishedAt": null
+        },
+        {
+          "evidenceId": "course_evidence_440efcacedf4d38e4d9b461e15f48593",
+          "url": "https://www.hko.gov.hk/en/wxinfo/currwx/fnd.htm",
+          "title": "9-day Hong Kong weather forecast provided by the Hong Kong Observatory",
+          "publishedAt": null
+        },
+        {
+          "evidenceId": "course_evidence_58a375ab4ee50eca61bdfb126dbd0c3c",
+          "url": "https://www.nmc.cn/publish/forecast/AXG/xianggangtianwentai.html",
+          "title": "香港天文台-天气预报",
+          "publishedAt": "2026-11-18T16:00:00.000Z"
+        },
+        {
+          "evidenceId": "course_evidence_7a5f61c7a8a66565b73ae7a5b1611b34",
+          "url": "https://www.weather.com.cn/weather/101320101.shtml",
+          "title": "香港天气预报,香港7天天气预报,香港15天天气预报,香港天气查询",
+          "publishedAt": null
+        },
+        {
+          "evidenceId": "course_evidence_e79dde0a4ac1714c46c36481c405baf3",
+          "url": "https://www.nmc.cn/publish/forecast/AXG/xianggang.html",
+          "title": "香港-天气预报",
+          "publishedAt": "2026-11-18T16:00:00.000Z"
+        },
+        {
+          "evidenceId": "course_evidence_eddd27a87f608e718cd133cf3d25628c",
+          "url": "https://news.mingpao.com/ins/%e7%86%b1%e9%bb%9e/article/20261119/s00024/1795048675167/%e5%a4%a9%e6%b0%a3-%e5%a4%a9%e6%96%87%e5%8f%b0-%e9%a0%90%e6%b8%ac%e5%a4%a7%e8%87%b4%e5%a4%9a%e9%9b%b2%e6%9c%89%e5%be%ae%e9%9b%a8-%e6%97%a5%e9%96%93%e6%b0%a3%e6%ba%ab%e5%be%98%e5%be%8a%e7%b4%8421-c",
+          "title": "天氣｜天文台：預測大致多雲有微雨 日間氣溫徘徊約21°C (08:40) - 20261119 - 熱點",
+          "publishedAt": "2026-11-18T16:00:00.000Z"
+        }
+      ],
+      "reports": [
+        {
+          "roleId": "official",
+          "status": "completed",
+          "followUp": false,
+          "summary": "核查中央气象台（nmc.cn）香港城区数据：两个页面（\"香港\"与\"香港天文台\"站，均 11-19 08:00 发布）一致预报，11/19 夜间至 11/20 白天为\"小雨\"；逐小时降水在 11/19 23:00、11/20 02:00/05:00/08:00 均为 2.3mm，全部落入观察窗口（11-19 09:37 至 11-20 09:37，Asia/Shanghai），累计远超 ≥0.1mm 阈值。按合同\"实况/预报出现可测量降水即判 YES\"，支持 YES。但注意：此为依据中央气象台预报的判定，非 HKO 实况；HKO 官网不在授权域名内无法直接核对。",
+          "error": null
+        },
+        {
+          "roleId": "industry",
+          "status": "completed",
+          "followUp": false,
+          "summary": "目标窗口为2026-11-19 09:37至11-20 09:37（Asia/Shanghai）。香港天文台11-19 09:50更新的九天预报显示：19日「多云，有一两阵微雨」，20日「多云，有几阵雨」；中央气象台香港页将19、20日均标为「小雨」，逐小时预报在19日23时至20日08时（均落于窗口内）给出约2.3mm降水。天气系统为强烈东北季候风配合华南云带，属季风/云带型弱降水，非热带气旋。预报更新时点紧邻窗口且两来源一致，判断窗口内出现可测量降水的概率较高（约0.72），但仍受弱降水局地性影响。",
+          "error": null
+        },
+        {
+          "roleId": "verification",
+          "status": "completed",
+          "followUp": false,
+          "summary": "交叉核验完成：香港天文台(HKO)官方9天预报（19/Nov 09:50 HKT更新）显示19日\"大致多云，有一两阵微雨\"、20日\"多云有雨，有几阵雨\"；中央气象台(NMC)香港预报（11-19 08:00发布）标注11/19、11/20为\"小雨\"，小时预报给出19日23:00及20日02:00–08:00为2.3mm、0.1–0.2mm。两个相互独立的官方来源一致指向观察窗口内有可测量降水（≥0.1mm），支持YES。反向材料仅为13/Nov旧版HKO预报\"Sunny intervals\"（已被19/Nov更新取代，属时序上过期）及窗口刚开始时NMC实况0mm。注意：当前仅有预报，最终判定以HKO实况为准。",
+          "error": null
+        }
+      ],
+      "createdAt": "2026-11-19T01:52:09.871Z",
+      "publishedAt": "2026-11-19T01:56:12.170Z"
+    },
+    {
+      "requestId": "course_request_31265e96-95fa-4234-aa88-23c17379c653",
+      "question": "香港红磡会下雨吗今天",
+      "runId": "course_run_f27cb324-238b-424a-8499-a7cfdb0f2ecf",
+      "status": "failed",
+      "error": {
+        "code": "MODEL_INCOMPLETE",
+        "message": "模型输出未完整结束，可能达到输出长度上限，未保存为报告。",
+        "retryable": false
+      },
+      "originalCreatedAt": "2026-11-19T01:36:32.745Z",
+      "oldFailureRetained": true,
+      "runCount": 2,
+      "normalized": {
+        "type": "binary",
+        "question": "香港红磡会下雨吗今天（观察至：2026-11-20 09:36:32 (Asia/Shanghai, UTC+08:00)）",
+        "object": "香港红磡在「今天」出现降雨",
+        "options": [],
+        "candidateUniverseRule": "",
+        "timezone": "Asia/Shanghai",
+        "forecastClosesAt": "2026-11-20T01:36:32.745Z",
+        "targetAt": "2026-11-20T01:36:32.745Z",
+        "resolutionRuleVersion": 1,
+        "resolutionRule": "固定观察窗口为2026-11-19 09:36:32 (Asia/Shanghai, UTC+08:00)至2026-11-20 09:36:32 (Asia/Shanghai, UTC+08:00)。以香港天文台（HKO）官方记录为最终判据。在「今天」所指的本地自然日内，红磡所属九龙地区（以邻近的天文台总部/尖沙咀官方雨量站为代理站点）录得可测量降水（日总雨量≥0.1毫米，含微雨、阵雨）则判为「会下雨」(YES)；若该代理站点当日记录为0.0或Trace（<0.05毫米，即无有效降水）则判为「不会下雨」(NO)。HKO「显著降雨概率」指日累计≥10毫米的概率，不构成本题判据。",
+        "resolutionSource": {
+          "kind": "public_research_reference",
+          "url": "https://www.hko.gov.hk/en/cis/dailyElement.htm?ele=RF&y=2026"
+        },
+        "unresolvablePolicy": "若结算时无法读取香港天文台「今天」的雨量记录、或记录缺失/存在矛盾无法确定，则标记为不可判定（insufficient），不编造结果。",
+        "status": "ready",
+        "validation": {
+          "ready": true,
+          "missingFields": []
+        },
+        "predictionId": "prediction_course_request_31265e96-95fa-4234-aa88-23c17379c653",
+        "topicId": "topic_course_request_31265e96-95fa-4234-aa88-23c17379c653",
+        "version": 1,
+        "scoringEligible": true,
+        "createdAt": "2026-11-19T02:00:19.691Z",
+        "updatedAt": "2026-11-19T02:00:19.691Z",
+        "forecast": null,
+        "latestRun": null,
+        "activeRunId": null,
+        "watchQuery": "香港天文台 雨量 今天 红磡",
+        "sourceVerified": true,
+        "sourceEvidenceId": "course_evidence_b74749d44bb6d72732a5c205c0b8ff35",
+        "interpretation": "「今天」指用户提问时刻所在的本地自然日（香港时区，与系统时区同为UTC+8）；「会下雨」指红磡当天出现可测量降水（日总雨量≥0.1毫米），微雨/阵雨均视为下雨，不要求大雨量。香港红磡为九龙一街区，无独立官方雨量站，采用紧邻的香港天文台（尖沙咀）官方雨量记录作为代理判据。",
+        "defaultAssumptions": [
+          "默认观察窗口从本次创建 2026-11-19 09:36:32 (Asia/Shanghai, UTC+08:00) 至 2026-11-20 09:36:32 (Asia/Shanghai, UTC+08:00)；用户明确指定的条件优先。",
+          "红磡属香港九龙，天气以香港天文台（HKO）官方发布为准；红磡无独立雨量站，用邻近的天文台总部（尖沙咀）雨量记录作代理。",
+          "「今天」指用户提问时刻所在的本地自然日。",
+          "「下雨」按可测量降水（日总雨量≥0.1毫米）判定，微雨/阵雨均算下雨；「显著降雨概率」指日累计≥10毫米，非本题判据。",
+          "天气预测随时间更新，最终以结算时读取的天文台当日雨量记录为准。"
+        ],
+        "currentReference": null,
+        "baseline": null,
+        "sourceLimitations": [
+          "香港天文台预测为区域级（本港/华南），难精确到红磡单一街区，个别阵雨可能未落在代理雨量站。",
+          "HKO官网部分页面为JS渲染，直接抓取可能为空；已用其可读页面与公开媒体报道交叉核对。",
+          "目前读到的是官方预报（预测），实际是否落雨以结算时天文台当日雨量记录为准。"
+        ],
+        "conditionalOnly": false,
+        "timeContext": {
+          "nowUtc": "2026-11-19T02:00:19.688Z",
+          "nowLocalLabel": "2026-11-19 10:00:19 (Asia/Shanghai, UTC+08:00)",
+          "windowStartsAtUtc": "2026-11-19T01:36:32.745Z",
+          "windowStartsAtLocalLabel": "2026-11-19 09:36:32 (Asia/Shanghai, UTC+08:00)",
+          "targetAtUtc": "2026-11-20T01:36:32.745Z",
+          "targetAtLocalLabel": "2026-11-20 09:36:32 (Asia/Shanghai, UTC+08:00)",
+          "forecastClosesAtUtc": "2026-11-20T01:36:32.745Z",
+          "forecastClosesAtLocalLabel": "2026-11-20 09:36:32 (Asia/Shanghai, UTC+08:00)",
+          "timezone": "Asia/Shanghai",
+          "utcOffset": "UTC+08:00",
+          "authority": "UTC instant is authoritative; local labels are server-generated and display-only."
+        },
+        "temporalPolicy": "by_target",
+        "researchBasis": {
+          "mode": "alternative-public",
+          "summary": "已读取公开研究依据；这不等同于官方已经确认未来结果。"
+        },
+        "temporalPolicyBasis": "课程首版语义启发式；目标时点状态题在T之前不能以当前状态结算。"
+      },
+      "forecast": null,
+      "team": [
+        {
+          "roleId": "official",
+          "name": "官方资料研究员",
+          "objective": "读取香港天文台官网「本港地区今日及明日天气预报」(https://www.hko.gov.hk/tc/wxinfo/currwx/flw.htm) 与「未来九天香港天气预报」(https://www.hko.gov.hk/tc/wxinfo/currwx/fnd.htm)，确认官方对香港九龙/尖沙咀一带在观察窗口（目标时点前）是否预测有雨，记录预报发布时间与用词（微雨/阵雨/有几阵雨/初时一两阵雨/大致多云等），并严格区分「预测」与「已记录雨量」。若官网为JS渲染抓取为空，尝试其可读页面、官方转载或公开存档，并说明访问限制，不得把摘要当官方原文。",
+          "reason": "HKO 是本题最终判据来源，须由官方资料研究员核实原始预报而非二手转述，且要区分预报与已发生记录。"
+        },
+        {
+          "roleId": "statistics",
+          "name": "统计与指标研究员",
+          "objective": "核对本题判据口径：可测量降水=日总雨量≥0.1毫米、代理站点为天文台总部（尖沙咀）雨量站；查阅 https://www.hko.gov.hk/en/cis/dailyElement.htm?ele=RF&y=2026 等公开资料，整理11月中旬香港（尖沙咀站）出现≥0.1毫米降水的历史基准频率（尽量取近5-10年11月19日前后的样本），只报告能够复核的数字并说明样本时段与单位，缺数据须明示。",
+          "reason": "把单次预报转化为概率需要可复核的历史基准率，statistics 负责指标口径与样本，避免凭印象给数字。"
+        },
+        {
+          "roleId": "verification",
+          "name": "反证与核验研究员",
+          "objective": "交叉核验官方预报与媒体报道（如 HK01 冷锋报道）是否一致；查找是否存在矛盾信息（如某来源称今日无雨、或降雨区域与红磡/尖沙咀不一致、或预报发布时间在本轮窗口之外）；核验各证据 URL 是否可读、内容时间戳是否落在目标时点之前，区分原发与转载。若发现关键矛盾或来源不可读，保留异议并明确说明。",
+          "reason": "团队一致不等于事实正确，需独立核验来源独立性、时间与关键主张，防止把已过期的预报误当作当前证据。"
+        }
+      ],
+      "usage": {
+        "modelRequests": 19,
+        "toolCalls": 23,
+        "totalTokens": 215303,
+        "unknownUsage": true
+      },
+      "watch": {
+        "status": "active",
+        "pauseReason": null,
+        "nextDueAt": null
+      },
+      "evidence": [
+        {
+          "evidenceId": "course_evidence_33a6727ad5aa6cac872b97de7eb4ed74",
+          "url": "https://www.hko.gov.hk/en/cis/dailyElement.htm?ele=RF&y=2023",
+          "title": "Daily Data for Weather Information",
+          "publishedAt": null
+        },
+        {
+          "evidenceId": "course_evidence_3a9fc63335d1990ff892771206c1ec67",
+          "url": "https://www.hko.gov.hk/en/cis/dailyElement.htm?ele=RF&y=2025",
+          "title": "Daily Data for Weather Information",
+          "publishedAt": null
+        },
+        {
+          "evidenceId": "course_evidence_71ab7003a675c06fb2736b5195ce410c",
+          "url": "https://www.hk01.com/%E5%A4%A9%E6%B0%A3/60412281/%E5%86%B7%E9%8B%92%E6%AE%BA%E5%88%B0-%E5%A4%A9%E6%96%87%E5%8F%B0%E5%86%8D%E4%B8%8B%E8%AA%BF%E5%91%A8%E5%85%AD%E5%B8%82%E5%8D%80%E6%B0%A3%E6%BA%AB%E8%87%B315%E5%BA%A6-%E6%96%B0%E7%95%8C%E5%AF%92%E5%86%B7%E6%9C%89%E5%8D%80%E9%81%9410%E5%BA%A6",
+          "title": "冷鋒殺到｜天文台再下調周六市區氣溫至15度 新界寒冷有區達10度",
+          "publishedAt": "2026-11-17T16:00:00.000Z"
+        },
+        {
+          "evidenceId": "course_evidence_8e34c347a7141142183270cfb6940626",
+          "url": "https://www.hko.gov.hk/tc/weatherF/index.htm",
+          "title": "香港天文台",
+          "publishedAt": null
+        },
+        {
+          "evidenceId": "course_evidence_af294fe1907e16c999a416767184a853",
+          "url": "https://www.hko.gov.hk/tc/wxinfo/currwx/flw.htm",
+          "title": "香港天文台提供的本港地區今日及明日天氣預報",
+          "publishedAt": null
+        },
+        {
+          "evidenceId": "course_evidence_b720b7006b9e76d69aca36524abf4271",
+          "url": "https://www.hko.gov.hk/tc/wxinfo/currwx/fnd.htm",
+          "title": "香港天文台提供的未來九天香港天氣預報",
+          "publishedAt": null
+        },
+        {
+          "evidenceId": "course_evidence_b74749d44bb6d72732a5c205c0b8ff35",
+          "url": "https://www.hko.gov.hk/en/cis/dailyElement.htm?ele=RF&y=2026",
+          "title": "Daily Data for Weather Information",
+          "publishedAt": null
+        },
+        {
+          "evidenceId": "course_evidence_c39a5c92f2f1418160414bffd804490c",
+          "url": "https://global.hk01.com/%E5%A4%A9%E6%B0%94/60411984/%E5%A4%A9%E6%B0%94-%E5%A4%A9%E6%96%87%E5%8F%B0-%E5%86%B7%E9%94%8B%E7%A8%8D%E5%90%8E%E6%A8%AA%E8%BF%87-%E4%BB%8A%E6%99%9A%E9%99%8D%E6%B8%A9%E8%87%B3%E7%BA%A621%E5%BA%A6-%E9%9A%8F%E5%90%8E%E6%98%BE%E8%91%97%E8%BD%AC%E5%87%89",
+          "title": "天气｜天文台：冷锋稍后横过 今晚降温至约21度 随后显著转凉",
+          "publishedAt": null
+        },
+        {
+          "evidenceId": "course_evidence_fdcb886fe2fb328097f9b9af4625e895",
+          "url": "https://www.hko.gov.hk/en/cis/dailyElement.htm?ele=RF&y=2024",
+          "title": "Daily Data for Weather Information",
+          "publishedAt": null
+        }
+      ],
+      "reports": [
+        {
+          "roleId": "official",
+          "status": "completed",
+          "followUp": false,
+          "summary": "已成功读取HKO官网两份官方预报（均为可读正文，非JS空页）。本港地区天气预报更新于2026-11-19 09:45：今日(11-19)「多云，有一两阵微雨」，展望明日(11-20)「有几阵雨」。未来九天预报更新于09:50：11-19「多云，有一两阵微雨」，11-20「多云，天气相当清凉，有几阵雨」。即官方预测观察窗口内九龙/尖沙咀一带今明两日均有雨（微雨/阵雨）。需严格区分：此为官方「预测」，非已记录雨量；实际是否下雨以结算时天文台当日雨量记录为准。",
+          "error": null
+        },
+        {
+          "roleId": "statistics",
+          "status": "failed",
+          "followUp": false,
+          "error": {
+            "code": "MODEL_INCOMPLETE",
+            "message": "模型输出未完整结束，可能达到输出长度上限，未保存为报告。",
+            "retryable": false
+          }
+        },
+        {
+          "roleId": "verification",
+          "status": "completed",
+          "followUp": false,
+          "summary": "官方HKO本地预报(flw.htm，2026-11-19 09:45更新)指今日\"多雲，有一兩陣微雨\"；HK01、明報、TVB、星島頭條等媒体报道一致，19日\"有一兩陣微雨\"、20日\"有幾陣雨\"。未发现\"今日无雨\"或降雨区域与尖沙咀不一致的矛盾信息，各时间戳均早于目标时点，HKO为原发、媒体为转载。但结算源dailyElement目前仅列1-10月雨量，11月19日记录尚未发布，最终判据暂缺。",
+          "error": null
+        }
+      ],
+      "createdAt": "2026-11-19T01:52:40.732Z"
+    }
+  ]
+}
