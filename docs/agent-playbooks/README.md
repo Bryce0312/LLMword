@@ -29,7 +29,7 @@
 | graph 关系图 | 实体、关系、影响路径与反证 | [关系](graph.md) |
 | verification 反证与核验 | 每轮保留反证、来源与时间核查 | [核验](verification.md) |
 
-协调与发布流程见[主 Agent](supervisor.md)。初始和全队轮为三人；`local` 必须为一位相关研究员加 `verification`，共两人。针对已取得的争议材料还可向一位角色补查一次，计入同一轮预算。
+协调与发布流程见[主 Agent](supervisor.md)。初始和全队轮为三人；`local` 必须为一位相关研究员加 `verification`，共两人。V2.0 针对已取得的争议材料最多开展两次定向补查，初次加补查最多三个协作周期，计入同一轮预算；资料足够可以提前结束。
 
 ## 真正能调用哪些工具
 
@@ -37,7 +37,7 @@
 
 只有 **main、statistics、market** 额外可用 `get_market_quote`。目前只取 Coinbase **BTC-USD / ETH-USD 现价**并保存快照；不是股票行情接口、交易指令或 Polymarket 合约概率。时间是本系统取得报价的观测时刻，交易所成交时间未提供。模拟来源的报价标为虚构，不能当真实市场价格。其他角色没有此工具权限。
 
-Worker 以 `submit_report` 结束调查，提交状态、摘要、实际读到的 evidenceId、支持、反证、缺口、可空概率和下一步建议。主 Agent 使用已注册的规范题、派工、分流、一次补查、候选发布或不足结束动作；正式发布还需程序验证，不会直接平均三位研究员的主观概率。
+Worker 以 `submit_report` 结束调查，提交状态、摘要、实际读到的 evidenceId、支持、反证、缺口、可空概率和下一步建议。主 Agent 使用已注册的规范题、派工、分流、定向补查、候选发布或不足结束动作；正式发布还需程序验证，不会直接平均三位研究员的主观概率。当前上限、真实验证及待办见 [V2.0 详细清单](../V2_CHANGELOG_AND_ROADMAP.md)。
 
 以下仍为目录中的 **planned 专用能力**：`search_official`、`search_news`、`deduplicate_events`、`search_domain`、`search_entities`、`read_dataset`、`calculate`、`read_contract`、`read_market_quotes`、`search_social`、`search_history`、`read_memory`、`query_graph`、`propose_graph_patch`、`search_counterevidence`、`verify_sources`。当前用通用搜索、网页读取和角色方法完成有限研究，不能宣称已接专门社交账号流、数据库计算器、盘口、图处理器或图写回。`await_reports`、`set_watch_plan` 等也不是当前模型可调用工具；等待和固定间隔唤醒由执行器处理。高级 M1 的材料工具许可不改变课程网络权限。
 
