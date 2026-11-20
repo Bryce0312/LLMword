@@ -5,7 +5,8 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { Readable } from 'node:stream'
 import { createCourseStore } from './course-store.mjs'
-import { createCourseService, createCourseMockProvider } from './course-service.mjs'
+import { createCourseService } from './course-service.mjs'
+import { createCourseMockProvider } from './course-mock-provider.mjs'
 import { createWorkbenchService } from '../domain/workbench-service.mjs'
 import { createWebResearchGateway } from './web-tools.mjs'
 import { handleCourseApi } from '../course-http.mjs'
@@ -125,6 +126,16 @@ test('independent course budget review records already consumed tokens when the 
   fx.store.recordUsage(created.activeRunId, 119999)
   assert.throws(() => fx.store.recordUsage(created.activeRunId, 2), { code: 'COURSE_BUDGET' })
   assert.equal(fx.store.getRun(created.activeRunId).usage.totalTokens, 120001)
+})
+
+test('independent course usage review keeps input, output and cache counters separate', async (t) => {
+  const fx = await fixture(t); const created = request(fx.store, 'usage_split')
+  fx.store.recordUsage(created.activeRunId, 300, { total_tokens: 300, prompt_tokens: 240, completion_tokens: 60, prompt_cache_hit_tokens: 200, prompt_cache_miss_tokens: 40 })
+  fx.store.recordUsage(created.activeRunId, 120, { total_tokens: 120, prompt_tokens: 100, completion_tokens: 20 })
+  fx.store.recordUsage(created.activeRunId, undefined)
+  const usage = fx.store.getRun(created.activeRunId).usage
+  assert.deepEqual({ total: usage.totalTokens, prompt: usage.promptTokens, completion: usage.completionTokens, hit: usage.cacheHitTokens, miss: usage.cacheMissTokens, unknown: usage.unknownUsage },
+    { total: 420, prompt: 340, completion: 80, hit: 200, miss: 40, unknown: true })
 })
 
 test('independent course publisher review rejects invalid values, stale versions, foreign citations and late publication atomically', async (t) => {

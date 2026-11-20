@@ -12,7 +12,7 @@ async function fixture(t) {
   const children = []
   t.after(async () => { for (const stop of children.reverse()) await stop(); await rm(folder, {recursive:true,force:true}) })
   return async function launch(extraEnv = {}) {
-    const child=spawn(process.execPath,['start.mjs'],{cwd:new URL('.',import.meta.url),env:{...process.env,
+    const child=spawn(process.execPath,['server/app.mjs'],{cwd:new URL('.',import.meta.url),env:{...process.env,
       PORT:'0',WORLD_MODEL:'mock',WORLD_API_KEY:'',WORLD_MONITOR:'off',WORLD_MOCK_PACING:'0',
       WORLD_COURSE:'on',WORLD_SEARCH_PROVIDER:'fixture',WORLD_COURSE_POLL_MS:'3600000',
       WORLD_STATE_PATH:join(folder,'legacy.json'),WORLD_COURSE_PATH:join(folder,'course.sqlite'), ...extraEnv}})

@@ -12,6 +12,7 @@ import { courseMemoryPolicyLines } from './course-memory.mjs'
 
 const requestId = (record) => record.requestId ?? record.id
 const requestRunId = (record) => record.activeRunId ?? record.latestRunId ?? record.runId ?? record.run?.runId ?? record.latestRun?.runId
+const recordsOpenByRun = new Map()
 const modelText = (data, ctx) => (data.modelMode ?? ctx.cache.config.modelMode) === 'live' ? '真实模型' : (data.modelMode ?? ctx.cache.config.modelMode) === 'mock' ? '模拟模型' : '模型模式未提供'
 const sourceText = (data) => ({ live: '联网来源', replay: '历史／测试快照', fixture: '测试快照', provided: '用户提供材料' })[data.sourceMode] ?? '来源模式未提供'
 function requestStateLabel(data) {
@@ -154,6 +155,28 @@ function renderAdequacy(data) {
   if (limitations.length) { const list = h('ul'); for (const text of limitations) list.append(h('li', '', text)); block.append(list) }
   return block
 }
+function attachFold(panel) {
+  const fold = h('button', 'cc-answer-fold', panel.classList.contains('is-expanded') ? '收起' : '展开全部')
+  fold.type = 'button'
+  fold.setAttribute('aria-expanded', String(panel.classList.contains('is-expanded')))
+  fold.addEventListener('click', () => {
+    const expanded = panel.classList.toggle('is-expanded')
+    panel.classList.remove('is-short')
+    fold.hidden = false
+    fold.setAttribute('aria-expanded', String(expanded))
+    fold.textContent = expanded ? '收起' : '展开全部'
+  })
+  panel.append(fold)
+  return fold
+}
+function syncFold(panel) {
+  const fold = panel.querySelector('.cc-answer-fold')
+  if (!fold) return
+  if (panel.classList.contains('is-expanded')) { fold.hidden = false; return }
+  if (!panel.style.getPropertyValue('--cc-panel-limit')) { fold.hidden = true; panel.classList.remove('is-short'); return }
+  panel.classList.toggle('is-short', panel.scrollHeight <= panel.clientHeight + 8)
+  fold.hidden = panel.classList.contains('is-short')
+}
 function renderAnswer(node, data, ctx) {
   const p = publicContract(data); const forecast = data.forecast
   const progress = courseRequestProgress(data)
@@ -183,6 +206,8 @@ function renderAnswer(node, data, ctx) {
     const outcome = value === true || value === 1 ? '发生（Yes）' : value === false || value === 0 ? '未发生（No）' : '待核验'
     node.append(h('div', 'cc-resolution', h('strong', '', '实际结果：' + outcome), h('p', '', data.result.summary ?? '结果记录已保存。'), h('small', '', '实际结果单列保存，不追加为 0% 或 100% 的预测点。')))
   }
+  attachFold(node)
+  requestAnimationFrame(() => syncFold(node))
 }
 function renderMemory(node, run, data) {
   const memory = run?.memory
@@ -237,24 +262,30 @@ function renderSources(node, data) {
     edges.append(h('div', 'cc-relation', h('span', '', source?.title ?? id ?? '已记录的材料关系'), h('strong', kind === 'contradicts' ? 'cc-against' : '', kind === 'supports' ? '支持' : kind === 'contradicts' ? '反对' : kind === 'updates' ? '更新' : '关联'), h('span', '', relation.claim ?? relation.statement ?? relation.summary ?? relation.to ?? '当前预测题')))
   }
   if (relations.length) node.append(h('h3', 'wb-section-title', '本题关键关系'), edges)
+  attachFold(node)
+  requestAnimationFrame(() => syncFold(node))
 }
 
 function runRecords(run) {
-  const block = h('section', 'wb-paper cc-records', h('h2', '', '公开协作记录'))
   const events = run?.events ?? []
-  if (run?.summary) block.append(h('p', 'wb-muted wb-prewrap', '所选轮次 · ' + statusLabel(run.status) + '：' + run.summary))
-  const team = courseTeam(run)
   const names = { 'team.selected': '按题选择研究员', 'memory.loaded': '读取历史摘要', 'watch.triaged': '判断本轮调查范围', 'assignment.started': '真实派工', 'assignment.completed': '提交报告', 'tool.started': '执行工具', 'tool.completed': '工具返回', 'tool.failed': '工具失败', 'meeting.started': '核对分歧', 'meeting.message': '公开通信', 'communication.sent': '公开通信', 'forecast.published': '发布判断', 'run.finished': '本轮结束' }
-  for (const event of events) {
+  const rows = events.filter((event) => names[event.type])
+  const details = h('details', 'cc-records-details', h('summary', '', '公开协作记录（' + rows.length + ' 条）'))
+  details.open = run?.runId ? recordsOpenByRun.get(run.runId) === true : false
+  details.addEventListener('toggle', () => { if (run?.runId) recordsOpenByRun.set(run.runId, details.open) })
+  const body = h('div', 'cc-records-body')
+  if (run?.summary) body.append(h('p', 'wb-muted wb-prewrap', '所选轮次 · ' + statusLabel(run.status) + '：' + run.summary))
+  const team = courseTeam(run)
+  for (const event of rows) {
     const p = event.payload ?? {}; const summary = p.summary ?? p.message ?? p.report?.summary ?? p.reason ?? p.memory?.summary ?? p.triage?.reason
-    if (!names[event.type]) continue
     const roleId = normalizeCourseRole(p.roleId ?? p.agentSpecId)
     const role = team.find((member) => member.roleId === roleId)
     const members = event.type === 'team.selected' ? (p.team ?? []).map((member) => h('p', '', courseRoleName(member.roleId, member.name) + '：' + (member.reason ?? member.objective ?? '已入选本轮调查'))) : []
-    block.append(h('details', 'wb-execution-row', h('summary', '', names[event.type] + (roleId ? ' · ' + courseRoleName(roleId, role?.name) : '') + (p.toolId ? ' · ' + (p.toolId === 'get_market_quote' ? '读取市场现价 (get_market_quote)' : p.toolId) : '')), summary ? h('p', 'wb-prewrap', summary) : h('p', 'wb-muted', '该动作已记录。'), members, p.evidenceIds?.length ? h('small', '', '引用：' + p.evidenceIds.join('、')) : null))
+    body.append(h('details', 'wb-execution-row', h('summary', '', names[event.type] + (roleId ? ' · ' + courseRoleName(roleId, role?.name) : '') + (p.toolId ? ' · ' + (p.toolId === 'get_market_quote' ? '读取市场现价 (get_market_quote)' : p.toolId) : '')), summary ? h('p', 'wb-prewrap', summary) : h('p', 'wb-muted', '该动作已记录。'), members, p.evidenceIds?.length ? h('small', '', '引用：' + p.evidenceIds.join('、')) : null))
   }
-  if (!events.length) block.append(h('p', 'wb-muted', '尚无执行事件。只展示公开计划、工具、来源与判断摘要。'))
-  return block
+  if (!events.length) body.append(h('p', 'wb-muted', '尚无执行事件。只展示公开计划、工具、来源与判断摘要。'))
+  details.append(body)
+  return h('section', 'wb-paper cc-records', details)
 }
 
 function renderWorkflow(node, run) {
@@ -294,6 +325,19 @@ export async function mountCourseRequest(ctx, id, token) {
   const errorBox = h('div', 'wb-error'); errorBox.hidden = true; errorBox.setAttribute('role', 'alert')
   const title = header('事件跟踪研究室', '系统负责寻找来源与分工；人物只响应已保存的真实执行事件。')
   const curve = h('div', 'cc-curve-slot'); const sources = h('section', 'wb-paper cc-sources'); const records = h('div')
+  function syncPanelLimits() {
+    requestAnimationFrame(() => {
+      const roomHeight = roomNode.getBoundingClientRect().height
+      if (roomHeight > 0) answer.style.setProperty('--cc-panel-limit', Math.round(roomHeight) + 'px')
+      const curveHeight = curve.getBoundingClientRect().height
+      if (curveHeight > 0) sources.style.setProperty('--cc-panel-limit', Math.round(curveHeight) + 'px')
+      requestAnimationFrame(() => { syncFold(answer); syncFold(sources) })
+    })
+  }
+  const panelObserver = typeof ResizeObserver === 'function' ? new ResizeObserver(syncPanelLimits) : null
+  panelObserver?.observe(roomNode)
+  panelObserver?.observe(curve)
+  window.addEventListener('resize', syncPanelLimits)
   const runSelector = document.createElement('select'); runSelector.setAttribute('aria-label', '选择房间显示的研判轮次')
   const notice = h('div', 'cc-round-notice'); notice.hidden = true
   const originText = h('p'); const roomContext = h('small')
@@ -338,6 +382,7 @@ export async function mountCourseRequest(ctx, id, token) {
   const edit = button('修改理解后重新跟踪', () => { ctx.courseRetryInput = { question: currentData?.question ?? publicContract(currentData ?? {}).question, horizonHours: currentData?.horizonHours ?? 48, mode: currentData?.mode ?? 'preset', strict: currentData?.strict }; goto('/course/new') }, 'wb-text-button')
   const actions = h('div', 'cc-course-actions', h('label', '', '房间显示轮次 ', runSelector), check, stop, edit)
   ctx.content.replaceChildren(title, plan, errorBox, origin, workflow, h('div', 'wb-research-layout cc-course-layout', roomNode, answer), actions, notice, watch, memory, h('div', 'cc-results-grid', curve, sources), records)
+  syncPanelLimits()
   const room = createCourseRoom(roomNode); ctx.room = room
   const selectedFromUrl = new URLSearchParams(location.hash.split('?')[1] ?? '').get('runId')
   if (selectedFromUrl) { selectedRunId = selectedFromUrl; selectionPinned = true; fresh = false }
@@ -408,10 +453,11 @@ export async function mountCourseRequest(ctx, id, token) {
         const rSig = JSON.stringify([run.runId, run.status, run.events?.length, run.events?.at(-1)?.eventId])
         if (recordSig !== rSig) { records.replaceChildren(runRecords(run)); recordSig = rSig }
       }
+      syncPanelLimits()
     } catch (error) { if (!disposed && ctx.isCurrent(token)) { const connection = document.getElementById('wb-connection'); connection.textContent = '读取中断，重试中'; connection.dataset.state = 'reconnecting'; showError(error) } }
   }
   let busy = false
   async function poll() { if (busy || disposed) return; busy = true; await refresh(); busy = false; if (!disposed && ctx.isCurrent(token)) timer = setTimeout(poll, 1500) }
-  ctx.courseCleanup = () => { disposed = true; clearTimeout(timer); room.destroy() }
+  ctx.courseCleanup = () => { disposed = true; clearTimeout(timer); panelObserver?.disconnect(); window.removeEventListener('resize', syncPanelLimits); room.destroy() }
   await poll()
 }

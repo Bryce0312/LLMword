@@ -7,7 +7,7 @@ import { join } from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
-const entry = fileURLToPath(new URL('./start.mjs', import.meta.url));
+const entry = fileURLToPath(new URL('./server/app.mjs', import.meta.url));
 
 async function launch(statePath, t) {
   const child = spawn(process.execPath, [entry], {

@@ -13,6 +13,7 @@ const recovery = {
   MODEL_TIMEOUT: ['模型响应超时', '本轮未在执行期限内取得完整模型响应。', '可手动重试；原问题和已有记录已保留。', false],
   MODEL_NETWORK: ['模型连接中断', '本轮未能取得完整模型响应。', '网络恢复后可手动重试，原问题不需要重填。', false],
   MODEL_INCOMPLETE: ['模型输出未完整结束', '本轮没有取得完整工具动作或报告，未据此发布概率。', '请检查服务端输出上限或上下文配置后，再手动重试；重复相同配置仍可能截断。', false],
+  MODEL_NOT_CONFIGURED: ['尚未配置模型 Key', '真实环境需要在“模型连接”保存 DeepSeek API Key 后才能开始。', '打开“模型连接”保存 Key，然后重新提交。', true],
 }
 
 /** Only public safe codes select specific causes. Raw vendor bodies never reach the UI. */

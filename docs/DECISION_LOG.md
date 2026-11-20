@@ -1,0 +1,342 @@
+# 决策日志
+
+2026-11-20 建立。记录**已经做过的产品与架构决策**及其后果，防止后续开发重复讨论或无意推翻。功能定义仍以 [PRD](PRD.md) 为准；PRD 第 14 节的决策记录是本文的上游，本文把它整理成可检索条目。
+
+## 维护规则
+
+- 只在产品语义、架构边界、数据契约、依赖选型发生变化时新增条目；普通 bug 修复和局部实现不记。
+- 新条目追加在末尾，编号递增，不修改旧条目的结论。被推翻时把旧条目标为“被 D-XXX 取代”，并保留原因。
+- 每条必须写：背景、决策、放弃的备选、后果、依据（文档/测试/运行记录）。
+- 决策落地后同步更新 `docs/IMPLEMENTATION_STATUS.md`；影响契约时同步 `docs/ARCHITECTURE.md`。
+
+---
+
+## D-001 通用事件入口与三层记忆
+
+- 日期：2026-11-18
+- 状态：部分被 [D-002](#d-002-范围收紧为单一-binary) 取代（“两种首发题型”被取消，其余保留）
+- 背景：旧版只能跑固定的 2025 芯片出口许可案例，角色、工具、复核规则都绑定案例。
+- 决策：改为通用事件入口；浏览器经 `/api/v1` 创建主题、预测题和运行；记忆分三层（本轮工作上下文、共享时间图、结算经验）。
+- 放弃的备选：继续扩展现有案例；为每种事件单独写死流程。
+- 后果：需要主题/题目/版本/证据/图/预测/结算/事件等通用表；旧案例降级为 replay 主题。
+- 依据：[PRD](PRD.md) 第 2、4、7 节。
+
+## D-002 范围收紧为单一 binary
+
+- 日期：2026-11-18
+- 状态：生效
+- 背景：用户要求把交付范围收敛到课程可完成的程度。
+- 决策：只开放二元（是/否）输出；`probabilityYes` 为唯一发布概率，否的概率由 `1 - probabilityYes` 计算；其他题型的创建与运行入口不开放，历史非二元记录只读。
+- 放弃的备选：多选、数值区间、排名同时首发。
+- 后果：API、前端、验收（A13）同步收紧；未发布或资料不足时概率保持 null，不补 0 或 50%。
+- 依据：[PRD](PRD.md) 第 3 节、2026-11-18 决策记录；[COURSE_MVP](COURSE_MVP.md)。
+
+## D-003 执行器选型：Node 显式状态机 + 原生 SQLite
+
+- 日期：2026-11-18
+- 状态：生效；LangGraph 保留候选
+- 背景：PRD 把 LangGraph JS 列为默认候选执行引擎，需要验证恢复、取消、检查点。
+- 决策：本阶段使用 Node 显式状态机与 `node:sqlite`；LangGraph 仅接管未来某个 assignment 或 Supervisor 循环的控制流，经适配层接入。
+- 放弃的备选：直接以 LangGraph 替换执行器。
+- 原因：核心实验 9 项断言通过，但 `SqliteSaver` 在 `better-sqlite3` 原生绑定加载阶段失败（`Could not locate the bindings file`），磁盘恢复未验证；且节点恢复会重放 interrupt 前的副作用，`AbortSignal` 无法撤回已发生的外部写入，替换会引入一组未验收的检查点适配工作。
+- 后果：业务状态、工具账本、事件日志由应用自己拥有；框架进度只能作投影输入。
+- 依据：[M0_FRAMEWORK_DECISION](M0_FRAMEWORK_DECISION.md)；[PRD](PRD.md) 第 12 节允许的路径。
+
+## D-004 课程优先，先打通纵向闭环
+
+- 日期：2026-11-19
+- 状态：生效
+- 背景：课程截止临近，完整平台目标不可能全部前置。
+- 决策：优先做“一句话输入 → 自动取证 → 主 Agent + 三位研究员 → 争议补查 → 二元发布 → 一次持续更新”的最小纵向闭环；平台目标保留但不作为课程前置。
+- 放弃的备选：按 M2→M3→M4 顺序逐层扩建。
+- 后果：完整 M2/M3/M4 不能标记完成；未通过 A01–A14 的项逐项标注。
+- 依据：[COURSE_MVP](COURSE_MVP.md)、[DEVELOPMENT_PLAN](DEVELOPMENT_PLAN.md)、[PRD](PRD.md) 2026-11-19 决策记录。
+
+## D-005 预设口语模式、按题选三席、分级复核
+
+- 日期：2026-11-19
+- 状态：生效
+- 背景：用户认为填写契约、选 Agent、提供材料的负担过大。
+- 决策：
+  - 默认预设模式：一句问题，系统补全常见实体、口径、窗口与参照点，并公开假设；严格模式锁已填字段。
+  - 初始从十类目录按题选三位研究员，必须包含 `verification`；不固定同一队。
+  - 普通新信息派“相关 + 核验”两人，重大变化召回本题团队，无关不更新概率。
+  - 缺固定价格基准但有可读资料时，允许给明确的条件估计，标记 `conditionalOnly` 且不计分。
+- 放弃的备选：用户先建主题、选题型、选角色、粘贴材料才能开始。
+- 后果：新增 `draft_and_delegate`、`normalize_prediction`、`delegate_work`、`triage_update`；`suggestedRoles` 按关键词给初始建议。
+- 依据：[DEMO_USABILITY](DEMO_USABILITY.md)、[COURSE_ACCEPTANCE](COURSE_ACCEPTANCE.md)、[PRD](PRD.md) 2026-11-19 口语交互改进决策。
+
+## D-006 展示归属：答案卡对齐发布运行的 runId
+
+- 日期：2026-11-19
+- 状态：生效
+- 背景：后台检查与用户选中的运行可能同时存在，容易把不同轮的声音混进一个房间。
+- 决策：答案卡与房间默认对齐 `forecast.runId`；最新后台检查独立呈现；来源人数按实际独立角色计算，补查不重复计人；自动选择跟随新答案，用户显式选轮后锁定；跨题或缺归属的运行不渲染；历史不补播气泡。
+- 后果：`course-runs.mjs` 的 `selectCourseRoomRun`、`courseAnswerProvenance` 成为渲染前置；前端投影必须带 runId 校验。
+- 依据：[PRD](PRD.md) 2026-11-19 展示归属决策；[FRONTEND_DELIVERY](FRONTEND_DELIVERY.md)。
+
+## D-007 服务故障分级与暂停恢复
+
+- 日期：2026-11-19
+- 状态：生效
+- 背景：两条天气题在首个模型 HTTP 请求失败，旧代码只保存 `MODEL_HTTP`，无法区分余额、鉴权、限流。
+- 决策：
+  - 402/401/403 视为硬错误：显示安全原因码，立即停止本轮，`watch.status = paused_provider`，取消下次唤醒。
+  - 429/408/5xx/临时连接故障：预算内最多 3 次尝试，全部计入预算，等待可取消。
+  - 准备阶段失败也提供“重试本次调查”，在同一任务新建轮次，保留问题、创建时间、原固定期限与失败历史。
+  - 已发布过预测后遇故障：保留上一次有效预测，不生成概率点。
+  - 接口只公开静态 code、`httpStatus`、有限 `retryAfterMs`、`actionRequired`，不透传服务正文或密钥。
+- 后果：`runtimeMessages` 增加 `MODEL_BALANCE_REQUIRED`/`MODEL_AUTH_FAILED`/`MODEL_ACCESS_DENIED` 等；前端 `course-errors.mjs` 按 code 展示；轮询只 GET，不自动重试、不切 mock。
+- 依据：[PROVIDER_RECOVERY](PROVIDER_RECOVERY.md)；`course-provider-recovery.test.mjs`。
+
+## D-008 “今天”固定本地日终；天气只认实况
+
+- 日期：2026-11-19
+- 状态：生效
+- 背景：重试时“今天”被 24 小时窗口覆盖成次日上午；天气题把预报当成已发生结果。
+- 决策：
+  - 新建问题中无具体时刻的“今天/今日/today”固定为创建时当地日期的 23:59:59.999；跨日重试不顺延；严格模式 `targetAt` 优先；已有契约不迁移。
+  - 预设降雨题由服务端写入“实况才确认结果，预报只作概率依据”。
+  - 无结构化实况时禁止凭网页文字/标题/URL 登记已知 YES/NO，返回 `WEATHER_OBSERVATION_REQUIRED`。
+  - 输出截断不能当报告或概率保存；已知 usage 即使截断也计费。
+- 放弃的备选：把“今天”解释为未来 24 小时；用搜索摘要当观测。
+- 后果：`course-context.mjs` 的 `hasTodayCalendarDeadline`、`requiresWeatherObservation`；旧错误日期任务停止后另建修正版，不冒充同一历史。
+- 依据：[PROVIDER_RECOVERY](PROVIDER_RECOVERY.md)、[PRD](PRD.md) 2026-11-19 天气用例复核决策、`course-today.test.mjs`。
+
+## D-009 V2.0 编排：先派工后取证，harnessVersion=3
+
+- 日期：2026-11-19
+- 状态：生效
+- 背景：旧版主 Agent 先独自找来源、核定完整契约再派工，等待长且界面像只有主 Agent 在工作。
+- 决策：
+  - `harnessVersion=3`：主 Agent 第一步只调 `draft_and_delegate` 整理与派工，草稿不是 ready 契约；研究员用真实资料核定来源、规则与基准。
+  - 每位研究员最多 5 次调查决策，第 6 次预留报告；工具用完只能报告；不要求凑满。
+  - 最多 3 个协作周期（初次 + 2 次定向补查）。
+  - 预算：整轮 40 模型 / 64 工具 / 300000 tokens；单 worker 6 / 6 / 65536；主 Agent 16 次。
+  - system prompt 每次刷新职责、字数、token 与剩余预算；后端同时硬守卫。
+  - `model.requested/completed/failed` 驱动各研究员的“等待模型”标记；不公开隐藏推理。
+- 放弃的备选：旧版“先研究再派工”（`harnessVersion=2`，仅保留读旧运行）。
+- 后果：旧 v2 历史不迁移；`orchestrationView` 暴露 cycle / maxCycles / followUpsUsed。
+- 依据：[V2_RELEASE](V2_RELEASE.md)、[PRD](PRD.md) 2026-11-19 V2.0 决策、`course-service.mjs:171-194`。
+
+## D-010 记忆规则 V2：7 天 4 次实质研判 / 90 天有限关系
+
+- 日期：2026-11-19
+- 状态：生效
+- 背景：旧版按“最近 4 个原始 Run”取记忆，空监听也会挤占名额。
+- 决策：
+  - 短期：同题同契约版本最近 7 天最多 4 次**实质研判**、8 份报告；空检查、失败、取消不占名额。
+  - 长期：90 天内最多 8 条带出处关系、12 条证据索引；原始档案不自动删除；引用前必须重新取证。
+  - 纯函数 `buildMemorySnapshot` 不做 IO、不发模型、不改输入、不物理删除。
+  - 旧概率只用于比较，不命令模型照抄；无变化检查不新增概率点。
+- 放弃的备选：把所有历史都塞进上下文；按消息条数计记忆。
+- 后果：`memory-policy.mjs` + `memory.loaded` 事件 + 前端记忆说明；`MEMORY_POLICY_V2.md` 为规则源。
+- 依据：[MEMORY_POLICY_V2](MEMORY_POLICY_V2.md)、`memory-policy.test.mjs`。
+
+## D-011 会话级 API Key（模型连接）
+
+- 日期：2026-11-19
+- 状态：生效
+- 背景：用户需要用自己的 DeepSeek Key，但凭据不能落盘或进浏览器。
+- 决策：顶部/侧栏“模型连接”密码框；Key 只存服务端进程内存，提交后清空输入、不回显、不写浏览器存储、不写应用数据库或 `.env`；重启需重填；有运行、排队或活动监听时禁止更换；保存本身不发起预测。
+- 放弃的备选：写入 `.env` 或前端 localStorage；提供“测试连接”按钮自动发请求。
+- 后果：`provider-connection.mjs` 只返回 `configured` 与派生状态；`applyKey` 原子重建 course provider；替换期间课程写操作 409。
+- 依据：[V2_RELEASE](V2_RELEASE.md) “API Key”节、`provider-connection-http.test.mjs`。
+
+## D-012 公开总结必须与受控字段一致（P0-A）
+
+- 日期：2026-11-19
+- 状态：生效
+- 背景：真实黄金题的模型公开总结与结构化字段（基准、估计类型、计分资格）冲突，读者可能误判。
+- 决策：新增 `forecast-facts.mjs`，发布时**只由受控字段**生成事实段（基准/估计类型/计分/资料充分度/固定到期）与冲突标注；记忆侧注入“未核验/条件估计/不计分”状态标签；前端展示事实段、冲突警告与状态徽章。旧数据不迁移，记忆侧从既有字段现场重推导。
+- 放弃的备选：让模型自己写一致的总结；事后改旧预测记录。
+- 后果：事实段与模型 `summary` 并存，冲突时以事实段为准；回归新增 7 条。
+- 依据：[IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md) P0-A 段、`forecast-facts.test.mjs`。
+
+## D-013 建立架构、决策与 Agent 提示词三份文档
+
+- 日期：2026-11-20
+- 状态：生效
+- 背景：模块多、文档分散在 PRD/V2/验收/M0 各处，新会话或开发 Agent 需要反复爬目录才能建立全局图。
+- 决策：新增 `docs/ARCHITECTURE.md`（当前代码职责与落点）、`docs/DECISION_LOG.md`（本文）、`docs/TRAE_AGENT_PROMPT.md`（开发 Agent 系统提示词模板）。三份文档只做索引与约束，不改变任何产品行为，不与 PRD 竞争定义权。
+- 放弃的备选：继续只靠 PRD + IMPLEMENTATION_STATUS；在每个模块写 README。
+- 后果：架构变化时同步 `ARCHITECTURE.md`；决策变化时追加本文条目；工作流变化时更新提示词模板，并在 `AGENTS.md` 保留对应约束。
+- 依据：用户 2026-11-20 要求；`AGENTS.md` 的文档维护要求。
+
+## D-014 模拟/真实双入口隔离
+
+- 日期：2026-11-20
+- 状态：部分被 [D-016](#d-016-移除根-startmjs-只保留双入口)、[D-017](#d-017-真实入口允许无-key-启动但禁止动作) 取代（根入口、`npm start` 与缺 Key 退出已移除，其余隔离规则保留）
+- 背景：默认数据文件已按 `world.json` / `world-live.json` 区分，但只有一个启动入口和端口；显式设置 `WORLD_STATE_PATH` 或通过页面把 mock 进程升级为 live 时，两种运行会写入同一套库。
+- 决策：
+  - 新增 `start-mock.mjs` 与 `start-live.mjs`，分别固定 4173 / 4174 端口、`.data/mock/` 与 `.data/live/` 数据文件、fixture 与 deepseek 来源。
+  - 模拟入口删除进程内的模型与搜索 Key；模型连接接口返回 `MODE_LOCKED`，`canUpdate=false`，不写入任何凭据。
+  - 真实入口缺少 `WORLD_API_KEY` 时直接退出，并补齐 DeepSeek 模型名、端点、思考与超时默认值。
+  - 两个入口拒绝使用对方的数据目录；`npm start` 保留原有自动模式，不破坏旧运行。
+  - 不自动迁移已有混合数据库；旧数据保留为归档，新环境从空目录开始。
+- 放弃的备选：继续用单个进程和页面按钮在 mock/live 之间切换；按运行记录在 UI 层过滤；自动拆分旧库。
+- 后果：`server/environment.mjs` 负责纯配置解析；`provider-connection.mjs` 增加 `locked` 状态；新增环境与锁定测试，全套 266/266 通过。
+- 依据：用户 2026-11-20 要求；`environment.test.mjs`、`provider-connection.test.mjs`。
+
+## D-015 前端环境标签与数据库模式守卫
+
+- 日期：2026-11-20
+- 状态：部分被 [D-016](#d-016-移除根-startmjs-只保留双入口) 取代（`npm start` 已移除，其余规则保留）
+- 背景：双入口只解决进程和文件隔离，页面没有明确环境提示；若有人把相反模式的数据库复制进目录，仍可能误读。
+- 决策：
+  - 顶栏新增 `#wb-environment` 徽章，读取 `modelMode`：mock 显示“模拟环境”（琥珀色），live 显示“真实环境”（绿色），title 说明证据效力。
+  - 新增 `environmentPresentation` 纯函数，未知模式不显示徽章。
+  - 新增 `assertEnvironmentRuns(environment, runs)`，在课程服务创建后、任务恢复前检查历史 run 的 `modelMode`，发现相反模式即拒绝启动。
+  - `npm start` 自动模式不做守卫，保持旧行为兼容。
+- 放弃的备选：只在每个运行卡片标注；启动时自动迁移或删除相反模式记录。
+- 后果：新增环境与徽章测试，全套 268/268 通过；DB 守卫经真实 SQLite 端到端验证。
+- 依据：用户 2026-11-20 要求；`environment.test.mjs`、`course-capability.test.mjs`。
+
+## D-016 移除根 start.mjs，只保留双入口
+
+- 日期：2026-11-20
+- 状态：生效
+- 背景：双入口已经固定端口、数据目录和模式锁，但根目录仍有 `start.mjs` 与 `npm start` 自动模式；它可以绕过环境锁和数据库守卫，用户也可能误把它当成日常入口。
+- 决策：
+  - 将 `start.mjs` 的装配逻辑移动到 `server/app.mjs`，作为内部唯一装配点，不再从根目录暴露。
+  - 删除 `npm start`；公开启动只剩 `npm.cmd run start:mock` / `npm.cmd run start:live`，以及等价的 `node start-mock.mjs` / `node start-live.mjs`。
+  - `start-mock.mjs` / `start-live.mjs` 改为导入 `./server/app.mjs`；6 个进程级测试改为 spawn `server/app.mjs`。
+  - `server/app.mjs` 直接运行时仍保留 `WORLD_ENV=auto` 行为，仅供测试、自定义端口/路径和旧版调试，不在文档中推荐。
+  - 同步更新 `README.md`、`docs/ARCHITECTURE.md`、`docs/COURSE_ACCEPTANCE.md`、`.env.example`；`.env` 示例分别指向 `start-mock.mjs` 与 `start-live.mjs`。
+- 放弃的备选：
+  - 保留 `start.mjs` 作为 mock 别名：会让 `node start.mjs` 看似通用入口，掩盖“必须显式选择环境”。
+  - 彻底删除 auto 模式：会失去 6 个 HTTP 测试依赖的自定义端口、临时路径和混合配置能力，需要重写大量测试，超出本次范围。
+- 后果：`node start.mjs` 失效；`node server/app.mjs` 仍可运行但不推荐；测试入口路径改变，测试总数保持 268/268。
+- 依据：用户 2026-11-20 确认方案 A1；`package.json`、`start-mock.mjs`、`start-live.mjs`、6 个 `*-http.test.mjs` 与 `smoke.test.mjs`。
+
+## D-017 真实入口允许无 Key 启动，但禁止动作
+
+- 日期：2026-11-20
+- 状态：生效
+- 背景：双入口要求 `start:live` 在缺少 `WORLD_API_KEY` 时直接退出，用户无法先打开页面再配置 Key；而“模型连接”本身已经支持会话级 Key，只是进程起不来。
+- 决策：
+  - `start-live.mjs` / `server/app.mjs` 允许无 Key 启动，固定端口 4174 与 `.data/live/` 不变。
+  - 无 Key 时装配“未配置占位 provider”；`POST /api/v1/course/requests` 与 `check` 在任何模型调用前返回 409 `MODEL_NOT_CONFIGURED`，启动时跳过 `runtime.resume()` / `course.resume()`。
+  - 保存 Key 前搜索能力为 `unavailable`，不使用 fixture 或 mock 顶替；保存后沿用 `applyKey` 原子替换 provider 并恢复运行。
+  - 旧版回放/监测 provider 同样使用显式失败占位，不回落到 mock。
+  - 前端错误文案新增 `MODEL_NOT_CONFIGURED`，引导打开“模型连接”。
+- 放弃的备选：继续缺 Key 直接退出；无 Key 时自动切 mock；允许创建任务后再失败。
+- 后果：`environment.mjs` 的 live 配置不再抛缺 Key 错误；`environment.test.mjs` 改写；新增 `live-http.test.mjs`；全套 269/269 通过。
+- 依据：用户 2026-11-20 要求；`live-http.test.mjs`、`environment.test.mjs`、`provider-connection-http.test.mjs`。
+
+## D-018 环境徽章显示连接状态，模拟环境允许尝试但明确拒绝保存
+
+- 日期：2026-11-20
+- 状态：生效
+- 背景：徽章只显示“模拟环境 / 真实环境”，真实环境未配置 Key 时外观与已配置相同；模拟环境的连接表单完全禁用，用户无法理解为什么不能保存。
+- 决策：
+  - `environmentPresentation(config, connection)` 增加 `configured` 与 `dot`：模拟环境固定“模拟环境 · 未配置”；真实环境按 `provider-connection.configured` 显示“已配置 / 未配置”。
+  - 徽章增加前置圆点：已配置为绿色，未配置为灰色；保存 Key 后通过 `refreshEnvironmentBadge` 自动刷新。
+  - 模拟环境的连接表单允许输入与提交，但后端仍返回 409 `MODE_LOCKED`，不接收 Key；前端提示“模拟环境配置失败：当前进程不会接收或保存真实 API Key。请改用 npm run start:live。”
+  - 后端 `provider-connection.status().canUpdate` 语义不变；仅前端 presentation 在 `locked` 且无活动任务时允许尝试。
+- 放弃的备选：让徽章读取并暴露 Key 片段；模拟环境静默忽略保存；禁用输入框但不给原因。
+- 后果：新增圆点样式与徽章刷新；更新徽章与连接测试；全套 269/269 通过。
+- 依据：用户 2026-11-20 要求；`course-capability.test.mjs`、`course-provider.test.mjs`。
+
+## D-019 保存 Key 后自动校验连接，且不把 Key 保存在浏览器
+
+- 日期：2026-11-20
+- 状态：生效
+- 背景：用户希望知道 Key 是否真的可用，连接失败时显示“已配置未连接”；同时确认不把明文 Key 写入浏览器存储或回显到输入框。
+- 决策：
+  - 保存 Key 后自动调用 `GET {WORLD_BASE_URL}/models` 校验，8 秒超时；只读取 HTTP 状态，不读取响应正文，不泄露 Key。
+  - `provider-connection.status()` 增加 `connection`（`connected` / `failed` / `unknown`）与 `verifiedAt`；校验失败不阻止 Key 保存。
+  - 连接页显示“API Key 已连接 / 已配置，未连接 / 已配置，待校验”；顶栏徽章圆点绿色=已连接、琥珀色=已配置未连接或待校验、灰色=未配置。
+  - 不实现浏览器存储回填：刷新后输入框为空，服务端重启后需重新输入 Key；这保持 D-011 的凭据约束。
+- 放弃的备选：用 sessionStorage / localStorage 保存 Key 以便刷新回填（用户明确否决）；保存后发最小 chat 请求（会消耗 token）。
+- 后果：新增 `verifyModelCredentials`、连接状态字段与徽章颜色；更新 `model-credentials.test.mjs`、`provider-connection.test.mjs`、`course-provider.test.mjs`、`course-capability.test.mjs`；全套 272/272 通过。
+- 依据：用户 2026-11-20 选择“不写入浏览器存储、不回显到输入框”和“保存后自动校验 `/models`”。
+
+## D-020 首次配置 Key 不受旧监听限制
+
+- 日期：2026-11-20
+- 状态：部分被 [D-022](#d-022-输入始终可用但保存时拒绝覆盖原-key) 取代（首次配置规则保留）
+- 背景：真实库中存在 1 条 `active` 监听，`provider-connection` 把“更换 Key 需要空闲”的规则也应用到“从未配置 Key”的场景，返回 `canUpdate=false`，页面输入框被禁用，形成“无 Key 无法配置、无法配置就一直无 Key”的死锁。
+- 决策：
+  - `configured=false` 时允许保存 Key，忽略 `activeRuns` / `activeWatchers`；保存后这些旧计划按新凭据继续。
+  - `configured=true` 时更换 Key 仍要求没有活动运行与监听，保持原有保护。
+  - `app.mjs` 的 `applyKey` 通过 `firstConfiguration` 区分首次配置，首次跳过空闲检查；同时移除首次保存后的 `runtime.resume()`，避免占位 runtime 被误唤醒。
+  - 前端 `canUpdate` 在未配置且任务/监听状态已知时允许，状态未知时仍禁用。
+- 放弃的备选：要求用户先停止旧监听再配置（旧监听无 Key 时无法操作，仍会死锁）。
+- 后果：更新 `provider-connection.test.mjs`、`course-provider.test.mjs`；全套 273/273 通过。
+- 依据：用户 2026-11-20 反馈“现在无法输入 keys 了”；实际接口返回 `activeWatchers: 1, canUpdate: false`。
+
+## D-021 持续监听不再阻止更换 Key
+
+- 日期：2026-11-20
+- 状态：被 [D-022](#d-022-输入始终可用但保存时拒绝覆盖原-key) 取代（输入不再禁用，改为保存时拒绝覆盖）
+- 背景：第一次配置成功后，只要还有持续监听计划，`canUpdate` 再次变为 `false`，用户无法更换模型/Key，输入框被禁用。
+- 决策：
+  - `canUpdate` 只阻止 `activeRuns > 0`（正在执行或排队），不再因 `activeWatchers > 0` 禁用输入。
+  - `provider-connection.update` 与 `app.mjs` 的 `applyKey` 只检查活动运行，不检查监听。
+  - 保存新 Key 后，现有监听计划按新凭据继续；页面明确提示这一点，用户可先停止不希望继续的监听。
+  - 移除 D-020 的 `firstConfiguration` 分支，首次与更换使用同一规则。
+- 放弃的备选：继续要求停止所有监听后才能换 Key；保存后自动暂停旧监听（需要额外的暂停/恢复 UI，超出本次范围）。
+- 后果：更新 `provider-connection.test.mjs`、`course-provider.test.mjs`；全套 273/273 通过。
+- 依据：用户 2026-11-20 反馈“第一次配置后就无法输入了”。
+
+## D-022 输入始终可用，但保存时拒绝覆盖原 Key
+
+- 日期：2026-11-20
+- 状态：生效
+- 背景：用户要求阻止“正在运行的任务”和“持续监听”期间更换 Key，但不希望输入框被禁用；点击保存时应在下方明确提醒。
+- 决策：
+  - 连接表单的输入框与保存按钮始终可用，只有保存中、读取中禁用。
+  - 已配置 Key 时，若存在活动运行或活动监听，`POST /provider-connection` 返回 409 `PROVIDER_UPDATE_BUSY`，不覆盖原 Key，表单下方显示“原 API Key 保持不变”。
+  - 首次配置（没有原 Key）允许保存，不受旧监听限制；保存后监听按新凭据继续。
+  - 前端不提前拦截提交，统一由服务端判定并返回结构化错误；`applyKey` 保留同样的防御检查。
+- 放弃的备选：禁用输入框（用户明确否决）；前端提前拦截且不发请求（会与后端规则重复）。
+- 后果：恢复 `configured` 条件下的监听/运行检查，但 UI 不再依赖 `canUpdate` 禁用；更新连接与前端测试；全套 273/273 通过。
+- 依据：用户 2026-11-20 “不禁止输入，只是不会覆盖原 key，点击保存时请在下方提醒”。
+
+## D-023 真实入口默认关闭旧版公开监测
+
+- 日期：2026-11-20
+- 状态：生效
+- 背景：`start:live` 未设置 `WORLD_MONITOR` 时沿用 `public`，会主动访问 SEC / Polymarket，违背 mock/live 隔离目标。
+- 决策：`server/app.mjs` 在 live 且未显式配置时默认 `WORLD_MONITOR=off`；auto 模式仍默认 `public`；显式设置 `public` / `demo` 仍生效。
+- 后果：live 启动不再自动发起外部监测请求；如需旧版监测必须显式开启。
+- 依据：用户 2026-11-20 要求修复该隔离缺口。
+
+## D-024 端口与数据目录可覆盖，旧归档按模式迁移
+
+- 日期：2026-11-20
+- 状态：生效
+- 背景：固定 4173/4174 和固定数据目录无法同模式多实例；根 `.data/world.json*` 仍是混合归档。
+- 决策：
+  - `PORT` 可覆盖默认端口，`WORLD_DATA_DIR` 可覆盖默认数据目录；跨模式目录与 `.data` 根目录仍拒绝，同一目录仍只允许一个进程。
+  - 新增 `scripts/legacy-data.mjs`，默认 dry-run；`--apply` 读取课程库 `course_runs` 的运行 `modelMode`，全 mock 移到 `.data/mock/legacy/`，全 live 移到 `.data/live/legacy/`，混合或无法判断移到 `.data/legacy/`。
+  - `-wal` / `-shm` 随主库一起移动，不删除旧数据。
+- 放弃的备选：统一放入 `.data/legacy/`（会丢失模式归类）；自动在启动时迁移（可能在服务运行时移动 SQLite）。
+- 后果：可启动多个同模式实例；旧归档需手动执行迁移；全套 277/277 通过。
+- 依据：用户 2026-11-20 选择“按运行模式自动分到 mock/live”。
+
+## D-025 连接校验消费并丢弃响应正文
+
+- 日期：2026-11-20
+- 状态：生效
+- 背景：`verifyModelCredentials` 只读状态、不消费响应体，未释放的 body 可能占用连接。
+- 决策：读取 `response.status` 后调用 `response.text()` 并丢弃；不解析、不记录、不回显，结果仍只由 HTTP 状态决定。
+- 放弃的备选：继续不读 body，依赖 GC 释放连接。
+- 后果：连接可及时释放；`model-credentials.test.mjs` 改为断言正文被消费但不解析；全套 278/278 通过。
+- 依据：用户 2026-11-20 提出的资源未关闭问题。
+
+---
+
+## 待决事项
+
+以下在 PRD 中属于目标但尚未决策或未验收，开发前需要先确认范围，不要默认按“已完成”处理：
+
+| 事项 | 现状 | 需要先确认 |
+| --- | --- | --- |
+| 自动到期结算与评分 | 未实现 | 结算来源、迟到处理、修订重算规则 |
+| 监听频率自主调整 | 未实现 | 频率上下限、与来源配额的冲突处理 |
+| 完整时序图推理 | 仅有少量带出处关系 | 图查询深度、反例展示、版本迁移 |
+| 其他输出头 | 不开放 | 是否仍维持 binary-only |
+| LangGraph 替换 | 候选 | 原生绑定可用性、适配层验收 |
+| 社交平台连接器 | 未实现 | 授权方式、各平台能力差异 |

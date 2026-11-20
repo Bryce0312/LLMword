@@ -10,8 +10,9 @@ import { join } from 'node:path'
 test('the local UI connection endpoint enables a real provider from a keyless demo without writing the key to application data', { timeout: 15000 }, async t => {
   const folder = await mkdtemp(join(tmpdir(), 'llmword-connection-'))
   const key = 'TEST_CONNECTION_NOT_A_REAL_KEY'
-  const child = spawn(process.execPath, ['start.mjs'], { cwd: new URL('.', import.meta.url), env: { ...process.env,
+  const child = spawn(process.execPath, ['server/app.mjs'], { cwd: new URL('.', import.meta.url), env: { ...process.env,
     PORT: '0', WORLD_MODEL: 'mock', WORLD_API_KEY: '', WORLD_MODEL_NAME: '', WORLD_MODEL_THINKING: '', WORLD_MODEL_REASONING_EFFORT: '',
+    WORLD_BASE_URL: 'http://127.0.0.1:1',
     WORLD_MONITOR: 'off', WORLD_WORKBENCH: 'on', WORLD_RUNTIME: 'probe', WORLD_COURSE: 'on', WORLD_SEARCH_PROVIDER: 'fixture',
     WORLD_STATE_PATH: join(folder, 'state.json'), WORLD_RUNTIME_PATH: join(folder, 'runtime.sqlite'),
     WORLD_DOMAIN_PATH: join(folder, 'domain.sqlite'), WORLD_COURSE_PATH: join(folder, 'course.sqlite'),
@@ -34,6 +35,7 @@ test('the local UI connection endpoint enables a real provider from a keyless de
   const configured = await result.json()
   assert.equal(configured.modelMode, 'live')
   assert.equal(configured.keySource, 'session')
+  assert.equal(configured.connection, 'failed')
   assert(!JSON.stringify(configured).includes(key))
   const capability = await fetch(base + '/api/v1/course/config').then(r => r.json())
   assert.equal(capability.modelMode, 'live')

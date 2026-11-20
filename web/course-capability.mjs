@@ -1,6 +1,27 @@
 const restartMessage = '当前地址的服务未加载新版自动跟踪接口。请重启正在运行的当前服务，再点击“重新检查当前服务”。输入内容会保留；高级材料研读仍可使用。'
 const unavailableMessage = '暂时无法检查当前服务的自动跟踪能力。请确认当前服务正在运行后重试；输入内容会保留。'
 
+export function environmentPresentation(config = {}, connection = {}) {
+  const mode = config.modelMode
+  if (!['mock', 'live'].includes(mode)) return null
+  const live = mode === 'live'
+  const configured = live && connection?.configured === true
+  const state = ['connected', 'failed', 'unknown'].includes(connection?.connection) ? connection.connection : 'unknown'
+  let dot = 'idle', status = '未配置'
+  if (configured) {
+    if (state === 'connected') { dot = 'ready'; status = '已配置已连接' }
+    else if (state === 'failed') { dot = 'warning'; status = '已配置未连接' }
+    else { dot = 'warning'; status = '已配置待校验' }
+  }
+  return { mode, configured, connection: state, dot,
+    text: live ? `真实环境 · ${status}` : '模拟环境 · 未配置',
+    title: live
+      ? state === 'connected' ? '真实模型与联网检索；/models 校验已通过，实际任务仍受余额与权限影响。'
+        : state === 'failed' ? 'Key 已保存但 /models 校验失败；请检查 Key、账户权限或网络后重新保存。'
+          : configured ? 'Key 已保存，尚未完成连接校验。' : '真实环境尚未保存 API Key；请先在“模型连接”保存后再开始。'
+      : '本地协议模拟与历史 / 测试快照；不能作为真实预测证据，也不会接收真实 Key。' }
+}
+
 export function isMissingCourseApi(error = {}) {
   return [404, 405, 501].includes(error.status) || ['COURSE_DISABLED', 'RUNTIME_DISABLED'].includes(error.code)
 }

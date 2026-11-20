@@ -7,7 +7,7 @@ import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
-import { createCourseMockProvider } from './server/course/course-service.mjs'
+import { createCourseMockProvider } from './server/course/course-mock-provider.mjs'
 
 // Independent HTTP acceptance: local synthetic model responses, never a paid provider or real weather prediction.
 async function launch(t, { status = 402, onceOnly = false } = {}) {
@@ -30,7 +30,7 @@ async function launch(t, { status = 402, onceOnly = false } = {}) {
   })
   model.listen(0, '127.0.0.1'); await once(model, 'listening')
   const modelUrl = `http://127.0.0.1:${model.address().port}`
-  const child = spawn(process.execPath, ['start.mjs'], { cwd: new URL('.', import.meta.url), env: { ...process.env,
+  const child = spawn(process.execPath, ['server/app.mjs'], { cwd: new URL('.', import.meta.url), env: { ...process.env,
     PORT: '0', WORLD_MODEL: 'openai', WORLD_MODEL_NAME: 'local-protocol', WORLD_BASE_URL: modelUrl, WORLD_API_KEY: 'synthetic-test-credential',
     WORLD_MODEL_PROTOCOL: 'openai', WORLD_MODEL_THINKING: 'disabled', WORLD_MODEL_REASONING_EFFORT: '',
     WORLD_MODEL_TIMEOUT_MS: '5000', WORLD_MONITOR: 'off', WORLD_WORKBENCH: 'on', WORLD_RUNTIME: 'probe', WORLD_COURSE: 'on',

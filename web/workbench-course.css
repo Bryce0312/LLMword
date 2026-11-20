@@ -40,7 +40,7 @@
 .cc-workflow-flow, .cc-workflow-loop, .cc-workflow-budget { font-size: 11px; line-height: 1.9; margin: 7px 0; }
 .cc-workflow-flow { color: #d3bda0; }
 .cc-workflow-budget small { display: block; color: #e0b98f; }
-.cc-workflow-workers { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,220px),1fr)); gap: 8px; margin-top: 11px; }
+.cc-workflow-workers { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,170px),1fr)); gap: 8px; margin-top: 11px; }
 .cc-workflow-worker { min-width: 0; display: grid; gap: 6px; border: 2px solid #77654f; background: #352e37; padding: 9px 11px; font-size: 11px; line-height: 1.7; }
 .cc-workflow-worker strong { color: #f2d29e; }
 .cc-workflow-worker span { color: #c7c4b1; }
@@ -61,6 +61,14 @@
 .cc-provider-form .wb-actions { flex-wrap: wrap; }
 .cc-provider-note { font-size: 11px; line-height: 1.9; color: #7a634a; margin-top: 15px; }
 .cc-provider-message { font-size: 12px; line-height: 1.9; padding: 12px; background: #e5d0a2; border-left: 3px solid #8d784f; margin-top: 17px; }
+.cc-answer { position: relative; max-height: var(--cc-panel-limit, min(680px, 72vh)); overflow: hidden; }
+.cc-answer.is-short, .cc-answer.is-expanded { max-height: none; overflow: visible; }
+.cc-answer:not(.is-short):not(.is-expanded)::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 90px; background: linear-gradient(to bottom, transparent, #f3dda9); pointer-events: none; }
+.cc-sources { position: relative; max-height: var(--cc-panel-limit, none); overflow: hidden; }
+.cc-sources.is-short, .cc-sources.is-expanded { max-height: none; overflow: visible; }
+.cc-sources:not(.is-short):not(.is-expanded)::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 80px; background: linear-gradient(to bottom, transparent, #f7e6ba); pointer-events: none; }
+.cc-answer-fold { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); z-index: 2; border: 2px solid #7c5a3e; background: #3d333c; color: #f4d399; padding: 6px 16px; font-size: 12px; cursor: pointer; }
+.cc-answer-fold:hover, .cc-answer-fold:focus-visible { background: #4b3f49; outline: 2px solid #d8b06a; outline-offset: 2px; }
 .cc-answer .cc-tendency { color: #466e58; font-size: 20px; line-height: 1.6; margin-bottom: 13px; }
 .cc-answer-summary { font-size: 12px; line-height: 1.9; border-top: 2px dashed #b69a6d; margin-top: 15px; padding-top: 13px; }
 .cc-result-label { border: 2px solid #a47c49; background: #e7c991; color: #705131; padding: 8px; font-size: 11px; line-height: 1.8; margin-top: 12px; }
@@ -150,7 +158,10 @@
 .cc-relation strong { justify-self: start; padding: 2px 9px; background: #b6c49e; color: #3f5d42; }
 .cc-relation .cc-against { background: #e2b896; color: #824d35; }
 .cc-records { margin-top: 3px; }
-.cc-records > h2 { margin-bottom: 17px; }
+.cc-records-details > summary { cursor: pointer; font-size: 16px; font-weight: 700; line-height: 1.8; }
+.cc-records-details > summary:hover { color: #7a5a3c; }
+.cc-records-details > summary:focus-visible { outline: 3px solid #8a6a45; outline-offset: 3px; }
+.cc-records-body { margin-top: 13px; }
 @media (max-width:1180px) { .cc-results-grid { grid-template-columns: minmax(0,1fr); } .cc-entry { grid-template-columns: minmax(0,1.5fr) minmax(170px,1fr); } }
 @media (max-width:900px) { .cc-course-layout { grid-template-columns: 1fr; } .cc-answer { display: block; } }
 @media (max-width:900px) {
@@ -158,7 +169,11 @@
   .wb-course-route .wb-content { order: 0; }
   .wb-course-route .wb-sidebar { order: 1; border-top: 4px solid var(--edge); border-bottom: 0; }
 }
+@media (min-width:681px) and (max-width:1180px) {
+  .cc-workflow-workers { grid-template-columns: repeat(3,minmax(0,1fr)); }
+}
 @media (max-width:680px) {
+  .cc-workflow-workers { grid-template-columns: minmax(0,1fr); }
   .cc-entry { display: flex; flex-direction: column; }
   .cc-entry-paper { padding: 19px 15px; border-right: 0; border-bottom: 3px solid #513c35; }
   .cc-entry-art { min-height: 135px; }
@@ -172,6 +187,7 @@
   .cc-work-card { padding: 8px; }
   .cc-work-card strong { font-size: 11px; }
   .cc-work-card p { font-size: 10px; }
+  .cc-answer { max-height: 64vh; }
   .cc-memory { padding: 17px 12px; }
   .cc-memory-grid { grid-template-columns: 1fr; }
   .cc-memory-item + .cc-memory-item { border-left: 0; border-top: 2px dashed #b59b70; }

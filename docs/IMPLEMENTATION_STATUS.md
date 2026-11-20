@@ -12,6 +12,30 @@ V2.0追加：先整理派工、子Agent模型等待可见、最多3协作周期�
 
 P0-A（公开总结与结构化字段一致）已完成：新增 `server/course/forecast-facts.mjs`，发布时由受控字段生成事实段（基准／估计类型／计分／资料充分度／固定到期）与冲突标注，记忆侧注入"未核验／条件估计／不计分"状态标签，前端展示事实段、冲突警告与状态徽章。旧数据无需迁移：新字段只写新预测，记忆侧从既有结构化字段现场重推导，旧冲突摘要进记忆时同样被标注。回归新增 7 条，全套 260/260 通过。下一批优先补真实相关增量（P0-C）、最小核验／评估（P0-D）和最终课程材料（P0-E）。
 
+运行隔离追加（2026-11-20）：新增 `npm run start:mock`（4173、`.data/mock/`、fixture、模型连接锁定）与 `npm run start:live`（4174、`.data/live/`、要求 `WORLD_API_KEY`、DeepSeek 来源）；两个入口拒绝使用对方数据目录，模拟入口不保留任何 Key，真实入口缺 Key 直接退出；顶栏新增“模拟环境 / 真实环境”徽章，数据库打开时检查是否已有相反模式的历史运行并拒绝启动；旧混合库不自动迁移。全套 268/268 通过。
+
+入口收口追加（2026-11-20）：根目录 `start.mjs` 移为内部装配入口 `server/app.mjs`，删除 `npm start`；公开启动只剩 `npm run start:mock` / `npm run start:live` 与等价的 `node start-mock.mjs` / `node start-live.mjs`，两个包装入口均导入 `server/app.mjs`。`node server/app.mjs` 仍可运行自动模式，仅供测试、自定义端口/路径和旧版调试，不再作为文档入口。6 个进程级测试与冒烟测试的 spawn 路径已同步；全套 268/268 通过（2026-11-20 `node --test`）。
+
+真实入口无 Key 启动追加（2026-11-20）：`start:live` 不再因缺少 `WORLD_API_KEY` 退出，允许先启动再到网页“模型连接”保存 Key。未配置时装配占位 provider，`POST /requests` 与 `check` 返回 409 `MODEL_NOT_CONFIGURED`，启动时跳过运行恢复，搜索能力显示 `unavailable`；保存 Key 后现有 `applyKey` 原子替换 provider 并恢复能力。新增 `live-http.test.mjs` 覆盖无 Key 启动、拒绝创建、保存会话 Key、来源从未配置变为 live；`environment.test.mjs` 的 live 断言同步改写；全套 269/269 通过（2026-11-20 `node --test`）。
+
+环境徽章与模拟连接追加（2026-11-20）：顶栏徽章改为“模拟环境 · 未配置 / 真实环境 · 未配置 / 真实环境 · 已配置”，并加状态圆点（已配置绿色、未配置灰色）；徽章通过 `/api/v1/course/provider-connection` 读取连接状态，保存 Key 后自动刷新。模拟环境的连接表单允许输入与提交，但后端 `MODE_LOCKED` 拒绝保存，前端提示“模拟环境配置失败”，不接收 Key。更新 `course-capability.test.mjs` 与 `course-provider.test.mjs`；全套 269/269 通过（2026-11-20 `node --test`）。
+
+连接校验追加（2026-11-20）：保存 Key 后自动调用 `GET {WORLD_BASE_URL}/models` 校验，8 秒超时，只读 HTTP 状态、不读正文、不回显 Key；状态区分 `connected` / `failed` / `unknown`，校验失败仍保存 Key。徽章扩展为绿点“已配置已连接”、琥珀点“已配置未连接/待校验”、灰点“未配置”。按用户确认，Key 不写入浏览器存储、不回显输入框，刷新后需重新输入。新增 `model-credentials.test.mjs`，更新连接与徽章测试；全套 272/272 通过（2026-11-20 `node --test`）。
+
+首次 Key 死锁修复（2026-11-20）：真实库存在 1 条 active 监听时，连接接口错误地禁止首次保存，页面无法输入 Key。修复为 `configured=false` 时忽略活动任务与监听，允许首次保存，保存后旧计划按新凭据继续；`configured=true` 更换 Key 仍要求空闲。`applyKey` 首次配置跳过空闲检查并移除误唤醒的 `runtime.resume()`。更新 `provider-connection.test.mjs`、`course-provider.test.mjs`；全套 273/273 通过（2026-11-20 `node --test`）。
+
+更换 Key 监听解锁（2026-11-20）：持续监听不再阻止更换 Key，`canUpdate` 只受正在执行或排队的任务限制；`update` 与 `applyKey` 同步移除监听检查，保存后旧监听按新凭据继续并在连接页提示。移除 `firstConfiguration` 分支，首次配置与更换使用同一规则。更新 `provider-connection.test.mjs`、`course-provider.test.mjs`；全套 273/273 通过（2026-11-20 `node --test`）。
+
+Key 更换交互定稿（2026-11-20）：输入框与保存按钮始终可用，只有保存中/读取中禁用。已配置 Key 时，若存在活动运行或监听，保存返回 409 `PROVIDER_UPDATE_BUSY`，原 Key 不变，表单下方显示“原 API Key 保持不变”；首次配置仍允许，监听按新凭据继续。前端不再用 `canUpdate` 禁用输入，统一由服务端判定。更新连接与前端测试；全套 273/273 通过（2026-11-20 `node --test`）。
+
+live 监测默认关闭（2026-11-20）：`server/app.mjs` 在 live 且未显式设置 `WORLD_MONITOR` 时使用 `off`，不再默认启动旧版公开监测；auto 仍默认 `public`。全套 273/273 通过（2026-11-20 `node --test`）。
+
+多实例与旧归档（2026-11-20）：`PORT` 与 `WORLD_DATA_DIR` 可覆盖默认端口和数据目录，跨模式目录及 `.data` 根目录仍拒绝。新增 `scripts/legacy-data.mjs`，默认 dry-run，`--apply` 按课程运行模式迁移根目录 `world.json*` 到 `.data/mock/legacy/`、`.data/live/legacy/` 或 `.data/legacy/`。新增 `scripts/legacy-data.test.mjs` 与环境覆盖测试；全套 277/277 通过（2026-11-20 `node --test`）。当前根归档 dry-run 判定为 mock，因 4174 仍在运行尚未执行 `--apply`。
+
+mock usage 明细（2026-11-20）：`course-mock-provider.mjs` 的合成 `usage` 补齐 `prompt_tokens`、`completion_tokens`、`prompt_cache_hit_tokens`、`prompt_cache_miss_tokens`，并保证总数与输入/输出、缓存命中/未命中一致，避免 `recordUsage` 只累计 `totalTokens`。新增 `course-mock-provider.test.mjs`；全套 278/278 通过（2026-11-20 `node --test`）。
+
+连接校验正文消费（2026-11-20）：`verifyModelCredentials` 读取状态后调用 `response.text()` 并丢弃，避免未消费 body 占用连接；正文不解析、不记录、不回显。`model-credentials.test.mjs` 改为断言正文被消费但 `json()` 不被调用；全套 278/278 通过（2026-11-20 `node --test`）。
+
 | 里程碑 | 状态 | 证据与下一步 |
 | --- | --- | --- |
 | 旧版基线 | 已有 | main 7043e0a；五个固定角色、九个案例工具、SSE 与后台监测。此前 17 项测试通过，DeepSeek 两场真实会议有运行记录 |

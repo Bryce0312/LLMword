@@ -1,9 +1,33 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { assessCourseCapability, probeCourseCapability, guardCourseSubmission, isMissingCourseApi } from './course-capability.mjs'
+import { assessCourseCapability, probeCourseCapability, guardCourseSubmission, isMissingCourseApi, environmentPresentation } from './course-capability.mjs'
 
 const config = { stage: 'course-vertical', supervisor: true, forecastPublishing: true, nativeToolProtocol: true, modelMode: 'live', sourceMode: 'live' }
 const response = (status, body) => ({ status, ok: status >= 200 && status < 300, json: async () => body })
+
+test('environment badge distinguishes mock from live, shows configuration and hides unknown modes', () => {
+  assert.equal(environmentPresentation({ modelMode: 'mock', sourceMode: 'replay' }).text, '模拟环境 · 未配置')
+  const mock = environmentPresentation({ modelMode: 'mock' })
+  assert.equal(mock.mode, 'mock')
+  assert.equal(mock.dot, 'idle')
+  assert.equal(mock.configured, false)
+  assert.match(mock.title, /不能作为真实预测证据/)
+  const keyless = environmentPresentation({ modelMode: 'live', sourceMode: 'live' })
+  assert.equal(keyless.text, '真实环境 · 未配置')
+  assert.equal(keyless.dot, 'idle')
+  const pending = environmentPresentation({ modelMode: 'live' }, { configured: true, connection: 'unknown' })
+  assert.equal(pending.text, '真实环境 · 已配置待校验')
+  assert.equal(pending.dot, 'warning')
+  const ready = environmentPresentation({ modelMode: 'live' }, { configured: true, connection: 'connected' })
+  assert.equal(ready.text, '真实环境 · 已配置已连接')
+  assert.equal(ready.dot, 'ready')
+  assert.equal(ready.configured, true)
+  const failed = environmentPresentation({ modelMode: 'live' }, { configured: true, connection: 'failed' })
+  assert.equal(failed.text, '真实环境 · 已配置未连接')
+  assert.equal(failed.dot, 'warning')
+  assert.equal(environmentPresentation({}), null)
+  assert.equal(environmentPresentation({ modelMode: 'replay' }), null)
+})
 
 test('old service 404 becomes a current-service restart explanation and never submits', async () => {
   const calls = []; let writes = 0

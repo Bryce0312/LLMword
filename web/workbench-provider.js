@@ -21,9 +21,9 @@ export async function providerConnectionView(ctx) {
   }
   function update() {
     const view = courseProviderPresentation(current)
-    state.replaceChildren(h('strong', '', view.label), h('p', '', view.sourceLabel), h('p', '', view.taskState), h('p', '', view.actionHint), h('small', '', view.verificationHint))
-    save.disabled = saving || reading || !view.canUpdate
-    credential.disabled = saving || reading || !view.canUpdate
+    state.replaceChildren(h('strong', '', view.label), h('p', '', view.sourceLabel), h('p', '', view.taskState), h('p', '', view.actionHint), h('p', '', view.verificationHint))
+    save.disabled = saving || reading
+    credential.disabled = saving || reading
     refresh.disabled = saving || reading
     save.textContent = saving ? '正在保存…' : '保存供后续任务使用'
   }
@@ -37,12 +37,17 @@ export async function providerConnectionView(ctx) {
   }
   form.addEventListener('submit', async event => {
     event.preventDefault()
-    if (saving || reading || !courseProviderPresentation(current).canUpdate) return
+    if (saving || reading) return
     saving = true; update(); message.hidden = true
     try {
       current = await saveCourseProviderKey(credential, body => api('/course/provider-connection', write('POST', body)))
+      const savedView = courseProviderPresentation(current)
       connectionStatus('模型配置已保存')
-      message.textContent = 'Key 已保存到当前后台进程。尚未验证余额或连通性；请回到题目页自行开始或重试。'
+      message.textContent = savedView.connection === 'connected'
+        ? 'Key 已保存，/models 连接校验成功。'
+        : savedView.connection === 'failed'
+          ? 'Key 已保存，但连接校验失败：当前为“已配置，未连接”。请检查 Key、账户权限或网络后重新保存。'
+          : 'Key 已保存，连接状态待校验。'
       message.hidden = false
       if (ctx.cache) { ctx.cache.courseCapability = null; ctx.cache.courseAvailable = false }
       try {
@@ -56,7 +61,7 @@ export async function providerConnectionView(ctx) {
   form.append(h('label', 'wb-field', h('span', 'wb-field-label', 'DeepSeek API Key'), credential), h('div', 'wb-actions', save, refresh))
   panel.append(h('h2', '', '接入你自己的模型'), state, form, message,
     h('p', 'cc-provider-note', '这个 Key 同时用于 DeepSeek 模型、搜索和网页读取。输入框提交后立即清空；页面不会回显 Key，也不把它写入浏览器本地存储。Key 仅在服务器当前进程的会话内存中保存，重启后需重新填写；服务端环境变量单独维护。'),
-    h('p', 'cc-provider-note', '更换 Key 前，正在运行、排队或持续监听的旧任务需要先“停止跟踪”。因服务故障而暂停、且没有下次唤醒安排的任务不必停止；保存后仍需你手动重试。'),
+    h('p', 'cc-provider-note', '更换 Key 前，正在运行、排队或持续监听的旧任务需要先“停止跟踪”；否则点击保存会被拒绝，原 Key 保持不变，并在下方提示。因服务故障而暂停、且没有下次唤醒安排的任务不必停止；保存后仍需你手动重试。'),
     h('p', 'cc-provider-note', '此处只保存连接设置，不会启动预测、自动重试失败任务或消耗模型调用额度。'))
   await load()
   return [header('模型连接', '使用你自己的 DeepSeek API Key，供研究员真实调用模型与资料服务。', link('返回任务公告栏', '#/predictions', 'wb-button')), panel]

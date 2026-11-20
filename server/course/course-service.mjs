@@ -6,42 +6,14 @@ import { abortable, checkCancelled } from '../runtime/model-provider.mjs'
 import { getAgentCatalog } from '../domain/agent-catalog.mjs'
 import { digest, validDate, validUrl } from '../domain/contracts.mjs'
 import { createCourseStore, courseFailure } from './course-store.mjs'
+import { nativeTool, validators } from './course-contracts.mjs'
+import { createCourseMockProvider } from './course-mock-provider.mjs'
+import { legacyMainSystem, modernMainSystem } from './course-prompts.mjs'
 import { COURSE_ROLE_IDS, roleCatalogue, suggestedRoles, requestTime, makeTimeContext, timedQuestion, presetAssumptions, resolveRequestDeadline, hasTodayCalendarDeadline, requiresWeatherObservation } from './course-context.mjs'
 
 const roles = COURSE_ROLE_IDS
 const terminal = new Set(['completed', 'insufficient', 'failed', 'cancelled'])
-const string = (maxLength = 2000) => ({ type: 'string', minLength: 1, maxLength })
-const ids = { type: 'array', uniqueItems: true, items: string(120), maxItems: 30 }
-const object = (properties, required = Object.keys(properties)) => ({ type: 'object', additionalProperties: false, properties, required })
-const definitions = {
-  draft_and_delegate: ['第一步只整理题意和分工，不调查或预测。给待核验草稿及三位不同职责（含verification）的调查任务；来源、规则和基准交研究员实际取证。', object({
-    question: string(1000), object: string(500), interpretation: string(1000),
-    defaultAssumptions: { type: 'array', maxItems: 6, items: string(500) },
-    assignments: { type: 'array', minItems: 3, maxItems: 3, items: object({ roleId: { enum: roles }, objective: string(2000), reason: string(500) }) },
-  }, ['question', 'object', 'interpretation', 'assignments'])],
-  normalize_prediction: ['规范二元题。preset须联网补全常见含义并明示假设，不因未写账号/阈值等细项拒绝；已有可读公开替代来源可作有限研究依据。strict锁已填条件。', object({
-    question: string(), object: string(500), targetAt: string(80), forecastClosesAt: string(80), timezone: string(80),
-    resolutionRule: string(4000), resolutionSourceUrl: string(2000), unresolvablePolicy: string(1000), watchQuery: string(128),
-    interpretation: string(), defaultAssumptions: { type: 'array', maxItems: 8, items: string(1000) },
-    sourceLimitations: { type: 'array', maxItems: 8, items: string(1000) },
-  }, ['question', 'object', 'targetAt', 'forecastClosesAt', 'timezone', 'resolutionRule', 'resolutionSourceUrl', 'unresolvablePolicy', 'watchQuery'])],
-  delegate_work: ['从十角色目录选本题需要的不同职责，初始三人含核验；局部更新两人。给任务与选择理由，不能每道题固定同队。', object({ assignments: { type: 'array', minItems: 2, maxItems: 3,
-    items: object({ roleId: { enum: roles }, objective: string(3000), reason: string(1000) }) } })],
-  triage_update: ['去重后的新正文分诊：普通增量local选相关+核验两人；重大/冲突team选本题团队三人；无关irrelevant不更新概率。', object({
-    kind: { enum: ['local', 'team', 'irrelevant'] }, roleIds: { type: 'array', minItems: 2, maxItems: 3, uniqueItems: true, items: { enum: roles } }, reason: string(1500),
-  })],
-  request_followup: ['围绕实际报告中的具体争议，给一位相关研究员定向补查或答复。次数由本轮harness剩余预算决定，不编造争议，不重复全网研究。', object({ roleId: { enum: roles }, objective: string(3000), reason: string(1500), evidenceIds: ids })],
-  propose_forecast: ['提交二元候选，发布由应用独立验证。已知结果请明确 outcomeKnown，不把结果伪装成预测。', object({
-    probabilityYes: { type: 'number', minimum: 0, maximum: 1 }, summary: string(2000), evidenceIds: ids,
-    evidenceAdequacy: { enum: ['adequate', 'limited'] }, dissent: { type: 'array', items: string(1000), maxItems: 10 },
-    outcomeKnown: { type: 'boolean' }, outcome: { type: ['integer', 'null'], enum: [0, 1, null] },
-    sourceLimitations: { type: 'array', maxItems: 12, items: string(1000) },
-  }, ['probabilityYes', 'summary', 'evidenceIds', 'evidenceAdequacy', 'dissent', 'outcomeKnown', 'outcome'])],
-  mark_insufficient: ['来源、题义或调查不足时停止，给可修改的缺口；不要编造 ready 或默认概率。', object({ message: string(2000), missingFields: { type: 'array', items: string(240), maxItems: 20 } })],
-}
 const ajv = new Ajv({ allErrors: true, strict: true })
-const validators = Object.fromEntries(Object.entries(definitions).map(([name, [, schema]]) => [name, ajv.compile(schema)]))
-const nativeTool = (name) => ({ type: 'function', function: { name, description: definitions[name][0], parameters: definitions[name][1] } })
 const urlKey = (url) => { try { const value = new URL(url); value.hash = ''; return value.href } catch { return url } }
 const runtimeMessages = { BUDGET_EXHAUSTED: '研究员已用完本次调查预算，保留取得的证据和缺口。', DEADLINE_EXCEEDED: '调查任务已过执行期限。', MODEL_TIMEOUT: '模型请求超时，请稍后重试。', MODEL_NETWORK: '模型服务连接暂时失败，请稍后重试。',
   MODEL_HTTP: '模型服务拒绝请求，请检查服务配置后手动重试。', MODEL_BALANCE_REQUIRED: '模型服务余额不足，请确认账户额度后手动重试。', MODEL_AUTH_FAILED: '模型服务鉴权失败，请检查服务端凭据后手动重试。',
@@ -74,97 +46,6 @@ function durationHours(question) {
   const day = /(\d+|一|二|两|三|四|五|六|七)\s*(?:天|days?\b)/i.exec(question)
   if (day) return (Number(day[1]) || ({ 一: 1, 二: 2, 两: 2, 三: 3, 四: 4, 五: 5, 六: 6, 七: 7 })[day[1]]) * 24
   return /(?:一周|1\s*week)/i.test(question) ? 168 : null
-}
-
-/** Explicit, reproducible protocol fixture. It never presents its values as live forecasts. */
-export function createCourseMockProvider({ pacingMs = 0 } = {}) {
-  return {
-    model: 'course-protocol-fixture-v1', configurationId: 'course-protocol-fixture-v1', mode: 'mock',
-    async complete({ messages, tools = [], signal }) {
-      if (pacingMs) await delay(pacingMs, undefined, { signal })
-      checkCancelled(signal)
-      const available = new Set(tools.map((tool) => tool.function.name))
-      const initial = messages.find((message) => message.role === 'user')
-      const lastUser = messages.findLastIndex((message) => message.role === 'user')
-      let context = {}; try { context = JSON.parse(messages[lastUser].content) } catch {}
-      const recent = messages.slice(lastUser + 1)
-      const calls = recent.filter((message) => message.role === 'assistant').flatMap((message) => message.tool_calls || [])
-      const results = recent.filter((message) => message.role === 'tool').map((message) => {
-        const call = calls.find((item) => item.id === message.tool_call_id)
-        try { return { name: call?.function.name, value: JSON.parse(message.content) } } catch { return null }
-      }).filter(Boolean)
-      const found = (name) => results.findLast((item) => item.name === name)?.value
-      const action = (name, args) => ({ message: { role: 'assistant', content: null, tool_calls: [{
-        id: `fixture_${messages.filter((message) => message.role === 'assistant').length}_${name}`,
-        type: 'function', function: { name, arguments: JSON.stringify(args) },
-      }] }, finishReason: 'tool_calls', usage: { total_tokens: 180 } })
-      if (available.has('draft_and_delegate')) return action('draft_and_delegate', {
-        question: context.question, object: '用户提出的事件（协议模拟草稿）', interpretation: '待研究员实际取证的题意草稿，不是预测。',
-        assignments: suggestedRoles(context.question).map((roleId) => ({ roleId, objective: `${context.question}。${roleCatalogue().find((role) => role.roleId === roleId)?.focus}`, reason: `协议模拟按题选择${roleId}。` })),
-      })
-      if (available.has('normalize_prediction')) {
-        if (context.draft && context.evidence?.length) {
-          const source = context.evidence.find((item) => item.url === context.strict?.resolutionSourceUrl) || context.evidence.find((item) => !item.marketQuote) || context.evidence[0]
-          return action('normalize_prediction', { question: context.question, object: context.draft.object, targetAt: context.strict?.targetAt || context.targetAt,
-            forecastClosesAt: context.strict?.targetAt || context.targetAt, timezone: context.strict?.timezone || context.timezone,
-            resolutionRule: context.strict?.resolutionRule || '协议模拟规则：根据目标窗口指定原文核验；无法取得结果时不结算。',
-            resolutionSourceUrl: context.strict?.resolutionSourceUrl || source.url, unresolvablePolicy: '无法取得对应原文时不结算。', watchQuery: context.question.slice(0, 110) })
-        }
-        if (available.has('get_market_quote') && /比特币|BTC|bitcoin|以太|ETH/i.test(context.question) && !found('get_market_quote')) return action('get_market_quote', { pair: /ETH|以太/i.test(context.question) ? 'ETH-USD' : 'BTC-USD' })
-        if (!found('search_web')) return action('search_web', { query: context.question.slice(0, 110) })
-        const source = found('search_web')?.data?.results?.find((item) => item.url.includes('/official')) || found('search_web')?.data?.results?.[0]
-        if (!source) return action('mark_insufficient', { message: '协议演示未取得可用的来源候选。', missingFields: ['resolutionSource'] })
-        if (!found('fetch_page')) return action('fetch_page', { url: context.strict?.resolutionSourceUrl || source.url })
-        const fetched = found('fetch_page')
-        if (!['ok', 'partial'].includes(fetched?.status) || !fetched.evidenceIds.length) return action('mark_insufficient', { message: '协议演示原文读取失败。', missingFields: ['sourceText'] })
-        return action('normalize_prediction', {
-          question: context.question, object: '用户提出的事件（协议模拟）', targetAt: context.targetAt,
-          forecastClosesAt: context.targetAt, timezone: context.timezone,
-          resolutionRule: context.strict?.resolutionRule || '协议模拟规则：以目标时点指定来源对原问题的明确披露为准；缺少有效披露则人工核验，不把抓取失败判为否。',
-          resolutionSourceUrl: fetched.data.url, unresolvablePolicy: '来源不明或失联时不结算，保留人工核验。', watchQuery: context.question.slice(0, 110),
-        })
-      }
-      if (available.has('triage_update')) return action('triage_update', { kind: context.changeHints?.major ? 'team' : 'local',
-        roleIds: context.changeHints?.major ? context.previousTeam : [context.previousTeam.find((role) => role !== 'verification'), 'verification'],
-        reason: context.changeHints?.major ? '协议模拟：新原文含重大变化或冲突，召回本题团队。' : '协议模拟：普通增量只安排相关研究员和核验席。' })
-      if (available.has('delegate_work')) return action('delegate_work', { assignments: (context.selectedRoleIds || suggestedRoles(context.question)).map((roleId) => ({ roleId,
-        objective: `${context.question}。${roleCatalogue().find((role) => role.roleId === roleId)?.focus}`,
-        reason: `协议演示按题选择${roleId}的调查方法，不把所有题目交给相同团队。` })) })
-      if (available.has('request_followup') || available.has('propose_forecast')) {
-        const evidenceIds = [...new Set((context.reports || []).flatMap((report) => report.evidenceIds))]
-        if (available.has('request_followup') && !context.followUpDone) return action('request_followup', {
-          roleId: 'verification', objective: `复核协议示例新闻线索与正式来源的口径是否一致。问题：${context.question}`,
-          reason: '协议示例中新闻线索与正式披露的证明范围不同，需要再读取并明确证据边界。', evidenceIds,
-        })
-        if (!evidenceIds.length) return action('mark_insufficient', { message: '协议演示没有研究员实际读取的原文。', missingFields: ['workerEvidence'] })
-        const checksum = parseInt(digest(context.evidence.map((item) => item.contentHash)).slice(0, 4), 16)
-        return action('propose_forecast', { probabilityYes: 0.5 + (checksum % 20) / 100, summary: '协议模拟：已合并三份独立报告及针对性核验。此数值只演示完整流程，不是真实事件预测。',
-          evidenceIds, evidenceAdequacy: 'limited', dissent: ['模拟资料无法支持现实预测准确率主张。'], outcomeKnown: false, outcome: null })
-      }
-      // Same native protocol as live workers, with independent per-assignment message histories.
-      const workerContext = initial ? JSON.parse(initial.content) : {}
-      const workerCalls = messages.filter((message) => message.role === 'assistant').flatMap((message) => message.tool_calls || [])
-      const workerResult = (name) => {
-        const call = workerCalls.findLast((item) => item.function.name === name)
-        const result = call && messages.findLast((item) => item.role === 'tool' && item.tool_call_id === call.id)
-        return result ? JSON.parse(result.content) : null
-      }
-      if (available.has('get_market_quote') && /比特币|BTC|bitcoin|以太|ETH/i.test(workerContext.objective) && !workerResult('get_market_quote')) {
-        return action('get_market_quote', { pair: /ETH|以太/i.test(workerContext.objective) ? 'ETH-USD' : 'BTC-USD' })
-      }
-      const search = workerResult('search_web')
-      if (!search) return action('search_web', { query: `${workerContext.agentSpecId} ${workerContext.objective}`.slice(0, 80) })
-      const source = search.data?.results?.find((item) => item.url.includes(workerContext.agentSpecId === 'timeline' ? '/news' : workerContext.agentSpecId === 'verification' ? '/verification' : '/official')) || search.data?.results?.[0]
-      const read = workerResult('fetch_page')
-      if (source && !read) return action('fetch_page', { url: source.url })
-      const evidenceIds = ['ok', 'partial'].includes(read?.status) ? read.evidenceIds : []
-      return action('submit_report', { status: evidenceIds.length ? 'complete' : 'insufficient',
-        summary: evidenceIds.length ? `协议模拟${workerContext.agentSpecId}报告：已读取「${read.data.title}」，保留来源证明范围。` : '协议模拟未取得正文。',
-        evidenceIds, support: evidenceIds.length ? [{ claim: '该演示原文可用于核对本次子问题。', evidenceIds }] : [],
-        counterevidence: workerContext.agentSpecId === 'verification' && evidenceIds.length ? [{ claim: '演示线索不能自动证明事件已发生。', evidenceIds }] : [],
-        missingEvidence: ['现实前瞻结果尚未在此协议示例中验证。'], probability: null, nextSuggestion: '按指定来源后续变化继续核查。' })
-    },
-  }
 }
 
 export function createCourseService({ path, workbench, provider = createCourseMockProvider(), modelMode = 'mock', sourceTools,
@@ -249,14 +130,14 @@ export function createCourseService({ path, workbench, provider = createCourseMo
       try { result = await provider.complete(input) }
       catch (error) {
         if (!stopping && !terminal.has(store.requireRun(runId).status)) {
-          try { store.recordUsage(runId, error?.usage?.total_tokens) }
+          try { store.recordUsage(runId, error?.usage?.total_tokens, error?.usage) }
           catch (budgetError) { if (error?.usage) budgetError.usage = error.usage; throw budgetError }
         }
         if (blockingProviderFailure(error)) registerProviderFault(runId, error)
         throw error
       }
       ensure(runId, input.signal)
-      store.recordUsage(runId, result.usage?.total_tokens)
+      store.recordUsage(runId, result.usage?.total_tokens, result.usage)
       return result
     } }
   }
@@ -534,7 +415,7 @@ export function createCourseService({ path, workbench, provider = createCourseMo
     ]
     const mainResearchAllowed = phase === 'prepare' && !modern(run)
     const advertised = mainResearchAllowed ? gatewayTools.map((tool) => ({ type: 'function', function: { name: tool.toolId, description: tool.description, parameters: tool.inputSchema } })).concat(allowedNames.map(nativeTool)) : allowedNames.map(nativeTool)
-    state.main ||= { messages: [{ role: 'system', content: '你是自主事件研究主Agent。preset宽泛问法要用常识加联网补全可解释假设，不因缺账号、发帖类型、阈值或细小时间歧义拒绝；默认窗口已由服务器给出，时间只能引用timeContext，禁止自己换算Z为本地。马斯克发推特默认X @elonmusk公开原发/回复/引用/转发；比特币回升优先get_market_quote取真实现价基准，高于该固定基准算回升，不要求用户先填交易所。strict锁已填字段。第一次来源404/登录限制后应搜索替代公开报道/存档，不把snippet冒正文；不能访问官方可用已读取替代公开资料，说明限制，不假称官方确认。缺报价但有相关公开原文可以条件估计，绝不编价；完全无可读资料才mark_insufficient。规范工具question写事件含义不要写具体时间，规则用“目标时点”或{{TARGET_LOCAL}}，server负责标题时间。按题从10角色目录选3差异职责并给理由，包含verification，不要每题同队。普通watch增量只相关+核验两人，重大/冲突才原团队。历史记忆不是新证据，只可作比较和检索线索，当前引用必须本轮实际读取。当前事实不等于未来目标结果，当前CEO状态不能结算未来任职。公开简短计划和条件概率，不输出隐藏推理，不把团队一致当正确。' }], calls: 0 }
+    state.main ||= { messages: [{ role: 'system', content: legacyMainSystem }], calls: 0 }
     const contextKey = `${phase}:${modern(run) ? cycleOf(run) : Boolean(state.followUpDone)}`
     if (state.main.phase !== contextKey && !state.main.pending) {
       // Preserve the audit privately, but never pay to re-send earlier source
@@ -584,7 +465,7 @@ export function createCourseService({ path, workbench, provider = createCourseMo
         state.main.currentAttempt = (state.main.currentAttempt || 0) + 1
         const used = store.requireRun(runId).usage
         const limits = runBudget(runId)
-        state.main.baseSystem ||= modern(run) ? '你是多Agent事件研究协调员。第一步只改写题意、明示假设并按需派出三种不同职责（含verification），不预先调查、不提供概率。BTC/ETH价格题明确安排market或statistics用get_market_quote取得现价固定基准；其他资产工具不支持时由研究员说明缺口，不编造报价。研究员独立搜索/读原文/核对指标；报告返回后你根据已读证据核定真实契约，再组织汇报、提出带证据的质询和必要补查，最后提交概率与限制。所有任务、工具和发布由harness校验，不用自然语言冒充工具调用。preset常见缺项用公开假设补全；strict已填的时间、来源、规则不可改。时间只引用server timeContext；今天为创建时当地日终。来源摘要不是正文；资料缺失不等于事件为否。短期记忆为同题同版本近7天最多4次实质研判；先比较recentJudgments里的概率变化、支持/反证因素及未解决问题，再说明新证据为何改变或维持判断。长期近90天的关系和旧来源仅作检索线索，必须重读核验后才能引用；检索窗口不删除旧封存，也不训练模型参数。公开计划和摘要，不输出隐藏推理；概率、资料充分度与团队一致度分开。' : state.main.messages[0].content
+        state.main.baseSystem ||= modern(run) ? modernMainSystem : state.main.messages[0].content
         state.main.messages[0].content = state.main.baseSystem + `\n[本轮执行规则与预算]\n阶段=${phase}；第${cycleOf(run)}个协作周期。你只整理、派工、核验报告和总结；v3初始不得先联网研究。intake最多2次有效决策且只调用draft_and_delegate；临时服务故障每步最多3次传输尝试，均计入总预算。研究员前最多5次决策调查、第6次只报告；资料足够可提前报告。会后最多2次定向补查，当前剩余${remainingFollowUps}次，不能无限搜索或为了展示凑轮数。\n单次输出上限${limits.maxTokens} tokens（含供应商思考/输出计量），主Agent总请求上限${limits.mainRequests}，已预留${state.main.calls}次；全轮模型上限${limits.maxModelRequests}、工具${limits.maxToolCalls}、累计${limits.maxTotalTokens} tokens。当前已用模型${used.modelRequests}、工具${used.toolCalls}、tokens ${used.totalTokens}；剩余模型${Math.max(0, limits.maxModelRequests - used.modelRequests)}、工具${Math.max(0, limits.maxToolCalls - used.toolCalls)}、tokens ${Math.max(0, limits.maxTotalTokens - used.totalTokens)}。重试也计费，达到上限停止。\n公开文字简洁：题意/解释≤200中文字；每人任务≤300字、理由≤100字；总结≤400字，分歧和限制每条≤120字、各≤5条。字数是写作目标、token是实际执行上限，两者不能等同。不要输出隐藏推理或把无来源内容充作证据。`
         store.saveRun(runId, { state })
         const timeout = AbortSignal.timeout(runBudget(runId).timeoutMs)

@@ -1,28 +1,35 @@
 const fault = (code, message, status = 400) => Object.assign(new Error(message), { code, status })
 
 /** Session-only credentials. The public view never includes keys or fragments. */
-export function createProviderConnection({ configured = false, getActiveCount, getActiveWatchCount = () => 0, applyKey, getMode = () => 'live' }) {
+export function createProviderConnection({ configured = false, locked = false, getActiveCount, getActiveWatchCount = () => 0, applyKey, getMode = () => 'live' }) {
   let keySource = configured ? 'environment' : 'none'
+  let connection = 'unknown'
+  let verifiedAt = null
   let changing = false
   const status = () => {
     const activeRuns = getActiveCount()
     const activeWatchers = getActiveWatchCount()
-    return { provider: 'deepseek', configured, keySource, modelMode: getMode(), persistence: 'server-session',
-      activeRuns, activeWatchers, canUpdate: !changing && activeRuns === 0 && activeWatchers === 0, changing }
+    return { provider: 'deepseek', configured, keySource, connection, verifiedAt, modelMode: getMode(), persistence: 'server-session', locked,
+      activeRuns, activeWatchers, canUpdate: !locked && !changing && (!configured || (activeRuns === 0 && activeWatchers === 0)), changing }
   }
   return {
     status,
     get changing() { return changing },
     async update(input) {
+      if (locked) throw fault('MODE_LOCKED', '当前是模拟环境，不能保存真实 API Key。请使用 npm run start:live。', 409)
       if (!input || typeof input !== 'object' || Array.isArray(input) || Object.keys(input).some(k => k !== 'apiKey') ||
         typeof input.apiKey !== 'string' || !/^[a-zA-Z0-9._-]{12,512}$/.test(input.apiKey.trim())) {
         throw fault('INVALID_API_KEY', '请输入有效的 DeepSeek API Key，不要包含空格或换行。')
       }
-      if (changing || getActiveCount() > 0 || getActiveWatchCount() > 0) throw fault('PROVIDER_UPDATE_BUSY', '仍有任务正在运行、排队或持续监听，请先停止跟踪后再保存；当前连接保持不变。', 409)
+      if (changing || (configured && (getActiveCount() > 0 || getActiveWatchCount() > 0))) throw fault('PROVIDER_UPDATE_BUSY', '保存已拒绝：仍有正在运行、排队或持续监听的任务，原 API Key 保持不变。请先停止这些任务，再重新保存。', 409)
       changing = true
       try {
-        await applyKey(input.apiKey.trim())
+        const applied = await applyKey(input.apiKey.trim())
         configured = true; keySource = 'session'
+        if (applied && ['connected', 'failed'].includes(applied.connection)) {
+          connection = applied.connection
+          verifiedAt = new Date().toISOString()
+        }
       } catch {
         throw fault('PROVIDER_UPDATE_FAILED', '连接配置未能更新，请检查服务设置后重试。', 503)
       } finally { changing = false }
@@ -51,7 +58,7 @@ export async function handleProviderConnection(connection, req, res) {
       send(res, 200, await connection.update(input))
     } else send(res, 405, { error: { code: 'METHOD_NOT_ALLOWED', message: '该连接入口仅支持读取或保存。' } })
   } catch (error) {
-    const known = ['INVALID_API_KEY', 'PROVIDER_UPDATE_BUSY', 'PROVIDER_UPDATE_FAILED', 'CONNECTION_UNAVAILABLE', 'JSON_REQUIRED', 'BODY_TOO_LARGE', 'INVALID_JSON'].includes(error.code)
+    const known = ['INVALID_API_KEY', 'PROVIDER_UPDATE_BUSY', 'PROVIDER_UPDATE_FAILED', 'CONNECTION_UNAVAILABLE', 'JSON_REQUIRED', 'BODY_TOO_LARGE', 'INVALID_JSON', 'MODE_LOCKED'].includes(error.code)
     send(res, known ? error.status : 500, { error: { code: known ? error.code : 'CONNECTION_FAILED', message: known ? error.message : '连接配置暂时不可用。', retryable: false } })
   }
   return true

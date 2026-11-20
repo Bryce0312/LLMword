@@ -101,7 +101,7 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
       predictionVersion: request.predictionVersion || null, modelMode: configuration.modelMode || request.modelMode, sourceMode: configuration.sourceMode || request.sourceMode,
       providerIdentity: configuration.providerIdentity || request.providerIdentity, modelRef: configuration.modelRef || request.modelRef || null, createdAt: at, updatedAt: at, state: {},
       harnessVersion, budget: configuration.budget || request.budget || null,
-      usage: { modelRequests: 0, toolCalls: 0, totalTokens: 0, unknownUsage: false }, error: null }
+      usage: { modelRequests: 0, toolCalls: 0, totalTokens: 0, promptTokens: 0, completionTokens: 0, cacheHitTokens: 0, cacheMissTokens: 0, unknownUsage: false }, error: null }
     db.prepare('INSERT INTO course_runs VALUES (?,?,?)').run(run.runId, requestId, json(run))
     writeRequest({ ...request, activeRunId: run.runId, latestRunId: run.runId, status: 'queued', updatedAt: at })
     append(run, { type: 'run.queued', payload: { summary: trigger === 'watch' ? '后台任务唤醒本题检查。' : '已收到问题，主 Agent 开始调查。' } })
@@ -199,11 +199,17 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
         writeRun(run); return run.usage
       })
     },
-    recordUsage(runId, totalTokens) {
+    recordUsage(runId, totalTokens, details = null) {
       const usage = tx(() => {
         const run = active(runId)
         if (Number.isInteger(totalTokens) && totalTokens >= 0) run.usage.totalTokens += totalTokens
         else run.usage.unknownUsage = true
+        if (details && typeof details === 'object') {
+          for (const [source, target] of [['prompt_tokens', 'promptTokens'], ['completion_tokens', 'completionTokens'],
+            ['prompt_cache_hit_tokens', 'cacheHitTokens'], ['prompt_cache_miss_tokens', 'cacheMissTokens']]) {
+            if (Number.isSafeInteger(details[source]) && details[source] >= 0) run.usage[target] = (run.usage[target] || 0) + details[source]
+          }
+        }
         writeRun(run)
         return run.usage
       })

@@ -8,7 +8,7 @@ import { setTimeout as delay } from 'node:timers/promises'
 import test from 'node:test'
 
 async function launch(folder, t) {
-  const child = spawn(process.execPath, ['start.mjs'], {
+  const child = spawn(process.execPath, ['server/app.mjs'], {
     cwd: new URL('.', import.meta.url), env: { ...process.env, PORT: '0', WORLD_MODEL: 'mock', WORLD_API_KEY: '',
       WORLD_MONITOR: 'off', WORLD_MOCK_PACING: '0', WORLD_RUNTIME: 'probe',
       WORLD_STATE_PATH: join(folder, 'legacy.json'), WORLD_RUNTIME_PATH: join(folder, 'runtime.sqlite') },

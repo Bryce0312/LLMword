@@ -92,14 +92,24 @@
 
 ```powershell
 npm.cmd ci
-node start.mjs
+npm.cmd run start:mock
 ```
 
-打开 [世界事务所](http://127.0.0.1:4173)，先进入顶部“模型连接”，输入自己的DeepSeek API Key并保存，再返回输入问题、点击“开始跟踪”。可选24小时、48小时和7天；明确时长优先，“今天”固定到当地当天结束。未配置Key时默认是明确标识的虚构演示，不能拿来预测现实问题；保存Key后课程入口切到真实模式。
+打开 [世界事务所](http://127.0.0.1:4173)，输入问题、点击“开始跟踪”。可选24小时、48小时和7天；明确时长优先，“今天”固定到当地当天结束。该入口是明确标识的虚构演示，不能拿来预测现实问题；模型连接在此入口已锁定，真实运行请改用 `start:live` 入口。
 
 领域数据默认写入 `${WORLD_STATE_PATH}.domain.sqlite`，课程协作、监听及发布写入 `${WORLD_STATE_PATH}.course.sqlite`；M0/M1 单人验证使用 `${WORLD_STATE_PATH}.runtime.sqlite`。分别支持 `WORLD_DOMAIN_PATH`、`WORLD_COURSE_PATH`、`WORLD_RUNTIME_PATH`。旧案例及监测另存档。只要 Node 服务保持运行，关闭网页不影响任务；服务重启恢复检查点和到期待办。
 
-真实调查设置 `WORLD_MODEL=openai`、`WORLD_MODEL_NAME=deepseek-v4-pro`、`WORLD_BASE_URL=https://api.deepseek.com`、`WORLD_SEARCH_PROVIDER=deepseek`，将自己的 `WORLD_API_KEY` 放在服务端环境。课堂深度研判另启用 `WORLD_MODEL_THINKING=enabled`、`WORLD_MODEL_REASONING_EFFORT=high`、`WORLD_MODEL_MAX_OUTPUT_TOKENS=32768`、`WORLD_MODEL_TIMEOUT_MS=180000`。可复制 `.env.example` 为被忽略的 `.env`，填好后运行 `node --env-file=.env start.mjs`；直接 `node start.mjs` 只读取进程环境。`WORLD_COURSE_POLL_MS` 默认一小时，演示可缩短；真实网络使用时自行控制调用费用。`WORLD_COURSE=off` 可关闭课程入口后端。
+真实调查用 `npm.cmd run start:live`：入口默认监听 4174、使用 `.data/live/`，可以不带 Key 先启动；打开 [真实环境](http://127.0.0.1:4174) 后先在“模型连接”保存自己的 DeepSeek API Key，未保存前不会创建或恢复任何调查。保存后会自动调用 `/models` 校验连接：成功显示“已连接”，失败显示“已配置，未连接”，但 Key 仍会保留在当前服务进程内。Key 不写入浏览器存储、不回显输入框，刷新后需要重新输入。模型名、端点、思考与超时已有 DeepSeek 默认值。也可复制 `.env.example` 为被忽略的 `.env`，填好后运行 `node --env-file=.env start-live.mjs`，此时 Key 从服务端环境读取。`WORLD_COURSE_POLL_MS` 默认一小时，演示可缩短；真实网络使用时自行控制调用费用。`WORLD_COURSE=off` 可关闭课程入口后端。需要自定义端口、存档路径或旧版自动模式的调试场景，直接运行内部装配入口 `node server/app.mjs`，它不做模拟/真实环境锁。
+
+默认端口 4173/4174、数据目录 `.data/mock/` / `.data/live/`。需要同模式多实例时，用 `PORT` 和 `WORLD_DATA_DIR` 指定独立端口与目录；同一数据目录仍只能有一个进程：
+
+```powershell
+$env:PORT = '5173'
+$env:WORLD_DATA_DIR = '.data/mock-b'
+npm.cmd run start:mock
+```
+
+旧 `.data/world.json*` 混合归档可用 `node scripts/legacy-data.mjs` 预览；停止相关服务后运行 `node scripts/legacy-data.mjs --apply`，会按课程运行记录迁移到 `.data/mock/legacy/`、`.data/live/legacy/`；混合或无法判断时放入 `.data/legacy/`。
 
 ## 按 PRD 开发
 
@@ -114,7 +124,7 @@ $env:WORLD_MODEL = 'mock'
 $env:WORLD_MONITOR = 'off'
 $env:WORLD_STATE_PATH = '.data/probe-legacy.json'
 $env:WORLD_RUNTIME_PATH = '.data/runtime-probe.sqlite'
-node start.mjs
+node server/app.mjs
 ```
 
 在另一个终端创建验证任务：
@@ -149,7 +159,7 @@ Node 服务只监听本机。旧版回放状态默认存到 `.data/world.json`�
 ```powershell
 $env:WORLD_MONITOR = 'demo'
 $env:WORLD_MONITOR_PATH = '.data/monitor-demo.json'
-node start.mjs
+node server/app.mjs
 ```
 
 模拟模型用固定间隔交付各席实际生成的结果，便于观看。自动化测试可设 `WORLD_MOCK_PACING=0`，真实模型按实际返回进度推送。
@@ -163,7 +173,7 @@ $env:WORLD_MODEL = 'openai'
 $env:WORLD_MODEL_NAME = '<模型名称>'
 $env:WORLD_BASE_URL = 'https://api.openai.com/v1'
 $env:WORLD_STATE_PATH = '.data/world-live.json'
-node start.mjs
+node server/app.mjs
 ```
 
 密钥由 Node 后端读取。真实模型模式会把当前角色技能、允许读取的案例数据和已结算经验发往配置的模型端点。演示自带的数据来自公开披露。

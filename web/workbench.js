@@ -4,7 +4,7 @@ import { topicForm, predictionForm } from './workbench-forms.js'
 import { sidebar, board, inbox, learning, agents, topicView } from './workbench-views.js'
 import { detail, reportView } from './workbench-detail.js'
 import { courseBoard, courseStartForm, mountCourseRequest } from './workbench-course.js'
-import { probeCourseCapability, unavailableCourseCapability, isMissingCourseApi } from './course-capability.mjs'
+import { probeCourseCapability, unavailableCourseCapability, isMissingCourseApi, environmentPresentation } from './course-capability.mjs'
 import { providerConnectionView } from './workbench-provider.js'
 
 const cache = { topics: [], predictions: [], agents: [], tools: [], config: {}, courseRequests: [], courseAvailable: false, courseCapability: null, courseHistoryError: null, runs: new Map(), events: new Map() }
@@ -23,8 +23,26 @@ const ctx = {
   checkCourseCapability, setCourseCapability,
   onFilter(value) { ctx.filterTopic = value; renderSidebar(); if (location.hash === '#/predictions') void renderRoute(); else goto('/predictions') },
 }
+function renderEnvironmentBadge(config = cache.config, connection = cache.courseConnection) {
+  const el = $('wb-environment')
+  if (!el) return
+  const presentation = environmentPresentation(config, connection)
+  if (!presentation) { el.hidden = true; return }
+  el.hidden = false
+  el.textContent = presentation.text
+  el.dataset.mode = presentation.mode
+  el.dataset.dot = presentation.dot
+  el.dataset.connected = presentation.configured ? 'true' : 'false'
+  el.title = presentation.title
+}
+async function refreshEnvironmentBadge() {
+  try { cache.courseConnection = await api('/course/provider-connection') }
+  catch { cache.courseConnection = null }
+  renderEnvironmentBadge(cache.config, cache.courseConnection)
+}
 function setCourseCapability(capability) {
   cache.courseCapability = capability; cache.courseAvailable = capability.available
+  if (capability.config) { cache.config = capability.config; renderEnvironmentBadge(capability.config); void refreshEnvironmentBadge() }
   const { parts } = route()
   if (parts[0] === 'course' || (parts[0] === 'predictions' && (!parts[1] || parts[1] === 'new'))) {
     const notice = document.querySelector('.wb-stage-note > span:not(.wb-tag)')
@@ -136,6 +154,8 @@ async function initialize() {
   try {
     const [topics, predictions, agents, tools, config] = await Promise.all([api('/topics'), api('/predictions'), api('/agents'), api('/tools'), api('/config')])
     cache.topics = topics.topics; cache.predictions = predictions.predictions; cache.agents = agents.agents; cache.tools = tools.tools; cache.config = config
+    renderEnvironmentBadge(config)
+    void refreshEnvironmentBadge()
     const capability = await checkCourseCapability()
     cache.courseHistoryError = null
     if (capability.available) {

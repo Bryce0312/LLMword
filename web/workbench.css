@@ -11,6 +11,11 @@
 .wb-header nav a:hover, .wb-header nav a.is-selected { color: #ffe1a4; border-color: var(--amber); background: #362936; }
 .wb-connection { font-size: 12px; color: #bfd2ad; white-space: nowrap; }
 .wb-connection[data-state] { color: #f1c989; }
+.wb-environment { font-size: 11px; padding: 3px 8px; border: 1px solid #8a6b52; color: #f1c989; background: #3a2b35; white-space: nowrap; }
+.wb-environment::before { content: ''; display: inline-block; width: 7px; height: 7px; margin-right: 5px; border-radius: 50%; background: #8d8172; vertical-align: 1px; }
+.wb-environment[data-dot="ready"]::before { background: #8fd37a; box-shadow: 0 0 0 2px #3d5734; }
+.wb-environment[data-dot="warning"]::before { background: #e6b85c; box-shadow: 0 0 0 2px #5a4526; }
+.wb-environment[data-mode="live"] { color: #cfe6b7; border-color: #6d8a5a; background: #2f3a2c; }
 .wb-stage-note { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; background: #382e3c; padding: 10px 22px; border-bottom: 2px solid #171721; font-size: 12px; line-height: 1.6; color: #d5c3af; }
 .wb-stage-note > a { margin-left: auto; color: #efc383; }
 .wb-tag { display: inline-block; font-size: 12px; background: #684936; color: #ffe4ad; border: 2px solid #a57c50; padding: 3px 7px; white-space: nowrap; }
@@ -187,14 +192,14 @@
   .wb-header nav { gap: 0; }
   .wb-header nav a { font-size: 13px; padding: 8px; }
   .wb-research-layout { grid-template-columns: minmax(0,1fr); }
-  .wb-forecast-note { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 6px 20px; }
-  .wb-forecast-note .wb-tag, .wb-forecast-note h2, .wb-forecast-explain { grid-column: 1/-1; }
-  .wb-forecast-note .wb-tag { justify-self: start; }
-  .wb-yes-no { grid-column: 1; align-self: start; }
-  .wb-probability-empty { grid-column: 1; }
-  .wb-facts { grid-column: 2; grid-row: 3/5; }
   .wb-inbox-layout { grid-template-columns: 1fr; }
   .wb-agent-picker { grid-template-columns: repeat(3,minmax(0,1fr)); }
+}
+@media (min-width: 901px) and (max-width: 1180px) {
+  .wb-forecast-note { columns: 2; column-gap: 20px; }
+  .wb-forecast-note > * { break-inside: avoid; }
+  .wb-forecast-note .wb-tag, .wb-forecast-note h2, .wb-forecast-explain { column-span: all; }
+  .wb-forecast-note .wb-tag { display: block; width: max-content; }
 }
 @media (max-width: 900px) {
   .wb-layout { grid-template-columns: minmax(0,1fr); }
@@ -218,6 +223,7 @@
   .wb-header nav { width: 100%; justify-content: space-between; order: 3; }
   .wb-header nav a { font-size: 13px; padding: 9px 5px; }
   .wb-connection { width: auto; margin: 0 0 0 auto; font-size: 10px; white-space: normal; max-width: 90px; line-height: 1.7; }
+  .wb-environment { font-size: 10px; padding: 2px 5px; max-width: 120px; white-space: normal; line-height: 1.4; }
   .wb-stage-note { padding: 10px 12px; font-size: 11px; }
   .wb-content { padding: 21px 12px 24px; }
   .wb-page-heading { flex-direction: column; gap: 12px; }

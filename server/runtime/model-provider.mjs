@@ -41,6 +41,28 @@ export async function abortable(operation, signal) {
   }
 }
 
+/** Check a saved credential with the model list endpoint: no generation tokens; the body is consumed but never used. */
+export async function verifyModelCredentials(env = process.env, request = fetch, timeoutMs = 8000) {
+  const key = env.WORLD_API_KEY
+  if (!key) throw new RuntimeError('MODEL_CONFIG', '需要配置服务端凭据。')
+  let base
+  try { base = new URL(env.WORLD_BASE_URL || 'https://api.deepseek.com') } catch {
+    throw new RuntimeError('MODEL_CONFIG', '模型基础地址无效。')
+  }
+  if (!['http:', 'https:'].includes(base.protocol) || base.username || base.password || base.search || base.hash) {
+    throw new RuntimeError('MODEL_CONFIG', '模型基础地址必须是有效的 HTTP(S) 地址。')
+  }
+  const response = await request(`${base.href.replace(/\/+$/, '')}/models`, {
+    method: 'GET',
+    headers: { Authorization: `Bearer ${key}` },
+    signal: AbortSignal.timeout(timeoutMs),
+  })
+  // Consume and discard the body so the connection can be released. Its content is never
+  // parsed, logged or returned; only the HTTP status decides the result.
+  try { await response.text?.() } catch {}
+  return { connected: response.ok, status: response.status }
+}
+
 export function createModelProvider(env = process.env, request = fetch) {
   const key = env.WORLD_API_KEY
   const model = env.WORLD_MODEL_NAME

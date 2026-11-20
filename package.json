@@ -7,7 +7,9 @@
     "node": ">=20"
   },
   "scripts": {
-    "start": "node start.mjs",
+    "start:mock": "node start-mock.mjs",
+    "start:live": "node start-live.mjs",
+    "migrate:data": "node scripts/legacy-data.mjs",
     "test": "node --test"
   },
   "dependencies": {

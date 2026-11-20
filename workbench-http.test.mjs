@@ -11,7 +11,7 @@ async function fixture(t) {
   const folder = await mkdtemp(join(tmpdir(), 'llmword-m1-http-')); const stops = []
   t.after(async () => { for (const stop of stops.reverse()) await stop(); await rm(folder, { recursive: true, force: true }) })
   return { async launch() {
-    const child = spawn(process.execPath, ['start.mjs'], { cwd: new URL('.', import.meta.url),
+    const child = spawn(process.execPath, ['server/app.mjs'], { cwd: new URL('.', import.meta.url),
       env: { ...process.env, PORT: '0', WORLD_MODEL: 'mock', WORLD_API_KEY: '', WORLD_MONITOR: 'off',
         WORLD_WORKBENCH: 'on', WORLD_RUNTIME: 'probe', WORLD_MOCK_PACING: '0',
         WORLD_STATE_PATH: join(folder, 'legacy.json'), WORLD_RUNTIME_PATH: join(folder, 'runtime.sqlite'), WORLD_DOMAIN_PATH: join(folder, 'domain.sqlite') } })
