@@ -1,0 +1,1534 @@
+{
+  "version": 1,
+  "recordedAt": "2026-11-20T17:30:58.762Z",
+  "kind": "finance-live-validation",
+  "notAccuracyBenchmark": true,
+  "scope": "两条真实英伟达案例；第二条复用原报告恢复最终汇总。没有新增付费案例。",
+  "records": [
+    {
+      "title": "英伟达财报数字与发言人核验（第一次尝试）",
+      "question": "核验英伟达最新一期财报：对齐中英文官方稿，核查营收、同比/环比、下一季指引及实际发言人；将黄仁勋以往表述与本期管理层表述分开。引用原文并标明会计口径、财季和金额单位。",
+      "requestId": "course_request_9c1a2082-f9ec-48ee-9654-3fce98059617",
+      "status": "stopped",
+      "checks": [
+        "预算达到153203 tokens时主动停止，未捏造正文、未发布概率"
+      ],
+      "runs": [
+        {
+          "runId": "course_run_426c2fe1-90c3-4ff4-8997-cc29213169b3",
+          "status": "cancelled",
+          "usage": {
+            "modelRequests": 17,
+            "toolCalls": 23,
+            "totalTokens": 153203,
+            "promptTokens": 120871,
+            "completionTokens": 32332,
+            "cacheHitTokens": 4352,
+            "cacheMissTokens": 116519,
+            "unknownUsage": false
+          },
+          "createdAt": "2026-11-20T16:17:30.624Z",
+          "updatedAt": "2026-11-20T16:21:53.473Z",
+          "error": null,
+          "collaboration": {
+            "version": 1,
+            "runId": "course_run_426c2fe1-90c3-4ff4-8997-cc29213169b3",
+            "modelMode": "live",
+            "sourceMode": "live",
+            "team": [
+              {
+                "assignmentId": "course_run_426c2fe1-90c3-4ff4-8997-cc29213169b3_official_initial",
+                "roleId": "official",
+                "name": "官方资料研究员",
+                "objective": "以英伟达公司IR、SEC正式披露和官方中文站为来源，先确认最近一期季度财报的财季（如Q3 FY2027）、期末日、公布日及实际发言人。逐条摘录营收、同比/环比、下一季指引的原文（中英文对照），标明金额单位（百万/十亿 USD）、会计口径（GAAP/non-GAAP）和指引性质。区分实际业绩、管理层指引与前瞻声明；只把已读原文标为官方事实，翻译稿需与英文稿同源核对。",
+                "reason": "官方稿是最直接来源，负责确认财季、实际发言人及中英文对齐。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "failed",
+                "reportStatus": null,
+                "summary": "研究员已用完本次调查预算，保留取得的证据和缺口。",
+                "probability": null,
+                "evidenceIds": [],
+                "support": [],
+                "counterevidence": [],
+                "missingEvidence": [],
+                "decision": null,
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_426c2fe1-90c3-4ff4-8997-cc29213169b3_statistics_initial",
+                "roleId": "statistics",
+                "name": "统计与指标研究员",
+                "objective": "用官方财报数字核验：营收金额与单位、同比(YoY)、环比(QoQ)、下一季指引。用compare_financial_metrics计算货币指标增长率（period按财季格式填写），逐项保留金额、币种、单位表头及GAAP/non-GAAP口径。区分同比、环比、指引与已实现值；找不到可比数据就明确缺口，不虚构计算。",
+                "reason": "题目要求精确核验同比/环比与指引，需统计口径与增长率。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "insufficient",
+                "summary": "截至2026-11-21（沪）已披露的英伟达最近一期为2027财年Q3（截至2026-10-25），2026-11-17美股盘后公布（北京时间11-18）。搜索摘要显示：营收1158亿美元（$115.8B，单位十亿USD），同比+103%（对比Q3 FY26的570亿美元）、环比+20%（对比Q2 FY27的962亿美元）；数据中心1076亿美元、同比+110%；GAAP摊薄EPS $2.70（同比+108%）、non-GAAP $2.68；GAAP/non-GAAP毛利率74.8%/74.9%。本期管理层发言人为临时CEO、执行副总裁兼CFO Colette Kress；黄仁勋已卸任CEO，本期财报为其卸任后首份，无其本人本期管理层表述，须与其既往表述分开。Q4 FY27指引仅见GAAP/non-GAAP毛利率71.0%-72.0%、GAAP运营费用约$11.0B（数字不完整），营收指引未捕获。关键缺口：官方IR英文页与官方中文博客正文两次抓取均失败（SOURCE_CONTENT_MISSING），所有数字来自搜索摘要而非官方全文，未能以原文引用核对表头、口径与金额单位。",
+                "probability": null,
+                "evidenceIds": [],
+                "support": [],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "官方IR英文新闻稿全文（抓取失败，无法引用原文表头与完整数字）",
+                  "官方中文博客blogs.nvidia.cn全文（抓取失败）",
+                  "Q4 FY27营收指引金额（未捕获）",
+                  "GAAP运营费用完整数字（仅见约$11.0B，不完整）",
+                  "黄仁勋卸任CEO公告及其既往管理层表述原文（用于与本期Colette Kress表述分开）"
+                ],
+                "decision": null,
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_426c2fe1-90c3-4ff4-8997-cc29213169b3_verification_initial",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "独立反证：用search_news双语检索，核对中英文稿是否为同一公司发布、发言归属（谁在本期说了什么，注明场合和财季）、黄仁勋以往表述是否被误植为本期管理层表述、季度/币种/GAAP差异及事实与指引。发现矛盾读原始出处；证据不足保留异议。",
+                "reason": "需独立核验发言归属与中英文一致性，防止旧引语混入本期表述。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "failed",
+                "reportStatus": null,
+                "summary": "研究员已用完本次调查预算，保留取得的证据和缺口。",
+                "probability": null,
+                "evidenceIds": [],
+                "support": [],
+                "counterevidence": [],
+                "missingEvidence": [],
+                "decision": null,
+                "review": null
+              }
+            ],
+            "reviews": [
+              {
+                "assignmentId": "course_run_426c2fe1-90c3-4ff4-8997-cc29213169b3_statistics_followup_2",
+                "roleId": "statistics",
+                "name": "统计与指标研究员",
+                "objective": "读取本轮已捕获的官方英文新闻稿与官方中文博客原文，逐项核实并给出原文引用（含表头、单位、口径）：1) Q3 FY2027营收确切数值、金额单位（$ in billions/十亿美元 USD）、同比%（基期Q3 FY26）与环比%（基期Q2 FY27）；2) Q4 FY2027指引：营收指引、GAAP/non-GAAP毛利率区间、GAAP运营费用完整数字及单位；3) 实际发言人及职务：确认是否Colette Kress（interim CEO/EVP/CFO），黄仁勋是否已卸任CEO、本期有无其本人管理层表述（引语须注明场合与归属）；4) 中英文稿一致性差异（如GAAP毛利率74.8% vs non-GAAP 74.9%口径差异）。每条发现引用原文片段并标明财季、GAAP/non-GAAP、USD单位。",
+                "reason": "统计报告未读官方全文（fetch失败，仅搜索摘要、无原文引用），关键数字、Q4营收指引与发言人归属均未以原文核实；本轮证据已捕获英/中文官方稿，需补齐原文引用后方可采信。",
+                "followUp": true,
+                "cycle": 2,
+                "status": "cancelled",
+                "reportStatus": null,
+                "summary": "",
+                "probability": null,
+                "evidenceIds": [],
+                "support": [],
+                "counterevidence": [],
+                "missingEvidence": [],
+                "decision": null,
+                "review": {
+                  "objective": "读取本轮已捕获的官方英文新闻稿与官方中文博客原文，逐项核实并给出原文引用（含表头、单位、口径）：1) Q3 FY2027营收确切数值、金额单位（$ in billions/十亿美元 USD）、同比%（基期Q3 FY26）与环比%（基期Q2 FY27）；2) Q4 FY2027指引：营收指引、GAAP/non-GAAP毛利率区间、GAAP运营费用完整数字及单位；3) 实际发言人及职务：确认是否Colette Kress（interim CEO/EVP/CFO），黄仁勋是否已卸任CEO、本期有无其本人管理层表述（引语须注明场合与归属）；4) 中英文稿一致性差异（如GAAP毛利率74.8% vs non-GAAP 74.9%口径差异）。每条发现引用原文片段并标明财季、GAAP/non-GAAP、USD单位。",
+                  "reason": "统计报告未读官方全文（fetch失败，仅搜索摘要、无原文引用），关键数字、Q4营收指引与发言人归属均未以原文核实；本轮证据已捕获英/中文官方稿，需补齐原文引用后方可采信。",
+                  "evidenceIds": [
+                    "course_evidence_0135971794b24e817e563cdcef5d5d2d",
+                    "course_evidence_69c8a411c8ca86e5ce58c5379abd7997",
+                    "course_evidence_8067af212c3da969985f39e9140f7d89",
+                    "course_evidence_8bc98b088d61da4da891a63cb60481e5",
+                    "course_evidence_a6ef08af71d4041fa5c07a7ad7fef5e8"
+                  ],
+                  "parentAssignmentIds": [],
+                  "requestedAt": "2026-11-20T16:20:04.946Z"
+                },
+                "previousSummary": "截至2026-11-21（沪）已披露的英伟达最近一期为2027财年Q3（截至2026-10-25），2026-11-17美股盘后公布（北京时间11-18）。搜索摘要显示：营收1158亿美元（$115.8B，单位十亿USD），同比+103%（对比Q3 FY26的570亿美元）、环比+20%（对比Q2 FY27的962亿美元）；数据中心1076亿美元、同比+110%；GAAP摊薄EPS $2.70（同比+108%）、non-GAAP $2.68；GAAP/non-GAAP毛利率74.8%/74.9%。本期管理层发言人为临时CEO、执行副总裁兼CFO Colette Kress；黄仁勋已卸任CEO，本期财报为其卸任后首份，无其本人本期管理层表述，须与其既往表述分开。Q4 FY27指引仅见GAAP/non-GAAP毛利率71.0%-72.0%、GAAP运营费用约$11.0B（数字不完整），营收指引未捕获。关键缺口：官方IR英文页与官方中文博客正文两次抓取均失败（SOURCE_CONTENT_MISSING），所有数字来自搜索摘要而非官方全文，未能以原文引用核对表头、口径与金额单位。",
+                "probabilityBefore": null,
+                "probabilityAfter": null,
+                "newEvidenceIds": [],
+                "responseStatus": "pending"
+              }
+            ],
+            "reports": [
+              {
+                "assignmentId": "course_run_426c2fe1-90c3-4ff4-8997-cc29213169b3_official_initial",
+                "roleId": "official",
+                "name": "官方资料研究员",
+                "objective": "以英伟达公司IR、SEC正式披露和官方中文站为来源，先确认最近一期季度财报的财季（如Q3 FY2027）、期末日、公布日及实际发言人。逐条摘录营收、同比/环比、下一季指引的原文（中英文对照），标明金额单位（百万/十亿 USD）、会计口径（GAAP/non-GAAP）和指引性质。区分实际业绩、管理层指引与前瞻声明；只把已读原文标为官方事实，翻译稿需与英文稿同源核对。",
+                "reason": "官方稿是最直接来源，负责确认财季、实际发言人及中英文对齐。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "failed",
+                "reportStatus": null,
+                "summary": "研究员已用完本次调查预算，保留取得的证据和缺口。",
+                "probability": null,
+                "evidenceIds": [],
+                "support": [],
+                "counterevidence": [],
+                "missingEvidence": [],
+                "decision": null,
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_426c2fe1-90c3-4ff4-8997-cc29213169b3_statistics_initial",
+                "roleId": "statistics",
+                "name": "统计与指标研究员",
+                "objective": "用官方财报数字核验：营收金额与单位、同比(YoY)、环比(QoQ)、下一季指引。用compare_financial_metrics计算货币指标增长率（period按财季格式填写），逐项保留金额、币种、单位表头及GAAP/non-GAAP口径。区分同比、环比、指引与已实现值；找不到可比数据就明确缺口，不虚构计算。",
+                "reason": "题目要求精确核验同比/环比与指引，需统计口径与增长率。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "insufficient",
+                "summary": "截至2026-11-21（沪）已披露的英伟达最近一期为2027财年Q3（截至2026-10-25），2026-11-17美股盘后公布（北京时间11-18）。搜索摘要显示：营收1158亿美元（$115.8B，单位十亿USD），同比+103%（对比Q3 FY26的570亿美元）、环比+20%（对比Q2 FY27的962亿美元）；数据中心1076亿美元、同比+110%；GAAP摊薄EPS $2.70（同比+108%）、non-GAAP $2.68；GAAP/non-GAAP毛利率74.8%/74.9%。本期管理层发言人为临时CEO、执行副总裁兼CFO Colette Kress；黄仁勋已卸任CEO，本期财报为其卸任后首份，无其本人本期管理层表述，须与其既往表述分开。Q4 FY27指引仅见GAAP/non-GAAP毛利率71.0%-72.0%、GAAP运营费用约$11.0B（数字不完整），营收指引未捕获。关键缺口：官方IR英文页与官方中文博客正文两次抓取均失败（SOURCE_CONTENT_MISSING），所有数字来自搜索摘要而非官方全文，未能以原文引用核对表头、口径与金额单位。",
+                "probability": null,
+                "evidenceIds": [],
+                "support": [],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "官方IR英文新闻稿全文（抓取失败，无法引用原文表头与完整数字）",
+                  "官方中文博客blogs.nvidia.cn全文（抓取失败）",
+                  "Q4 FY27营收指引金额（未捕获）",
+                  "GAAP运营费用完整数字（仅见约$11.0B，不完整）",
+                  "黄仁勋卸任CEO公告及其既往管理层表述原文（用于与本期Colette Kress表述分开）"
+                ],
+                "decision": null,
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_426c2fe1-90c3-4ff4-8997-cc29213169b3_verification_initial",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "独立反证：用search_news双语检索，核对中英文稿是否为同一公司发布、发言归属（谁在本期说了什么，注明场合和财季）、黄仁勋以往表述是否被误植为本期管理层表述、季度/币种/GAAP差异及事实与指引。发现矛盾读原始出处；证据不足保留异议。",
+                "reason": "需独立核验发言归属与中英文一致性，防止旧引语混入本期表述。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "failed",
+                "reportStatus": null,
+                "summary": "研究员已用完本次调查预算，保留取得的证据和缺口。",
+                "probability": null,
+                "evidenceIds": [],
+                "support": [],
+                "counterevidence": [],
+                "missingEvidence": [],
+                "decision": null,
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_426c2fe1-90c3-4ff4-8997-cc29213169b3_statistics_followup_2",
+                "roleId": "statistics",
+                "name": "统计与指标研究员",
+                "objective": "读取本轮已捕获的官方英文新闻稿与官方中文博客原文，逐项核实并给出原文引用（含表头、单位、口径）：1) Q3 FY2027营收确切数值、金额单位（$ in billions/十亿美元 USD）、同比%（基期Q3 FY26）与环比%（基期Q2 FY27）；2) Q4 FY2027指引：营收指引、GAAP/non-GAAP毛利率区间、GAAP运营费用完整数字及单位；3) 实际发言人及职务：确认是否Colette Kress（interim CEO/EVP/CFO），黄仁勋是否已卸任CEO、本期有无其本人管理层表述（引语须注明场合与归属）；4) 中英文稿一致性差异（如GAAP毛利率74.8% vs non-GAAP 74.9%口径差异）。每条发现引用原文片段并标明财季、GAAP/non-GAAP、USD单位。",
+                "reason": "统计报告未读官方全文（fetch失败，仅搜索摘要、无原文引用），关键数字、Q4营收指引与发言人归属均未以原文核实；本轮证据已捕获英/中文官方稿，需补齐原文引用后方可采信。",
+                "followUp": true,
+                "cycle": 2,
+                "status": "cancelled",
+                "reportStatus": null,
+                "summary": "",
+                "probability": null,
+                "evidenceIds": [],
+                "support": [],
+                "counterevidence": [],
+                "missingEvidence": [],
+                "decision": null,
+                "review": {
+                  "objective": "读取本轮已捕获的官方英文新闻稿与官方中文博客原文，逐项核实并给出原文引用（含表头、单位、口径）：1) Q3 FY2027营收确切数值、金额单位（$ in billions/十亿美元 USD）、同比%（基期Q3 FY26）与环比%（基期Q2 FY27）；2) Q4 FY2027指引：营收指引、GAAP/non-GAAP毛利率区间、GAAP运营费用完整数字及单位；3) 实际发言人及职务：确认是否Colette Kress（interim CEO/EVP/CFO），黄仁勋是否已卸任CEO、本期有无其本人管理层表述（引语须注明场合与归属）；4) 中英文稿一致性差异（如GAAP毛利率74.8% vs non-GAAP 74.9%口径差异）。每条发现引用原文片段并标明财季、GAAP/non-GAAP、USD单位。",
+                  "reason": "统计报告未读官方全文（fetch失败，仅搜索摘要、无原文引用），关键数字、Q4营收指引与发言人归属均未以原文核实；本轮证据已捕获英/中文官方稿，需补齐原文引用后方可采信。",
+                  "evidenceIds": [
+                    "course_evidence_0135971794b24e817e563cdcef5d5d2d",
+                    "course_evidence_69c8a411c8ca86e5ce58c5379abd7997",
+                    "course_evidence_8067af212c3da969985f39e9140f7d89",
+                    "course_evidence_8bc98b088d61da4da891a63cb60481e5",
+                    "course_evidence_a6ef08af71d4041fa5c07a7ad7fef5e8"
+                  ],
+                  "parentAssignmentIds": [],
+                  "requestedAt": "2026-11-20T16:20:04.946Z"
+                }
+              }
+            ],
+            "sources": [
+              {
+                "evidenceId": "course_evidence_0135971794b24e817e563cdcef5d5d2d",
+                "title": "NVIDIA Announces Financial Results for Third Quarter Fiscal 2027",
+                "url": "https://nvidianews.nvidia.com/news/nvidia-announces-financial-results-for-third-quarter-fiscal-2027",
+                "publishedAt": null,
+                "obtainedAt": "2026-11-20T16:18:12.678Z",
+                "marketQuote": null
+              },
+              {
+                "evidenceId": "course_evidence_5cbd9f4128dbe170bedc83cd1185d221",
+                "title": "NVIDIA Announces Financial Results for Third Quarter Fiscal 2027",
+                "url": "https://investor.nvidia.com/news/press-release-details/2026/NVIDIA-Announces-Financial-Results-for-Third-Quarter-Fiscal-2027/",
+                "publishedAt": null,
+                "obtainedAt": "2026-11-20T16:21:36.898Z",
+                "marketQuote": null
+              },
+              {
+                "evidenceId": "course_evidence_68e2741aa5e4f7b9aa06bece4ba0edc6",
+                "title": "NVIDIA 发布 2027 财年第三季度财务报告",
+                "url": "https://blogs.nvidia.cn/blog/nvidia-announces-financial-results-for-third-quarter-fiscal-2027/",
+                "publishedAt": null,
+                "obtainedAt": "2026-11-20T16:21:36.741Z",
+                "marketQuote": null
+              },
+              {
+                "evidenceId": "course_evidence_69c8a411c8ca86e5ce58c5379abd7997",
+                "title": "NVIDIA Announces Financial Results for Third Quarter Fiscal 2027",
+                "url": "https://investor.nvidia.com/news/press-release-details/2026/NVIDIA-Announces-Financial-Results-for-Third-Quarter-Fiscal-2027/",
+                "publishedAt": "2026-11-16T16:00:00.000Z",
+                "obtainedAt": "2026-11-20T16:18:31.008Z",
+                "marketQuote": null
+              },
+              {
+                "evidenceId": "course_evidence_8067af212c3da969985f39e9140f7d89",
+                "title": "NVIDIA Corporation - Financial Info",
+                "url": "https://investor.nvidia.com/financial-info/quarterly-results/default.aspx",
+                "publishedAt": null,
+                "obtainedAt": "2026-11-20T16:18:12.844Z",
+                "marketQuote": null
+              },
+              {
+                "evidenceId": "course_evidence_83df438628aa37bd8c3193e9fcfeeade",
+                "title": "NVIDIA Announces Financial Results for Third Quarter Fiscal 2027",
+                "url": "https://nvidianews.nvidia.com/news/nvidia-announces-financial-results-for-third-quarter-fiscal-2027",
+                "publishedAt": null,
+                "obtainedAt": "2026-11-20T16:21:36.549Z",
+                "marketQuote": null
+              },
+              {
+                "evidenceId": "course_evidence_8bc98b088d61da4da891a63cb60481e5",
+                "title": "NVIDIA 发布 2027 财年第三季度财务报告",
+                "url": "https://blogs.nvidia.cn/blog/nvidia-announces-financial-results-for-third-quarter-fiscal-2027/",
+                "publishedAt": "2026-11-16T16:00:00.000Z",
+                "obtainedAt": "2026-11-20T16:18:24.562Z",
+                "marketQuote": null
+              },
+              {
+                "evidenceId": "course_evidence_a6ef08af71d4041fa5c07a7ad7fef5e8",
+                "title": "NVIDIA Announces Financial Results for Third Quarter Fiscal 2027",
+                "url": "https://investor.nvidia.com/news/press-release-details/2026/NVIDIA-Announces-Financial-Results-for-Third-Quarter-Fiscal-2027/",
+                "publishedAt": "2026-11-16T16:00:00.000Z",
+                "obtainedAt": "2026-11-20T16:18:19.613Z",
+                "marketQuote": null
+              },
+              {
+                "evidenceId": "course_evidence_af27f4bf712655b8881ec8a36bad332f",
+                "title": "NVIDIA Announces Financial Results for Third Quarter Fiscal 2027",
+                "url": "https://investor.nvidia.com/news/press-release-details/2026/NVIDIA-Announces-Financial-Results-for-Third-Quarter-Fiscal-2027/",
+                "publishedAt": null,
+                "obtainedAt": "2026-11-20T16:21:36.377Z",
+                "marketQuote": null
+              }
+            ],
+            "triage": {
+              "kind": "initial",
+              "reason": "首次按题选择差异职责。",
+              "newEvidenceIds": []
+            },
+            "decision": null,
+            "conclusion": "本轮未发布新判断，缺口与失败记录保留。"
+          },
+          "researchReport": null,
+          "assignments": [
+            {
+              "role": "official",
+              "status": "failed",
+              "error": {
+                "code": "BUDGET_EXHAUSTED",
+                "message": "研究员已用完本次调查预算，保留取得的证据和缺口。",
+                "retryable": false
+              },
+              "usage": {
+                "modelRequests": 5,
+                "toolCalls": 6,
+                "totalTokens": 46540,
+                "unknownUsage": false
+              }
+            },
+            {
+              "role": "statistics",
+              "status": "completed",
+              "error": null,
+              "usage": {
+                "modelRequests": 4,
+                "toolCalls": 6,
+                "totalTokens": 31330,
+                "unknownUsage": false
+              }
+            },
+            {
+              "role": "verification",
+              "status": "failed",
+              "error": {
+                "code": "BUDGET_EXHAUSTED",
+                "message": "研究员已用完本次调查预算，保留取得的证据和缺口。",
+                "retryable": false
+              },
+              "usage": {
+                "modelRequests": 4,
+                "toolCalls": 6,
+                "totalTokens": 43202,
+                "unknownUsage": false
+              }
+            },
+            {
+              "role": "statistics",
+              "status": "cancelled",
+              "error": null,
+              "usage": {
+                "modelRequests": 2,
+                "toolCalls": 5,
+                "totalTokens": 14092,
+                "unknownUsage": false
+              }
+            }
+          ]
+        }
+      ],
+      "notAccuracyBenchmark": true,
+      "metrics": {
+        "runs": 1,
+        "reports": 0,
+        "forecasts": 0,
+        "modelRequests": 17,
+        "toolCalls": 23,
+        "totalTokens": 153203
+      }
+    },
+    {
+      "title": "英伟达财报与管理层表述核验",
+      "question": "核验英伟达最新财报的中英文新闻时间线、黄仁勋旧引语与当前管理层表述归属；区分正式业绩、管理层预期和行业传导假设，保留反证。可先读取官方英文稿及新华社中文原文：https://www.xinhuanet.com/20261118/8ac8d8cd60db453598c19a6e7915687e/c.html 。网站不可读即换来源并说明，不把搜索摘要当事实，不将同时发生直接归因为黄仁勋影响。",
+      "requestId": "course_request_b0e39ad4-0a12-488a-82a5-54d3efdda151",
+      "status": "completed",
+      "purpose": "research",
+      "checks": [
+        "三席独立报告实际完成",
+        "英文公司稿和中文新闻原文实际读取",
+        "原Run汇总恢复成功，取证未重跑",
+        "总用量122609 tokens，未超160000预算",
+        "未生成预测概率、未启用持续监听"
+      ],
+      "runs": [
+        {
+          "runId": "course_run_9962c5fe-3928-4b3a-83c4-aab905d9e788",
+          "status": "completed",
+          "phase": "finished",
+          "usage": {
+            "modelRequests": 14,
+            "toolCalls": 13,
+            "totalTokens": 122609,
+            "promptTokens": 88041,
+            "completionTokens": 34568,
+            "cacheHitTokens": 2048,
+            "cacheMissTokens": 85993,
+            "unknownUsage": false
+          },
+          "error": null,
+          "summaryResumeCount": 2,
+          "collaboration": {
+            "version": 1,
+            "runId": "course_run_9962c5fe-3928-4b3a-83c4-aab905d9e788",
+            "modelMode": "live",
+            "sourceMode": "live",
+            "team": [
+              {
+                "assignmentId": "course_run_9962c5fe-3928-4b3a-83c4-aab905d9e788_official_initial",
+                "roleId": "official",
+                "name": "官方资料研究员",
+                "objective": "读取英伟达官方IR或SEC最新季度财报原文及官方中文稿，核对：最近一期财报的财年/季度、期末日、公布日；已实现业绩关键数字（营收、净利或每股等）及其单位/币种/GAAP或non-GAAP口径；管理层指引与前瞻声明原文；黄仁勋本人（或明确发言人）在本期财报中的表述及其场合、日期。若给定新华社链接可读则读取并标注其内容，不可读则改读官方稿并说明缺口。逐条引用已读原文。",
+                "reason": "财报事实与表述归属需以公司官方披露为权威来源，新华社中文稿仅作同一来源链的对照。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "已读取英伟达官方IR英文稿（第三财季财报，2026年11月17日发布）及新华社中文稿（11月18日刊发，记者吴晓凌，发自旧金山）。核验要点：本期为2027财年第三财季，期末日2026年10月25日，公布日2026年11月17日。营收115.8亿美元（同比+103%、环比+20%）；GAAP毛利率74.8%、non-GAAP 74.9%；GAAP摊薄每股收益2.70美元、non-GAAP 2.68美元；GAAP净利65.3亿美元、营业利润77.5亿美元；数据中心营收107.6亿美元（同比+110%）。管理层表态来自临时CEO兼CFO Colette Kress（黄仁勋已于11月12日辞去总裁/CEO/董事，本期无黄仁勋新引语）。前瞻指引：第四财季营收130.0亿美元±3%、毛利率71%–72%。中英文两稿数字一致。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_acadd84c1b6c28c95707205537e7f611",
+                  "course_evidence_47ef5dcb2dc8ec496d664690ac5c3a81"
+                ],
+                "support": [
+                  {
+                    "claim": "最新一期为2027财年第三财季，期末日2026年10月25日，公布日2026年11月17日；营收115.8亿美元、同比+103%。",
+                    "evidenceIds": [
+                      "course_evidence_47ef5dcb2dc8ec496d664690ac5c3a81",
+                      "course_evidence_acadd84c1b6c28c95707205537e7f611"
+                    ]
+                  },
+                  {
+                    "claim": "本期管理层表述来自临时CEO兼CFO Colette Kress；黄仁勋已于2026年11月12日辞去总裁、CEO及董事职务，本期无黄仁勋新引语。",
+                    "evidenceIds": [
+                      "course_evidence_47ef5dcb2dc8ec496d664690ac5c3a81",
+                      "course_evidence_acadd84c1b6c28c95707205537e7f611"
+                    ]
+                  },
+                  {
+                    "claim": "前瞻指引（管理层预期，非已实现业绩）：第四财季营收130.0亿美元±3%，GAAP/non-GAAP毛利率71%–72%，并假设无中国数据中心计算营收。",
+                    "evidenceIds": [
+                      "course_evidence_47ef5dcb2dc8ec496d664690ac5c3a81"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "新华社稿以“净利652.87亿美元”表述为GAAP净利65.3亿美元，中文“净利润同比倍增”与官方non-GAAP净利64.9亿美元略有口径差异，需以官方GAAP/non-GAAP分类为准。",
+                    "evidenceIds": [
+                      "course_evidence_acadd84c1b6c28c95707205537e7f611",
+                      "course_evidence_47ef5dcb2dc8ec496d664690ac5c3a81"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "官方中文稿（英伟达中国官网）未读取，新华社中文稿与官方英文稿为不同来源链，尚未比对官方中文站译文。",
+                  "英文稿被截断，Q4指引之外的细分业务高亮、现金/回购明细及GAAP-non-GAAP调节表未完整读取。",
+                  "黄仁勋11月12日辞职的具体公告原文未读取，仅由新华社稿转述。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_9962c5fe-3928-4b3a-83c4-aab905d9e788_official_initial",
+                  "disposition": "adopted",
+                  "reason": "核心业绩数字与归属判断正确，中英文稿一致，counterevidence涉及的GAAP/non-GAAP口径问题已在findings保留。",
+                  "evidenceIds": [
+                    "course_evidence_47ef5dcb2dc8ec496d664690ac5c3a81",
+                    "course_evidence_acadd84c1b6c28c95707205537e7f611"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_9962c5fe-3928-4b3a-83c4-aab905d9e788_timeline_initial",
+                "roleId": "timeline",
+                "name": "新闻时间线研究员",
+                "objective": "用 search_news 分别检索中文与英文关键词（如 NVIDIA 财报/earnings、黄仁勋/Jensen Huang 相关新闻），选出正文读取。整理中英文新闻时间线：事件发生日、文章首发/发布时间、更新与转载时间；追到公司官方原稿或最早报道，标注哪些是翻译转载。核对黄仁勋相关引语在报道中的归属（说话人、场合、季度），区分旧引语与新财报表述。搜索摘要不作事实，需读正文。",
+                "reason": "题面要求核验中英文新闻时间线与引语归属，需按发布时间排序并追溯首发。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "英伟达2027财年Q3（截至2026-10-25）于11月17日美股盘后发布：营收1158.44亿美元(+103%)、净利润652.87亿美元(+105%)、数据中心1076亿(+110%)，毛利率74.8%。11月12日黄仁勋辞任总裁/CEO/董事，CFO克雷斯兼任临时CEO。中文稿首发时间线：财联社07:25、证券时报/搜狐07:53、新华社中文10:39（英文版06:29）。黄仁勋11月17日称愿返任CEO属其本人新发言；董事会主席琼斯称不考虑复职；克雷斯给Q4指引1261-1339亿、毛利率71-72%。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_acadd84c1b6c28c95707205537e7f611",
+                  "course_evidence_7778ccadc996661fa2945c7259bab93a",
+                  "course_evidence_b7c683c1ba5eef74c5173b407bbbb24d"
+                ],
+                "support": [
+                  {
+                    "claim": "正式业绩：Q3营收1158.44亿美元(+103%)、净利润652.87亿(+105%)、数据中心1076亿(+110%)、毛利率74.8%、稀释EPS 2.70美元；期末10/25，11/17公布。",
+                    "evidenceIds": [
+                      "course_evidence_acadd84c1b6c28c95707205537e7f611"
+                    ]
+                  },
+                  {
+                    "claim": "人事与表述归属：黄仁勋11/12辞任CEO由CFO克雷斯兼任临时CEO；董事会主席哈维·琼斯称董事会无意让黄仁勋复职，将考虑内外候选人。",
+                    "evidenceIds": [
+                      "course_evidence_7778ccadc996661fa2945c7259bab93a",
+                      "course_evidence_b7c683c1ba5eef74c5173b407bbbb24d"
+                    ]
+                  },
+                  {
+                    "claim": "黄仁勋11/17（周二盘前）表示若董事会接受愿重返CEO，属新发言非旧引语；克雷斯给出Q4指引营收1261-1339亿美元、毛利率71-72%，称2028财年销售+75%。",
+                    "evidenceIds": [
+                      "course_evidence_b7c683c1ba5eef74c5173b407bbbb24d"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "各源GAAP与非GAAP数字不一致：新华社净利润652.87亿(GAAP) vs 搜狐648.7亿(非GAAP)、EPS 2.70 vs 2.68；需以官方原稿为准，官方投资者关系稿未完整读取。",
+                    "evidenceIds": [
+                      "course_evidence_acadd84c1b6c28c95707205537e7f611",
+                      "course_evidence_b7c683c1ba5eef74c5173b407bbbb24d"
+                    ]
+                  },
+                  {
+                    "claim": "黄仁勋“愿返任CEO”的英文一手出处(36kr)正文404未读，仅由证券时报/搜狐二次转述证实，无法核对原话与场合。",
+                    "evidenceIds": [
+                      "course_evidence_b7c683c1ba5eef74c5173b407bbbb24d"
+                    ]
+                  },
+                  {
+                    "claim": "财联社/东方财富与证券时报/搜狐均为转载或编辑稿，非公司原稿；标题“董事会不考虑黄仁勋复职”系编辑概括，非琼斯逐字原话。",
+                    "evidenceIds": [
+                      "course_evidence_7778ccadc996661fa2945c7259bab93a",
+                      "course_evidence_b7c683c1ba5eef74c5173b407bbbb24d"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "NVIDIA官方新闻稿(investor.nvidia.com)正文及SEC 8-K未读取，GAAP精确数字与官方管理层引语原文缺。",
+                  "黄仁勋11/17“愿返任CEO”发言的一手出处与场合未核实。",
+                  "各中文稿与英文官方稿的翻译/转载链未逐条比对，首发源未完全确认。",
+                  "财报电话会逐字稿未读，琼斯与克雷斯原话无法逐字核对。",
+                  "路透/彭博等英文首发报道时间未读取。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_9962c5fe-3928-4b3a-83c4-aab905d9e788_timeline_initial",
+                  "disposition": "qualified",
+                  "reason": "业绩数字与人事表述与其他报告一致，但首发时间线及黄仁勋\"愿返任CEO\"一手出处未核实，时间线细节不采纳为定论。",
+                  "evidenceIds": [
+                    "course_evidence_b7c683c1ba5eef74c5173b407bbbb24d",
+                    "course_evidence_7778ccadc996661fa2945c7259bab93a"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_9962c5fe-3928-4b3a-83c4-aab905d9e788_verification_initial",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "针对'黄仁勋影响/引发某行业或市场变化'等同时发生即因果的主张寻找反证：核对不同语言稿是否同一公司稿、发言归属是否被张冠李戴、季度/币种/GAAP是否混用、事实与指引是否被混淆。用 search_news 双语检索矛盾材料，读原始出处。明确指出哪些结论成立、哪些只是合理机制或未验证假设，保留反证与资料缺口。",
+                "reason": "题面明确要求保留反证、不把同时发生直接归因于黄仁勋，需独立反证核验。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "已核验英伟达2027财年第三财季（截至2026-10-25）财报与中英文新闻时间线。官方英文稿（2026-11-17发布）与新华社中文稿数字一致：营收1158.44亿美元(+103%)、GAAP营业利润775.2亿(+115%)、GAAP净利润652.87亿(+105%)、GAAP毛利率74.8%、稀释EPS 2.70美元；数据中心1076亿(+110%)。关键归属：财报评论引语属临时CEO兼CFO克雷斯（\"Our momentum is real\"），非黄仁勋；黄仁勋已于11-12辞职，其11-18社媒发声仅涉辞职与回归意愿，与业绩无关。业绩(Q3已实现)与指引(Q4营收1300亿±3%、FY2028收入+75%系克雷斯前瞻声明)需分开。GAAP/非GAAP口径需区分（EPS 2.70 vs 2.68）。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_2f6e5bc215fad5d8b66be261a8d74f7b",
+                  "course_evidence_acadd84c1b6c28c95707205537e7f611",
+                  "course_evidence_34e4ae12f479b7333104cddcf5e6c052"
+                ],
+                "support": [
+                  {
+                    "claim": "Q3 FY27财报正式业绩：营收115.8亿美元(+103%)、数据中心1076亿(+110%)、GAAP毛利率74.8%/非GAAP74.9%、GAAP稀释EPS 2.70美元，财报期末为2026-10-25。",
+                    "evidenceIds": [
+                      "course_evidence_2f6e5bc215fad5d8b66be261a8d74f7b",
+                      "course_evidence_acadd84c1b6c28c95707205537e7f611"
+                    ]
+                  },
+                  {
+                    "claim": "财报评论引语'Our momentum is real'归属临时CEO兼CFO克雷斯，非黄仁勋；黄仁勋已于2026-11-12辞职，11-18社媒发声仅涉辞职与回归意愿。",
+                    "evidenceIds": [
+                      "course_evidence_2f6e5bc215fad5d8b66be261a8d74f7b",
+                      "course_evidence_34e4ae12f479b7333104cddcf5e6c052"
+                    ]
+                  },
+                  {
+                    "claim": "指引为前瞻声明：Q4 FY27营收预期1300亿±3%、毛利率71-72%；FY2028收入同比+75%（克雷斯上调自70%），属管理层预期而非已实现业绩。",
+                    "evidenceIds": [
+                      "course_evidence_2f6e5bc215fad5d8b66be261a8d74f7b",
+                      "course_evidence_34e4ae12f479b7333104cddcf5e6c052"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "部分外媒（digitaltoday等）标题称'营收倍增至1158.4亿、EPS 2.68美元'，此EPS为非GAAP口径（2.68），与新华社GAAP口径2.70不同，需标注口径防混淆。",
+                    "evidenceIds": [
+                      "course_evidence_2f6e5bc215fad5d8b66be261a8d74f7b"
+                    ]
+                  },
+                  {
+                    "claim": "新华社稿称'营业利润775.20亿、毛利率74.8%、EPS2.70'但未标注GAAP，读者易与非GAAP经营利润779亿、非GAAP毛利率74.9%混淆。",
+                    "evidenceIds": [
+                      "course_evidence_acadd84c1b6c28c95707205537e7f611"
+                    ]
+                  },
+                  {
+                    "claim": "Q3业绩（截至10-25）发生于黄仁勋11-12辞职之前，属其任内业绩；'离职后首份财报'仅是发布时点描述，不能归因为辞职事件影响业绩。",
+                    "evidenceIds": [
+                      "course_evidence_34e4ae12f479b7333104cddcf5e6c052"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "新华社正文未注明GAAP/非GAAP口径标签，需以官方稿核对才能区分EPS2.70与2.68。",
+                  "股价盘后涨超4-5%仅来自中文媒体转载，未读取彭博/交易所原始行情数据，无法独立核实。",
+                  "黄仁勋2025 GTC宣布Feynman架构的旧引语原始出处未单独读取，仅据中文稿转述。",
+                  "董事会国家安全与出口管制监督委员会的官方公告原文未读取。",
+                  "FY2028收入+75%的基准年份与完整指引原文（电话会纪要/财报全文）未单独读取，仅中文媒体转述克雷斯原话。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_9962c5fe-3928-4b3a-83c4-aab905d9e788_verification_initial",
+                  "disposition": "adopted",
+                  "reason": "归属判断（引语属克雷斯非黄仁勋）与指引/业绩区分正确；其自述单位差异需以英文原稿billion口径校正。",
+                  "evidenceIds": [
+                    "course_evidence_2f6e5bc215fad5d8b66be261a8d74f7b",
+                    "course_evidence_34e4ae12f479b7333104cddcf5e6c052"
+                  ]
+                },
+                "review": null
+              }
+            ],
+            "reviews": [],
+            "reports": [
+              {
+                "assignmentId": "course_run_9962c5fe-3928-4b3a-83c4-aab905d9e788_official_initial",
+                "roleId": "official",
+                "name": "官方资料研究员",
+                "objective": "读取英伟达官方IR或SEC最新季度财报原文及官方中文稿，核对：最近一期财报的财年/季度、期末日、公布日；已实现业绩关键数字（营收、净利或每股等）及其单位/币种/GAAP或non-GAAP口径；管理层指引与前瞻声明原文；黄仁勋本人（或明确发言人）在本期财报中的表述及其场合、日期。若给定新华社链接可读则读取并标注其内容，不可读则改读官方稿并说明缺口。逐条引用已读原文。",
+                "reason": "财报事实与表述归属需以公司官方披露为权威来源，新华社中文稿仅作同一来源链的对照。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "已读取英伟达官方IR英文稿（第三财季财报，2026年11月17日发布）及新华社中文稿（11月18日刊发，记者吴晓凌，发自旧金山）。核验要点：本期为2027财年第三财季，期末日2026年10月25日，公布日2026年11月17日。营收115.8亿美元（同比+103%、环比+20%）；GAAP毛利率74.8%、non-GAAP 74.9%；GAAP摊薄每股收益2.70美元、non-GAAP 2.68美元；GAAP净利65.3亿美元、营业利润77.5亿美元；数据中心营收107.6亿美元（同比+110%）。管理层表态来自临时CEO兼CFO Colette Kress（黄仁勋已于11月12日辞去总裁/CEO/董事，本期无黄仁勋新引语）。前瞻指引：第四财季营收130.0亿美元±3%、毛利率71%–72%。中英文两稿数字一致。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_acadd84c1b6c28c95707205537e7f611",
+                  "course_evidence_47ef5dcb2dc8ec496d664690ac5c3a81"
+                ],
+                "support": [
+                  {
+                    "claim": "最新一期为2027财年第三财季，期末日2026年10月25日，公布日2026年11月17日；营收115.8亿美元、同比+103%。",
+                    "evidenceIds": [
+                      "course_evidence_47ef5dcb2dc8ec496d664690ac5c3a81",
+                      "course_evidence_acadd84c1b6c28c95707205537e7f611"
+                    ]
+                  },
+                  {
+                    "claim": "本期管理层表述来自临时CEO兼CFO Colette Kress；黄仁勋已于2026年11月12日辞去总裁、CEO及董事职务，本期无黄仁勋新引语。",
+                    "evidenceIds": [
+                      "course_evidence_47ef5dcb2dc8ec496d664690ac5c3a81",
+                      "course_evidence_acadd84c1b6c28c95707205537e7f611"
+                    ]
+                  },
+                  {
+                    "claim": "前瞻指引（管理层预期，非已实现业绩）：第四财季营收130.0亿美元±3%，GAAP/non-GAAP毛利率71%–72%，并假设无中国数据中心计算营收。",
+                    "evidenceIds": [
+                      "course_evidence_47ef5dcb2dc8ec496d664690ac5c3a81"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "新华社稿以“净利652.87亿美元”表述为GAAP净利65.3亿美元，中文“净利润同比倍增”与官方non-GAAP净利64.9亿美元略有口径差异，需以官方GAAP/non-GAAP分类为准。",
+                    "evidenceIds": [
+                      "course_evidence_acadd84c1b6c28c95707205537e7f611",
+                      "course_evidence_47ef5dcb2dc8ec496d664690ac5c3a81"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "官方中文稿（英伟达中国官网）未读取，新华社中文稿与官方英文稿为不同来源链，尚未比对官方中文站译文。",
+                  "英文稿被截断，Q4指引之外的细分业务高亮、现金/回购明细及GAAP-non-GAAP调节表未完整读取。",
+                  "黄仁勋11月12日辞职的具体公告原文未读取，仅由新华社稿转述。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_9962c5fe-3928-4b3a-83c4-aab905d9e788_official_initial",
+                  "disposition": "adopted",
+                  "reason": "核心业绩数字与归属判断正确，中英文稿一致，counterevidence涉及的GAAP/non-GAAP口径问题已在findings保留。",
+                  "evidenceIds": [
+                    "course_evidence_47ef5dcb2dc8ec496d664690ac5c3a81",
+                    "course_evidence_acadd84c1b6c28c95707205537e7f611"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_9962c5fe-3928-4b3a-83c4-aab905d9e788_timeline_initial",
+                "roleId": "timeline",
+                "name": "新闻时间线研究员",
+                "objective": "用 search_news 分别检索中文与英文关键词（如 NVIDIA 财报/earnings、黄仁勋/Jensen Huang 相关新闻），选出正文读取。整理中英文新闻时间线：事件发生日、文章首发/发布时间、更新与转载时间；追到公司官方原稿或最早报道，标注哪些是翻译转载。核对黄仁勋相关引语在报道中的归属（说话人、场合、季度），区分旧引语与新财报表述。搜索摘要不作事实，需读正文。",
+                "reason": "题面要求核验中英文新闻时间线与引语归属，需按发布时间排序并追溯首发。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "英伟达2027财年Q3（截至2026-10-25）于11月17日美股盘后发布：营收1158.44亿美元(+103%)、净利润652.87亿美元(+105%)、数据中心1076亿(+110%)，毛利率74.8%。11月12日黄仁勋辞任总裁/CEO/董事，CFO克雷斯兼任临时CEO。中文稿首发时间线：财联社07:25、证券时报/搜狐07:53、新华社中文10:39（英文版06:29）。黄仁勋11月17日称愿返任CEO属其本人新发言；董事会主席琼斯称不考虑复职；克雷斯给Q4指引1261-1339亿、毛利率71-72%。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_acadd84c1b6c28c95707205537e7f611",
+                  "course_evidence_7778ccadc996661fa2945c7259bab93a",
+                  "course_evidence_b7c683c1ba5eef74c5173b407bbbb24d"
+                ],
+                "support": [
+                  {
+                    "claim": "正式业绩：Q3营收1158.44亿美元(+103%)、净利润652.87亿(+105%)、数据中心1076亿(+110%)、毛利率74.8%、稀释EPS 2.70美元；期末10/25，11/17公布。",
+                    "evidenceIds": [
+                      "course_evidence_acadd84c1b6c28c95707205537e7f611"
+                    ]
+                  },
+                  {
+                    "claim": "人事与表述归属：黄仁勋11/12辞任CEO由CFO克雷斯兼任临时CEO；董事会主席哈维·琼斯称董事会无意让黄仁勋复职，将考虑内外候选人。",
+                    "evidenceIds": [
+                      "course_evidence_7778ccadc996661fa2945c7259bab93a",
+                      "course_evidence_b7c683c1ba5eef74c5173b407bbbb24d"
+                    ]
+                  },
+                  {
+                    "claim": "黄仁勋11/17（周二盘前）表示若董事会接受愿重返CEO，属新发言非旧引语；克雷斯给出Q4指引营收1261-1339亿美元、毛利率71-72%，称2028财年销售+75%。",
+                    "evidenceIds": [
+                      "course_evidence_b7c683c1ba5eef74c5173b407bbbb24d"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "各源GAAP与非GAAP数字不一致：新华社净利润652.87亿(GAAP) vs 搜狐648.7亿(非GAAP)、EPS 2.70 vs 2.68；需以官方原稿为准，官方投资者关系稿未完整读取。",
+                    "evidenceIds": [
+                      "course_evidence_acadd84c1b6c28c95707205537e7f611",
+                      "course_evidence_b7c683c1ba5eef74c5173b407bbbb24d"
+                    ]
+                  },
+                  {
+                    "claim": "黄仁勋“愿返任CEO”的英文一手出处(36kr)正文404未读，仅由证券时报/搜狐二次转述证实，无法核对原话与场合。",
+                    "evidenceIds": [
+                      "course_evidence_b7c683c1ba5eef74c5173b407bbbb24d"
+                    ]
+                  },
+                  {
+                    "claim": "财联社/东方财富与证券时报/搜狐均为转载或编辑稿，非公司原稿；标题“董事会不考虑黄仁勋复职”系编辑概括，非琼斯逐字原话。",
+                    "evidenceIds": [
+                      "course_evidence_7778ccadc996661fa2945c7259bab93a",
+                      "course_evidence_b7c683c1ba5eef74c5173b407bbbb24d"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "NVIDIA官方新闻稿(investor.nvidia.com)正文及SEC 8-K未读取，GAAP精确数字与官方管理层引语原文缺。",
+                  "黄仁勋11/17“愿返任CEO”发言的一手出处与场合未核实。",
+                  "各中文稿与英文官方稿的翻译/转载链未逐条比对，首发源未完全确认。",
+                  "财报电话会逐字稿未读，琼斯与克雷斯原话无法逐字核对。",
+                  "路透/彭博等英文首发报道时间未读取。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_9962c5fe-3928-4b3a-83c4-aab905d9e788_timeline_initial",
+                  "disposition": "qualified",
+                  "reason": "业绩数字与人事表述与其他报告一致，但首发时间线及黄仁勋\"愿返任CEO\"一手出处未核实，时间线细节不采纳为定论。",
+                  "evidenceIds": [
+                    "course_evidence_b7c683c1ba5eef74c5173b407bbbb24d",
+                    "course_evidence_7778ccadc996661fa2945c7259bab93a"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_9962c5fe-3928-4b3a-83c4-aab905d9e788_verification_initial",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "针对'黄仁勋影响/引发某行业或市场变化'等同时发生即因果的主张寻找反证：核对不同语言稿是否同一公司稿、发言归属是否被张冠李戴、季度/币种/GAAP是否混用、事实与指引是否被混淆。用 search_news 双语检索矛盾材料，读原始出处。明确指出哪些结论成立、哪些只是合理机制或未验证假设，保留反证与资料缺口。",
+                "reason": "题面明确要求保留反证、不把同时发生直接归因于黄仁勋，需独立反证核验。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "已核验英伟达2027财年第三财季（截至2026-10-25）财报与中英文新闻时间线。官方英文稿（2026-11-17发布）与新华社中文稿数字一致：营收1158.44亿美元(+103%)、GAAP营业利润775.2亿(+115%)、GAAP净利润652.87亿(+105%)、GAAP毛利率74.8%、稀释EPS 2.70美元；数据中心1076亿(+110%)。关键归属：财报评论引语属临时CEO兼CFO克雷斯（\"Our momentum is real\"），非黄仁勋；黄仁勋已于11-12辞职，其11-18社媒发声仅涉辞职与回归意愿，与业绩无关。业绩(Q3已实现)与指引(Q4营收1300亿±3%、FY2028收入+75%系克雷斯前瞻声明)需分开。GAAP/非GAAP口径需区分（EPS 2.70 vs 2.68）。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_2f6e5bc215fad5d8b66be261a8d74f7b",
+                  "course_evidence_acadd84c1b6c28c95707205537e7f611",
+                  "course_evidence_34e4ae12f479b7333104cddcf5e6c052"
+                ],
+                "support": [
+                  {
+                    "claim": "Q3 FY27财报正式业绩：营收115.8亿美元(+103%)、数据中心1076亿(+110%)、GAAP毛利率74.8%/非GAAP74.9%、GAAP稀释EPS 2.70美元，财报期末为2026-10-25。",
+                    "evidenceIds": [
+                      "course_evidence_2f6e5bc215fad5d8b66be261a8d74f7b",
+                      "course_evidence_acadd84c1b6c28c95707205537e7f611"
+                    ]
+                  },
+                  {
+                    "claim": "财报评论引语'Our momentum is real'归属临时CEO兼CFO克雷斯，非黄仁勋；黄仁勋已于2026-11-12辞职，11-18社媒发声仅涉辞职与回归意愿。",
+                    "evidenceIds": [
+                      "course_evidence_2f6e5bc215fad5d8b66be261a8d74f7b",
+                      "course_evidence_34e4ae12f479b7333104cddcf5e6c052"
+                    ]
+                  },
+                  {
+                    "claim": "指引为前瞻声明：Q4 FY27营收预期1300亿±3%、毛利率71-72%；FY2028收入同比+75%（克雷斯上调自70%），属管理层预期而非已实现业绩。",
+                    "evidenceIds": [
+                      "course_evidence_2f6e5bc215fad5d8b66be261a8d74f7b",
+                      "course_evidence_34e4ae12f479b7333104cddcf5e6c052"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "部分外媒（digitaltoday等）标题称'营收倍增至1158.4亿、EPS 2.68美元'，此EPS为非GAAP口径（2.68），与新华社GAAP口径2.70不同，需标注口径防混淆。",
+                    "evidenceIds": [
+                      "course_evidence_2f6e5bc215fad5d8b66be261a8d74f7b"
+                    ]
+                  },
+                  {
+                    "claim": "新华社稿称'营业利润775.20亿、毛利率74.8%、EPS2.70'但未标注GAAP，读者易与非GAAP经营利润779亿、非GAAP毛利率74.9%混淆。",
+                    "evidenceIds": [
+                      "course_evidence_acadd84c1b6c28c95707205537e7f611"
+                    ]
+                  },
+                  {
+                    "claim": "Q3业绩（截至10-25）发生于黄仁勋11-12辞职之前，属其任内业绩；'离职后首份财报'仅是发布时点描述，不能归因为辞职事件影响业绩。",
+                    "evidenceIds": [
+                      "course_evidence_34e4ae12f479b7333104cddcf5e6c052"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "新华社正文未注明GAAP/非GAAP口径标签，需以官方稿核对才能区分EPS2.70与2.68。",
+                  "股价盘后涨超4-5%仅来自中文媒体转载，未读取彭博/交易所原始行情数据，无法独立核实。",
+                  "黄仁勋2025 GTC宣布Feynman架构的旧引语原始出处未单独读取，仅据中文稿转述。",
+                  "董事会国家安全与出口管制监督委员会的官方公告原文未读取。",
+                  "FY2028收入+75%的基准年份与完整指引原文（电话会纪要/财报全文）未单独读取，仅中文媒体转述克雷斯原话。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_9962c5fe-3928-4b3a-83c4-aab905d9e788_verification_initial",
+                  "disposition": "adopted",
+                  "reason": "归属判断（引语属克雷斯非黄仁勋）与指引/业绩区分正确；其自述单位差异需以英文原稿billion口径校正。",
+                  "evidenceIds": [
+                    "course_evidence_2f6e5bc215fad5d8b66be261a8d74f7b",
+                    "course_evidence_34e4ae12f479b7333104cddcf5e6c052"
+                  ]
+                },
+                "review": null
+              }
+            ],
+            "sources": [
+              {
+                "evidenceId": "course_evidence_2f6e5bc215fad5d8b66be261a8d74f7b",
+                "title": "NVIDIA Announces Financial Results for Third Quarter Fiscal 2027",
+                "url": "https://nvidianews.nvidia.com/news/nvidia-announces-financial-results-for-third-quarter-fiscal-2027",
+                "publishedAt": null,
+                "obtainedAt": "2026-11-20T16:38:38.515Z",
+                "marketQuote": null
+              },
+              {
+                "evidenceId": "course_evidence_34e4ae12f479b7333104cddcf5e6c052",
+                "title": "黄仁勋凌晨发声愿意回归，英伟达财报电话明确拒绝其复职",
+                "url": "https://www.sohu.com/a/1103047697_161795",
+                "publishedAt": null,
+                "obtainedAt": "2026-11-20T16:38:42.536Z",
+                "marketQuote": null
+              },
+              {
+                "evidenceId": "course_evidence_47ef5dcb2dc8ec496d664690ac5c3a81",
+                "title": "NVIDIA Announces Financial Results for Third Quarter Fiscal 2027",
+                "url": "https://investor.nvidia.com/news/press-release-details/2026/NVIDIA-Announces-Financial-Results-for-Third-Quarter-Fiscal-2027/",
+                "publishedAt": "2026-11-16T16:00:00.000Z",
+                "obtainedAt": "2026-11-20T16:38:20.473Z",
+                "marketQuote": null
+              },
+              {
+                "evidenceId": "course_evidence_7778ccadc996661fa2945c7259bab93a",
+                "title": "英伟达财报大超预期 董事会明确不考虑黄仁勋复职",
+                "url": "https://finance.eastmoney.com/a/202611183933423310.html",
+                "publishedAt": "2026-11-17T16:00:00.000Z",
+                "obtainedAt": "2026-11-20T16:38:31.856Z",
+                "marketQuote": null
+              },
+              {
+                "evidenceId": "course_evidence_acadd84c1b6c28c95707205537e7f611",
+                "title": "英伟达第三财季营收、净利润同比倍增",
+                "url": "https://www.xinhuanet.com/20261118/8ac8d8cd60db453598c19a6e7915687e/c.html",
+                "publishedAt": null,
+                "obtainedAt": "2026-11-20T16:38:15.961Z",
+                "marketQuote": null
+              },
+              {
+                "evidenceId": "course_evidence_b7c683c1ba5eef74c5173b407bbbb24d",
+                "title": "黄仁勋离职后首份财报！英伟达业绩和展望均超预期",
+                "url": "https://www.sohu.com/a/1102984494_115433",
+                "publishedAt": null,
+                "obtainedAt": "2026-11-20T16:38:40.386Z",
+                "marketQuote": null
+              }
+            ],
+            "triage": {
+              "kind": "initial",
+              "reason": "首次按题选择差异职责。",
+              "newEvidenceIds": []
+            },
+            "decision": {
+              "kind": "research_report",
+              "assemblyMode": "supervisor",
+              "reportId": "course_research_245eabb6-3a96-4cd5-88f2-c84dfb8e5527",
+              "probabilityYes": null,
+              "previousProbabilityYes": null,
+              "delta": null,
+              "summary": "英伟达2027财年Q3（期末2026-10-25，2026-11-17公布）：营收1158.44亿美元(+103%)、GAAP净利652.87亿(+105%)、数据中心1076亿(+110%)、GAAP毛利率74.8%/non-GAAP 74.9%、GAAP稀释EPS 2.70美元，中英文稿数字一致。本期财报评论引语（\"Our momentum is real\"）归属临时CEO兼CFO Colette Kress，非黄仁勋；黄仁勋已于2026-11-12辞任总裁/CEO/董事，本期无其新引语，11-18社媒发声仅涉辞职与回归意愿，董事会主席琼斯明确不考虑复职。Q4营收指引1300亿±3%、毛利率71-72%及FY2028收入+75%均为克雷斯前瞻声明（预期），须与已实现Q3业绩区分。口径反证：EPS 2.70(GAAP)与2.68(non-GAAP)、毛利率74.8%与74.9%及净利652.87亿(GAAP)与648.7亿(non-GAAP)易混淆，部分中文稿未标口径，需以官方分类为准。中文稿首发时间线（财联社07:25、证券时报/搜狐07:53、新华社中文10:39）及黄仁勋\"愿返任CEO\"一手出处尚未完全核实。",
+              "evidenceIds": [
+                "course_evidence_acadd84c1b6c28c95707205537e7f611",
+                "course_evidence_47ef5dcb2dc8ec496d664690ac5c3a81",
+                "course_evidence_2f6e5bc215fad5d8b66be261a8d74f7b",
+                "course_evidence_34e4ae12f479b7333104cddcf5e6c052",
+                "course_evidence_7778ccadc996661fa2945c7259bab93a",
+                "course_evidence_b7c683c1ba5eef74c5173b407bbbb24d"
+              ],
+              "dissent": [
+                "官方中文稿（英伟达中国官网）未读取，新华社中文稿与官方英文稿为不同来源链，未比对官方中文译文。",
+                "英文稿被截断，Q4指引之外的细分业务高亮、现金/回购明细及GAAP-non-GAAP调节表未完整读取。",
+                "黄仁勋11-12辞职公告原文及11-17\"愿返任CEO\"一手出处（36kr正文404）未读取，仅由中文稿转述。",
+                "股价盘后涨4-5%仅来自中文媒体转载，未读取原始行情数据，无法独立核实。",
+                "部分报告摘要单位表述不一致（\"115.8亿美元\"应为1158亿美元/$115.8B口径），需以英文原稿billion为准；黄仁勋2025 GTC Feynman架构旧引语原始出处未单独读取。"
+              ],
+              "scoringEligible": false,
+              "recordedNotes": 3,
+              "totalReports": 3
+            },
+            "conclusion": "研报已封存；可逐项查看发现、补查与裁决。"
+          },
+          "researchReport": {
+            "reportId": "course_research_245eabb6-3a96-4cd5-88f2-c84dfb8e5527",
+            "requestId": "course_request_b0e39ad4-0a12-488a-82a5-54d3efdda151",
+            "runId": "course_run_9962c5fe-3928-4b3a-83c4-aab905d9e788",
+            "topicId": "topic_course_request_b0e39ad4-0a12-488a-82a5-54d3efdda151",
+            "summary": "英伟达2027财年Q3（期末2026-10-25，2026-11-17公布）：营收1158.44亿美元(+103%)、GAAP净利652.87亿(+105%)、数据中心1076亿(+110%)、GAAP毛利率74.8%/non-GAAP 74.9%、GAAP稀释EPS 2.70美元，中英文稿数字一致。本期财报评论引语（\"Our momentum is real\"）归属临时CEO兼CFO Colette Kress，非黄仁勋；黄仁勋已于2026-11-12辞任总裁/CEO/董事，本期无其新引语，11-18社媒发声仅涉辞职与回归意愿，董事会主席琼斯明确不考虑复职。Q4营收指引1300亿±3%、毛利率71-72%及FY2028收入+75%均为克雷斯前瞻声明（预期），须与已实现Q3业绩区分。口径反证：EPS 2.70(GAAP)与2.68(non-GAAP)、毛利率74.8%与74.9%及净利652.87亿(GAAP)与648.7亿(non-GAAP)易混淆，部分中文稿未标口径，需以官方分类为准。中文稿首发时间线（财联社07:25、证券时报/搜狐07:53、新华社中文10:39）及黄仁勋\"愿返任CEO\"一手出处尚未完全核实。",
+            "findings": [
+              {
+                "claim": "正式业绩：2027财年Q3营收1158.44亿美元(+103%)、GAAP净利652.87亿(+105%)、数据中心1076亿(+110%)、GAAP毛利率74.8%/non-GAAP 74.9%、GAAP稀释EPS 2.70美元，期末2026-10-25，公布2026-11-17，中英文稿数字一致。",
+                "evidenceIds": [
+                  "course_evidence_acadd84c1b6c28c95707205537e7f611",
+                  "course_evidence_47ef5dcb2dc8ec496d664690ac5c3a81",
+                  "course_evidence_2f6e5bc215fad5d8b66be261a8d74f7b"
+                ]
+              },
+              {
+                "claim": "本期财报评论引语（\"Our momentum is real\"）归属临时CEO兼CFO Colette Kress；黄仁勋已于2026-11-12辞任总裁/CEO/董事，本期财报无其新引语。",
+                "evidenceIds": [
+                  "course_evidence_47ef5dcb2dc8ec496d664690ac5c3a81",
+                  "course_evidence_2f6e5bc215fad5d8b66be261a8d74f7b",
+                  "course_evidence_34e4ae12f479b7333104cddcf5e6c052"
+                ]
+              },
+              {
+                "claim": "黄仁勋2025 GTC公布Feynman架构属旧引语，非本期；其11-18社媒发声仅涉辞职与回归意愿，与业绩无关；董事会主席琼斯明确称不考虑其复职。",
+                "evidenceIds": [
+                  "course_evidence_34e4ae12f479b7333104cddcf5e6c052",
+                  "course_evidence_7778ccadc996661fa2945c7259bab93a"
+                ]
+              },
+              {
+                "claim": "Q4营收指引1300亿美元±3%（1261-1339亿）、毛利率71-72%，另有FY2028收入+75%系克雷斯前瞻声明，均属管理层预期而非已实现业绩。",
+                "evidenceIds": [
+                  "course_evidence_47ef5dcb2dc8ec496d664690ac5c3a81",
+                  "course_evidence_2f6e5bc215fad5d8b66be261a8d74f7b"
+                ]
+              },
+              {
+                "claim": "口径反证：GAAP与非GAAP不一致——EPS 2.70 vs 2.68、毛利率74.8% vs 74.9%、净利652.87亿(GAAP) vs 648.7亿(non-GAAP)；部分外媒/中文稿混用未标口径，须以官方GAAP/non-GAAP分类为准。",
+                "evidenceIds": [
+                  "course_evidence_2f6e5bc215fad5d8b66be261a8d74f7b",
+                  "course_evidence_acadd84c1b6c28c95707205537e7f611",
+                  "course_evidence_b7c683c1ba5eef74c5173b407bbbb24d"
+                ]
+              },
+              {
+                "claim": "中文稿首发时间线：财联社07:25、证券时报/搜狐07:53、新华社中文10:39（英文版06:29）；首发源与转载链未完全确认。",
+                "evidenceIds": [
+                  "course_evidence_b7c683c1ba5eef74c5173b407bbbb24d",
+                  "course_evidence_7778ccadc996661fa2945c7259bab93a"
+                ]
+              }
+            ],
+            "limitations": [
+              "官方中文稿（英伟达中国官网）未读取，新华社中文稿与官方英文稿为不同来源链，未比对官方中文译文。",
+              "英文稿被截断，Q4指引之外的细分业务高亮、现金/回购明细及GAAP-non-GAAP调节表未完整读取。",
+              "黄仁勋11-12辞职公告原文及11-17\"愿返任CEO\"一手出处（36kr正文404）未读取，仅由中文稿转述。",
+              "股价盘后涨4-5%仅来自中文媒体转载，未读取原始行情数据，无法独立核实。",
+              "部分报告摘要单位表述不一致（\"115.8亿美元\"应为1158亿美元/$115.8B口径），需以英文原稿billion为准；黄仁勋2025 GTC Feynman架构旧引语原始出处未单独读取。"
+            ],
+            "decisionNotes": [
+              {
+                "assignmentId": "course_run_9962c5fe-3928-4b3a-83c4-aab905d9e788_official_initial",
+                "disposition": "adopted",
+                "reason": "核心业绩数字与归属判断正确，中英文稿一致，counterevidence涉及的GAAP/non-GAAP口径问题已在findings保留。",
+                "evidenceIds": [
+                  "course_evidence_47ef5dcb2dc8ec496d664690ac5c3a81",
+                  "course_evidence_acadd84c1b6c28c95707205537e7f611"
+                ]
+              },
+              {
+                "assignmentId": "course_run_9962c5fe-3928-4b3a-83c4-aab905d9e788_timeline_initial",
+                "disposition": "qualified",
+                "reason": "业绩数字与人事表述与其他报告一致，但首发时间线及黄仁勋\"愿返任CEO\"一手出处未核实，时间线细节不采纳为定论。",
+                "evidenceIds": [
+                  "course_evidence_b7c683c1ba5eef74c5173b407bbbb24d",
+                  "course_evidence_7778ccadc996661fa2945c7259bab93a"
+                ]
+              },
+              {
+                "assignmentId": "course_run_9962c5fe-3928-4b3a-83c4-aab905d9e788_verification_initial",
+                "disposition": "adopted",
+                "reason": "归属判断（引语属克雷斯非黄仁勋）与指引/业绩区分正确；其自述单位差异需以英文原稿billion口径校正。",
+                "evidenceIds": [
+                  "course_evidence_2f6e5bc215fad5d8b66be261a8d74f7b",
+                  "course_evidence_34e4ae12f479b7333104cddcf5e6c052"
+                ]
+              }
+            ],
+            "evidenceIds": [
+              "course_evidence_acadd84c1b6c28c95707205537e7f611",
+              "course_evidence_47ef5dcb2dc8ec496d664690ac5c3a81",
+              "course_evidence_2f6e5bc215fad5d8b66be261a8d74f7b",
+              "course_evidence_34e4ae12f479b7333104cddcf5e6c052",
+              "course_evidence_7778ccadc996661fa2945c7259bab93a",
+              "course_evidence_b7c683c1ba5eef74c5173b407bbbb24d"
+            ],
+            "publishedAt": "2026-11-20T17:26:23.895Z",
+            "knowledgeCutoff": "2026-11-20T17:26:23.895Z",
+            "modelMode": "live",
+            "sourceMode": "live",
+            "modelRef": "deepseek-v4-pro",
+            "kind": "research_report",
+            "scoringEligible": false,
+            "assemblyMode": "supervisor"
+          },
+          "recoveryEvents": [
+            {
+              "type": "run.finished",
+              "emittedAt": "2026-11-20T16:40:35.150Z",
+              "payload": {
+                "status": "failed",
+                "summary": "模型输出未完整结束，可能达到输出长度上限，未保存为报告。",
+                "error": {
+                  "code": "MODEL_INCOMPLETE",
+                  "message": "模型输出未完整结束，可能达到输出长度上限，未保存为报告。",
+                  "retryable": false
+                }
+              }
+            },
+            {
+              "type": "research.resume_requested",
+              "emittedAt": "2026-11-20T16:59:03.253Z",
+              "payload": {
+                "summary": "继续整理已有报告，不重新取证。",
+                "attempt": 1
+              }
+            },
+            {
+              "type": "run.finished",
+              "emittedAt": "2026-11-20T17:00:33.043Z",
+              "payload": {
+                "status": "failed",
+                "summary": "模型输出未完整结束，可能达到输出长度上限，未保存为报告。",
+                "error": {
+                  "code": "MODEL_INCOMPLETE",
+                  "message": "模型输出未完整结束，可能达到输出长度上限，未保存为报告。",
+                  "retryable": false
+                }
+              }
+            },
+            {
+              "type": "research.resume_requested",
+              "emittedAt": "2026-11-20T17:20:13.605Z",
+              "payload": {
+                "summary": "继续整理已有报告，不重新取证。",
+                "attempt": 2,
+                "maxTokens": 16384,
+                "policyVersion": "research-summary-v2"
+              }
+            },
+            {
+              "type": "run.finished",
+              "emittedAt": "2026-11-20T17:20:13.630Z",
+              "payload": {
+                "status": "failed",
+                "summary": "剩余预算不足以安全发起下一次模型请求，保留已取得资料。",
+                "error": {
+                  "code": "COURSE_BUDGET",
+                  "message": "剩余预算不足以安全发起下一次模型请求，保留已取得资料。",
+                  "retryable": false
+                }
+              }
+            },
+            {
+              "type": "research.resume_requested",
+              "emittedAt": "2026-11-20T17:25:38.624Z",
+              "payload": {
+                "summary": "继续整理已有报告，不重新取证。",
+                "attempt": 2,
+                "unsentRetry": true,
+                "modelRequestsBefore": 13,
+                "maxTokens": 16384,
+                "policyVersion": "research-summary-v2"
+              }
+            },
+            {
+              "type": "research.published",
+              "emittedAt": "2026-11-20T17:26:23.898Z",
+              "payload": {
+                "reportId": "course_research_245eabb6-3a96-4cd5-88f2-c84dfb8e5527",
+                "requestId": "course_request_b0e39ad4-0a12-488a-82a5-54d3efdda151",
+                "runId": "course_run_9962c5fe-3928-4b3a-83c4-aab905d9e788",
+                "topicId": "topic_course_request_b0e39ad4-0a12-488a-82a5-54d3efdda151",
+                "summary": "英伟达2027财年Q3（期末2026-10-25，2026-11-17公布）：营收1158.44亿美元(+103%)、GAAP净利652.87亿(+105%)、数据中心1076亿(+110%)、GAAP毛利率74.8%/non-GAAP 74.9%、GAAP稀释EPS 2.70美元，中英文稿数字一致。本期财报评论引语（\"Our momentum is real\"）归属临时CEO兼CFO Colette Kress，非黄仁勋；黄仁勋已于2026-11-12辞任总裁/CEO/董事，本期无其新引语，11-18社媒发声仅涉辞职与回归意愿，董事会主席琼斯明确不考虑复职。Q4营收指引1300亿±3%、毛利率71-72%及FY2028收入+75%均为克雷斯前瞻声明（预期），须与已实现Q3业绩区分。口径反证：EPS 2.70(GAAP)与2.68(non-GAAP)、毛利率74.8%与74.9%及净利652.87亿(GAAP)与648.7亿(non-GAAP)易混淆，部分中文稿未标口径，需以官方分类为准。中文稿首发时间线（财联社07:25、证券时报/搜狐07:53、新华社中文10:39）及黄仁勋\"愿返任CEO\"一手出处尚未完全核实。",
+                "findings": [
+                  {
+                    "claim": "正式业绩：2027财年Q3营收1158.44亿美元(+103%)、GAAP净利652.87亿(+105%)、数据中心1076亿(+110%)、GAAP毛利率74.8%/non-GAAP 74.9%、GAAP稀释EPS 2.70美元，期末2026-10-25，公布2026-11-17，中英文稿数字一致。",
+                    "evidenceIds": [
+                      "course_evidence_acadd84c1b6c28c95707205537e7f611",
+                      "course_evidence_47ef5dcb2dc8ec496d664690ac5c3a81",
+                      "course_evidence_2f6e5bc215fad5d8b66be261a8d74f7b"
+                    ]
+                  },
+                  {
+                    "claim": "本期财报评论引语（\"Our momentum is real\"）归属临时CEO兼CFO Colette Kress；黄仁勋已于2026-11-12辞任总裁/CEO/董事，本期财报无其新引语。",
+                    "evidenceIds": [
+                      "course_evidence_47ef5dcb2dc8ec496d664690ac5c3a81",
+                      "course_evidence_2f6e5bc215fad5d8b66be261a8d74f7b",
+                      "course_evidence_34e4ae12f479b7333104cddcf5e6c052"
+                    ]
+                  },
+                  {
+                    "claim": "黄仁勋2025 GTC公布Feynman架构属旧引语，非本期；其11-18社媒发声仅涉辞职与回归意愿，与业绩无关；董事会主席琼斯明确称不考虑其复职。",
+                    "evidenceIds": [
+                      "course_evidence_34e4ae12f479b7333104cddcf5e6c052",
+                      "course_evidence_7778ccadc996661fa2945c7259bab93a"
+                    ]
+                  },
+                  {
+                    "claim": "Q4营收指引1300亿美元±3%（1261-1339亿）、毛利率71-72%，另有FY2028收入+75%系克雷斯前瞻声明，均属管理层预期而非已实现业绩。",
+                    "evidenceIds": [
+                      "course_evidence_47ef5dcb2dc8ec496d664690ac5c3a81",
+                      "course_evidence_2f6e5bc215fad5d8b66be261a8d74f7b"
+                    ]
+                  },
+                  {
+                    "claim": "口径反证：GAAP与非GAAP不一致——EPS 2.70 vs 2.68、毛利率74.8% vs 74.9%、净利652.87亿(GAAP) vs 648.7亿(non-GAAP)；部分外媒/中文稿混用未标口径，须以官方GAAP/non-GAAP分类为准。",
+                    "evidenceIds": [
+                      "course_evidence_2f6e5bc215fad5d8b66be261a8d74f7b",
+                      "course_evidence_acadd84c1b6c28c95707205537e7f611",
+                      "course_evidence_b7c683c1ba5eef74c5173b407bbbb24d"
+                    ]
+                  },
+                  {
+                    "claim": "中文稿首发时间线：财联社07:25、证券时报/搜狐07:53、新华社中文10:39（英文版06:29）；首发源与转载链未完全确认。",
+                    "evidenceIds": [
+                      "course_evidence_b7c683c1ba5eef74c5173b407bbbb24d",
+                      "course_evidence_7778ccadc996661fa2945c7259bab93a"
+                    ]
+                  }
+                ],
+                "limitations": [
+                  "官方中文稿（英伟达中国官网）未读取，新华社中文稿与官方英文稿为不同来源链，未比对官方中文译文。",
+                  "英文稿被截断，Q4指引之外的细分业务高亮、现金/回购明细及GAAP-non-GAAP调节表未完整读取。",
+                  "黄仁勋11-12辞职公告原文及11-17\"愿返任CEO\"一手出处（36kr正文404）未读取，仅由中文稿转述。",
+                  "股价盘后涨4-5%仅来自中文媒体转载，未读取原始行情数据，无法独立核实。",
+                  "部分报告摘要单位表述不一致（\"115.8亿美元\"应为1158亿美元/$115.8B口径），需以英文原稿billion为准；黄仁勋2025 GTC Feynman架构旧引语原始出处未单独读取。"
+                ],
+                "decisionNotes": [
+                  {
+                    "assignmentId": "course_run_9962c5fe-3928-4b3a-83c4-aab905d9e788_official_initial",
+                    "disposition": "adopted",
+                    "reason": "核心业绩数字与归属判断正确，中英文稿一致，counterevidence涉及的GAAP/non-GAAP口径问题已在findings保留。",
+                    "evidenceIds": [
+                      "course_evidence_47ef5dcb2dc8ec496d664690ac5c3a81",
+                      "course_evidence_acadd84c1b6c28c95707205537e7f611"
+                    ]
+                  },
+                  {
+                    "assignmentId": "course_run_9962c5fe-3928-4b3a-83c4-aab905d9e788_timeline_initial",
+                    "disposition": "qualified",
+                    "reason": "业绩数字与人事表述与其他报告一致，但首发时间线及黄仁勋\"愿返任CEO\"一手出处未核实，时间线细节不采纳为定论。",
+                    "evidenceIds": [
+                      "course_evidence_b7c683c1ba5eef74c5173b407bbbb24d",
+                      "course_evidence_7778ccadc996661fa2945c7259bab93a"
+                    ]
+                  },
+                  {
+                    "assignmentId": "course_run_9962c5fe-3928-4b3a-83c4-aab905d9e788_verification_initial",
+                    "disposition": "adopted",
+                    "reason": "归属判断（引语属克雷斯非黄仁勋）与指引/业绩区分正确；其自述单位差异需以英文原稿billion口径校正。",
+                    "evidenceIds": [
+                      "course_evidence_2f6e5bc215fad5d8b66be261a8d74f7b",
+                      "course_evidence_34e4ae12f479b7333104cddcf5e6c052"
+                    ]
+                  }
+                ],
+                "evidenceIds": [
+                  "course_evidence_acadd84c1b6c28c95707205537e7f611",
+                  "course_evidence_47ef5dcb2dc8ec496d664690ac5c3a81",
+                  "course_evidence_2f6e5bc215fad5d8b66be261a8d74f7b",
+                  "course_evidence_34e4ae12f479b7333104cddcf5e6c052",
+                  "course_evidence_7778ccadc996661fa2945c7259bab93a",
+                  "course_evidence_b7c683c1ba5eef74c5173b407bbbb24d"
+                ],
+                "publishedAt": "2026-11-20T17:26:23.895Z",
+                "knowledgeCutoff": "2026-11-20T17:26:23.895Z",
+                "modelMode": "live",
+                "sourceMode": "live",
+                "modelRef": "deepseek-v4-pro",
+                "kind": "research_report",
+                "scoringEligible": false,
+                "assemblyMode": "supervisor"
+              }
+            },
+            {
+              "type": "run.finished",
+              "emittedAt": "2026-11-20T17:26:23.908Z",
+              "payload": {
+                "status": "completed",
+                "summary": "研报已封存，可查看财报发现、引用、限制与协作裁决。"
+              }
+            }
+          ],
+          "assignments": [
+            {
+              "assignmentId": "course_run_9962c5fe-3928-4b3a-83c4-aab905d9e788_official_initial",
+              "roleId": "official",
+              "status": "completed",
+              "methodProfile": {
+                "version": "finance-methods-v1",
+                "roleId": "official"
+              },
+              "report": {
+                "status": "complete",
+                "summary": "已读取英伟达官方IR英文稿（第三财季财报，2026年11月17日发布）及新华社中文稿（11月18日刊发，记者吴晓凌，发自旧金山）。核验要点：本期为2027财年第三财季，期末日2026年10月25日，公布日2026年11月17日。营收115.8亿美元（同比+103%、环比+20%）；GAAP毛利率74.8%、non-GAAP 74.9%；GAAP摊薄每股收益2.70美元、non-GAAP 2.68美元；GAAP净利65.3亿美元、营业利润77.5亿美元；数据中心营收107.6亿美元（同比+110%）。管理层表态来自临时CEO兼CFO Colette Kress（黄仁勋已于11月12日辞去总裁/CEO/董事，本期无黄仁勋新引语）。前瞻指引：第四财季营收130.0亿美元±3%、毛利率71%–72%。中英文两稿数字一致。",
+                "evidenceIds": [
+                  "course_evidence_acadd84c1b6c28c95707205537e7f611",
+                  "course_evidence_47ef5dcb2dc8ec496d664690ac5c3a81"
+                ],
+                "support": [
+                  {
+                    "claim": "最新一期为2027财年第三财季，期末日2026年10月25日，公布日2026年11月17日；营收115.8亿美元、同比+103%。",
+                    "evidenceIds": [
+                      "course_evidence_47ef5dcb2dc8ec496d664690ac5c3a81",
+                      "course_evidence_acadd84c1b6c28c95707205537e7f611"
+                    ]
+                  },
+                  {
+                    "claim": "本期管理层表述来自临时CEO兼CFO Colette Kress；黄仁勋已于2026年11月12日辞去总裁、CEO及董事职务，本期无黄仁勋新引语。",
+                    "evidenceIds": [
+                      "course_evidence_47ef5dcb2dc8ec496d664690ac5c3a81",
+                      "course_evidence_acadd84c1b6c28c95707205537e7f611"
+                    ]
+                  },
+                  {
+                    "claim": "前瞻指引（管理层预期，非已实现业绩）：第四财季营收130.0亿美元±3%，GAAP/non-GAAP毛利率71%–72%，并假设无中国数据中心计算营收。",
+                    "evidenceIds": [
+                      "course_evidence_47ef5dcb2dc8ec496d664690ac5c3a81"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "新华社稿以“净利652.87亿美元”表述为GAAP净利65.3亿美元，中文“净利润同比倍增”与官方non-GAAP净利64.9亿美元略有口径差异，需以官方GAAP/non-GAAP分类为准。",
+                    "evidenceIds": [
+                      "course_evidence_acadd84c1b6c28c95707205537e7f611",
+                      "course_evidence_47ef5dcb2dc8ec496d664690ac5c3a81"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "官方中文稿（英伟达中国官网）未读取，新华社中文稿与官方英文稿为不同来源链，尚未比对官方中文站译文。",
+                  "英文稿被截断，Q4指引之外的细分业务高亮、现金/回购明细及GAAP-non-GAAP调节表未完整读取。",
+                  "黄仁勋11月12日辞职的具体公告原文未读取，仅由新华社稿转述。"
+                ],
+                "probability": null,
+                "nextSuggestion": "本任务为事实核验而非概率预测，故probability置空。可补充读取英伟达官网中文稿及黄仁勋辞职公告原文，以闭环中文来源链与辞职细节；已取得官方英文稿与新华社稿足以支撑核心结论。",
+                "resultId": "aae3bbfc-408f-4896-b6d1-e7f4060be055",
+                "topicId": "topic_course_request_b0e39ad4-0a12-488a-82a5-54d3efdda151",
+                "predictionId": "prediction_course_request_b0e39ad4-0a12-488a-82a5-54d3efdda151",
+                "runId": "course_run_9962c5fe-3928-4b3a-83c4-aab905d9e788",
+                "assignmentId": "course_run_9962c5fe-3928-4b3a-83c4-aab905d9e788_official_initial",
+                "agentInstanceId": "course_run_9962c5fe-3928-4b3a-83c4-aab905d9e788_official_initial_actor",
+                "agentSpecId": "official",
+                "specVersion": 1
+              }
+            },
+            {
+              "assignmentId": "course_run_9962c5fe-3928-4b3a-83c4-aab905d9e788_timeline_initial",
+              "roleId": "timeline",
+              "status": "completed",
+              "methodProfile": {
+                "version": "finance-methods-v1",
+                "roleId": "timeline"
+              },
+              "report": {
+                "status": "complete",
+                "summary": "英伟达2027财年Q3（截至2026-10-25）于11月17日美股盘后发布：营收1158.44亿美元(+103%)、净利润652.87亿美元(+105%)、数据中心1076亿(+110%)，毛利率74.8%。11月12日黄仁勋辞任总裁/CEO/董事，CFO克雷斯兼任临时CEO。中文稿首发时间线：财联社07:25、证券时报/搜狐07:53、新华社中文10:39（英文版06:29）。黄仁勋11月17日称愿返任CEO属其本人新发言；董事会主席琼斯称不考虑复职；克雷斯给Q4指引1261-1339亿、毛利率71-72%。",
+                "evidenceIds": [
+                  "course_evidence_acadd84c1b6c28c95707205537e7f611",
+                  "course_evidence_7778ccadc996661fa2945c7259bab93a",
+                  "course_evidence_b7c683c1ba5eef74c5173b407bbbb24d"
+                ],
+                "support": [
+                  {
+                    "claim": "正式业绩：Q3营收1158.44亿美元(+103%)、净利润652.87亿(+105%)、数据中心1076亿(+110%)、毛利率74.8%、稀释EPS 2.70美元；期末10/25，11/17公布。",
+                    "evidenceIds": [
+                      "course_evidence_acadd84c1b6c28c95707205537e7f611"
+                    ]
+                  },
+                  {
+                    "claim": "人事与表述归属：黄仁勋11/12辞任CEO由CFO克雷斯兼任临时CEO；董事会主席哈维·琼斯称董事会无意让黄仁勋复职，将考虑内外候选人。",
+                    "evidenceIds": [
+                      "course_evidence_7778ccadc996661fa2945c7259bab93a",
+                      "course_evidence_b7c683c1ba5eef74c5173b407bbbb24d"
+                    ]
+                  },
+                  {
+                    "claim": "黄仁勋11/17（周二盘前）表示若董事会接受愿重返CEO，属新发言非旧引语；克雷斯给出Q4指引营收1261-1339亿美元、毛利率71-72%，称2028财年销售+75%。",
+                    "evidenceIds": [
+                      "course_evidence_b7c683c1ba5eef74c5173b407bbbb24d"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "各源GAAP与非GAAP数字不一致：新华社净利润652.87亿(GAAP) vs 搜狐648.7亿(非GAAP)、EPS 2.70 vs 2.68；需以官方原稿为准，官方投资者关系稿未完整读取。",
+                    "evidenceIds": [
+                      "course_evidence_acadd84c1b6c28c95707205537e7f611",
+                      "course_evidence_b7c683c1ba5eef74c5173b407bbbb24d"
+                    ]
+                  },
+                  {
+                    "claim": "黄仁勋“愿返任CEO”的英文一手出处(36kr)正文404未读，仅由证券时报/搜狐二次转述证实，无法核对原话与场合。",
+                    "evidenceIds": [
+                      "course_evidence_b7c683c1ba5eef74c5173b407bbbb24d"
+                    ]
+                  },
+                  {
+                    "claim": "财联社/东方财富与证券时报/搜狐均为转载或编辑稿，非公司原稿；标题“董事会不考虑黄仁勋复职”系编辑概括，非琼斯逐字原话。",
+                    "evidenceIds": [
+                      "course_evidence_7778ccadc996661fa2945c7259bab93a",
+                      "course_evidence_b7c683c1ba5eef74c5173b407bbbb24d"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "NVIDIA官方新闻稿(investor.nvidia.com)正文及SEC 8-K未读取，GAAP精确数字与官方管理层引语原文缺。",
+                  "黄仁勋11/17“愿返任CEO”发言的一手出处与场合未核实。",
+                  "各中文稿与英文官方稿的翻译/转载链未逐条比对，首发源未完全确认。",
+                  "财报电话会逐字稿未读，琼斯与克雷斯原话无法逐字核对。",
+                  "路透/彭博等英文首发报道时间未读取。"
+                ],
+                "probability": null,
+                "nextSuggestion": "读取investor.nvidia.com Q3 FY2027官方新闻稿与SEC 8-K核对GAAP数字及琼斯、克雷斯原话，并追黄仁勋11/17发言一手出处。",
+                "resultId": "24da0a1c-ef1f-40f5-9ce3-015a84d49481",
+                "topicId": "topic_course_request_b0e39ad4-0a12-488a-82a5-54d3efdda151",
+                "predictionId": "prediction_course_request_b0e39ad4-0a12-488a-82a5-54d3efdda151",
+                "runId": "course_run_9962c5fe-3928-4b3a-83c4-aab905d9e788",
+                "assignmentId": "course_run_9962c5fe-3928-4b3a-83c4-aab905d9e788_timeline_initial",
+                "agentInstanceId": "course_run_9962c5fe-3928-4b3a-83c4-aab905d9e788_timeline_initial_actor",
+                "agentSpecId": "timeline",
+                "specVersion": 1
+              }
+            },
+            {
+              "assignmentId": "course_run_9962c5fe-3928-4b3a-83c4-aab905d9e788_verification_initial",
+              "roleId": "verification",
+              "status": "completed",
+              "methodProfile": {
+                "version": "finance-methods-v1",
+                "roleId": "verification"
+              },
+              "report": {
+                "status": "complete",
+                "summary": "已核验英伟达2027财年第三财季（截至2026-10-25）财报与中英文新闻时间线。官方英文稿（2026-11-17发布）与新华社中文稿数字一致：营收1158.44亿美元(+103%)、GAAP营业利润775.2亿(+115%)、GAAP净利润652.87亿(+105%)、GAAP毛利率74.8%、稀释EPS 2.70美元；数据中心1076亿(+110%)。关键归属：财报评论引语属临时CEO兼CFO克雷斯（\"Our momentum is real\"），非黄仁勋；黄仁勋已于11-12辞职，其11-18社媒发声仅涉辞职与回归意愿，与业绩无关。业绩(Q3已实现)与指引(Q4营收1300亿±3%、FY2028收入+75%系克雷斯前瞻声明)需分开。GAAP/非GAAP口径需区分（EPS 2.70 vs 2.68）。",
+                "evidenceIds": [
+                  "course_evidence_2f6e5bc215fad5d8b66be261a8d74f7b",
+                  "course_evidence_acadd84c1b6c28c95707205537e7f611",
+                  "course_evidence_34e4ae12f479b7333104cddcf5e6c052"
+                ],
+                "support": [
+                  {
+                    "claim": "Q3 FY27财报正式业绩：营收115.8亿美元(+103%)、数据中心1076亿(+110%)、GAAP毛利率74.8%/非GAAP74.9%、GAAP稀释EPS 2.70美元，财报期末为2026-10-25。",
+                    "evidenceIds": [
+                      "course_evidence_2f6e5bc215fad5d8b66be261a8d74f7b",
+                      "course_evidence_acadd84c1b6c28c95707205537e7f611"
+                    ]
+                  },
+                  {
+                    "claim": "财报评论引语'Our momentum is real'归属临时CEO兼CFO克雷斯，非黄仁勋；黄仁勋已于2026-11-12辞职，11-18社媒发声仅涉辞职与回归意愿。",
+                    "evidenceIds": [
+                      "course_evidence_2f6e5bc215fad5d8b66be261a8d74f7b",
+                      "course_evidence_34e4ae12f479b7333104cddcf5e6c052"
+                    ]
+                  },
+                  {
+                    "claim": "指引为前瞻声明：Q4 FY27营收预期1300亿±3%、毛利率71-72%；FY2028收入同比+75%（克雷斯上调自70%），属管理层预期而非已实现业绩。",
+                    "evidenceIds": [
+                      "course_evidence_2f6e5bc215fad5d8b66be261a8d74f7b",
+                      "course_evidence_34e4ae12f479b7333104cddcf5e6c052"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "部分外媒（digitaltoday等）标题称'营收倍增至1158.4亿、EPS 2.68美元'，此EPS为非GAAP口径（2.68），与新华社GAAP口径2.70不同，需标注口径防混淆。",
+                    "evidenceIds": [
+                      "course_evidence_2f6e5bc215fad5d8b66be261a8d74f7b"
+                    ]
+                  },
+                  {
+                    "claim": "新华社稿称'营业利润775.20亿、毛利率74.8%、EPS2.70'但未标注GAAP，读者易与非GAAP经营利润779亿、非GAAP毛利率74.9%混淆。",
+                    "evidenceIds": [
+                      "course_evidence_acadd84c1b6c28c95707205537e7f611"
+                    ]
+                  },
+                  {
+                    "claim": "Q3业绩（截至10-25）发生于黄仁勋11-12辞职之前，属其任内业绩；'离职后首份财报'仅是发布时点描述，不能归因为辞职事件影响业绩。",
+                    "evidenceIds": [
+                      "course_evidence_34e4ae12f479b7333104cddcf5e6c052"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "新华社正文未注明GAAP/非GAAP口径标签，需以官方稿核对才能区分EPS2.70与2.68。",
+                  "股价盘后涨超4-5%仅来自中文媒体转载，未读取彭博/交易所原始行情数据，无法独立核实。",
+                  "黄仁勋2025 GTC宣布Feynman架构的旧引语原始出处未单独读取，仅据中文稿转述。",
+                  "董事会国家安全与出口管制监督委员会的官方公告原文未读取。",
+                  "FY2028收入+75%的基准年份与完整指引原文（电话会纪要/财报全文）未单独读取，仅中文媒体转述克雷斯原话。"
+                ],
+                "probability": null,
+                "nextSuggestion": "建议主Agent比对：其一，新华社/搜狐中文稿与官方英文稿的GAAP vs 非GAAP口径是否统一标注；其二，区分\"黄仁勋任内Q3业绩\"与\"克雷斯电话会指引\"两类不同属性信息；其三，若需核实\"黄仁勋影响市场/行业\"主张，应另行取证股价行情与客户/供应链原始来源，当前资料仅能证明业绩数字与引语归属，不足以支撑任何\"黄仁勋影响力\"的因果结论。",
+                "resultId": "faac0212-7d8f-4f32-9686-52054674de4e",
+                "topicId": "topic_course_request_b0e39ad4-0a12-488a-82a5-54d3efdda151",
+                "predictionId": "prediction_course_request_b0e39ad4-0a12-488a-82a5-54d3efdda151",
+                "runId": "course_run_9962c5fe-3928-4b3a-83c4-aab905d9e788",
+                "assignmentId": "course_run_9962c5fe-3928-4b3a-83c4-aab905d9e788_verification_initial",
+                "agentInstanceId": "course_run_9962c5fe-3928-4b3a-83c4-aab905d9e788_verification_initial_actor",
+                "agentSpecId": "verification",
+                "specVersion": 1
+              }
+            }
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "evidenceId": "course_evidence_2f6e5bc215fad5d8b66be261a8d74f7b",
+          "title": "NVIDIA Announces Financial Results for Third Quarter Fiscal 2027",
+          "url": "https://nvidianews.nvidia.com/news/nvidia-announces-financial-results-for-third-quarter-fiscal-2027",
+          "publishedAt": null,
+          "obtainedAt": "2026-11-20T16:38:38.515Z",
+          "language": "en"
+        },
+        {
+          "evidenceId": "course_evidence_34e4ae12f479b7333104cddcf5e6c052",
+          "title": "黄仁勋凌晨发声愿意回归，英伟达财报电话明确拒绝其复职",
+          "url": "https://www.sohu.com/a/1103047697_161795",
+          "publishedAt": null,
+          "obtainedAt": "2026-11-20T16:38:42.536Z",
+          "language": "zh"
+        },
+        {
+          "evidenceId": "course_evidence_47ef5dcb2dc8ec496d664690ac5c3a81",
+          "title": "NVIDIA Announces Financial Results for Third Quarter Fiscal 2027",
+          "url": "https://investor.nvidia.com/news/press-release-details/2026/NVIDIA-Announces-Financial-Results-for-Third-Quarter-Fiscal-2027/",
+          "publishedAt": "2026-11-16T16:00:00.000Z",
+          "obtainedAt": "2026-11-20T16:38:20.473Z",
+          "language": "en"
+        },
+        {
+          "evidenceId": "course_evidence_7778ccadc996661fa2945c7259bab93a",
+          "title": "英伟达财报大超预期 董事会明确不考虑黄仁勋复职",
+          "url": "https://finance.eastmoney.com/a/202611183933423310.html",
+          "publishedAt": "2026-11-17T16:00:00.000Z",
+          "obtainedAt": "2026-11-20T16:38:31.856Z",
+          "language": "zh"
+        },
+        {
+          "evidenceId": "course_evidence_acadd84c1b6c28c95707205537e7f611",
+          "title": "英伟达第三财季营收、净利润同比倍增",
+          "url": "https://www.xinhuanet.com/20261118/8ac8d8cd60db453598c19a6e7915687e/c.html",
+          "publishedAt": null,
+          "obtainedAt": "2026-11-20T16:38:15.961Z",
+          "language": "zh"
+        },
+        {
+          "evidenceId": "course_evidence_b7c683c1ba5eef74c5173b407bbbb24d",
+          "title": "黄仁勋离职后首份财报！英伟达业绩和展望均超预期",
+          "url": "https://www.sohu.com/a/1102984494_115433",
+          "publishedAt": null,
+          "obtainedAt": "2026-11-20T16:38:40.386Z",
+          "language": "zh"
+        }
+      ],
+      "notAccuracyBenchmark": true,
+      "metrics": {
+        "runs": 1,
+        "reports": 1,
+        "forecasts": 0,
+        "modelRequests": 14,
+        "toolCalls": 13,
+        "totalTokens": 122609
+      },
+      "reviewNotes": [
+        "汇总成功表示执行完成，不表示所有事实和引用已经人工核准。",
+        "发现4将FY2028收入增长75%的媒体转述与官方英文稿并列引用；所读官方片段不含该展望。该子主张应另引已读中文媒体，且标注未读取电话会一手原文。",
+        "发现3的2025 GTC/Feynman旧引语仅来自中文媒体转述，未读取原始演讲；不纳入人工核对结论。",
+        "两份英文公司稿属于同一披露链；新华社为中文媒体稿，不能写成已核对公司官方中文译文。",
+        "未验证首发/转载链或股价因果；不得将此次运行作为预测准确率或投资收益成绩。"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1721 @@
+{
+  "version": 1,
+  "id": "btc-usdt-live-course_request_61ef8b84-4710-4209-94e1-d858afa59644",
+  "title": "真实BTC-USDT预测：三席自动发布与到期核验",
+  "kind": "price-live-validation",
+  "mode": "live",
+  "notAccuracyBenchmark": true,
+  "capturedAt": "2026-11-21T08:22:17.257Z",
+  "requestId": "course_request_61ef8b84-4710-4209-94e1-d858afa59644",
+  "question": "在固定目标时点后的首次有界观察中，Binance BTC-USDT现价是否高于本轮固定基准？",
+  "status": "closed",
+  "targetAt": "2026-11-21T08:22:15.813Z",
+  "autonomousValidationPassed": true,
+  "acceptance": {
+    "threeComplete": true,
+    "normalPublication": true,
+    "beforeTarget": true,
+    "liveSources": true,
+    "resultVerified": true,
+    "originalSealedUnchanged": true
+  },
+  "checks": [
+    "threeComplete",
+    "normalPublication",
+    "beforeTarget",
+    "liveSources",
+    "resultVerified",
+    "originalSealedUnchanged"
+  ],
+  "metrics": {
+    "runs": 1,
+    "forecasts": 1,
+    "modelRequests": 10,
+    "toolCalls": 7,
+    "totalTokens": 58727
+  },
+  "forecast": {
+    "forecastId": "course_forecast_f3339a58-75ea-4fbb-9135-3aac1ff44877",
+    "requestId": "course_request_61ef8b84-4710-4209-94e1-d858afa59644",
+    "runId": "course_run_ff5c49f5-811f-479b-8134-f70b9961c6d3",
+    "predictionId": "prediction_course_request_61ef8b84-4710-4209-94e1-d858afa59644",
+    "predictionVersion": 1,
+    "probabilityYes": 0.46,
+    "probabilityNo": 0.54,
+    "summary": "固定基准为 58025.79 USDT（早于目标时点取得）。最新一次现价观察 57983.03 已略低于基准约 42.76 USDT，且目标前已关闭分钟桶呈现轻微下行（observedReturnPct 为负）。但目标时点后的首次有界观察尚未读取，未来结果未知；样本单一、未校准，故给出接近 0.5 且略偏下的有限概率。",
+    "decisionNotes": [
+      {
+        "assignmentId": "course_run_ff5c49f5-811f-479b-8134-f70b9961c6d3_market_initial",
+        "disposition": "adopted",
+        "reason": "采纳其固定基准 58025.79 USDT，作为 Yes/No 比较基准。",
+        "evidenceIds": [
+          "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5"
+        ]
+      },
+      {
+        "assignmentId": "course_run_ff5c49f5-811f-479b-8134-f70b9961c6d3_statistics_initial",
+        "disposition": "qualified",
+        "reason": "其现价快照早于目标时点；分钟对数收益样本标准差为描述性样本，未校准为未来概率，故仅作背景参考。",
+        "evidenceIds": [
+          "course_evidence_89b0c9e2be27977cc490057b62457f43",
+          "course_evidence_195556c45c14a03a4158b74f68eff416"
+        ]
+      },
+      {
+        "assignmentId": "course_run_ff5c49f5-811f-479b-8134-f70b9961c6d3_verification_initial",
+        "disposition": "qualified",
+        "reason": "确认 USDT 计价与数字自洽，但其快照同属目标前事实，不能证明目标后结果。",
+        "evidenceIds": [
+          "course_evidence_97cd6ec87eb00438468ab40361b2303d",
+          "course_evidence_043f6cad6cd91b86e3d10f97f809cdf0"
+        ]
+      }
+    ],
+    "evidenceIds": [
+      "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5",
+      "course_evidence_2c88a650a2eabf9c5edf7bb4300b58bd",
+      "course_evidence_043f6cad6cd91b86e3d10f97f809cdf0",
+      "course_evidence_195556c45c14a03a4158b74f68eff416"
+    ],
+    "evidenceAdequacy": "limited",
+    "dissent": [
+      "三席报告的价格快照均早于目标时点，不能代表目标时点后的首次有界观察。",
+      "分钟桶收益统计为描述性样本，样本标准差未被校准为未来概率，不能直接外推涨跌概率。",
+      "最新观察与基准之差仅约 42.76 USDT，相对分钟波动幅度较小，方向判断接近随机。"
+    ],
+    "issuedAt": "2026-11-21T07:54:23.464Z",
+    "publishedAt": "2026-11-21T07:54:23.464Z",
+    "knowledgeCutoff": "2026-11-21T07:54:23.464Z",
+    "targetAt": "2026-11-21T08:22:15.813Z",
+    "resolutionRuleVersion": 1,
+    "modelMode": "live",
+    "modelRef": "deepseek-v4-pro",
+    "sourceMode": "live",
+    "kind": "forecast",
+    "defaultAssumptions": [],
+    "currentReference": {
+      "kind": "price",
+      "pair": "BTC-USDT",
+      "value": 57983.03,
+      "currency": "USDT",
+      "unit": "USDT",
+      "observedAt": "2026-11-21T07:53:58.771Z",
+      "url": "https://data-api.binance.vision/api/v3/ticker/price?symbol=BTCUSDT",
+      "evidenceId": "course_evidence_2c88a650a2eabf9c5edf7bb4300b58bd",
+      "verified": true,
+      "synthetic": false,
+      "timestampMeaning": "system-observation-time"
+    },
+    "sourceLimitations": [
+      "目标时点后的首次有界观察现价尚未到期读取，未来结果未知。",
+      "所有快照与分钟桶均来自 Binance 公开接口单一来源，不代表独立交易所验证。",
+      "USDT 不等同于 USD；概率为未校准的有限估计。"
+    ],
+    "researchBasis": {
+      "mode": "verified-source",
+      "summary": "已读取公开研究依据；这不等同于官方已经确认未来结果。"
+    },
+    "timeContext": {
+      "nowUtc": "2026-11-21T07:53:58.474Z",
+      "nowLocalLabel": "2026-11-21 15:53:58 (Asia/Shanghai, UTC+08:00)",
+      "windowStartsAtUtc": "2026-11-21T07:52:15.844Z",
+      "windowStartsAtLocalLabel": "2026-11-21 15:52:15 (Asia/Shanghai, UTC+08:00)",
+      "targetAtUtc": "2026-11-21T08:22:15.813Z",
+      "targetAtLocalLabel": "2026-11-21 16:22:15 (Asia/Shanghai, UTC+08:00)",
+      "forecastClosesAtUtc": "2026-11-21T08:22:15.813Z",
+      "forecastClosesAtLocalLabel": "2026-11-21 16:22:15 (Asia/Shanghai, UTC+08:00)",
+      "timezone": "Asia/Shanghai",
+      "utcOffset": "UTC+08:00",
+      "authority": "UTC instant is authoritative; local labels are server-generated and display-only."
+    },
+    "baseline": {
+      "kind": "price",
+      "value": 58025.79,
+      "unit": "USDT",
+      "currency": "USDT",
+      "pair": "BTC-USDT",
+      "observedAt": "2026-11-21T07:52:30.791Z",
+      "url": "https://data-api.binance.vision/api/v3/ticker/price?symbol=BTCUSDT",
+      "evidenceId": "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5",
+      "verified": true,
+      "synthetic": false,
+      "timestampMeaning": "system-observation-time"
+    },
+    "scoringEligible": true,
+    "label": "模型事件概率估计",
+    "reasoningClaims": [
+      {
+        "claim": "本轮固定基准为 Binance BTC-USDT 现价 58025.79 USDT，系统观察时间早于目标时点。",
+        "basis": "fact",
+        "evidenceIds": [
+          "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5"
+        ],
+        "citations": [
+          {
+            "evidenceId": "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5",
+            "quote": "\"pair\":\"BTC-USDT\",\"value\":58025.79,\"currency\":\"USDT\""
+          }
+        ]
+      },
+      {
+        "claim": "最新一次现价观察为 57983.03 USDT，低于固定基准 58025.79 约 42.76 USDT。",
+        "basis": "inference",
+        "evidenceIds": [
+          "course_evidence_2c88a650a2eabf9c5edf7bb4300b58bd",
+          "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5"
+        ],
+        "citations": [
+          {
+            "evidenceId": "course_evidence_2c88a650a2eabf9c5edf7bb4300b58bd",
+            "quote": "\"pair\":\"BTC-USDT\",\"value\":57983.03,\"currency\":\"USDT\""
+          },
+          {
+            "evidenceId": "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5",
+            "quote": "\"pair\":\"BTC-USDT\",\"value\":58025.79,\"currency\":\"USDT\""
+          }
+        ]
+      },
+      {
+        "claim": "目标前已关闭分钟桶样本呈现轻微下行，observedReturnPct 为负值。",
+        "basis": "fact",
+        "evidenceIds": [
+          "course_evidence_043f6cad6cd91b86e3d10f97f809cdf0",
+          "course_evidence_195556c45c14a03a4158b74f68eff416"
+        ],
+        "citations": [
+          {
+            "evidenceId": "course_evidence_043f6cad6cd91b86e3d10f97f809cdf0",
+            "quote": "\"firstOpen\":58345.61,\"lastClose\":58011.35"
+          },
+          {
+            "evidenceId": "course_evidence_195556c45c14a03a4158b74f68eff416",
+            "quote": "\"firstOpen\":58260.91,\"lastClose\":58019.49"
+          }
+        ]
+      }
+    ],
+    "groundingPolicy": "quoted-claims-v1",
+    "reviewRequired": false,
+    "reviewReasons": [],
+    "statusFacts": [
+      {
+        "key": "baseline",
+        "label": "基准",
+        "text": "BTC-USDT 58025.79 USDT（系统观测）",
+        "status": "verified",
+        "value": 58025.79,
+        "pair": "BTC-USDT",
+        "unit": "USDT"
+      },
+      {
+        "key": "kind",
+        "label": "估计类型",
+        "text": "概率预测",
+        "status": "forecast"
+      },
+      {
+        "key": "scoring",
+        "label": "计分",
+        "text": "可计分",
+        "status": "eligible"
+      },
+      {
+        "key": "adequacy",
+        "label": "资料充分度",
+        "text": "有限",
+        "status": "limited"
+      },
+      {
+        "key": "target",
+        "label": "固定到期",
+        "text": "2026-11-21 16:22:15 (Asia/Shanghai, UTC+08:00)",
+        "status": "info"
+      }
+    ],
+    "summaryConflict": {
+      "detected": false,
+      "reasons": []
+    },
+    "baselineVerified": true,
+    "conditionalOnly": false,
+    "statusLabel": "概率预测 · 可计分"
+  },
+  "result": {
+    "requestId": "course_request_61ef8b84-4710-4209-94e1-d858afa59644",
+    "predictionId": "prediction_course_request_61ef8b84-4710-4209-94e1-d858afa59644",
+    "predictionVersion": 1,
+    "outcome": 0,
+    "knownAt": "2026-11-21T08:22:17.238Z",
+    "observedAt": "2026-11-21T08:22:17.237Z",
+    "status": "known",
+    "resolutionPolicy": "binance-btc-usdt-higher-v1",
+    "rule": "以本轮市场研究员首次成功取得的Binance BTC-USDT现价为固定基准；目标时点后5分钟内首次成功取得同一接口的有效现价严格高于基准则Yes，等于或低于则No；未在观察窗口取得有效现价则不结算。取得时刻是系统观察时间，不声称精确成交时刻。USDT不等同于USD。",
+    "baseline": {
+      "kind": "price",
+      "value": 58025.79,
+      "unit": "USDT",
+      "currency": "USDT",
+      "pair": "BTC-USDT",
+      "observedAt": "2026-11-21T07:52:30.791Z",
+      "url": "https://data-api.binance.vision/api/v3/ticker/price?symbol=BTCUSDT",
+      "evidenceId": "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5",
+      "verified": true,
+      "synthetic": false,
+      "timestampMeaning": "system-observation-time"
+    },
+    "observedValue": 57718,
+    "change": -307.7900000000009,
+    "changePct": -0.5304365524364307,
+    "evidenceIds": [
+      "resolution_evidence_26678c1c-5053-4093-8fd9-5d804a2a8b15"
+    ],
+    "evidence": [
+      {
+        "title": "Binance BTC-USDT现价快照",
+        "url": "https://data-api.binance.vision/api/v3/ticker/price?symbol=BTCUSDT",
+        "text": "{\"provider\":\"binance-public\",\"pair\":\"BTC-USDT\",\"value\":57718,\"currency\":\"USDT\",\"rawSpot\":{\"symbol\":\"BTCUSDT\",\"price\":\"57718.00000000\"},\"systemObservedAt\":\"2026-11-21T08:22:17.237Z\"}",
+        "marketQuote": {
+          "provider": "binance-public",
+          "pair": "BTC-USDT",
+          "value": 57718,
+          "currency": "USDT",
+          "observedAt": "2026-11-21T08:22:17.237Z",
+          "url": "https://data-api.binance.vision/api/v3/ticker/price?symbol=BTCUSDT",
+          "sourcePublishedAt": null,
+          "timestampMeaning": "system-observation-time"
+        },
+        "obtainedAt": "2026-11-21T08:22:17.237Z",
+        "observedAt": "2026-11-21T08:22:17.237Z",
+        "publishedAt": null,
+        "contentHash": "bd5a0e7e5daa31cadc6612338dd94029ebbaa10ba0accf7a0608a2134699ff12",
+        "sourceMode": "live",
+        "fixture": false,
+        "evidenceFormat": "json",
+        "citationHints": [
+          "\"pair\":\"BTC-USDT\",\"value\":57718,\"currency\":\"USDT\"",
+          "\"symbol\":\"BTCUSDT\",\"price\":\"57718.00000000\"",
+          "\"systemObservedAt\":\"2026-11-21T08:22:17.237Z\""
+        ],
+        "evidenceId": "resolution_evidence_26678c1c-5053-4093-8fd9-5d804a2a8b15",
+        "purpose": "resolution"
+      }
+    ],
+    "summary": "有界首次观察：BTC-USDT 57718 USDT，固定基准58025.79 USDT，等于或低于（No）。",
+    "scoringEligible": true,
+    "scores": [
+      {
+        "forecastId": "course_forecast_f3339a58-75ea-4fbb-9135-3aac1ff44877",
+        "probabilityYes": 0.46,
+        "brier": 0.2116,
+        "scoringEligible": true,
+        "label": "单题Brier，不代表总体准确率"
+      }
+    ]
+  },
+  "normalized": {
+    "type": "binary",
+    "question": "在固定目标时点后的首次有界观察中，Binance BTC-USDT现价是否高于本轮固定基准？（判定时点：2026-11-21 16:22:15 (Asia/Shanghai, UTC+08:00)）",
+    "object": "Binance BTC-USDT 现货价格（USDT 计价）相对固定基准的涨跌判定",
+    "options": [],
+    "candidateUniverseRule": "",
+    "timezone": "Asia/Shanghai",
+    "forecastClosesAt": "2026-11-21T08:22:15.813Z",
+    "targetAt": "2026-11-21T08:22:15.813Z",
+    "resolutionRuleVersion": 1,
+    "resolutionRule": "以本轮市场研究员首次成功取得的Binance BTC-USDT现价为固定基准；目标时点后5分钟内首次成功取得同一接口的有效现价严格高于基准则Yes，等于或低于则No；未在观察窗口取得有效现价则不结算。取得时刻是系统观察时间，不声称精确成交时刻。USDT不等同于USD。",
+    "resolutionSource": {
+      "kind": "specified_source",
+      "url": "https://data-api.binance.vision/api/v3/ticker/price?symbol=BTCUSDT"
+    },
+    "unresolvablePolicy": "观察窗口内未取得同一接口的有效现价，则不结算（不判Yes/No）",
+    "status": "ready",
+    "validation": {
+      "ready": true,
+      "missingFields": []
+    },
+    "predictionId": "prediction_course_request_61ef8b84-4710-4209-94e1-d858afa59644",
+    "topicId": "topic_course_request_61ef8b84-4710-4209-94e1-d858afa59644",
+    "version": 1,
+    "scoringEligible": true,
+    "createdAt": "2026-11-21T07:53:58.477Z",
+    "updatedAt": "2026-11-21T07:53:58.477Z",
+    "forecast": null,
+    "latestRun": null,
+    "activeRunId": null,
+    "watchQuery": "Binance BTC-USDT",
+    "sourceVerified": true,
+    "sourceEvidenceId": "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5",
+    "interpretation": "固定基准＝market 席首次成功快照 58025.79 USDT（系统观察时间 2026-11-21T07:52:30.775Z，早于目标时点）。目标时点 2026-11-21T08:22:15.813Z（UTC）后 5 分钟内首次成功取得同一接口（/api/v3/ticker/price?symbol=BTCUSDT）有效现价：严格高于 58025.79＝Yes；等于或低于＝No；窗口内无有效价＝不结算。取得时刻为系统观察时间，不声称成交时刻；USDT 不等于 USD。目标时点后的未来结果由系统到期读取，本轮不获取。",
+    "defaultAssumptions": [],
+    "currentReference": {
+      "kind": "price",
+      "value": 58025.79,
+      "unit": "USDT",
+      "currency": "USDT",
+      "pair": "BTC-USDT",
+      "observedAt": "2026-11-21T07:52:30.791Z",
+      "url": "https://data-api.binance.vision/api/v3/ticker/price?symbol=BTCUSDT",
+      "evidenceId": "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5",
+      "verified": true,
+      "synthetic": false,
+      "timestampMeaning": "system-observation-time"
+    },
+    "baseline": {
+      "kind": "price",
+      "value": 58025.79,
+      "unit": "USDT",
+      "currency": "USDT",
+      "pair": "BTC-USDT",
+      "observedAt": "2026-11-21T07:52:30.791Z",
+      "url": "https://data-api.binance.vision/api/v3/ticker/price?symbol=BTCUSDT",
+      "evidenceId": "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5",
+      "verified": true,
+      "synthetic": false,
+      "timestampMeaning": "system-observation-time"
+    },
+    "sourceLimitations": [
+      "目标时点后的首次有界观察现价尚未到期读取，无法据此判定 Yes/No；未来结果未知",
+      "未来概率未校准，不基于历史分钟收益样本标准差外推概率",
+      "报价时间为系统取得该公开价格的观察时间，不冒充交易所逐笔成交时间。"
+    ],
+    "conditionalOnly": false,
+    "timeContext": {
+      "nowUtc": "2026-11-21T07:53:58.474Z",
+      "nowLocalLabel": "2026-11-21 15:53:58 (Asia/Shanghai, UTC+08:00)",
+      "windowStartsAtUtc": "2026-11-21T07:52:15.844Z",
+      "windowStartsAtLocalLabel": "2026-11-21 15:52:15 (Asia/Shanghai, UTC+08:00)",
+      "targetAtUtc": "2026-11-21T08:22:15.813Z",
+      "targetAtLocalLabel": "2026-11-21 16:22:15 (Asia/Shanghai, UTC+08:00)",
+      "forecastClosesAtUtc": "2026-11-21T08:22:15.813Z",
+      "forecastClosesAtLocalLabel": "2026-11-21 16:22:15 (Asia/Shanghai, UTC+08:00)",
+      "timezone": "Asia/Shanghai",
+      "utcOffset": "UTC+08:00",
+      "authority": "UTC instant is authoritative; local labels are server-generated and display-only."
+    },
+    "temporalPolicy": "at_target",
+    "researchBasis": {
+      "mode": "verified-source",
+      "summary": "已读取公开研究依据；这不等同于官方已经确认未来结果。"
+    },
+    "temporalPolicyBasis": "课程首版语义启发式；目标时点状态题在T之前不能以当前状态结算。"
+  },
+  "assignments": [
+    {
+      "investigationProfile": {
+        "version": "investigation-methods-v2",
+        "roleId": "market"
+      },
+      "groundingPolicy": "quoted-claims-v1",
+      "review": null,
+      "methodProfile": null,
+      "assignmentId": "course_run_ff5c49f5-811f-479b-8134-f70b9961c6d3_market_initial",
+      "agentSpecId": "market",
+      "roleId": "market",
+      "name": "预测市场研究员",
+      "status": "completed",
+      "report": {
+        "status": "complete",
+        "summary": "已成功取得本轮固定基准快照：Binance BTC-USDT 现价为 58025.79 USDT（原始接口返回 BTCUSDT，价格 58025.79000000）。系统观察时间为 2026-11-21T07:52:30.775Z（UTC），早于目标时点 08:22:15.813Z，符合\"基准＝首次成功取得的现价快照\"规则。本报告仅记录当前事实，不换算 USD，也不将现价涨跌写成 Yes 概率。后续目标时点后的首次观察由系统到期读取，不在本轮获取。",
+        "evidenceIds": [
+          "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5"
+        ],
+        "support": [
+          {
+            "claim": "本轮固定基准为 Binance BTC-USDT 现价 58025.79 USDT。",
+            "evidenceIds": [
+              "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5"
+            ],
+            "basis": "fact",
+            "citations": [
+              {
+                "evidenceId": "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5",
+                "quote": "\"pair\":\"BTC-USDT\",\"value\":58025.79,\"currency\":\"USDT\""
+              }
+            ]
+          },
+          {
+            "claim": "交易对为 BTCUSDT，计价单位为 USDT，原始价格字符串为 58025.79000000。",
+            "evidenceIds": [
+              "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5"
+            ],
+            "basis": "fact",
+            "citations": [
+              {
+                "evidenceId": "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5",
+                "quote": "\"symbol\":\"BTCUSDT\",\"price\":\"58025.79000000\""
+              }
+            ]
+          },
+          {
+            "claim": "系统观察时间为 2026-11-21T07:52:30.775Z（UTC），早于目标时点，取得时刻为系统观察时间而非成交时刻。",
+            "evidenceIds": [
+              "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5"
+            ],
+            "basis": "fact",
+            "citations": [
+              {
+                "evidenceId": "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5",
+                "quote": "\"systemObservedAt\":\"2026-11-21T07:52:30.775Z\""
+              }
+            ]
+          }
+        ],
+        "counterevidence": [],
+        "missingEvidence": [
+          "目标时点后的首次观察现价尚未到期读取，无法据此判断 Yes/No。",
+          "未取得合约盘口概率、价差或流动性数据，不用于本判定。"
+        ],
+        "probability": null,
+        "nextSuggestion": "本轮已完成固定基准建立，无需进一步取证。后续应由系统在目标时点后 5 分钟窗口内读取同一接口现价并与基准 58025.79 USDT 比较以判定 Yes/No；当前不应提前获取未来结果。",
+        "resultId": "667e6cb9-f40e-4e07-9264-0a444c09a57a",
+        "topicId": "topic_course_request_61ef8b84-4710-4209-94e1-d858afa59644",
+        "predictionId": "prediction_course_request_61ef8b84-4710-4209-94e1-d858afa59644",
+        "runId": "course_run_ff5c49f5-811f-479b-8134-f70b9961c6d3",
+        "assignmentId": "course_run_ff5c49f5-811f-479b-8134-f70b9961c6d3_market_initial",
+        "agentInstanceId": "course_run_ff5c49f5-811f-479b-8134-f70b9961c6d3_market_initial_actor",
+        "agentSpecId": "market",
+        "specVersion": 1
+      },
+      "followUp": false,
+      "objective": "用 get_market_quote 取得本轮 BTC/USDT 的现价快照作为固定基准。报告交易对（BTCUSDT）、USDT 计价单位、价格数字、以及系统观察时间；若工具失败或只取得其他资产，明确写明基准缺口，不编造报价。不要换算成 USD，也不把现价涨跌直接写成 Yes 概率。",
+      "reason": "基准必须由本人首次成功取得的匹配现价确定，需写明交易对与单位。",
+      "cycle": 1,
+      "budget": {
+        "maxModelRequests": 6,
+        "maxToolCalls": 2,
+        "maxTotalTokens": 80000,
+        "maxTokens": 8192
+      },
+      "usage": {
+        "modelRequests": 2,
+        "toolCalls": 1,
+        "totalTokens": 8523,
+        "unknownUsage": false
+      },
+      "error": null
+    },
+    {
+      "investigationProfile": {
+        "version": "investigation-methods-v2",
+        "roleId": "statistics"
+      },
+      "groundingPolicy": "quoted-claims-v1",
+      "review": null,
+      "methodProfile": null,
+      "assignmentId": "course_run_ff5c49f5-811f-479b-8134-f70b9961c6d3_statistics_initial",
+      "agentSpecId": "statistics",
+      "roleId": "statistics",
+      "name": "统计与指标研究员",
+      "status": "completed",
+      "report": {
+        "counterevidence": [
+          {
+            "basis": "inference",
+            "citations": [
+              {
+                "evidenceId": "course_evidence_89b0c9e2be27977cc490057b62457f43",
+                "quote": "\"systemObservedAt\":\"2026-11-21T07:52:42.756Z\""
+              }
+            ],
+            "claim": "该现价取得时刻 07:52:42.756Z 早于本轮目标时点 08:22:15.813Z，因此不能代表目标时点后首次有界观察的价格（目标时点取自系统时间标签）。",
+            "evidenceIds": [
+              "course_evidence_89b0c9e2be27977cc490057b62457f43"
+            ]
+          }
+        ],
+        "evidenceIds": [
+          "course_evidence_89b0c9e2be27977cc490057b62457f43",
+          "course_evidence_195556c45c14a03a4158b74f68eff416"
+        ],
+        "missingEvidence": [
+          "目标时点 2026-11-21T08:22:15.813Z 后 5 分钟内首次成功取得的同一接口有效现价（由系统到期读取，本轮不可获取）",
+          "本轮 market 研究员首次成功取得的固定基准现价快照（作为 Yes/No 比较基准，属他席输出）",
+          "目标时点后若接口失败/无有效价的结算状态"
+        ],
+        "nextSuggestion": "本轮为独立取证，已取得现价与历史统计并确认 USDT 计价。目标时点后的首次有界观察现价及固定基准由系统/market 席在到期后提供，届时再比较基准与观察价判定 Yes/No；当前无需追加检索，避免重复。",
+        "probability": null,
+        "status": "complete",
+        "summary": "本人已独立取得 Binance BTC-USDT 现价与已关闭分钟桶统计。现价 57998.34 USDT（系统观察时刻 2026-11-21T07:52:42.756Z），单位确认为 USDT 而非 USD。已关闭 1 分钟桶：首桶 2026-11-21T07:22:00Z 开盘 58260.91，末桶 2026-11-21T07:51:00Z 收盘 58019.49，共 30 根、无缺失；相邻分钟对数收益样本标准差约 0.000956（描述性样本，非校准概率）。以上均发生在目标时点之前，不构成对未来涨跌的判定；目标时点后首次有界观察的现价由系统到期读取，本轮不获取。",
+        "support": [
+          {
+            "basis": "fact",
+            "citations": [
+              {
+                "evidenceId": "course_evidence_89b0c9e2be27977cc490057b62457f43",
+                "quote": "\"pair\":\"BTC-USDT\",\"value\":57998.34,\"currency\":\"USDT\""
+              }
+            ],
+            "claim": "Binance BTC-USDT 现价为 57998.34，计价单位是 USDT（非 USD）。",
+            "evidenceIds": [
+              "course_evidence_89b0c9e2be27977cc490057b62457f43"
+            ]
+          },
+          {
+            "basis": "fact",
+            "citations": [
+              {
+                "evidenceId": "course_evidence_89b0c9e2be27977cc490057b62457f43",
+                "quote": "\"symbol\":\"BTCUSDT\",\"price\":\"57998.34000000\""
+              }
+            ],
+            "claim": "原始现货接口返回 symbol=BTCUSDT、price=57998.34000000，与汇总值一致。",
+            "evidenceIds": [
+              "course_evidence_89b0c9e2be27977cc490057b62457f43"
+            ]
+          },
+          {
+            "basis": "fact",
+            "citations": [
+              {
+                "evidenceId": "course_evidence_195556c45c14a03a4158b74f68eff416",
+                "quote": "\"availableCandles\":30,\"missingCandles\":0"
+              },
+              {
+                "evidenceId": "course_evidence_195556c45c14a03a4158b74f68eff416",
+                "quote": "\"firstOpen\":58260.91,\"lastClose\":58019.49"
+              }
+            ],
+            "claim": "已关闭分钟桶覆盖 30 根且无缺失，首桶开盘 58260.91、末桶收盘 58019.49。",
+            "evidenceIds": [
+              "course_evidence_195556c45c14a03a4158b74f68eff416"
+            ]
+          }
+        ],
+        "resultId": "f61c0ec8-cb6c-4e9e-8491-880b7387c5cb",
+        "topicId": "topic_course_request_61ef8b84-4710-4209-94e1-d858afa59644",
+        "predictionId": "prediction_course_request_61ef8b84-4710-4209-94e1-d858afa59644",
+        "runId": "course_run_ff5c49f5-811f-479b-8134-f70b9961c6d3",
+        "assignmentId": "course_run_ff5c49f5-811f-479b-8134-f70b9961c6d3_statistics_initial",
+        "agentInstanceId": "course_run_ff5c49f5-811f-479b-8134-f70b9961c6d3_statistics_initial_actor",
+        "agentSpecId": "statistics",
+        "specVersion": 1
+      },
+      "followUp": false,
+      "objective": "本人独立取得 BTC-USDT 现价及任何已关闭的历史统计，核对其数值字段、单位（USDT 而非 USD）与当前系统时间；若工具失败或无法取得匹配资产，明确保留缺口，不虚构计算。只报告能复核的数字，不宣称执行了未接入的计算。",
+      "reason": "独立核对数值口径与单位，防止基准被 USD/USDT 混淆。",
+      "cycle": 1,
+      "budget": {
+        "maxModelRequests": 6,
+        "maxToolCalls": 2,
+        "maxTotalTokens": 80000,
+        "maxTokens": 8192
+      },
+      "usage": {
+        "modelRequests": 3,
+        "toolCalls": 2,
+        "totalTokens": 16523,
+        "unknownUsage": false
+      },
+      "error": null
+    },
+    {
+      "investigationProfile": {
+        "version": "investigation-methods-v2",
+        "roleId": "verification"
+      },
+      "groundingPolicy": "quoted-claims-v1",
+      "review": null,
+      "methodProfile": null,
+      "assignmentId": "course_run_ff5c49f5-811f-479b-8134-f70b9961c6d3_verification_initial",
+      "agentSpecId": "verification",
+      "roleId": "verification",
+      "name": "反证与核验研究员",
+      "status": "completed",
+      "report": {
+        "status": "complete",
+        "summary": "已读取 Binance 公开接口 BTC-USDT 现价与分钟桶统计。现价计价单位明确为 USDT（非 USD），数值 58026.01 与原始接口返回 price 58026.01000000 完全一致，系统观察时间 2026-11-21T07:53:12.287Z 早于目标时点（08:22:15.813Z），属目标前事实，未混入目标后未来结果。分钟桶数据仅覆盖至 07:52:00Z，同样无未来数据。未发现 USD 口径混入；价格数字与观察时间在本次读取内部自洽。",
+        "evidenceIds": [
+          "course_evidence_97cd6ec87eb00438468ab40361b2303d",
+          "course_evidence_043f6cad6cd91b86e3d10f97f809cdf0"
+        ],
+        "support": [
+          {
+            "claim": "现价计价单位为 USDT 而非 USD，字段 currency 明确为 USDT。",
+            "basis": "fact",
+            "evidenceIds": [
+              "course_evidence_97cd6ec87eb00438468ab40361b2303d"
+            ],
+            "citations": [
+              {
+                "evidenceId": "course_evidence_97cd6ec87eb00438468ab40361b2303d",
+                "quote": "\"pair\":\"BTC-USDT\",\"value\":58026.01,\"currency\":\"USDT\""
+              }
+            ]
+          },
+          {
+            "claim": "现价数值 58026.01 与原始接口返回 price 58026.01000000 一致，无数字出入。",
+            "basis": "fact",
+            "evidenceIds": [
+              "course_evidence_97cd6ec87eb00438468ab40361b2303d"
+            ],
+            "citations": [
+              {
+                "evidenceId": "course_evidence_97cd6ec87eb00438468ab40361b2303d",
+                "quote": "\"symbol\":\"BTCUSDT\",\"price\":\"58026.01000000\""
+              }
+            ]
+          },
+          {
+            "claim": "系统观察时间为 2026-11-21T07:53:12.287Z，早于目标时点，属目标前事实而非未来结果。",
+            "basis": "fact",
+            "evidenceIds": [
+              "course_evidence_97cd6ec87eb00438468ab40361b2303d"
+            ],
+            "citations": [
+              {
+                "evidenceId": "course_evidence_97cd6ec87eb00438468ab40361b2303d",
+                "quote": "\"systemObservedAt\":\"2026-11-21T07:53:12.287Z\""
+              }
+            ]
+          }
+        ],
+        "counterevidence": [
+          {
+            "claim": "本次现价快照仅代表取得时刻（目标前），不能证明目标后 5 分钟内价格将高于基准，未来结果未知。",
+            "basis": "inference",
+            "evidenceIds": [
+              "course_evidence_97cd6ec87eb00438468ab40361b2303d"
+            ],
+            "citations": [
+              {
+                "evidenceId": "course_evidence_97cd6ec87eb00438468ab40361b2303d",
+                "quote": "\"systemObservedAt\":\"2026-11-21T07:53:12.287Z\""
+              }
+            ]
+          }
+        ],
+        "missingEvidence": [
+          "市场研究员正式报告文本未随本轮输入提供，无法逐字比对报告中现价/单位/观察时间字段是否与本次读取一致。",
+          "固定基准价（首张成功快照）的正式数值未在输入中提供，无法核对基准是否为 58026.01。",
+          "目标时点后的未来结果按规则由系统到期读取，当前无法取得亦不应取得。"
+        ],
+        "probability": null,
+        "nextSuggestion": "建议向市场研究员索取其报告原文，以逐字核对基准价与现价字段；确认基准价是否即本轮首次读取的 58026.01 USDT 快照，并确认其报告中无 USD 口径或目标后未来数据混入。",
+        "resultId": "5325c3f6-8408-4c39-8883-15b810c4f9f1",
+        "topicId": "topic_course_request_61ef8b84-4710-4209-94e1-d858afa59644",
+        "predictionId": "prediction_course_request_61ef8b84-4710-4209-94e1-d858afa59644",
+        "runId": "course_run_ff5c49f5-811f-479b-8134-f70b9961c6d3",
+        "assignmentId": "course_run_ff5c49f5-811f-479b-8134-f70b9961c6d3_verification_initial",
+        "agentInstanceId": "course_run_ff5c49f5-811f-479b-8134-f70b9961c6d3_verification_initial_actor",
+        "agentSpecId": "verification",
+        "specVersion": 1
+      },
+      "followUp": false,
+      "objective": "核对 market 取得的现价字段是否真实、单位是否为 USDT、价格数字与系统观察时间是否与 market 报告一致；检查是否有人把目标后未来结果或 USD 口径混入。逐条引用已读原文片段验证主张，证据不足可保留异议。",
+      "reason": "核验基准快照的真实性、单位与时间，避免口径错误影响判定。",
+      "cycle": 1,
+      "budget": {
+        "maxModelRequests": 6,
+        "maxToolCalls": 2,
+        "maxTotalTokens": 80000,
+        "maxTokens": 8192
+      },
+      "usage": {
+        "modelRequests": 2,
+        "toolCalls": 2,
+        "totalTokens": 11171,
+        "unknownUsage": false
+      },
+      "error": null
+    }
+  ],
+  "error": null,
+  "reviewNotes": [
+    "三席是独立上下文与职责，均来自同一Binance市场来源；USDT不是USD。",
+    "30个已关闭分钟桶只提供有限样本，概率未校准；单题结果及Brier不能证明总体准确率。"
+  ],
+  "snapshots": [
+    {
+      "label": "真实到期核验后（原预测保留）",
+      "status": "completed",
+      "collaboration": {
+        "version": 1,
+        "runId": "course_run_ff5c49f5-811f-479b-8134-f70b9961c6d3",
+        "modelMode": "live",
+        "sourceMode": "live",
+        "team": [
+          {
+            "assignmentId": "course_run_ff5c49f5-811f-479b-8134-f70b9961c6d3_market_initial",
+            "roleId": "market",
+            "name": "预测市场研究员",
+            "objective": "用 get_market_quote 取得本轮 BTC/USDT 的现价快照作为固定基准。报告交易对（BTCUSDT）、USDT 计价单位、价格数字、以及系统观察时间；若工具失败或只取得其他资产，明确写明基准缺口，不编造报价。不要换算成 USD，也不把现价涨跌直接写成 Yes 概率。",
+            "reason": "基准必须由本人首次成功取得的匹配现价确定，需写明交易对与单位。",
+            "followUp": false,
+            "cycle": 1,
+            "status": "completed",
+            "reportStatus": "complete",
+            "summary": "已成功取得本轮固定基准快照：Binance BTC-USDT 现价为 58025.79 USDT（原始接口返回 BTCUSDT，价格 58025.79000000）。系统观察时间为 2026-11-21T07:52:30.775Z（UTC），早于目标时点 08:22:15.813Z，符合\"基准＝首次成功取得的现价快照\"规则。本报告仅记录当前事实，不换算 USD，也不将现价涨跌写成 Yes 概率。后续目标时点后的首次观察由系统到期读取，不在本轮获取。",
+            "probability": null,
+            "evidenceIds": [
+              "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5"
+            ],
+            "support": [
+              {
+                "claim": "本轮固定基准为 Binance BTC-USDT 现价 58025.79 USDT。",
+                "basis": "fact",
+                "citations": [
+                  {
+                    "evidenceId": "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5",
+                    "quote": "\"pair\":\"BTC-USDT\",\"value\":58025.79,\"currency\":\"USDT\""
+                  }
+                ],
+                "evidenceIds": [
+                  "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5"
+                ]
+              },
+              {
+                "claim": "交易对为 BTCUSDT，计价单位为 USDT，原始价格字符串为 58025.79000000。",
+                "basis": "fact",
+                "citations": [
+                  {
+                    "evidenceId": "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5",
+                    "quote": "\"symbol\":\"BTCUSDT\",\"price\":\"58025.79000000\""
+                  }
+                ],
+                "evidenceIds": [
+                  "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5"
+                ]
+              },
+              {
+                "claim": "系统观察时间为 2026-11-21T07:52:30.775Z（UTC），早于目标时点，取得时刻为系统观察时间而非成交时刻。",
+                "basis": "fact",
+                "citations": [
+                  {
+                    "evidenceId": "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5",
+                    "quote": "\"systemObservedAt\":\"2026-11-21T07:52:30.775Z\""
+                  }
+                ],
+                "evidenceIds": [
+                  "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5"
+                ]
+              }
+            ],
+            "counterevidence": [],
+            "missingEvidence": [
+              "目标时点后的首次观察现价尚未到期读取，无法据此判断 Yes/No。",
+              "未取得合约盘口概率、价差或流动性数据，不用于本判定。"
+            ],
+            "decision": {
+              "assignmentId": "course_run_ff5c49f5-811f-479b-8134-f70b9961c6d3_market_initial",
+              "disposition": "adopted",
+              "reason": "采纳其固定基准 58025.79 USDT，作为 Yes/No 比较基准。",
+              "evidenceIds": [
+                "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5"
+              ]
+            },
+            "review": null
+          },
+          {
+            "assignmentId": "course_run_ff5c49f5-811f-479b-8134-f70b9961c6d3_statistics_initial",
+            "roleId": "statistics",
+            "name": "统计与指标研究员",
+            "objective": "本人独立取得 BTC-USDT 现价及任何已关闭的历史统计，核对其数值字段、单位（USDT 而非 USD）与当前系统时间；若工具失败或无法取得匹配资产，明确保留缺口，不虚构计算。只报告能复核的数字，不宣称执行了未接入的计算。",
+            "reason": "独立核对数值口径与单位，防止基准被 USD/USDT 混淆。",
+            "followUp": false,
+            "cycle": 1,
+            "status": "completed",
+            "reportStatus": "complete",
+            "summary": "本人已独立取得 Binance BTC-USDT 现价与已关闭分钟桶统计。现价 57998.34 USDT（系统观察时刻 2026-11-21T07:52:42.756Z），单位确认为 USDT 而非 USD。已关闭 1 分钟桶：首桶 2026-11-21T07:22:00Z 开盘 58260.91，末桶 2026-11-21T07:51:00Z 收盘 58019.49，共 30 根、无缺失；相邻分钟对数收益样本标准差约 0.000956（描述性样本，非校准概率）。以上均发生在目标时点之前，不构成对未来涨跌的判定；目标时点后首次有界观察的现价由系统到期读取，本轮不获取。",
+            "probability": null,
+            "evidenceIds": [
+              "course_evidence_89b0c9e2be27977cc490057b62457f43",
+              "course_evidence_195556c45c14a03a4158b74f68eff416"
+            ],
+            "support": [
+              {
+                "claim": "Binance BTC-USDT 现价为 57998.34，计价单位是 USDT（非 USD）。",
+                "basis": "fact",
+                "citations": [
+                  {
+                    "evidenceId": "course_evidence_89b0c9e2be27977cc490057b62457f43",
+                    "quote": "\"pair\":\"BTC-USDT\",\"value\":57998.34,\"currency\":\"USDT\""
+                  }
+                ],
+                "evidenceIds": [
+                  "course_evidence_89b0c9e2be27977cc490057b62457f43"
+                ]
+              },
+              {
+                "claim": "原始现货接口返回 symbol=BTCUSDT、price=57998.34000000，与汇总值一致。",
+                "basis": "fact",
+                "citations": [
+                  {
+                    "evidenceId": "course_evidence_89b0c9e2be27977cc490057b62457f43",
+                    "quote": "\"symbol\":\"BTCUSDT\",\"price\":\"57998.34000000\""
+                  }
+                ],
+                "evidenceIds": [
+                  "course_evidence_89b0c9e2be27977cc490057b62457f43"
+                ]
+              },
+              {
+                "claim": "已关闭分钟桶覆盖 30 根且无缺失，首桶开盘 58260.91、末桶收盘 58019.49。",
+                "basis": "fact",
+                "citations": [
+                  {
+                    "evidenceId": "course_evidence_195556c45c14a03a4158b74f68eff416",
+                    "quote": "\"availableCandles\":30,\"missingCandles\":0"
+                  },
+                  {
+                    "evidenceId": "course_evidence_195556c45c14a03a4158b74f68eff416",
+                    "quote": "\"firstOpen\":58260.91,\"lastClose\":58019.49"
+                  }
+                ],
+                "evidenceIds": [
+                  "course_evidence_195556c45c14a03a4158b74f68eff416"
+                ]
+              }
+            ],
+            "counterevidence": [
+              {
+                "claim": "该现价取得时刻 07:52:42.756Z 早于本轮目标时点 08:22:15.813Z，因此不能代表目标时点后首次有界观察的价格（目标时点取自系统时间标签）。",
+                "basis": "inference",
+                "citations": [
+                  {
+                    "evidenceId": "course_evidence_89b0c9e2be27977cc490057b62457f43",
+                    "quote": "\"systemObservedAt\":\"2026-11-21T07:52:42.756Z\""
+                  }
+                ],
+                "evidenceIds": [
+                  "course_evidence_89b0c9e2be27977cc490057b62457f43"
+                ]
+              }
+            ],
+            "missingEvidence": [
+              "目标时点 2026-11-21T08:22:15.813Z 后 5 分钟内首次成功取得的同一接口有效现价（由系统到期读取，本轮不可获取）",
+              "本轮 market 研究员首次成功取得的固定基准现价快照（作为 Yes/No 比较基准，属他席输出）",
+              "目标时点后若接口失败/无有效价的结算状态"
+            ],
+            "decision": {
+              "assignmentId": "course_run_ff5c49f5-811f-479b-8134-f70b9961c6d3_statistics_initial",
+              "disposition": "qualified",
+              "reason": "其现价快照早于目标时点；分钟对数收益样本标准差为描述性样本，未校准为未来概率，故仅作背景参考。",
+              "evidenceIds": [
+                "course_evidence_89b0c9e2be27977cc490057b62457f43",
+                "course_evidence_195556c45c14a03a4158b74f68eff416"
+              ]
+            },
+            "review": null
+          },
+          {
+            "assignmentId": "course_run_ff5c49f5-811f-479b-8134-f70b9961c6d3_verification_initial",
+            "roleId": "verification",
+            "name": "反证与核验研究员",
+            "objective": "核对 market 取得的现价字段是否真实、单位是否为 USDT、价格数字与系统观察时间是否与 market 报告一致；检查是否有人把目标后未来结果或 USD 口径混入。逐条引用已读原文片段验证主张，证据不足可保留异议。",
+            "reason": "核验基准快照的真实性、单位与时间，避免口径错误影响判定。",
+            "followUp": false,
+            "cycle": 1,
+            "status": "completed",
+            "reportStatus": "complete",
+            "summary": "已读取 Binance 公开接口 BTC-USDT 现价与分钟桶统计。现价计价单位明确为 USDT（非 USD），数值 58026.01 与原始接口返回 price 58026.01000000 完全一致，系统观察时间 2026-11-21T07:53:12.287Z 早于目标时点（08:22:15.813Z），属目标前事实，未混入目标后未来结果。分钟桶数据仅覆盖至 07:52:00Z，同样无未来数据。未发现 USD 口径混入；价格数字与观察时间在本次读取内部自洽。",
+            "probability": null,
+            "evidenceIds": [
+              "course_evidence_97cd6ec87eb00438468ab40361b2303d",
+              "course_evidence_043f6cad6cd91b86e3d10f97f809cdf0"
+            ],
+            "support": [
+              {
+                "claim": "现价计价单位为 USDT 而非 USD，字段 currency 明确为 USDT。",
+                "basis": "fact",
+                "citations": [
+                  {
+                    "evidenceId": "course_evidence_97cd6ec87eb00438468ab40361b2303d",
+                    "quote": "\"pair\":\"BTC-USDT\",\"value\":58026.01,\"currency\":\"USDT\""
+                  }
+                ],
+                "evidenceIds": [
+                  "course_evidence_97cd6ec87eb00438468ab40361b2303d"
+                ]
+              },
+              {
+                "claim": "现价数值 58026.01 与原始接口返回 price 58026.01000000 一致，无数字出入。",
+                "basis": "fact",
+                "citations": [
+                  {
+                    "evidenceId": "course_evidence_97cd6ec87eb00438468ab40361b2303d",
+                    "quote": "\"symbol\":\"BTCUSDT\",\"price\":\"58026.01000000\""
+                  }
+                ],
+                "evidenceIds": [
+                  "course_evidence_97cd6ec87eb00438468ab40361b2303d"
+                ]
+              },
+              {
+                "claim": "系统观察时间为 2026-11-21T07:53:12.287Z，早于目标时点，属目标前事实而非未来结果。",
+                "basis": "fact",
+                "citations": [
+                  {
+                    "evidenceId": "course_evidence_97cd6ec87eb00438468ab40361b2303d",
+                    "quote": "\"systemObservedAt\":\"2026-11-21T07:53:12.287Z\""
+                  }
+                ],
+                "evidenceIds": [
+                  "course_evidence_97cd6ec87eb00438468ab40361b2303d"
+                ]
+              }
+            ],
+            "counterevidence": [
+              {
+                "claim": "本次现价快照仅代表取得时刻（目标前），不能证明目标后 5 分钟内价格将高于基准，未来结果未知。",
+                "basis": "inference",
+                "citations": [
+                  {
+                    "evidenceId": "course_evidence_97cd6ec87eb00438468ab40361b2303d",
+                    "quote": "\"systemObservedAt\":\"2026-11-21T07:53:12.287Z\""
+                  }
+                ],
+                "evidenceIds": [
+                  "course_evidence_97cd6ec87eb00438468ab40361b2303d"
+                ]
+              }
+            ],
+            "missingEvidence": [
+              "市场研究员正式报告文本未随本轮输入提供，无法逐字比对报告中现价/单位/观察时间字段是否与本次读取一致。",
+              "固定基准价（首张成功快照）的正式数值未在输入中提供，无法核对基准是否为 58026.01。",
+              "目标时点后的未来结果按规则由系统到期读取，当前无法取得亦不应取得。"
+            ],
+            "decision": {
+              "assignmentId": "course_run_ff5c49f5-811f-479b-8134-f70b9961c6d3_verification_initial",
+              "disposition": "qualified",
+              "reason": "确认 USDT 计价与数字自洽，但其快照同属目标前事实，不能证明目标后结果。",
+              "evidenceIds": [
+                "course_evidence_97cd6ec87eb00438468ab40361b2303d",
+                "course_evidence_043f6cad6cd91b86e3d10f97f809cdf0"
+              ]
+            },
+            "review": null
+          }
+        ],
+        "reviews": [],
+        "reports": [
+          {
+            "assignmentId": "course_run_ff5c49f5-811f-479b-8134-f70b9961c6d3_market_initial",
+            "roleId": "market",
+            "name": "预测市场研究员",
+            "objective": "用 get_market_quote 取得本轮 BTC/USDT 的现价快照作为固定基准。报告交易对（BTCUSDT）、USDT 计价单位、价格数字、以及系统观察时间；若工具失败或只取得其他资产，明确写明基准缺口，不编造报价。不要换算成 USD，也不把现价涨跌直接写成 Yes 概率。",
+            "reason": "基准必须由本人首次成功取得的匹配现价确定，需写明交易对与单位。",
+            "followUp": false,
+            "cycle": 1,
+            "status": "completed",
+            "reportStatus": "complete",
+            "summary": "已成功取得本轮固定基准快照：Binance BTC-USDT 现价为 58025.79 USDT（原始接口返回 BTCUSDT，价格 58025.79000000）。系统观察时间为 2026-11-21T07:52:30.775Z（UTC），早于目标时点 08:22:15.813Z，符合\"基准＝首次成功取得的现价快照\"规则。本报告仅记录当前事实，不换算 USD，也不将现价涨跌写成 Yes 概率。后续目标时点后的首次观察由系统到期读取，不在本轮获取。",
+            "probability": null,
+            "evidenceIds": [
+              "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5"
+            ],
+            "support": [
+              {
+                "claim": "本轮固定基准为 Binance BTC-USDT 现价 58025.79 USDT。",
+                "basis": "fact",
+                "citations": [
+                  {
+                    "evidenceId": "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5",
+                    "quote": "\"pair\":\"BTC-USDT\",\"value\":58025.79,\"currency\":\"USDT\""
+                  }
+                ],
+                "evidenceIds": [
+                  "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5"
+                ]
+              },
+              {
+                "claim": "交易对为 BTCUSDT，计价单位为 USDT，原始价格字符串为 58025.79000000。",
+                "basis": "fact",
+                "citations": [
+                  {
+                    "evidenceId": "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5",
+                    "quote": "\"symbol\":\"BTCUSDT\",\"price\":\"58025.79000000\""
+                  }
+                ],
+                "evidenceIds": [
+                  "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5"
+                ]
+              },
+              {
+                "claim": "系统观察时间为 2026-11-21T07:52:30.775Z（UTC），早于目标时点，取得时刻为系统观察时间而非成交时刻。",
+                "basis": "fact",
+                "citations": [
+                  {
+                    "evidenceId": "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5",
+                    "quote": "\"systemObservedAt\":\"2026-11-21T07:52:30.775Z\""
+                  }
+                ],
+                "evidenceIds": [
+                  "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5"
+                ]
+              }
+            ],
+            "counterevidence": [],
+            "missingEvidence": [
+              "目标时点后的首次观察现价尚未到期读取，无法据此判断 Yes/No。",
+              "未取得合约盘口概率、价差或流动性数据，不用于本判定。"
+            ],
+            "decision": {
+              "assignmentId": "course_run_ff5c49f5-811f-479b-8134-f70b9961c6d3_market_initial",
+              "disposition": "adopted",
+              "reason": "采纳其固定基准 58025.79 USDT，作为 Yes/No 比较基准。",
+              "evidenceIds": [
+                "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5"
+              ]
+            },
+            "review": null
+          },
+          {
+            "assignmentId": "course_run_ff5c49f5-811f-479b-8134-f70b9961c6d3_statistics_initial",
+            "roleId": "statistics",
+            "name": "统计与指标研究员",
+            "objective": "本人独立取得 BTC-USDT 现价及任何已关闭的历史统计，核对其数值字段、单位（USDT 而非 USD）与当前系统时间；若工具失败或无法取得匹配资产，明确保留缺口，不虚构计算。只报告能复核的数字，不宣称执行了未接入的计算。",
+            "reason": "独立核对数值口径与单位，防止基准被 USD/USDT 混淆。",
+            "followUp": false,
+            "cycle": 1,
+            "status": "completed",
+            "reportStatus": "complete",
+            "summary": "本人已独立取得 Binance BTC-USDT 现价与已关闭分钟桶统计。现价 57998.34 USDT（系统观察时刻 2026-11-21T07:52:42.756Z），单位确认为 USDT 而非 USD。已关闭 1 分钟桶：首桶 2026-11-21T07:22:00Z 开盘 58260.91，末桶 2026-11-21T07:51:00Z 收盘 58019.49，共 30 根、无缺失；相邻分钟对数收益样本标准差约 0.000956（描述性样本，非校准概率）。以上均发生在目标时点之前，不构成对未来涨跌的判定；目标时点后首次有界观察的现价由系统到期读取，本轮不获取。",
+            "probability": null,
+            "evidenceIds": [
+              "course_evidence_89b0c9e2be27977cc490057b62457f43",
+              "course_evidence_195556c45c14a03a4158b74f68eff416"
+            ],
+            "support": [
+              {
+                "claim": "Binance BTC-USDT 现价为 57998.34，计价单位是 USDT（非 USD）。",
+                "basis": "fact",
+                "citations": [
+                  {
+                    "evidenceId": "course_evidence_89b0c9e2be27977cc490057b62457f43",
+                    "quote": "\"pair\":\"BTC-USDT\",\"value\":57998.34,\"currency\":\"USDT\""
+                  }
+                ],
+                "evidenceIds": [
+                  "course_evidence_89b0c9e2be27977cc490057b62457f43"
+                ]
+              },
+              {
+                "claim": "原始现货接口返回 symbol=BTCUSDT、price=57998.34000000，与汇总值一致。",
+                "basis": "fact",
+                "citations": [
+                  {
+                    "evidenceId": "course_evidence_89b0c9e2be27977cc490057b62457f43",
+                    "quote": "\"symbol\":\"BTCUSDT\",\"price\":\"57998.34000000\""
+                  }
+                ],
+                "evidenceIds": [
+                  "course_evidence_89b0c9e2be27977cc490057b62457f43"
+                ]
+              },
+              {
+                "claim": "已关闭分钟桶覆盖 30 根且无缺失，首桶开盘 58260.91、末桶收盘 58019.49。",
+                "basis": "fact",
+                "citations": [
+                  {
+                    "evidenceId": "course_evidence_195556c45c14a03a4158b74f68eff416",
+                    "quote": "\"availableCandles\":30,\"missingCandles\":0"
+                  },
+                  {
+                    "evidenceId": "course_evidence_195556c45c14a03a4158b74f68eff416",
+                    "quote": "\"firstOpen\":58260.91,\"lastClose\":58019.49"
+                  }
+                ],
+                "evidenceIds": [
+                  "course_evidence_195556c45c14a03a4158b74f68eff416"
+                ]
+              }
+            ],
+            "counterevidence": [
+              {
+                "claim": "该现价取得时刻 07:52:42.756Z 早于本轮目标时点 08:22:15.813Z，因此不能代表目标时点后首次有界观察的价格（目标时点取自系统时间标签）。",
+                "basis": "inference",
+                "citations": [
+                  {
+                    "evidenceId": "course_evidence_89b0c9e2be27977cc490057b62457f43",
+                    "quote": "\"systemObservedAt\":\"2026-11-21T07:52:42.756Z\""
+                  }
+                ],
+                "evidenceIds": [
+                  "course_evidence_89b0c9e2be27977cc490057b62457f43"
+                ]
+              }
+            ],
+            "missingEvidence": [
+              "目标时点 2026-11-21T08:22:15.813Z 后 5 分钟内首次成功取得的同一接口有效现价（由系统到期读取，本轮不可获取）",
+              "本轮 market 研究员首次成功取得的固定基准现价快照（作为 Yes/No 比较基准，属他席输出）",
+              "目标时点后若接口失败/无有效价的结算状态"
+            ],
+            "decision": {
+              "assignmentId": "course_run_ff5c49f5-811f-479b-8134-f70b9961c6d3_statistics_initial",
+              "disposition": "qualified",
+              "reason": "其现价快照早于目标时点；分钟对数收益样本标准差为描述性样本，未校准为未来概率，故仅作背景参考。",
+              "evidenceIds": [
+                "course_evidence_89b0c9e2be27977cc490057b62457f43",
+                "course_evidence_195556c45c14a03a4158b74f68eff416"
+              ]
+            },
+            "review": null
+          },
+          {
+            "assignmentId": "course_run_ff5c49f5-811f-479b-8134-f70b9961c6d3_verification_initial",
+            "roleId": "verification",
+            "name": "反证与核验研究员",
+            "objective": "核对 market 取得的现价字段是否真实、单位是否为 USDT、价格数字与系统观察时间是否与 market 报告一致；检查是否有人把目标后未来结果或 USD 口径混入。逐条引用已读原文片段验证主张，证据不足可保留异议。",
+            "reason": "核验基准快照的真实性、单位与时间，避免口径错误影响判定。",
+            "followUp": false,
+            "cycle": 1,
+            "status": "completed",
+            "reportStatus": "complete",
+            "summary": "已读取 Binance 公开接口 BTC-USDT 现价与分钟桶统计。现价计价单位明确为 USDT（非 USD），数值 58026.01 与原始接口返回 price 58026.01000000 完全一致，系统观察时间 2026-11-21T07:53:12.287Z 早于目标时点（08:22:15.813Z），属目标前事实，未混入目标后未来结果。分钟桶数据仅覆盖至 07:52:00Z，同样无未来数据。未发现 USD 口径混入；价格数字与观察时间在本次读取内部自洽。",
+            "probability": null,
+            "evidenceIds": [
+              "course_evidence_97cd6ec87eb00438468ab40361b2303d",
+              "course_evidence_043f6cad6cd91b86e3d10f97f809cdf0"
+            ],
+            "support": [
+              {
+                "claim": "现价计价单位为 USDT 而非 USD，字段 currency 明确为 USDT。",
+                "basis": "fact",
+                "citations": [
+                  {
+                    "evidenceId": "course_evidence_97cd6ec87eb00438468ab40361b2303d",
+                    "quote": "\"pair\":\"BTC-USDT\",\"value\":58026.01,\"currency\":\"USDT\""
+                  }
+                ],
+                "evidenceIds": [
+                  "course_evidence_97cd6ec87eb00438468ab40361b2303d"
+                ]
+              },
+              {
+                "claim": "现价数值 58026.01 与原始接口返回 price 58026.01000000 一致，无数字出入。",
+                "basis": "fact",
+                "citations": [
+                  {
+                    "evidenceId": "course_evidence_97cd6ec87eb00438468ab40361b2303d",
+                    "quote": "\"symbol\":\"BTCUSDT\",\"price\":\"58026.01000000\""
+                  }
+                ],
+                "evidenceIds": [
+                  "course_evidence_97cd6ec87eb00438468ab40361b2303d"
+                ]
+              },
+              {
+                "claim": "系统观察时间为 2026-11-21T07:53:12.287Z，早于目标时点，属目标前事实而非未来结果。",
+                "basis": "fact",
+                "citations": [
+                  {
+                    "evidenceId": "course_evidence_97cd6ec87eb00438468ab40361b2303d",
+                    "quote": "\"systemObservedAt\":\"2026-11-21T07:53:12.287Z\""
+                  }
+                ],
+                "evidenceIds": [
+                  "course_evidence_97cd6ec87eb00438468ab40361b2303d"
+                ]
+              }
+            ],
+            "counterevidence": [
+              {
+                "claim": "本次现价快照仅代表取得时刻（目标前），不能证明目标后 5 分钟内价格将高于基准，未来结果未知。",
+                "basis": "inference",
+                "citations": [
+                  {
+                    "evidenceId": "course_evidence_97cd6ec87eb00438468ab40361b2303d",
+                    "quote": "\"systemObservedAt\":\"2026-11-21T07:53:12.287Z\""
+                  }
+                ],
+                "evidenceIds": [
+                  "course_evidence_97cd6ec87eb00438468ab40361b2303d"
+                ]
+              }
+            ],
+            "missingEvidence": [
+              "市场研究员正式报告文本未随本轮输入提供，无法逐字比对报告中现价/单位/观察时间字段是否与本次读取一致。",
+              "固定基准价（首张成功快照）的正式数值未在输入中提供，无法核对基准是否为 58026.01。",
+              "目标时点后的未来结果按规则由系统到期读取，当前无法取得亦不应取得。"
+            ],
+            "decision": {
+              "assignmentId": "course_run_ff5c49f5-811f-479b-8134-f70b9961c6d3_verification_initial",
+              "disposition": "qualified",
+              "reason": "确认 USDT 计价与数字自洽，但其快照同属目标前事实，不能证明目标后结果。",
+              "evidenceIds": [
+                "course_evidence_97cd6ec87eb00438468ab40361b2303d",
+                "course_evidence_043f6cad6cd91b86e3d10f97f809cdf0"
+              ]
+            },
+            "review": null
+          }
+        ],
+        "sources": [
+          {
+            "evidenceId": "course_evidence_043f6cad6cd91b86e3d10f97f809cdf0",
+            "title": "Binance BTC-USDT已关闭分钟桶",
+            "url": "https://data-api.binance.vision/api/v3/klines?symbol=BTCUSDT&interval=1m&limit=30&endTime=1795247579999",
+            "publishedAt": null,
+            "obtainedAt": "2026-11-21T07:53:12.567Z",
+            "marketQuote": null
+          },
+          {
+            "evidenceId": "course_evidence_195556c45c14a03a4158b74f68eff416",
+            "title": "Binance BTC-USDT已关闭分钟桶",
+            "url": "https://data-api.binance.vision/api/v3/klines?symbol=BTCUSDT&interval=1m&limit=30&endTime=1795247519999",
+            "publishedAt": null,
+            "obtainedAt": "2026-11-21T07:52:43.053Z",
+            "marketQuote": null
+          },
+          {
+            "evidenceId": "course_evidence_2c88a650a2eabf9c5edf7bb4300b58bd",
+            "title": "Binance BTC-USDT现价快照",
+            "url": "https://data-api.binance.vision/api/v3/ticker/price?symbol=BTCUSDT",
+            "publishedAt": null,
+            "obtainedAt": "2026-11-21T07:53:58.775Z",
+            "marketQuote": {
+              "provider": "binance-public",
+              "pair": "BTC-USDT",
+              "value": 57983.03,
+              "currency": "USDT",
+              "observedAt": "2026-11-21T07:53:58.771Z",
+              "url": "https://data-api.binance.vision/api/v3/ticker/price?symbol=BTCUSDT",
+              "sourcePublishedAt": null,
+              "timestampMeaning": "system-observation-time"
+            }
+          },
+          {
+            "evidenceId": "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5",
+            "title": "Binance BTC-USDT现价快照",
+            "url": "https://data-api.binance.vision/api/v3/ticker/price?symbol=BTCUSDT",
+            "publishedAt": null,
+            "obtainedAt": "2026-11-21T07:52:30.791Z",
+            "marketQuote": {
+              "provider": "binance-public",
+              "pair": "BTC-USDT",
+              "value": 58025.79,
+              "currency": "USDT",
+              "observedAt": "2026-11-21T07:52:30.775Z",
+              "url": "https://data-api.binance.vision/api/v3/ticker/price?symbol=BTCUSDT",
+              "sourcePublishedAt": null,
+              "timestampMeaning": "system-observation-time"
+            }
+          },
+          {
+            "evidenceId": "course_evidence_89b0c9e2be27977cc490057b62457f43",
+            "title": "Binance BTC-USDT现价快照",
+            "url": "https://data-api.binance.vision/api/v3/ticker/price?symbol=BTCUSDT",
+            "publishedAt": null,
+            "obtainedAt": "2026-11-21T07:52:42.760Z",
+            "marketQuote": {
+              "provider": "binance-public",
+              "pair": "BTC-USDT",
+              "value": 57998.34,
+              "currency": "USDT",
+              "observedAt": "2026-11-21T07:52:42.756Z",
+              "url": "https://data-api.binance.vision/api/v3/ticker/price?symbol=BTCUSDT",
+              "sourcePublishedAt": null,
+              "timestampMeaning": "system-observation-time"
+            }
+          },
+          {
+            "evidenceId": "course_evidence_97cd6ec87eb00438468ab40361b2303d",
+            "title": "Binance BTC-USDT现价快照",
+            "url": "https://data-api.binance.vision/api/v3/ticker/price?symbol=BTCUSDT",
+            "publishedAt": null,
+            "obtainedAt": "2026-11-21T07:53:12.301Z",
+            "marketQuote": {
+              "provider": "binance-public",
+              "pair": "BTC-USDT",
+              "value": 58026.01,
+              "currency": "USDT",
+              "observedAt": "2026-11-21T07:53:12.287Z",
+              "url": "https://data-api.binance.vision/api/v3/ticker/price?symbol=BTCUSDT",
+              "sourcePublishedAt": null,
+              "timestampMeaning": "system-observation-time"
+            }
+          }
+        ],
+        "triage": {
+          "kind": "initial",
+          "reason": "首次按题选择差异职责。",
+          "newEvidenceIds": []
+        },
+        "decision": {
+          "kind": "forecast",
+          "groundingPolicy": "quoted-claims-v1",
+          "reasoningClaims": [
+            {
+              "claim": "本轮固定基准为 Binance BTC-USDT 现价 58025.79 USDT，系统观察时间早于目标时点。",
+              "basis": "fact",
+              "evidenceIds": [
+                "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5"
+              ],
+              "citations": [
+                {
+                  "evidenceId": "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5",
+                  "quote": "\"pair\":\"BTC-USDT\",\"value\":58025.79,\"currency\":\"USDT\""
+                }
+              ]
+            },
+            {
+              "claim": "最新一次现价观察为 57983.03 USDT，低于固定基准 58025.79 约 42.76 USDT。",
+              "basis": "inference",
+              "evidenceIds": [
+                "course_evidence_2c88a650a2eabf9c5edf7bb4300b58bd",
+                "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5"
+              ],
+              "citations": [
+                {
+                  "evidenceId": "course_evidence_2c88a650a2eabf9c5edf7bb4300b58bd",
+                  "quote": "\"pair\":\"BTC-USDT\",\"value\":57983.03,\"currency\":\"USDT\""
+                },
+                {
+                  "evidenceId": "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5",
+                  "quote": "\"pair\":\"BTC-USDT\",\"value\":58025.79,\"currency\":\"USDT\""
+                }
+              ]
+            },
+            {
+              "claim": "目标前已关闭分钟桶样本呈现轻微下行，observedReturnPct 为负值。",
+              "basis": "fact",
+              "evidenceIds": [
+                "course_evidence_043f6cad6cd91b86e3d10f97f809cdf0",
+                "course_evidence_195556c45c14a03a4158b74f68eff416"
+              ],
+              "citations": [
+                {
+                  "evidenceId": "course_evidence_043f6cad6cd91b86e3d10f97f809cdf0",
+                  "quote": "\"firstOpen\":58345.61,\"lastClose\":58011.35"
+                },
+                {
+                  "evidenceId": "course_evidence_195556c45c14a03a4158b74f68eff416",
+                  "quote": "\"firstOpen\":58260.91,\"lastClose\":58019.49"
+                }
+              ]
+            }
+          ],
+          "forecastId": "course_forecast_f3339a58-75ea-4fbb-9135-3aac1ff44877",
+          "probabilityYes": 0.46,
+          "previousProbabilityYes": null,
+          "delta": null,
+          "summary": "固定基准为 58025.79 USDT（早于目标时点取得）。最新一次现价观察 57983.03 已略低于基准约 42.76 USDT，且目标前已关闭分钟桶呈现轻微下行（observedReturnPct 为负）。但目标时点后的首次有界观察尚未读取，未来结果未知；样本单一、未校准，故给出接近 0.5 且略偏下的有限概率。",
+          "evidenceIds": [
+            "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5",
+            "course_evidence_2c88a650a2eabf9c5edf7bb4300b58bd",
+            "course_evidence_043f6cad6cd91b86e3d10f97f809cdf0",
+            "course_evidence_195556c45c14a03a4158b74f68eff416"
+          ],
+          "dissent": [
+            "三席报告的价格快照均早于目标时点，不能代表目标时点后的首次有界观察。",
+            "分钟桶收益统计为描述性样本，样本标准差未被校准为未来概率，不能直接外推涨跌概率。",
+            "最新观察与基准之差仅约 42.76 USDT，相对分钟波动幅度较小，方向判断接近随机。"
+          ],
+          "evidenceAdequacy": "limited",
+          "scoringEligible": true,
+          "recordedNotes": 3,
+          "totalReports": 3
+        },
+        "conclusion": "已发布；本轮未进行定向补查。"
+      }
+    }
+  ],
+  "events": [
+    {
+      "schemaVersion": 1,
+      "serverEpoch": "1c7bbff3-77fd-4668-bd5e-53156c58b04e",
+      "eventId": "event_c9df82b3-2ee1-4bf6-82b7-6ef79a57ce73",
+      "requestId": "course_request_61ef8b84-4710-4209-94e1-d858afa59644",
+      "runId": "course_run_ff5c49f5-811f-479b-8134-f70b9961c6d3",
+      "topicId": "topic_course_request_61ef8b84-4710-4209-94e1-d858afa59644",
+      "predictionId": null,
+      "scope": "live",
+      "trigger": "manual",
+      "emittedAt": "2026-11-21T07:52:28.159Z",
+      "type": "team.selected",
+      "payload": {
+        "team": [
+          {
+            "roleId": "market",
+            "name": "预测市场研究员",
+            "objective": "用 get_market_quote 取得本轮 BTC/USDT 的现价快照作为固定基准。报告交易对（BTCUSDT）、USDT 计价单位、价格数字、以及系统观察时间；若工具失败或只取得其他资产，明确写明基准缺口，不编造报价。不要换算成 USD，也不把现价涨跌直接写成 Yes 概率。",
+            "reason": "基准必须由本人首次成功取得的匹配现价确定，需写明交易对与单位。"
+          },
+          {
+            "roleId": "statistics",
+            "name": "统计与指标研究员",
+            "objective": "本人独立取得 BTC-USDT 现价及任何已关闭的历史统计，核对其数值字段、单位（USDT 而非 USD）与当前系统时间；若工具失败或无法取得匹配资产，明确保留缺口，不虚构计算。只报告能复核的数字，不宣称执行了未接入的计算。",
+            "reason": "独立核对数值口径与单位，防止基准被 USD/USDT 混淆。"
+          },
+          {
+            "roleId": "verification",
+            "name": "反证与核验研究员",
+            "objective": "核对 market 取得的现价字段是否真实、单位是否为 USDT、价格数字与系统观察时间是否与 market 报告一致；检查是否有人把目标后未来结果或 USD 口径混入。逐条引用已读原文片段验证主张，证据不足可保留异议。",
+            "reason": "核验基准快照的真实性、单位与时间，避免口径错误影响判定。"
+          }
+        ],
+        "cycle": 1,
+        "reason": "先整理题意与分工，来源核查交由独立研究员。"
+      },
+      "seq": 64
+    },
+    {
+      "schemaVersion": 1,
+      "serverEpoch": "1c7bbff3-77fd-4668-bd5e-53156c58b04e",
+      "eventId": "course_run_ff5c49f5-811f-479b-8134-f70b9961c6d3_forecast",
+      "requestId": "course_request_61ef8b84-4710-4209-94e1-d858afa59644",
+      "runId": "course_run_ff5c49f5-811f-479b-8134-f70b9961c6d3",
+      "topicId": "topic_course_request_61ef8b84-4710-4209-94e1-d858afa59644",
+      "predictionId": "prediction_course_request_61ef8b84-4710-4209-94e1-d858afa59644",
+      "scope": "live",
+      "trigger": "manual",
+      "emittedAt": "2026-11-21T07:54:23.467Z",
+      "type": "forecast.published",
+      "payload": {
+        "forecastId": "course_forecast_f3339a58-75ea-4fbb-9135-3aac1ff44877",
+        "requestId": "course_request_61ef8b84-4710-4209-94e1-d858afa59644",
+        "runId": "course_run_ff5c49f5-811f-479b-8134-f70b9961c6d3",
+        "predictionId": "prediction_course_request_61ef8b84-4710-4209-94e1-d858afa59644",
+        "predictionVersion": 1,
+        "probabilityYes": 0.46,
+        "probabilityNo": 0.54,
+        "summary": "固定基准为 58025.79 USDT（早于目标时点取得）。最新一次现价观察 57983.03 已略低于基准约 42.76 USDT，且目标前已关闭分钟桶呈现轻微下行（observedReturnPct 为负）。但目标时点后的首次有界观察尚未读取，未来结果未知；样本单一、未校准，故给出接近 0.5 且略偏下的有限概率。",
+        "decisionNotes": [
+          {
+            "assignmentId": "course_run_ff5c49f5-811f-479b-8134-f70b9961c6d3_market_initial",
+            "disposition": "adopted",
+            "reason": "采纳其固定基准 58025.79 USDT，作为 Yes/No 比较基准。",
+            "evidenceIds": [
+              "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5"
+            ]
+          },
+          {
+            "assignmentId": "course_run_ff5c49f5-811f-479b-8134-f70b9961c6d3_statistics_initial",
+            "disposition": "qualified",
+            "reason": "其现价快照早于目标时点；分钟对数收益样本标准差为描述性样本，未校准为未来概率，故仅作背景参考。",
+            "evidenceIds": [
+              "course_evidence_89b0c9e2be27977cc490057b62457f43",
+              "course_evidence_195556c45c14a03a4158b74f68eff416"
+            ]
+          },
+          {
+            "assignmentId": "course_run_ff5c49f5-811f-479b-8134-f70b9961c6d3_verification_initial",
+            "disposition": "qualified",
+            "reason": "确认 USDT 计价与数字自洽，但其快照同属目标前事实，不能证明目标后结果。",
+            "evidenceIds": [
+              "course_evidence_97cd6ec87eb00438468ab40361b2303d",
+              "course_evidence_043f6cad6cd91b86e3d10f97f809cdf0"
+            ]
+          }
+        ],
+        "evidenceIds": [
+          "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5",
+          "course_evidence_2c88a650a2eabf9c5edf7bb4300b58bd",
+          "course_evidence_043f6cad6cd91b86e3d10f97f809cdf0",
+          "course_evidence_195556c45c14a03a4158b74f68eff416"
+        ],
+        "evidenceAdequacy": "limited",
+        "dissent": [
+          "三席报告的价格快照均早于目标时点，不能代表目标时点后的首次有界观察。",
+          "分钟桶收益统计为描述性样本，样本标准差未被校准为未来概率，不能直接外推涨跌概率。",
+          "最新观察与基准之差仅约 42.76 USDT，相对分钟波动幅度较小，方向判断接近随机。"
+        ],
+        "issuedAt": "2026-11-21T07:54:23.464Z",
+        "publishedAt": "2026-11-21T07:54:23.464Z",
+        "knowledgeCutoff": "2026-11-21T07:54:23.464Z",
+        "targetAt": "2026-11-21T08:22:15.813Z",
+        "resolutionRuleVersion": 1,
+        "modelMode": "live",
+        "modelRef": "deepseek-v4-pro",
+        "sourceMode": "live",
+        "kind": "forecast",
+        "defaultAssumptions": [],
+        "currentReference": {
+          "kind": "price",
+          "pair": "BTC-USDT",
+          "value": 57983.03,
+          "currency": "USDT",
+          "unit": "USDT",
+          "observedAt": "2026-11-21T07:53:58.771Z",
+          "url": "https://data-api.binance.vision/api/v3/ticker/price?symbol=BTCUSDT",
+          "evidenceId": "course_evidence_2c88a650a2eabf9c5edf7bb4300b58bd",
+          "verified": true,
+          "synthetic": false,
+          "timestampMeaning": "system-observation-time"
+        },
+        "sourceLimitations": [
+          "目标时点后的首次有界观察现价尚未到期读取，未来结果未知。",
+          "所有快照与分钟桶均来自 Binance 公开接口单一来源，不代表独立交易所验证。",
+          "USDT 不等同于 USD；概率为未校准的有限估计。"
+        ],
+        "researchBasis": {
+          "mode": "verified-source",
+          "summary": "已读取公开研究依据；这不等同于官方已经确认未来结果。"
+        },
+        "timeContext": {
+          "nowUtc": "2026-11-21T07:53:58.474Z",
+          "nowLocalLabel": "2026-11-21 15:53:58 (Asia/Shanghai, UTC+08:00)",
+          "windowStartsAtUtc": "2026-11-21T07:52:15.844Z",
+          "windowStartsAtLocalLabel": "2026-11-21 15:52:15 (Asia/Shanghai, UTC+08:00)",
+          "targetAtUtc": "2026-11-21T08:22:15.813Z",
+          "targetAtLocalLabel": "2026-11-21 16:22:15 (Asia/Shanghai, UTC+08:00)",
+          "forecastClosesAtUtc": "2026-11-21T08:22:15.813Z",
+          "forecastClosesAtLocalLabel": "2026-11-21 16:22:15 (Asia/Shanghai, UTC+08:00)",
+          "timezone": "Asia/Shanghai",
+          "utcOffset": "UTC+08:00",
+          "authority": "UTC instant is authoritative; local labels are server-generated and display-only."
+        },
+        "baseline": {
+          "kind": "price",
+          "value": 58025.79,
+          "unit": "USDT",
+          "currency": "USDT",
+          "pair": "BTC-USDT",
+          "observedAt": "2026-11-21T07:52:30.791Z",
+          "url": "https://data-api.binance.vision/api/v3/ticker/price?symbol=BTCUSDT",
+          "evidenceId": "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5",
+          "verified": true,
+          "synthetic": false,
+          "timestampMeaning": "system-observation-time"
+        },
+        "scoringEligible": true,
+        "label": "模型事件概率估计",
+        "reasoningClaims": [
+          {
+            "claim": "本轮固定基准为 Binance BTC-USDT 现价 58025.79 USDT，系统观察时间早于目标时点。",
+            "basis": "fact",
+            "evidenceIds": [
+              "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5"
+            ],
+            "citations": [
+              {
+                "evidenceId": "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5",
+                "quote": "\"pair\":\"BTC-USDT\",\"value\":58025.79,\"currency\":\"USDT\""
+              }
+            ]
+          },
+          {
+            "claim": "最新一次现价观察为 57983.03 USDT，低于固定基准 58025.79 约 42.76 USDT。",
+            "basis": "inference",
+            "evidenceIds": [
+              "course_evidence_2c88a650a2eabf9c5edf7bb4300b58bd",
+              "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5"
+            ],
+            "citations": [
+              {
+                "evidenceId": "course_evidence_2c88a650a2eabf9c5edf7bb4300b58bd",
+                "quote": "\"pair\":\"BTC-USDT\",\"value\":57983.03,\"currency\":\"USDT\""
+              },
+              {
+                "evidenceId": "course_evidence_57feac2a08d47a5c5f3a65fa0d9a3ef5",
+                "quote": "\"pair\":\"BTC-USDT\",\"value\":58025.79,\"currency\":\"USDT\""
+              }
+            ]
+          },
+          {
+            "claim": "目标前已关闭分钟桶样本呈现轻微下行，observedReturnPct 为负值。",
+            "basis": "fact",
+            "evidenceIds": [
+              "course_evidence_043f6cad6cd91b86e3d10f97f809cdf0",
+              "course_evidence_195556c45c14a03a4158b74f68eff416"
+            ],
+            "citations": [
+              {
+                "evidenceId": "course_evidence_043f6cad6cd91b86e3d10f97f809cdf0",
+                "quote": "\"firstOpen\":58345.61,\"lastClose\":58011.35"
+              },
+              {
+                "evidenceId": "course_evidence_195556c45c14a03a4158b74f68eff416",
+                "quote": "\"firstOpen\":58260.91,\"lastClose\":58019.49"
+              }
+            ]
+          }
+        ],
+        "groundingPolicy": "quoted-claims-v1",
+        "reviewRequired": false,
+        "reviewReasons": [],
+        "statusFacts": [
+          {
+            "key": "baseline",
+            "label": "基准",
+            "text": "BTC-USDT 58025.79 USDT（系统观测）",
+            "status": "verified",
+            "value": 58025.79,
+            "pair": "BTC-USDT",
+            "unit": "USDT"
+          },
+          {
+            "key": "kind",
+            "label": "估计类型",
+            "text": "概率预测",
+            "status": "forecast"
+          },
+          {
+            "key": "scoring",
+            "label": "计分",
+            "text": "可计分",
+            "status": "eligible"
+          },
+          {
+            "key": "adequacy",
+            "label": "资料充分度",
+            "text": "有限",
+            "status": "limited"
+          },
+          {
+            "key": "target",
+            "label": "固定到期",
+            "text": "2026-11-21 16:22:15 (Asia/Shanghai, UTC+08:00)",
+            "status": "info"
+          }
+        ],
+        "summaryConflict": {
+          "detected": false,
+          "reasons": []
+        },
+        "baselineVerified": true,
+        "conditionalOnly": false,
+        "statusLabel": "概率预测 · 可计分"
+      },
+      "seq": 110
+    },
+    {
+      "schemaVersion": 1,
+      "serverEpoch": "1c7bbff3-77fd-4668-bd5e-53156c58b04e",
+      "eventId": "course_run_ff5c49f5-811f-479b-8134-f70b9961c6d3_finished",
+      "requestId": "course_request_61ef8b84-4710-4209-94e1-d858afa59644",
+      "runId": "course_run_ff5c49f5-811f-479b-8134-f70b9961c6d3",
+      "topicId": "topic_course_request_61ef8b84-4710-4209-94e1-d858afa59644",
+      "predictionId": "prediction_course_request_61ef8b84-4710-4209-94e1-d858afa59644",
+      "scope": "live",
+      "trigger": "manual",
+      "emittedAt": "2026-11-21T07:54:23.477Z",
+      "type": "run.finished",
+      "payload": {
+        "status": "completed",
+        "summary": "本轮判断已封存，可查看概率、证据关系及下一次检查。"
+      },
+      "seq": 111
+    },
+    {
+      "schemaVersion": 1,
+      "serverEpoch": "1c7bbff3-77fd-4668-bd5e-53156c58b04e",
+      "eventId": "course_request_61ef8b84-4710-4209-94e1-d858afa59644_resolution",
+      "requestId": "course_request_61ef8b84-4710-4209-94e1-d858afa59644",
+      "runId": "course_run_ff5c49f5-811f-479b-8134-f70b9961c6d3",
+      "topicId": "topic_course_request_61ef8b84-4710-4209-94e1-d858afa59644",
+      "predictionId": "prediction_course_request_61ef8b84-4710-4209-94e1-d858afa59644",
+      "scope": "live",
+      "trigger": "manual",
+      "emittedAt": "2026-11-21T08:22:17.240Z",
+      "type": "resolution.recorded",
+      "payload": {
+        "outcome": 0,
+        "evidenceIds": [
+          "resolution_evidence_26678c1c-5053-4093-8fd9-5d804a2a8b15"
+        ],
+        "summary": "有界首次观察：BTC-USDT 57718 USDT，固定基准58025.79 USDT，等于或低于（No）。",
+        "scores": [
+          {
+            "forecastId": "course_forecast_f3339a58-75ea-4fbb-9135-3aac1ff44877",
+            "probabilityYes": 0.46,
+            "brier": 0.2116,
+            "scoringEligible": true,
+            "label": "单题Brier，不代表总体准确率"
+          }
+        ]
+      },
+      "seq": 112
+    }
+  ]
+}

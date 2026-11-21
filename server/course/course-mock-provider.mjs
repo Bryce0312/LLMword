@@ -6,6 +6,8 @@ import { roleCatalogue, suggestedRoles } from './course-context.mjs'
 /** Explicit synthetic usage with the same split counters a real provider reports. */
 const FIXTURE_USAGE = { total_tokens: 180, prompt_tokens: 120, completion_tokens: 60, prompt_cache_hit_tokens: 40, prompt_cache_miss_tokens: 80 }
 
+import { marketPricePair } from './market-report.mjs'
+
 /** Explicit, reproducible protocol fixture. It never presents its values as live forecasts. */
 export function createCourseMockProvider({ pacingMs = 0 } = {}) {
   return {
@@ -60,6 +62,13 @@ export function createCourseMockProvider({ pacingMs = 0 } = {}) {
       if (available.has('delegate_work')) return action('delegate_work', { assignments: (context.selectedRoleIds || suggestedRoles(context.question)).map((roleId) => ({ roleId,
         objective: `${context.question}。${roleCatalogue().find((role) => role.roleId === roleId)?.focus}`,
         reason: `协议演示按题选择${roleId}的调查方法，不把所有题目交给相同团队。` })) })
+      if (available.has('submit_research_report')) {
+        const reports = (context.reports || []).filter((item) => item.evidenceIds?.length)
+        if (!reports.length) return action('mark_insufficient', { message: '模拟研报未取得原文。', missingFields: ['researchEvidence'] })
+        return action('submit_research_report', { summary: '协议模拟研报：核对财报事实、管理层表述与来源边界，不产生预测概率。',
+          findings: reports.slice(0, 5).map((item) => ({ ...(item.support?.[0] || { claim: item.summary, evidenceIds: item.evidenceIds }), basis: 'inference' })),
+          limitations: ['这是受控模拟，不能证明实际市场因果或预测准确率。'], decisionNotes: reports.map((item) => ({ assignmentId: item.assignmentId, disposition: 'qualified', reason: '采用实际已读资料，保留模拟与资料边界。', evidenceIds: item.evidenceIds })) })
+      }
       if (available.has('request_followup') || available.has('propose_forecast')) {
         const evidenceIds = [...new Set((context.reports || []).flatMap((report) => report.evidenceIds))]
         if (available.has('request_followup') && !context.followUpDone) return action('request_followup', {
@@ -69,29 +78,46 @@ export function createCourseMockProvider({ pacingMs = 0 } = {}) {
         if (!evidenceIds.length) return action('mark_insufficient', { message: '协议演示没有研究员实际读取的原文。', missingFields: ['workerEvidence'] })
         const checksum = parseInt(digest(context.evidence.map((item) => item.contentHash)).slice(0, 4), 16)
         return action('propose_forecast', { probabilityYes: 0.5 + (checksum % 20) / 100, summary: '协议模拟：已合并三份独立报告及针对性核验。此数值只演示完整流程，不是真实事件预测。',
+          ...(context.groundingPolicy ? { reasoningClaims: (context.reports || []).flatMap((report) => report.support || []).slice(0, 5) } : {}),
+          decisionNotes: (context.reports || []).map((report) => ({ assignmentId: report.assignmentId, disposition: 'qualified',
+            reason: report.status === 'complete' ? '协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。' : '协议模拟：该报告资料不足，保留缺口，不将其候选概率作为已确认事实。', evidenceIds: report.evidenceIds })),
           evidenceIds, evidenceAdequacy: 'limited', dissent: ['模拟资料无法支持现实预测准确率主张。'], outcomeKnown: false, outcome: null })
       }
       // Same native protocol as live workers, with independent per-assignment message histories.
       const workerContext = initial ? JSON.parse(initial.content) : {}
+      const workerTask = workerContext.objective ? JSON.parse(workerContext.objective) : {}
+      const quotePair = marketPricePair(workerTask.draft?.originalQuestion || workerTask.contract?.question || workerTask.task || '')
       const workerCalls = messages.filter((message) => message.role === 'assistant').flatMap((message) => message.tool_calls || [])
       const workerResult = (name) => {
         const call = workerCalls.findLast((item) => item.function.name === name)
         const result = call && messages.findLast((item) => item.role === 'tool' && item.tool_call_id === call.id)
         return result ? JSON.parse(result.content) : null
       }
-      if (available.has('get_market_quote') && /比特币|BTC|bitcoin|以太|ETH/i.test(workerContext.objective) && !workerResult('get_market_quote')) {
-        return action('get_market_quote', { pair: /ETH|以太/i.test(workerContext.objective) ? 'ETH-USD' : 'BTC-USD' })
+      if (available.has('get_weather_warning') && !workerResult('get_weather_warning')) return action('get_weather_warning', {})
+      if (available.has('get_market_quote') && quotePair && !workerResult('get_market_quote')) {
+        return action('get_market_quote', { pair: available.has('get_market_history') ? 'BTC-USDT' : quotePair })
       }
-      const search = workerResult('search_web')
+      const warning = workerResult('get_weather_warning')
+      if (available.has('get_market_history') && !workerResult('get_market_history')) return action('get_market_history', { pair: 'BTC-USDT' })
+      const priceHistory = workerResult('get_market_history'), ownQuote = workerResult('get_market_quote')
+      if (priceHistory && ownQuote) {
+        const evidenceIds = [...new Set([...(ownQuote.evidenceIds || []), ...(priceHistory.evidenceIds || [])])]
+        return action('submit_report', { status: ownQuote.status === 'ok' && priceHistory.status === 'ok' ? 'complete' : 'insufficient', summary: '协议模拟：本人读取现价及已关闭分钟桶，未来方向仍未知。', evidenceIds,
+          support: ownQuote.data?.text ? [{ claim: '本轮已读取匹配现价，仅为当前观察。', basis:'inference', evidenceIds:ownQuote.evidenceIds, citations:[{evidenceId:ownQuote.evidenceIds[0],quote:ownQuote.data.text.slice(0,180)}] }, {claim:'已取得有限历史样本，不能当作未来已实现结果。',basis:'inference',evidenceIds:priceHistory.evidenceIds,citations:[{evidenceId:priceHistory.evidenceIds[0],quote:priceHistory.data.text.slice(0,180)}]}] : [],
+          counterevidence: [],missingEvidence:['未来价格未知，未进行概率校准。'],probability:null,nextSuggestion:'到期按固定现价规则核验。' })
+      }
+      const search = workerResult('search_news') || workerResult('search_web') || (warning?.data ? { data: { results: [warning.data] } } : null)
+      if (!search && available.has('search_news') && workerTask.purpose === 'research') return action('search_news', { queryZh: '虚构公司 财报 管理层 表述', queryEn: 'fictional company earnings management remarks' })
       if (!search) return action('search_web', { query: `${workerContext.agentSpecId} ${workerContext.objective}`.slice(0, 80) })
       const source = search.data?.results?.find((item) => item.url.includes(workerContext.agentSpecId === 'timeline' ? '/news' : workerContext.agentSpecId === 'verification' ? '/verification' : '/official')) || search.data?.results?.[0]
-      const read = workerResult('fetch_page')
+      const read = warning || workerResult('fetch_page')
       if (source && !read) return action('fetch_page', { url: source.url })
-      const evidenceIds = ['ok', 'partial'].includes(read?.status) ? read.evidenceIds : []
+      const evidenceIds = [...new Set([...(['ok', 'partial'].includes(read?.status) ? read.evidenceIds : []), ...(workerResult('get_market_quote')?.evidenceIds || [])])]
+      const citations = read?.evidenceIds?.length ? [{ evidenceId: read.evidenceIds[0], quote: read.data.text.slice(0, 180) }] : []
       return action('submit_report', { status: evidenceIds.length ? 'complete' : 'insufficient',
         summary: evidenceIds.length ? `协议模拟${workerContext.agentSpecId}报告：已读取「${read.data.title}」，保留来源证明范围。` : '协议模拟未取得正文。',
-        evidenceIds, support: evidenceIds.length ? [{ claim: '该演示原文可用于核对本次子问题。', evidenceIds }] : [],
-        counterevidence: workerContext.agentSpecId === 'verification' && evidenceIds.length ? [{ claim: '演示线索不能自动证明事件已发生。', evidenceIds }] : [],
+        evidenceIds, support: citations.length ? [{ claim: '该演示原文可用于核对本次子问题。', evidenceIds: [read.evidenceIds[0]], ...(workerTask.groundingPolicy ? { basis: 'inference', citations } : {}) }] : [],
+        counterevidence: workerContext.agentSpecId === 'verification' && citations.length ? [{ claim: '演示线索不能自动证明事件已发生。', evidenceIds: [read.evidenceIds[0]], ...(workerTask.groundingPolicy ? { basis: 'inference', citations } : {}) }] : [],
         missingEvidence: ['现实前瞻结果尚未在此协议示例中验证。'], probability: null, nextSuggestion: '按指定来源后续变化继续核查。' })
     },
   }

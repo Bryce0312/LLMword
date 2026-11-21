@@ -112,7 +112,7 @@ if (courseMode === 'on') {
   const watchIntervalMs = Number(process.env.WORLD_COURSE_POLL_MS || 3600000);
   if (!Number.isInteger(watchIntervalMs) || watchIntervalMs < 1000 || watchIntervalMs > 86400000) throw new Error('自动检查间隔必须在1秒至1天之间。');
   course = createCourseService({ path: process.env.WORLD_COURSE_PATH || `${statePath}.course.sqlite`, workbench,
-    provider: courseProvider, modelMode: live ? 'live' : 'mock', sourceTools, watchIntervalMs });
+    provider: courseProvider, modelMode: live ? 'live' : 'mock', sourceTools, watchIntervalMs, evidencePolicy: 'quoted-claims-v1' });
   assertEnvironmentRuns(environment, course.listRuns())
   providerConnection = createProviderConnection({ locked: environment === 'mock', configured: live && Boolean(process.env.WORLD_API_KEY),
     getActiveCount: () => course.listRuns().filter(run => !['completed', 'insufficient', 'failed', 'cancelled'].includes(run.status)).length,
@@ -139,7 +139,7 @@ if (courseMode === 'on') {
       let connection = 'failed'
       try { connection = (await modelModule.verifyModelCredentials(nextEnv)).connected ? 'connected' : 'failed' } catch { connection = 'failed' }
       const replacement = createCourseService({ path: process.env.WORLD_COURSE_PATH || `${statePath}.course.sqlite`, workbench,
-        provider: nextProvider, modelMode: 'live', sourceTools: nextSources, watchIntervalMs })
+        provider: nextProvider, modelMode: 'live', sourceTools: nextSources, watchIntervalMs, evidencePolicy: 'quoted-claims-v1' })
       try { await course.close() } catch (error) { await replacement.close(); throw error }
       course = replacement
       course.resume()
@@ -166,7 +166,7 @@ async function handleRequest(request, response) {
     }
     const requestCourse = course && new Proxy(course, { get(target, name) {
       const value = target[name]
-      if (!['createRequest', 'check', 'stop'].includes(name)) return value
+      if (!['createRequest', 'check', 'stop', 'resumeResearchSummary'].includes(name)) return value
       return (...args) => {
         if (providerConnection?.changing) throw Object.assign(new Error('正在保存模型连接，请稍后继续。'), { code: 'PROVIDER_UPDATE_BUSY', status: 409 })
         if (name !== 'stop' && environment === 'live' && !providerConnection.status().configured) {

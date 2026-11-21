@@ -1,10 +1,20 @@
 import { getAgentCatalog } from '../domain/agent-catalog.mjs'
+import { FINANCE_METHODS } from './research-profiles.mjs'
+import { INVESTIGATION_METHODS } from './investigation-profiles.mjs'
 
 export const COURSE_ROLE_IDS = Object.freeze(getAgentCatalog().map((role) => role.agentSpecId))
 export const requiresWeatherObservation = (request) => request.mode !== 'strict' && /下雨|降雨|降水|\brain(?:fall)?\b/i.test(request.question || '')
 export const roleCatalogue = () => getAgentCatalog().map(({ agentSpecId, name, instructions }) => ({ roleId: agentSpecId, name, focus: instructions,
-  availability: 'web-materials', specializedToolsAvailable: false }))
+  availability: 'web-materials', financeFocus: FINANCE_METHODS[agentSpecId] || null,
+  investigationFocus: INVESTIGATION_METHODS[agentSpecId],
+  specializedToolsAvailable: ['timeline', 'verification', 'statistics'].includes(agentSpecId),
+  specializedTools: agentSpecId === 'statistics' ? ['compare_financial_metrics'] : ['timeline', 'verification'].includes(agentSpecId) ? ['search_news'] : [] }))
 export function suggestedRoles(question) {
+  if (/关系图|关系链|关联网络|知识图|graph|relationship network/i.test(question)) return ['graph', 'industry', 'verification']
+  if (/历史类比|类似事件|历史基准率|analogy|historical precedent/i.test(question)) return ['analogy', 'statistics', 'verification']
+  if (/舆情|社群|社区|reddit|social sentiment/i.test(question)) return ['social', 'people', 'verification']
+  if (/火灾危险警告|雷暴警告|weather warning|fire danger/i.test(question)) return ['official', 'industry', 'verification']
+  if (/财报|营收|业绩|earnings|revenue|guidance/i.test(question)) return /时间线|传导|行业|影响机制/.test(question) ? ['timeline', 'industry', 'verification'] : ['official', 'statistics', 'verification']
   if (/比特币|BTC|ETH|以太|股价|价格|股票|黄金|金价|白银|银价|price|bitcoin|\b(?:gold|silver)\b/i.test(question)) return ['market', 'statistics', 'verification']
   if (/推特|发帖|社交|twitter|tweet|elonmusk|马斯克/i.test(question)) return ['social', 'people', 'verification']
   if (/CEO|担任|任职|管理层|辞职/i.test(question)) return ['people', 'official', 'verification']

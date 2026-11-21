@@ -2,14 +2,11 @@ import { createHash, randomUUID } from 'node:crypto'
 import Ajv from 'ajv'
 import { abortable, checkCancelled, RuntimeError } from './model-provider.mjs'
 import { workerBudgetState, workerBudgetInstruction } from './agent-budget.mjs'
+import { groundedClaimSchema } from '../domain/claim-grounding.mjs'
 
 const ajv = new Ajv({ strict: true, allErrors: true })
 const idArray = { type: 'array', uniqueItems: true, items: { type: 'string', minLength: 1 } }
-const claimSchema = {
-  type: 'object', additionalProperties: false,
-  properties: { claim: { type: 'string', minLength: 1 }, evidenceIds: idArray },
-  required: ['claim', 'evidenceIds'],
-}
+const claimSchema = groundedClaimSchema
 export const reportSchema = {
   type: 'object', additionalProperties: false,
   properties: {
@@ -61,11 +58,14 @@ function sameContext(state, context) {
 }
 
 // onCheckpoint receives private messages. Public APIs should expose only report/usage.
-export async function runWorker({ provider, assignment, agentSpec, tools, enabledToolIds, signal, onEvent, onCheckpoint, resume, limits = {}, finishOnToolBudget = false }) {
+export async function runWorker({ provider, assignment, agentSpec, tools, enabledToolIds, signal, onEvent, onCheckpoint, resume, limits = {}, finishOnToolBudget = false, reportPolicy }) {
   requireIds(assignment)
   if (!agentSpec?.agentSpecId || !Number.isInteger(agentSpec.specVersion) || agentSpec.specVersion < 1 ||
     typeof agentSpec.instructions !== 'string' || !Array.isArray(agentSpec.allowedTools)) {
     throw new RuntimeError('AGENT_CONFIG', '角色定义或版本无效。')
+  }
+  if (reportPolicy && (typeof reportPolicy.version !== 'string' || !reportPolicy.version || typeof reportPolicy.review !== 'function')) {
+    throw new RuntimeError('REPORT_POLICY_CONFIG', '报告核验规则无效。')
   }
   const context = Object.fromEntries(['topicId', 'predictionId', 'runId', 'assignmentId', 'agentInstanceId'].map((key) => [key, assignment[key]]))
   context.agentSpecId = agentSpec.agentSpecId
@@ -97,6 +97,8 @@ export async function runWorker({ provider, assignment, agentSpec, tools, enable
     context, objective: assignment.objective, timePolicy: assignment.timePolicy, cutoff: assignment.cutoff,
     inputEvidence: assignment.inputEvidence, instructions: agentSpec.instructions, budget,
     ...(finishOnToolBudget ? { finishOnToolBudget: true } : {}),
+    ...(reportPolicy ? { reportPolicyVersion: reportPolicy.version } : {}),
+    ...(assignment.modelProfile ? { modelProfile: assignment.modelProfile } : {}),
     tools: [...allowed].map((id) => ({ id, version: registry.get(id).version, schema: registry.get(id).inputSchema })),
   })).digest('hex')
   const modelTools = [...allowed].map((id) => {
@@ -147,7 +149,7 @@ export async function runWorker({ provider, assignment, agentSpec, tools, enable
       const requestSignal = workerSignal ? AbortSignal.any([workerSignal, timeout]) : timeout
       try {
         const availableTools = budgetState.reportOnly ? [submitTool] : modelTools
-        const response = await abortable(() => provider.complete({ messages: structuredClone(state.messages), tools: availableTools, signal: requestSignal, maxTokens: Math.min(budget.maxTokens, budget.maxTotalTokens - state.usage.totalTokens) }), requestSignal)
+        const response = await abortable(() => provider.complete({ messages: structuredClone(state.messages), tools: availableTools, signal: requestSignal, maxTokens: Math.min(budget.maxTokens, budget.maxTotalTokens - state.usage.totalTokens), ...(assignment.modelProfile?.reasoningEffort ? { reasoningEffortOverride: assignment.modelProfile.reasoningEffort } : {}) }), requestSignal)
         active()
         const tokens = response.usage?.total_tokens
         if (Number.isInteger(tokens) && tokens >= 0) state.usage.totalTokens += tokens
@@ -193,7 +195,20 @@ export async function runWorker({ provider, assignment, agentSpec, tools, enable
         cited.some((id) => !args.evidenceIds.includes(id)) || (args.probability !== null && !cited.length)) {
         return { result: failure('INVALID_CITATION', '报告引用了未取得的证据。') }
       }
-      const report = { ...args, resultId: randomUUID(), ...context }
+      if (reportPolicy?.check) {
+        const issue = reportPolicy.check(structuredClone(args))
+        if (issue) return { result: failure('CLAIM_GROUNDING', issue) }
+      }
+      const reviewed = reportPolicy ? reportPolicy.review(structuredClone(args)) : args
+      const reviewedValid = validateReport(reviewed)
+      const reviewedCitations = reviewedValid ? [...reviewed.evidenceIds,
+        ...reviewed.support.flatMap((item) => item.evidenceIds),
+        ...reviewed.counterevidence.flatMap((item) => item.evidenceIds)] : []
+      if (!reviewedValid || reviewedCitations.some((id) => !state.evidenceIds.includes(id) || !reviewed.evidenceIds.includes(id)) ||
+        (reviewed.probability !== null && !reviewedCitations.length)) {
+        return { result: failure('INVALID_REPORT_POLICY', '报告核验结果无效。') }
+      }
+      const report = { ...reviewed, resultId: randomUUID(), ...context }
       result = { status: 'ok', data: { resultId: report.resultId }, evidenceIds: [], summary: '报告已提交。', observedAt: new Date().toISOString(), error: null, usage: null }
       return { result, report, args }
     }

@@ -2,6 +2,7 @@ import { h, link, button, header, empty, select, badge, evidenceCard, api, write
 import { materialForm, agentForm } from './workbench-forms.js'
 
 function courseSlipState(record) {
+  if (record.researchReport && record.status === 'completed') return '研报已保存'
   const retained = record.forecast ? '·保留判断' : ''
   if (record.status === 'stopped') return '已停止' + retained
   const status = record.latestRun?.status ?? record.run?.status ?? record.status
@@ -27,7 +28,7 @@ export function sidebar(ctx) {
     const card = link('', '#/course/' + id, 'wb-task-slip' + (route().parts[0] === 'course' && route().parts[1] === id ? ' is-selected' : ''))
     const question = h('strong', '', record.question?.trim() || normalized.question || '正在整理题目')
     question.title = normalized.question ?? question.textContent
-    card.append(h('span', 'wb-slip-top', '自动跟踪', h('span', 'wb-badge', courseSlipState(record))), question, h('small', '', Number.isFinite(record.forecast?.probabilityYes) ? 'Yes ' + Math.round(record.forecast.probabilityYes * 100) + '%' : '暂未发布概率'))
+    card.append(h('span', 'wb-slip-top', record.purpose === 'research' ? '财报核验' : '自动跟踪', h('span', 'wb-badge', courseSlipState(record))), question, h('small', '', record.purpose === 'research' ? record.researchReport ? '研报已封存' : '正在调查资料' : Number.isFinite(record.forecast?.probabilityYes) ? 'Yes ' + Math.round(record.forecast.probabilityYes * 100) + '%' : '暂未发布概率'))
     list.append(card)
   }
   for (const p of cache.predictions.filter((p) => !coursePredictionIds.has(p.predictionId) && (!filterTopic || p.topicId === filterTopic))) {
@@ -89,6 +90,9 @@ export function agents(ctx, agentId, historical) {
     tile.append(h('span', 'wb-agent-symbol', ['⌕', '◷', '⚒', '♟', '▥', '◇', '☷', '↺', '⌘', '✓'][index % 10]), h('strong', '', a.name), h('small', '', '定义 v' + a.specVersion)); grid.append(tile)
   })
   const current = ctx.cache.agents.find((a) => a.agentSpecId === agentId)
+  const finance = ctx.cache.courseCapability?.config?.roleCatalogue?.find((item) => item.roleId === agentId)
+  const financeMethod = finance?.financeFocus ? h('section', 'wb-paper', h('h2', '', '财报任务专项方法'), h('p', '', finance.financeFocus), h('p', 'wb-muted', '用于新财报调查。历史任务保留当时的方法与工具许可。')) : null
+  const investigationMethod = finance?.investigationFocus ? h('section', 'wb-paper', h('h2', '', '调查方法与来源边界'), h('p', '', finance.investigationFocus), h('p', '', '新任务逐条保存原文片段；搜索语言按问题选择，不依赖本机浏览器或固定Bing地区。')) : null
   const creating = agentId === 'new'
   const a = creating ? { name: '', instructions: '', allowedTools: ctx.cache.tools.map((t) => t.toolId ?? t.id), skillRefs: [], extensionSlots: [null, null], modelRef: null } : historical ?? current
   const controls = h('div', 'wb-version-bar')
@@ -105,7 +109,7 @@ export function agents(ctx, agentId, historical) {
       form.prepend(h('p', 'wb-purpose', '这是只读历史版本。要修改职责或工具许可，请切回最新定义 v' + current.specVersion + '。'))
     }
   }
-  return [header('研究员席位', ctx.cache.agents.length + ' 类角色模板；自动跟踪由主 Agent 从现有目录按题选择团队。', link('模型连接 · API Key', '#/model-connection', 'wb-button'), link('＋ 新建研究员', '#/agents/new', 'wb-button wb-primary')), grid, controls, form ?? empty('选择一个研究员席位', '查看职责、技能指令与工具许可。保存新版本不会修改旧运行。')]
+  return [header('研究员席位', ctx.cache.agents.length + ' 类角色模板；自动跟踪由主 Agent 从现有目录按题选择团队。', link('模型连接 · API Key', '#/model-connection', 'wb-button'), link('＋ 新建研究员', '#/agents/new', 'wb-button wb-primary')), grid, ...(investigationMethod ? [investigationMethod] : []), ...(financeMethod ? [financeMethod] : []), controls, form ?? empty('选择一个研究员席位', '查看职责、技能指令与工具许可。保存新版本不会修改旧运行。')]
 }
 
 export function topicView(cache, topicId) {

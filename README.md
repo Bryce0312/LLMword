@@ -1,6 +1,187 @@
+# 世界事务所 V3.0 · 多 Agent 事件研究工作台
+
+<!-- current-handoff-20261121 -->
+
+面向 COMP5584 的中文像素风多 Agent 项目。用户提出问题，主 Agent 从十类研究员中按题选三类，研究员实际调用工具取证、提交带来源的报告，主 Agent 比较支持与反证并封存判断。财报解读与未来事件预测使用不同任务目的；概率、证据充分度、协作一致性分别记录。
+
+版本：**V3.0**，验证日期：**2026-11-21**。本版基于 V2.0 的 `9add50b`，原 V2.0 分支保留；版本范围和验证见[发行说明](docs/V3_RELEASE.md)。前面同学建立的运行隔离、模型连接、像素界面及既有执行框架继续保留；旧说明和截图收在本页末尾的历史折叠区。
+
+**建议阅读顺序：**[交接入口](docs/DELIVERY_HANDOFF.md) → [金融预测真实验收状态](docs/FINANCIAL_PREDICTION_REPORT.md) → [质量与限制](docs/DELIVERY_STATUS_REPORT.md)。完整需求见[PRD](docs/PRD.md)，开发约束见[AGENTS.md](AGENTS.md)。姓名、学号、实际贡献及贡献声明由小组后续填写。
+
+## 当前能做什么
+
+| 能力 | 当前实现 | 范围与限制 |
+| --- | --- | --- |
+| 按题派工 | 十类角色目录，初始选择三类不同职责并含核验；按争议定向补查 | 每题不调用全部十类；真实覆盖只以实际记录为准 |
+| 公开调查 | Search/Fetch、定位正文、任意语言检索意图、最多三路新闻查询 | 搜索摘要不成为引用；语言/地区参数不证明来源独立 |
+| 财报研究 | `purpose: research`，财报/指引/管理层表述分开，金额口径比较，研报独立封存 | 不输出未来事件概率；无全市场股票价格与交易接口 |
+| 市场基准 | 原有 BTC/ETH-USD 报价匹配、本人本轮读取及固定基准守卫 | Coinbase 来源可用性取决于网络，缺报价明确保留缺口 |
+| 短窗口金融预测 | 严格 BTC-USDT 规则使用固定 Binance 公开来源；三席完整才发布，汇总前刷新最新行情 | USDT 不等同 USD；原始 K 线归档、模型读取统计摘要；未来概率未校准 |
+| 逐条证据 | `fact/inference`、本人/本轮已读、真实原文片段、数字与时间检查 | 片段匹配不是任意自然语言的完整语义证明；旧封存不追改 |
+| 协作追溯 | 公开分工、工具回执、报告、争议补查、逐报告裁决及 JSON 导出 | 不展示模型隐藏推理，不伪造未记录的采纳理由 |
+| 到期核验 | 官方警告、严格 BTC-USDT 两个固定规则子集；独立结果证据与单题 Brier | 通用题自动结算、长期回测和准确率校准仍待完善 |
+| 记忆与恢复 | 有界历史摘要、支持/反证关系、版本与检查点、明确失败/恢复事件 | 无参数训练、完整时序因果图或全平台社交连接 |
+
+## 网页实景
+
+下面两张为本轮**真实模型已发布的公开页面**，展示完整三席、固定基准、概率和来源。截图中的 46% 是当时封存的模型事件概率，实际结果及当前验收状态以[运行报告](docs/FINANCIAL_PREDICTION_REPORT.md)为准。
+
+![真实三席研究室：市场、统计、核验完整报告，初始基准与未来概率分开显示](docs/screenshots/financial-real-room.png)
+
+像素研究室绑定已持久化的派工、工具、报告和发布事件；主 Agent 加三位研究员，共四个角色。图片没有拍摄 API Key 输入页。
+
+![公开协作与逐条引用：每位研究员的实际报告、事实与推断、原文片段和来源](docs/screenshots/financial-real-citations.png)
+
+此面板可查看“谁查了什么、引用支持什么、哪些结论被采纳或保留”。初始研究员上下文独立；核验席会明确披露未取得的同伴材料，主 Agent 在汇总阶段比较全部报告。
+
+![到期核验：按事先固定规则读取实际价格，结果证据与原预测分开保存](docs/screenshots/financial-real-result.png)
+
+结果核验后，原 46% 预测仍保持封存，实际结果和单题评分另列。该截图说明执行闭环，不以单题成绩代替总体准确率。
+
+## 五分钟运行
+
+需要 **Node.js 22.17 或更高版本**及 npm，本机验证为 22.17.1。服务使用内置 `node:sqlite`，可能显示 experimental 提示。普通运行无需 Python、浏览器插件或图数据库。
+
+在项目根目录运行（Windows PowerShell；macOS/Linux 使用 `npm`）：
+
+```powershell
+npm.cmd ci
+npm.cmd run start:mock
+```
+
+打开 [模拟工作台](http://127.0.0.1:4173)。模拟入口不需要 Key，模型和来源均明确标为 mock/replay，只验证流程。顶部可进入事件研究、财报案例、Agent 设置、模型连接及学习档案，旧版研究室保留在 `/legacy.html`。
+
+重新生成本地只读案例：
+
+```powershell
+npm.cmd run cases
+npm.cmd run cases:finance
+npm.cmd run cases:warning
+npm.cmd run cases:price
+```
+
+对应七个原流程受控案例、财报案例、警告闭环和金融价格闭环。生成器保留各自公开真实存档，失败与恢复单独显示。查看真实存档不会重新调用模型，mock 分数不能计入真实预测成绩。
+
+### 真实环境与 Key
+
+```powershell
+npm.cmd run start:live
+```
+
+打开 [真实工作台](http://127.0.0.1:4174)，先在“模型连接”保存 DeepSeek Key。通过网页保存的 Key 只留在当前服务进程内存，不回显或写入项目；服务重启后重新保存。保存本身不创建预测。角色、工具及用量以实际执行回执为准。
+
+以下命令会显式创建一条真实金融预测，**查看已有案例无需运行它**：
+
+```powershell
+node scripts/live-price-case.mjs --start --base=http://127.0.0.1:4174
+```
+
+脚本固定约 30 分钟后的目标，按严格 BTC-USDT 规则运行三席，并在目标后核验一次结果，不开启模型持续监听。中断后以相同端口 `--resume` 继续同一个 requestId；已有状态文件存在时不会另建案例。真实任务的模型调用会消耗用户账户额度。新价格任务总 token 上限 300,000，实际消耗另计；这个上限是应用配置，旧预算与用量不会随配置改变。
+
+### 数据与多实例隔离
+
+| 入口 | 默认端口 | 默认数据目录 |
+| --- | --- | --- |
+| `start:mock` | 4173 | `.data/mock/` |
+| `start:live` | 4174 | `.data/live/` |
+
+同一目录只供一个实例使用。需要单独端口/存档时：
+
+```powershell
+$env:PORT = '4196'
+$env:WORLD_DATA_DIR = '.data/financial-prediction-live'
+npm.cmd run start:live
+```
+
+运行入口验证模式并清除旧分库路径覆盖，避免 mock/live 混用。旧根目录归档迁移先运行 `npm.cmd run migrate:data` 预览；实际迁移方法见[交接](docs/DELIVERY_HANDOFF.md)。源码包不包含 `.data`、Key、`.env`、`node_modules` 或 `.git`。
+
+## 十类 Agent 怎样分工
+
+| 角色 ID | 职责重点 | 已接入的能力或边界 |
+| --- | --- | --- |
+| `official` | 正式公告、原始数据、版本 | 指定域名取证，警告子集直接读取官方 JSON |
+| `timeline` | 首发、更正、转载及时间线 | 多语言新闻查询与正文读取，区分取得/发布/事件时间 |
+| `industry` | 机制、条件、反例 | 使用公开资料，行业假设与已核实事实分开 |
+| `people` | 当时身份、说话人、场合 | 旧引语与旧职位不直接移用于当前 |
+| `statistics` | 单位、期间、样本、口径 | 财报指标比较；严格价格题的已关闭分钟桶统计 |
+| `market` | 匹配报价、固定基准、市场口径 | 已验证的报价工具；缺价格或错资产时保留不足 |
+| `social` | 公开社群线索与样本偏差 | 不声称有私有平台或全量舆情权限 |
+| `analogy` | 可比条件、差异和失败反例 | 只读本轮固定历史摘要，旧来源须重读 |
+| `graph` | 支持/反证关系与条件 | 只读历史关系线索，不冒称完整因果图推理 |
+| `verification` | 片段、数值、时间和来源独立性 | 独立核查并披露缺口；主 Agent 比较最终报告 |
+
+调查方法为 `investigation-methods-v2`，金融研究另有专项方法快照。实际许可按每次派工保存。五种受控问题各实际执行三席，累计覆盖十类；这不等于十类均完成真实渠道验收。
+
+## 证据、最新数据与结果
+
+流程为：**整理问题/派工 → 独立取证 → 核定契约 → 汇报与必要补查 → 封存预测或研报 → 对已支持的固定规则到期核验**。
+
+- 引用须提供真实已读正文片段；搜索结果只是候选。直接事实与推断/计算分别标记，数值比较保留无损十进制精度。机器 JSON 只容忍字符串外空白，不接受改字段、改值或给子集补造括号。
+- 初始固定基准、汇总前最新观察、目标后的实际结果分别保存。严格价格题在三席后刷新现价/已关闭分钟桶，发布前新现价最多两分钟旧；之后不会把更新后的价格回写成原始基准。
+- 原始 K 线与确定性统计保存在证据，模型只接收统计摘要，避免把重复数组塞满上下文。结果核验读取固定公共接口，不调用模型。
+- 目标后的有效观察严格高于基准记 Yes，等于或低于记 No；提前、迟到、无效数据或来源失败不能判 No。单题 Brier 记录一次误差，不代表整体准确率。
+- 首次金融失败、旧财报引用问题及警告维护恢复均保留，参见[质量记录](docs/DELIVERY_STATUS_REPORT.md)和[财报复核](docs/FINANCE_RESEARCH_REPORT.md)。正常发布与维护恢复分开标识。
+
+### 多语言与可选 Bing
+
+默认使用既有 DeepSeek 搜索/正文服务，允许按主体原始语言提交检索；`search_news` 最多三路，兼容旧 `queryZh/queryEn`。`language/market` 是检索意图，不保证地理索引或来源独立性。
+
+`WORLD_BING_SEARCH=enabled` 可显式启用公开 RSS 适配器，查询可选国内/国际入口。未启用、超时、访问拒绝、验证码或非 RSS 时记录原因并回退默认服务。不依赖本机 Edge、账户登录或固定地区网络，不将两种入口自动计为两份独立来源。公开行情来源同样应在目标电脑预检可达性，不能根据当前电脑就承诺所有网络可用。
+
+## 测试与真实记录
+
+```powershell
+npm.cmd run verify:collaboration
+```
+
+最新完整回归 **333/333 通过**，见[机器记录](docs/evidence/collaboration-regression-summary.json)。自动化测试不调用真实模型；部分测试需要本机回环 HTTP 与临时文件权限。新源码包已在独立目录安装、跑 mock，并检查桌面/手机页面。
+
+真实测试和 mock 分开记录。当前金融样例正常三席完成、正常自动发布，没有维护重验或汇总续写；原始运行、实际发布时间、数据新鲜度、用量及到期状态见[金融预测报告](docs/FINANCIAL_PREDICTION_REPORT.md)。预测方向命中率、概率校准和多 Agent 的相对优势仍需要多样本及同题对照。
+
+## 下一位同学从哪里接手
+
+1. 先用无 Key 模拟环境复现案例，核对[交接说明](docs/DELIVERY_HANDOFF.md)、公开运行证据及已知限制。
+2. 优先做小规模同题对照：相同资料截点与预算，比较单 Agent/三席或有无记忆，记录事实/引用错误、完成率、成本和耗时；不要以一个样本声称准确率提升。
+3. 完成演示视频、PPT、运行说明和课程提交材料；成员身份、实际贡献及贡献声明由团队填写。
+4. 完整时序图、全平台社交连接、任意股票行情、通用自动结算和大规模校准属于后续扩展，按需单独验收。
+
+提交时保留旧版本和失败历史。GitHub 的合并/上传在用户审阅确认后进行，先核对差异及原分支备份方案。
+
+## 代码导航
+
+| 入口 | 用途 |
+| --- | --- |
+| [start-mock.mjs](start-mock.mjs) / [start-live.mjs](start-live.mjs) | 模式、端口及数据隔离 |
+| [course-service.mjs](server/course/course-service.mjs) / [course-store.mjs](server/course/course-store.mjs) | 编排、预算、持久回执、封存与结果 |
+| [investigation-profiles.mjs](server/course/investigation-profiles.mjs) / [research-profiles.mjs](server/course/research-profiles.mjs) | 十类通用方法和财报专项方法 |
+| [web-tools.mjs](server/course/web-tools.mjs) / [news-search.mjs](server/course/news-search.mjs) / [bing-search.mjs](server/course/bing-search.mjs) | 搜索、正文、语言与可选渠道 |
+| [market-report.mjs](server/course/market-report.mjs) / [market-resolution.mjs](server/course/market-resolution.mjs) | 原市场基准约束及严格价格子集 |
+| [claim-grounding.mjs](server/domain/claim-grounding.mjs) | 本轮/本人、时间、片段与数值守卫 |
+| [collaboration.mjs](server/course/collaboration.mjs) / [course-collaboration.js](web/course-collaboration.js) | 公开协作投影、报告裁决和引用展示 |
+| [scripts/](scripts/) / [web/demo/](web/demo/) | 独立受控案例与公开只读存档 |
+
+模块文件的完整路径见对应目录；[架构](docs/ARCHITECTURE.md)、[实现状态](docs/IMPLEMENTATION_STATUS.md)、[决策记录](docs/DECISION_LOG.md)保留历史及范围。
+
+<details>
+<summary>早期 V2.0 说明、开发记录与原有截图（历史原文）</summary>
+
+以下保留此前协作版本的说明。旧版能力、端口示例、测试数量及待办须按其日期理解，当前运行方法以上文与最新交接为准。
+
 # 世界事务所
 
+本地最新交接入口：[十角色、可移植搜索、逐条引用与结果核验](docs/DELIVERY_HANDOFF.md)。Node要求22.17或更高；原版本记录按日期保留，不代表所有设计目标已经实现。当前改动尚未上传GitHub。
+
+追加金融预测的当前真实验收见[金融预测报告](docs/FINANCIAL_PREDICTION_REPORT.md)：三席完整、初始固定基准与汇总前最新行情分开，实际结果按事先固定的目标核验。`npm.cmd run cases:price`生成mock及真实只读案例；新价格任务预算300000tokens是程序配置，实际用量单独记录。
+
 世界事务所是一个中文像素风事件判断器，服务于 COMP5584 多 Agent 课程项目。直接说“马斯克会不会发推特”或“黄金会跌吗”，主 Agent 简短整理题意，从十类研究员中按题派出三位，资料调查交给子 Agent。默认关注未来48小时，可选24小时或一周；“今天”跟踪到创建当天结束。研究员通过真实工具搜索、阅读并交报告，再围绕具体分歧补查、汇总“是／否”倾向及概率。
+
+## 开发更新记录
+
+| 日期 | 负责人／提交 | 改动 | 验证 | 边界与状态 |
+| --- | --- | --- | --- | --- |
+| 2026-11-20 | Codex 辅助；团队合并人及提交待填 | 市场 Agent 首次建立 BTC/ETH 涨跌题时，报告须引用本轮由自己取得的对应现价；缺失或错配时标为资料不足。新派工记录规则版本，旧检查点沿用原行为；后续检查沿用固定基准。模拟适配器按原题选交易对并引用报价。 | Node v22.17.1，`node --test`：264/264 通过；新增 4 条市场报告回归，另核对已有课程端到端用例。 | 仅覆盖 BTC/ETH 现价，不是预测市场盘口；本地工作副本，待团队合并。未新增真实模型实跑。 |
+
+每次功能更新继续追加一行，注明实际负责人、对应提交及真实验证记录；完整运行证据和限制可链接到 `docs/`。此行的成员归属由团队合并时填写。
 
 ## V2.0 协作与连接
 
@@ -9,6 +190,7 @@
 - **有界循环**：每位研究员最多5次调查决策，第6次预留报告；初次汇报后最多2次定向补查。资料足够可提前总结，不为了展示凑轮数。输出字数、token与剩余预算写入system prompt并由后端限制。
 - **记忆**：短期检索同题最近7天最多4次实质研判；长期检索90天内的有限来源关系和证据索引。档案不自动删除，旧资料需复查，未训练模型参数。[记忆规则](docs/MEMORY_POLICY_V2.md)
 - **自己的Key**：打开顶部“模型连接”，用密码框输入DeepSeek API Key。Key只留在服务端会话内存，不写浏览器存储或项目数据；重启后需重填。保存后用于模型及搜索/网页读取，保存本身不发起预测；运行或排队期间不能换Key。
+- **市场基准核验**：首次 BTC/ETH 涨跌题的市场研究员必须引用自己本轮实际取得的匹配现价；缺少时报告明确标为资料不足。固定基准在后续检查中保持不变。
 
 本版完整的改动对照、Agent 循环、记忆与监听规则、真实验证、已知问题和分优先级后续任务见 **[V2.0 详细改动与开发清单](docs/V2_CHANGELOG_AND_ROADMAP.md)**；简版及截图见 [V2.0交付记录](docs/V2_RELEASE.md)。内部harnessVersion=3是执行协议版本，与产品分支V2.0分别编号。
 
@@ -86,7 +268,7 @@
 
 ## 在本地运行
 
-默认新工作台需要可直接加载 `node:sqlite` 的 Node 版本，本机验证为 Node v23.5.0，该版本的 SQLite 会显示 experimental 提示。旧案例仍支持 Node.js 20：设置 `WORLD_WORKBENCH=off`、`WORLD_RUNTIME=off` 即可。前端使用原生浏览器 JavaScript，服务端使用 Node.js；工具循环与数据契约采用 Ajv 校验。
+当前交接版使用Node22.17或更高版本，本机验证22.17.1；内置SQLite可能显示experimental提示。Node20旧模式不作为本次交接的验证环境。前端为原生浏览器JavaScript，服务端为Node.js，工具循环与契约使用Ajv校验。
 
 在项目根目录运行：
 
@@ -97,7 +279,7 @@ npm.cmd run start:mock
 
 打开 [世界事务所](http://127.0.0.1:4173)，输入问题、点击“开始跟踪”。可选24小时、48小时和7天；明确时长优先，“今天”固定到当地当天结束。该入口是明确标识的虚构演示，不能拿来预测现实问题；模型连接在此入口已锁定，真实运行请改用 `start:live` 入口。
 
-领域数据默认写入 `${WORLD_STATE_PATH}.domain.sqlite`，课程协作、监听及发布写入 `${WORLD_STATE_PATH}.course.sqlite`；M0/M1 单人验证使用 `${WORLD_STATE_PATH}.runtime.sqlite`。分别支持 `WORLD_DOMAIN_PATH`、`WORLD_COURSE_PATH`、`WORLD_RUNTIME_PATH`。旧案例及监测另存档。只要 Node 服务保持运行，关闭网页不影响任务；服务重启恢复检查点和到期待办。
+两个启动入口分别使用`.data/mock/`和`.data/live/`；目录内`world.json.domain.sqlite`保存领域记录、`world.json.course.sqlite`保存课程协作与预测、`world.json.runtime.sqlite`保存单人运行。用`WORLD_DATA_DIR`和`PORT`设置隔离实例；环境入口清除旧分库路径覆盖，防止混用。刷新网页不会自动创建付费重试。
 
 真实调查用 `npm.cmd run start:live`：入口默认监听 4174、使用 `.data/live/`，可以不带 Key 先启动；打开 [真实环境](http://127.0.0.1:4174) 后先在“模型连接”保存自己的 DeepSeek API Key，未保存前不会创建或恢复任何调查。保存后会自动调用 `/models` 校验连接：成功显示“已连接”，失败显示“已配置，未连接”，但 Key 仍会保留在当前服务进程内。Key 不写入浏览器存储、不回显输入框，刷新后需要重新输入。模型名、端点、思考与超时已有 DeepSeek 默认值。也可复制 `.env.example` 为被忽略的 `.env`，填好后运行 `node --env-file=.env start-live.mjs`，此时 Key 从服务端环境读取。`WORLD_COURSE_POLL_MS` 默认一小时，演示可缩短；真实网络使用时自行控制调用费用。`WORLD_COURSE=off` 可关闭课程入口后端。需要自定义端口、存档路径或旧版自动模式的调试场景，直接运行内部装配入口 `node server/app.mjs`，它不做模拟/真实环境锁。
 
@@ -144,7 +326,7 @@ Invoke-RestMethod "http://127.0.0.1:4186/api/v1/runs/$($probe.runId)"
 
 运行完整测试使用 `node --test`，需要支持 `node:sqlite` 及本机回环 HTTP 访问的环境。
 
-Node 服务只监听本机。旧版回放状态默认存到 `.data/world.json`。可用环境变量 `PORT` 和 `WORLD_STATE_PATH` 指定端口与存储文件。
+Node服务只监听本机。当前回放/真实状态分别保存在各自数据目录，用`PORT`和`WORLD_DATA_DIR`覆盖；旧根目录存档先用迁移脚本检查，不能直接当新环境数据库使用。
 
 ## 旧版案例研究室
 
@@ -221,3 +403,16 @@ node server/app.mjs
 > Use case: stylized-concept. Asset type: decorative full-width game scene in an original Chinese-language web app, no UI/text baked in. Wide 2:1 landscape, edge to edge, an exquisitely composed isometric 2D pixel-art field research room for a friendly team of technology-world investigators, strongly nostalgic handheld 16-bit RPG but original. Four clearly distinguishable small human pixel characters seated/gathered around a big oblong honey-colored wooden conference table in the central-lower third, clothing dusty orange, sage green, lake blue, and dark grape, varied hairstyles, miniature laptops and paper diagrams. Behind them at upper center a large dark teal wall-mounted display with a simple glowing node network, no glyphs or text. Broad window at upper left overlooks twilight city, distant lavender blue skyline and warm window lights. Bookshelves, potted plants, beige lab walls, cozy dark timber floors, tiny coffee mugs, old computer station at far right. Strong clean clustering, visible large pixel grid rendered with crisp stepped edges and dither, no smoothing, little shadow color clusters, premium contemporary indie game pixel art. Cream, amber and moss accents on warm brown, midnight navy and dusky teal shadows, cozy lamplight. Main characters visually readable at website hero width, all fully inside frame. Keep the table and team as unmistakable focal point, no overcrowding, no lettering, no logos, no captions, no badges, no UI.
 
 当前场景 `web/assets/lab-play.png` 也由内置 ImageGen 编辑生成，提示要求保留夜景、灯光、关系黑板和木质像素画风，移除原图中的人物，添加圆桌旁的双人侧桌并留出连续可走动的前景地板。研究员由浏览器单独绘制和移动。
+## 本地集成：市场核验与协作追溯
+
+已整合 V2.0 的环境隔离及原市场 Agent 补丁。任务页新增「本轮协作如何影响判断」：查看独立报告、带证据补查、逐份裁决和来源，可导出所选运行的公开记录。
+
+运行 `npm.cmd run cases` 可重新生成七个受控离线案例，页面顶部「协作案例」可直接查看。包含 BTC/ETH、错误资产、报价失败、黄金条件估计、增量／去重与鉴权恢复；全部明确标记模拟，不作为预测成绩。开发与交接见 [本轮交接](docs/COLLABORATION_HANDOFF.md)，执行证据见 [验证记录](docs/COLLABORATION_VALIDATION.md)。本地更改尚未推送 GitHub。
+## 财报解读与管理层表述核验
+
+新建任务可选择「财报解读与表述核验」。官方、时间线、统计、行业、人物与核验按题加载专项方法；时间线/核验可双语检索，统计可对带原文引用的货币指标执行增长率计算。研报保存事实、来源、限制和逐报告裁决，不生成预测概率。
+
+运行 `npm.cmd run cases:finance` 生成财报案例，顶部「财报案例」可查看模拟案例及明确标注的真实只读存档。最终汇总截断时可手动「继续整理已有报告」，同一运行最多两次，每次只追加一次模型请求，不重复取证、不重置用量。新研报汇总上限16,384 tokens（研究员仍为8,192），总预算仍为160,000；受供应商配置更低上限约束。两次续写后可无模型调用生成明确标注的「研究员资料整理版」，保留未完成主Agent裁决的限制。详见 [财报交接](docs/FINANCE_RESEARCH_HANDOFF.md)。本地代码未上传 GitHub。
+
+
+</details>

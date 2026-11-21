@@ -3,8 +3,12 @@ import { isIP } from 'node:net'
 import Ajv from 'ajv'
 import { createMarketQuoteTool } from './market-quote.mjs'
 import { FIXTURE_PAGES } from './course-fixtures.mjs'
+import { createNewsSearchTool, textLanguage } from './news-search.mjs'
+import { searchBing } from './bing-search.mjs'
+import { WARNING_URL, createWeatherWarningTool, readWarnings } from './weather-warning.mjs'
+import { createMarketHistoryTool, createPriceQuoteTool } from './market-resolution.mjs'
 
-export const COURSE_WEB_TOOL_IDS = Object.freeze(['search_web', 'fetch_page', 'get_market_quote'])
+export const COURSE_WEB_TOOL_IDS = Object.freeze(['search_web', 'fetch_page', 'get_market_quote', 'search_news', 'get_weather_warning', 'get_market_history'])
 const quoteRoles = Object.freeze(['main', 'statistics', 'market'])
 const MAX_RESPONSE_BYTES = 256 * 1024
 const MAX_TEXT_CHARACTERS = 4000
@@ -20,9 +24,9 @@ const resultSchema = {
 }
 const inputSchemas = {
   search_web: { type: 'object', additionalProperties: false,
-    properties: { query: { type: 'string', minLength: 1, maxLength: MAX_QUERY_CHARACTERS }, maxResults: { type: 'integer', minimum: 1, maximum: 5 } }, required: ['query'] },
+    properties: { query: { type: 'string', minLength: 1, maxLength: MAX_QUERY_CHARACTERS }, maxResults: { type: 'integer', minimum: 1, maximum: 5 }, language: { type: 'string', pattern: '^[A-Za-z]{2,3}(-[A-Za-z0-9]{2,8})*$', maxLength: 20 }, market: { type: 'string', pattern: '^[a-z]{2}-[A-Z]{2}$' }, engine: { enum: ['deepseek', 'auto', 'bing-domestic', 'bing-international'] } }, required: ['query'] },
   fetch_page: { type: 'object', additionalProperties: false,
-    properties: { url: { type: 'string', minLength: 1, maxLength: 8192 } }, required: ['url'] },
+    properties: { url: { type: 'string', minLength: 1, maxLength: 8192 }, focus: { type: 'string', minLength: 1, maxLength: 80 } }, required: ['url'] },
 }
 const ajv = new Ajv({ strict: true, allErrors: true })
 const validators = Object.fromEntries(Object.entries(inputSchemas).map(([key, schema]) => [key, ajv.compile(schema)]))
@@ -101,7 +105,7 @@ async function readJson(response) {
   try { return JSON.parse(raw) } catch { throw failure('SOURCE_RESPONSE_INVALID', '来源服务没有返回有效 JSON。') }
 }
 
-export function createWebResearchGateway({ env = process.env, request = fetch, now = () => new Date().toISOString(), fixturePages = FIXTURE_PAGES } = {}) {
+export function createWebResearchGateway({ env = process.env, request = fetch, now = () => new Date().toISOString(), fixturePages = FIXTURE_PAGES, fixtureWarnings } = {}) {
   const provider = String(env.WORLD_SEARCH_PROVIDER || 'deepseek').trim().toLowerCase()
   const key = String(env.WORLD_SEARCH_API_KEY || env.WORLD_API_KEY || '').trim()
   const configured = provider === 'fixture' || provider === 'deepseek' && Boolean(key) && !/[\r\n]/.test(key) && typeof request === 'function'
@@ -178,7 +182,7 @@ export function createWebResearchGateway({ env = process.env, request = fetch, n
     }
   }
 
-  function toolsFor({ roleId, question, sourceDomains, onEvidence, allowSourceDiscovery = false } = {}) {
+  function toolsFor({ roleId, question, sourceDomains, onEvidence, allowSourceDiscovery = false, legacySchemas = false, marketResolution = false } = {}) {
     let domains = []; let scopeError = null
     try {
       domains = domainSet(sourceDomains)
@@ -218,13 +222,25 @@ export function createWebResearchGateway({ env = process.env, request = fetch, n
         }
       },
     })
-    const search = wrap('search_web', '搜索网络来源候选；只返回链接与摘要，不取得可引用证据。官方资料席仅搜索已指定域名。', async ({ query, maxResults = 2 }, context, metrics) => {
+    const search = wrap('search_web', '使用任意语言搜索公开候选；language/market记录查询意图，不保证地理覆盖。默认DeepSeek；可选Bing须服务器启用，否则回退并说明。摘要不是正文。', async ({ query, maxResults = 2, language, market, engine = 'deepseek' }, context, metrics) => {
       const terms = query.trim()
       lastQuery = terms
       const suffix = domains.length ? ` ${domains.map((host) => `site:${host}`).join(' OR ')}` : ''
       if (characters(terms + suffix).length > MAX_QUERY_CHARACTERS) throw failure('SOURCE_QUERY_TOO_LONG', '搜索词与来源限定合计过长，请缩短关键词。')
       const payload = { query: terms + suffix, count: maxResults, need_content: false }
-      const response = provider === 'fixture' ? { payload: { results: (typeof fixturePages === 'function' ? fixturePages() : fixturePages).map((page) => ({ ...page, summary: page.text ?? page.content })) }, providerRequests: 0 } : await call('search', payload, context.signal)
+      let response, provenance = { requestedEngine: engine, requestedLanguage: language || null, requestedMarket: market || null, actualProvider: provider, independentIndexVerified: false }, publicRequests = 0
+      if (provider === 'fixture') response = { payload: { results: (typeof fixturePages === 'function' ? fixturePages() : fixturePages).map((page) => ({ ...page, summary: page.text ?? page.content })) }, providerRequests: 0 }
+      else {
+        if (engine !== 'deepseek') {
+          if (env.WORLD_BING_SEARCH !== 'enabled') provenance.fallbackReason = 'BING_NOT_ENABLED'
+          else try {
+            publicRequests++
+            const found = await searchBing({ query: payload.query, language, market: market || (engine === 'bing-domestic' ? 'zh-CN' : 'en-US'), engine: engine === 'auto' ? market === 'zh-CN' ? 'bing-domestic' : 'bing-international' : engine, maxResults, request, signal: context.signal })
+            response = { payload: found, providerRequests: 0 }; provenance = { ...provenance, ...found.provenance, actualProvider: 'bing-public-rss' }
+          } catch (error) { if (context.signal?.aborted) throw failure('TOOL_CANCELLED', '搜索已取消。'); provenance.fallbackReason = /^BING_[A-Z0-9_]+$/.test(error.message) ? error.message : 'BING_UNAVAILABLE' }
+        }
+        response ||= await call('search', payload, context.signal)
+      }
       metrics.providerRequests = response.providerRequests
       const raw = response.payload
       if (!raw || !Array.isArray(raw.results)) throw failure('SOURCE_RESPONSE_INVALID', '搜索服务结果缺少候选列表。')
@@ -242,18 +258,26 @@ export function createWebResearchGateway({ env = process.env, request = fetch, n
           if (results.length >= maxResults) break
         } catch { omitted = true }
       }
-      return { ...result(omitted ? 'partial' : 'ok', { query: terms, results, provider, mode, cached: false }, [],
-        provider === 'fixture' ? `静态演示搜索返回 ${results.length} 条虚构材料候选；并非真实联网。` : `搜索返回 ${results.length} 条来源候选，尚未读取正文。`), usage: { providerRequests: response.providerRequests } }
+      return { ...result(omitted ? 'partial' : 'ok', { query: terms, results, provider, mode, cached: false, provenance }, [],
+        provider === 'fixture' ? `静态演示搜索返回 ${results.length} 条虚构材料候选；并非真实联网。` : `搜索返回 ${results.length} 条来源候选，尚未读取正文。${provenance.fallbackReason ? ' 可选搜索渠道不可用，已回退现有服务。' : ''}`), usage: { providerRequests: response.providerRequests, publicSearchActions: publicRequests } }
     })
-    const fetchPage = wrap('fetch_page', '读取公开来源原文并保存证据快照；只有成功保存的正文获得 evidenceId。不能读取私有网络或越过指定来源范围。', async ({ url: value }, context, metrics) => {
+    const fetchPage = wrap('fetch_page', '读取公开来源原文并保存证据快照；可用focus定位财报表格或关键词附近片段。只有保存的正文获得evidenceId，不越过私网或来源权限。', async ({ url: value, focus }, context, metrics) => {
       const url = publicUrl(value)
+      const cacheKey = focus ? url.href + '#focus=' + focus : url.href
       if (!within(url, domains)) throw failure('SOURCE_SCOPE_MISMATCH', '该链接不属于本次授权来源域名。')
       if (typeof onEvidence !== 'function') throw failure('EVIDENCE_SINK_REQUIRED', '本轮尚未配置证据保存服务。')
-      if (fetched.has(url.href)) {
-        const cached = structuredClone(fetched.get(url.href))
+      if (fetched.has(cacheKey)) {
+        const cached = structuredClone(fetched.get(cacheKey))
         cached.data.cached = true; cached.summary = '返回本轮已经保存的同一份正文，没有新增证据。'
         cached.usage = { providerRequests: 0 }
         return cached
+      }
+      if (url.href === WARNING_URL) {
+        const record = await readWarnings({ request, now, mode: provider === 'fixture' ? 'mock' : 'live', fixtureWarnings, signal: context.signal })
+        const receipt = await onEvidence(record, context), evidenceId = typeof receipt === 'string' ? receipt : receipt?.evidenceId
+        if (!evidenceId) throw failure('EVIDENCE_SAVE_FAILED', '警告原文未能保存。')
+        const saved = { ...result('ok', { ...record, evidenceId, provider: 'hko-public-json', mode, cached: false }, [evidenceId], '已保存官方完整JSON；当前警告不等于未来结果。'), usage: { providerRequests: 0 } }
+        fetched.set(cacheKey, structuredClone(saved)); return saved
       }
       const response = provider === 'fixture' ? { payload: (typeof fixturePages === 'function' ? fixturePages() : fixturePages).find((page) => page.url === url.href), providerRequests: 0 } : await call('fetch', { url: url.href }, context.signal)
       metrics.providerRequests = response.providerRequests
@@ -261,11 +285,14 @@ export function createWebResearchGateway({ env = process.env, request = fetch, n
       if (!raw || typeof (raw.content ?? raw.text) !== 'string' || !(raw.content ?? raw.text).trim()) throw failure('SOURCE_CONTENT_MISSING', '此来源没有取得可读正文。')
       const completeText = (raw.content ?? raw.text).trim()
       const originalCharacters = characters(completeText).length
-      const text = clipped(completeText, MAX_TEXT_CHARACTERS)
+      const matchAt = focus ? completeText.toLowerCase().indexOf(focus.toLowerCase()) : 0
+      if (focus && matchAt < 0) throw failure('SOURCE_CONTENT_MISSING', '正文中未找到定位词，请换关键词或读取正文开头。')
+      const excerptStart = Math.max(0, matchAt - 300)
+      const text = clipped(completeText.slice(excerptStart), MAX_TEXT_CHARACTERS)
       const record = { title: textValue(raw.title, 300) || known.get(url.href)?.title || url.hostname,
         url: url.href, text, publishedAt: dateOrNull(raw.publishedAt || raw.date) || known.get(url.href)?.publishedAt || null,
         contentHash: sha(text), sourceMode: provider === 'fixture' ? 'replay' : 'live',
-        truncated: originalCharacters > MAX_TEXT_CHARACTERS, originalCharacters, evidenceKind: 'page_content', referenceable: true,
+        truncated: originalCharacters > MAX_TEXT_CHARACTERS, originalCharacters, excerptStart, focus: focus || null, language: textLanguage(text), evidenceKind: 'page_content', referenceable: true,
         ...(provider === 'fixture' ? { fixture: true, scoringEligible: false } : {}),
       }
       if (context.signal?.aborted) throw failure('TOOL_CANCELLED', '本次来源读取已取消。')
@@ -278,16 +305,26 @@ export function createWebResearchGateway({ env = process.env, request = fetch, n
       const saved = result(record.truncated ? 'partial' : 'ok', { ...record, evidenceId, provider, mode, cached: false }, [evidenceId],
         provider === 'fixture' ? '已保存静态虚构演示正文；这不是真实新闻或预测证据。' : record.truncated ? '已读取并保存正文片段，内容超过本轮上限，已明确截断。' : '已读取并保存来源正文。', observedAt)
       saved.usage = { providerRequests: response.providerRequests }
-      fetched.set(url.href, structuredClone(saved))
+      fetched.set(cacheKey, structuredClone(saved))
       return saved
     })
     const registered = [search, fetchPage]
-    if (quoteRoles.includes(roleId)) registered.push(createMarketQuoteTool({ request, now,
+    if (!legacySchemas && ['official', 'industry', 'statistics', 'verification'].includes(roleId) && /火灾危险警告|雷暴警告|weather warning|fire danger/i.test(typeof question === 'string' ? question : question?.question || '')) registered.push(createWeatherWarningTool({ request, now, mode: provider === 'fixture' ? 'mock' : 'live', fixtureWarnings,
+      onEvidence: async (record, context) => { if (scopeError) throw scopeError; if (!within(new URL(record.url), domains)) throw failure('SOURCE_SCOPE_MISMATCH', '警告不属于授权来源。'); return onEvidence(record, context) } }))
+    if (legacySchemas) { for (const key of ['language', 'market', 'engine']) delete search.inputSchema.properties[key]; search.description = '搜索网络来源候选；只返回链接与摘要，不取得可引用证据。官方资料席仅搜索已指定域名。' }
+    if (['timeline', 'verification'].includes(roleId)) {
+      const news = createNewsSearchTool(search)
+      if (legacySchemas) { news.version = 1; news.description = '分别用中文和英文查询公开新闻候选；结果只是线索，必须读取正文后才能引用。'; news.inputSchema = { type: 'object', additionalProperties: false, properties: { queryZh: { type: 'string', minLength: 1, maxLength: 100 }, queryEn: { type: 'string', minLength: 1, maxLength: 100 }, maxResults: { type: 'integer', minimum: 1, maximum: 3 } }, required: ['queryZh', 'queryEn'] } }
+      registered.push(news)
+    }
+    if (!marketResolution && quoteRoles.includes(roleId)) registered.push(createMarketQuoteTool({ request, now,
       onEvidence: typeof onEvidence === 'function' ? (record, context) => onEvidence({ ...record, evidenceKind: 'market_quote', referenceable: true }, context) : undefined,
       mode: provider === 'fixture' ? 'mock' : 'live', timeoutMs: Math.min(timeoutMs, 30000) }))
+    if (marketResolution && ['main','market','statistics','verification'].includes(roleId)) registered.push(createPriceQuoteTool({ request, now, mode: provider === 'fixture' ? 'mock' : 'live', onEvidence }), createMarketHistoryTool({ request, now, mode: provider === 'fixture' ? 'mock' : 'live', onEvidence }))
     return registered
   }
   return { capabilities: Object.freeze({ provider, mode, sourceMode: provider === 'fixture' ? 'replay' : configured ? 'live' : null, available: configured,
+    multilingualQueries: true, optionalBing: env.WORLD_BING_SEARCH === 'enabled', browserRequired: false,
     toolIds: [...COURSE_WEB_TOOL_IDS], reason: configured ? null : unavailable().code,
     marketQuote: { provider: provider === 'fixture' ? 'synthetic-course-quote' : 'coinbase', roles: [...quoteRoles], pairs: ['BTC-USD', 'ETH-USD'], synthetic: provider === 'fixture' },
     limits: { maxResults: 5, queryCharacters: MAX_QUERY_CHARACTERS, textCharacters: MAX_TEXT_CHARACTERS, responseBytes: MAX_RESPONSE_BYTES, timeoutMs, maxRetries: retries } }), toolsFor }

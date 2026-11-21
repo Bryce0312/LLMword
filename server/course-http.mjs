@@ -31,10 +31,19 @@ export async function handleCourseApi(course, req, res) {
       send(res, 202, await course.createRequest(await body(req), { idempotencyKey: key }))
     } else if ((match = url.pathname.match(new RegExp(`^/api/v1/course/requests/(${id})$`))) && req.method === 'GET') {
       send(res, 200, course.getRequest(match[1]))
+    } else if ((match = url.pathname.match(new RegExp(`^/api/v1/course/requests/(${id})/resolve$`))) && req.method === 'POST') {
+      if (Object.keys(await body(req)).length) throw fail('INVALID_ACTION', '结果核验不接受自填标签、来源或时间。')
+      send(res, 200, await course.resolve(match[1]))
     } else if ((match = url.pathname.match(new RegExp(`^/api/v1/course/requests/(${id})/(check|stop)$`))) && req.method === 'POST') {
       if (Object.keys(await body(req)).length) throw fail('INVALID_ACTION', '此操作不接受额外参数。')
       const result = match[2] === 'check' ? await course.check(match[1]) : await course.stop(match[1])
       send(res, match[2] === 'check' ? 202 : 200, result)
+    } else if ((match = url.pathname.match(new RegExp(`^/api/v1/course/runs/(${id})/resume-summary$`))) && req.method === 'POST') {
+      if (Object.keys(await body(req)).length) throw fail('INVALID_ACTION', '续写汇总不接受额外参数。')
+      send(res, 202, course.resumeResearchSummary(match[1]))
+    } else if ((match = url.pathname.match(new RegExp(`^/api/v1/course/runs/(${id})/assemble-report$`))) && req.method === 'POST') {
+      if (Object.keys(await body(req)).length) throw fail('INVALID_ACTION', '整理已有报告不接受额外参数。')
+      send(res, 200, course.assembleResearchReport(match[1]))
     } else if ((match = url.pathname.match(new RegExp(`^/api/v1/course/runs/(${id})$`))) && req.method === 'GET') {
       send(res, 200, course.getRun(match[1]))
     } else if (url.pathname === '/api/v1/course/events' && req.method === 'GET') {

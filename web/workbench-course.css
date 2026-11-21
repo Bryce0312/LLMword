@@ -204,3 +204,15 @@
 .cc-conflict-warning li { margin: 4px 0; }
 .cc-summary-conflict { border-top-color: #c0825c; color: #6e4a33; }
 .cc-status-badge { display: inline-block; font-size: 10px; padding: 2px 7px; border: 2px solid #ad8151; background: #ead0a0; color: #705131; margin: 6px 0; }
+.cc-collaboration { margin-block: 16px; padding: 18px; min-width: 0; overflow-wrap: anywhere; }
+.cc-collab-heading { display: flex; justify-content: space-between; align-items: start; gap: 12px; }
+.cc-collaboration h2 { font-size: 20px; margin: 0 0 8px; }
+.cc-collaboration h3 { margin: 20px 0 10px; font-size: 16px; }
+.cc-collab-team { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 12px; }
+.cc-collab-report, .cc-collab-review { border: 1px solid #88734c; padding: 12px; min-width: 0; }
+.cc-collab-review + .cc-collab-review { margin-top: 12px; }
+.cc-collab-report summary { cursor: pointer; line-height: 1.6; }
+.cc-collab-refs { display: grid; gap: 6px; font-size: 13px; }
+.cc-collab-gap { padding-left: 10px; border-left: 3px solid #977033; }
+.cc-collab-decision { font-weight: 600; }
+@media (max-width: 600px) { .cc-collab-heading { flex-direction: column; } .cc-collaboration { padding: 12px; } }

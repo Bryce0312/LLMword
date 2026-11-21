@@ -96,7 +96,9 @@ export function createModelProvider(env = process.env, request = fetch) {
     model,
     settings,
     configurationId: createHash('sha256').update(JSON.stringify({ model, endpoint, ...settings })).digest('hex'),
-    async complete({ messages, tools, signal, maxTokens = settings.maxOutputTokens }) {
+    async complete({ messages, tools, signal, maxTokens = settings.maxOutputTokens, reasoningEffortOverride }) {
+      if (reasoningEffortOverride !== undefined && (protocol !== 'deepseek' || thinking !== 'enabled' || !['low', 'high', 'max'].includes(reasoningEffortOverride))) throw new RuntimeError('MODEL_CONFIG', '本次思考配置无效。')
+      const effort = reasoningEffortOverride ?? reasoningEffort
       if (!Number.isInteger(maxTokens) || maxTokens < 1 || maxTokens > 393216) throw new RuntimeError('MODEL_CONFIG', '输出 token 上限无效。')
       const outputTokens = configuredOutput === null ? maxTokens : Math.min(maxTokens, configuredOutput)
       const timeout = AbortSignal.timeout(timeoutMs)
@@ -112,7 +114,7 @@ export function createModelProvider(env = process.env, request = fetch) {
               // are replayed verbatim. They remain private checkpoints, not UI data.
               model, messages: structuredClone(messages), tools,
               ...(protocol === 'deepseek' && thinking === 'enabled' ? {} : { tool_choice: 'auto' }),
-              ...(protocol === 'deepseek' ? { thinking: { type: thinking }, ...(reasoningEffort ? { reasoning_effort: reasoningEffort } : {}) } : {}),
+              ...(protocol === 'deepseek' ? { thinking: { type: thinking }, ...(effort ? { reasoning_effort: effort } : {}) } : {}),
               max_tokens: outputTokens, stream: false,
             }),
           })

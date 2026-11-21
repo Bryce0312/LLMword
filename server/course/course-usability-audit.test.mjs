@@ -60,6 +60,9 @@ test('casual social and price questions complete with explicit assumptions and d
   assert.equal(crypto.normalized.baseline.value,100)
   assert.equal(crypto.normalized.baseline.currency??crypto.normalized.baseline.unit,'USD')
   assert(crypto.normalized.baseline.evidenceId)
+  const marketReport=crypto.run.assignments.find(a=>a.roleId==='market'&&!a.followUp)?.report
+  assert.equal(marketReport?.status,'complete')
+  assert(marketReport.evidenceIds.includes(crypto.normalized.baseline.evidenceId))
 })
 
 test('an available quote for another asset cannot become a verified price baseline',async t=>{
@@ -68,6 +71,9 @@ test('an available quote for another asset cannot become a verified price baseli
   assert.notEqual(result.normalized.baseline?.value,20,'ETH quote must never become a BTC baseline')
   assert.equal(result.normalized.conditionalOnly,true,'without a matching price, only a clearly conditional estimate is allowed')
   assert.equal(result.forecast.scoringEligible,false)
+  const marketReport=result.run.assignments.find(a=>a.roleId==='market'&&!a.followUp)?.report
+  assert.equal(marketReport?.status,'insufficient','market research must not certify a BTC baseline from an ETH quote')
+  assert.match(marketReport.missingEvidence.join(' '),/BTC-USD/)
 })
 
 test('gold and silver direction questions stay conditional without a supported structured price baseline',async t=>{

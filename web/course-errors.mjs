@@ -44,6 +44,10 @@ export function courseRequestAction(data = {}, { now = Date.now() } = {}) {
   if (data.activeRunId || runs.some((run) => !isCourseTerminal(run))) return disabled('本题已有调查进行中。')
   const deadline = data.normalized?.forecastClosesAt ?? data.prediction?.forecastClosesAt ?? data.strict?.targetAt
   if (deadline && Number.isFinite(Date.parse(deadline)) && Date.parse(deadline) <= now) return disabled('固定目标已到期，不能继续发布预测。')
+  if (retry && data.resolutionPolicy && latest?.phase === 'review' && ['MODEL_INCOMPLETE', 'COURSE_BUDGET'].includes(latest.error?.code) && !latest.usage?.unknownUsage) return latest.summaryResumeCount ? disabled('此短窗口预测的汇总恢复已用完，原资料保留。') : { enabled: true, kind: 'resume-summary', label: '只恢复预测汇总', reason: '复用已有报告，仍受原期限和预算限制。', automaticRetry: false }
+  if (retry && data.purpose === 'research' && latest?.phase === 'review' && (latest.error?.code === 'MODEL_INCOMPLETE' || latest.summaryRequestNotSent) && !latest.usage?.unknownUsage) return latest.summaryResumeCount >= 2 && !latest.summaryRequestNotSent
+    ? { enabled: true, kind: 'assemble-report', label: '生成研究员资料整理版', reason: '程序整理已有报告，无需模型调用；主Agent裁决未完成。', automaticRetry: false }
+    : { enabled: true, kind: 'resume-summary', label: '继续整理已有报告', reason: '只续写汇总，不重跑研究员。', automaticRetry: false }
   if (retry) return { enabled: true, kind, label, reason: '', automaticRetry: false }
   if (!data.predictionId || data.status === 'needs_clarification') return disabled('题目尚未准备完成。')
   return { enabled: true, kind, label, reason: '', automaticRetry: false }

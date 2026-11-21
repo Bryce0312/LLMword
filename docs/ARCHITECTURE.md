@@ -390,3 +390,39 @@ flowchart TD
 - 黄金/白银等品种的结构化报价；缺固定基准时只能给条件估计且不计分。
 
 真实运行只证明执行路径可用，不等于预测准确率已验收。
+## 公开协作追溯增量（2026-11-20）
+
+`CourseService.publicRun` 在原有公开快照上增加 `collaboration`。`buildCollaboration` 仅选择报告、证据引用、补查来源和已发布裁决；不读取私有模型消息或检查点。补查派工的 `review` 保存争议问题、原因、父 assignment 及 evidenceId，并进入被派研究员的受限上下文。
+
+`propose_forecast.decisionNotes` 是可选结构化公开裁决，发布事务校验报告属于本轮、证据属于该报告且在发布时间可用、同报告不能重复裁决；采纳要求完整报告和至少一条引用。裁决与预测同事务封存，旧候选无此字段时保留空列表。前端跟随选中 Run 展示并导出，不能把另一轮答案混入后台无变化检查。
+
+市场首次派工记录 `market-spot-baseline-v2`，新增时间和币种守卫；历史 v1 派工保留版本标识。报价与预测概率分别保存，固定基准不因后续现价更新而改写。离线案例由独立临时数据库生成，只输出公开快照到 `web/demo/cases.json`。
+## 财报研报任务（2026-11-21）
+
+`purpose: research` 复用派工与证据网关，独立使用 `course_research_reports` 表封存研报，不建立预测契约、概率或评分；`forecast` 的 binary 语义保持。研究任务自动监听关闭。方法版本、轻量思考和预算随新派工固定，旧角色版本与检查点不静默重写。
+
+`search_news` 包装同一搜索网关的中英文两路请求，保留渠道状态并合并追踪链接；只有正文读取可产生证据。`fetch_page.focus` 可保存关键词附近片段和定位信息；统计席本地 `compare_financial_metrics` 限制本人已读原文、金额、单位、币种及期间，再作确定性计算。语言提示不是国家或来源独立性判定。
+
+研报模型调用并发预留保守输入/输出预算，用量未知停止继续调用；临近研究员预算时只允许交报告。汇总 `MODEL_INCOMPLETE` 时可显式续写同一运行，最多两次、每次一个额外请求，不重置累计用量、不重新取证，失败和恢复事件均保留。新任务及显式恢复的汇总上限16384，原全轮160000限制保留。续写使用公开报告摘要与来源索引，不重传旧对话和角色目录，完整档案保留。若预检发生在全局模型请求预留前，可核对主Agent次数和全部完成Worker的用量，允许原未发请求重试一次；已计费或用量未知的失败不能走此入口。无模型整理在独立事务中校验已有报告和来源，保存harness/limited及原失败，页面明确主Agent最终裁决未完成。研报仍有独立的归属、来源时间、幂等封存和裁决校验。
+
+## 十角色与结果核验收口（2026-11-21）
+
+`investigation-profiles.mjs`为十类角色提供版本化方法。`news-search.mjs`接受一至三路任意语言/地区意图，兼容旧中英文参数；`bing-search.mjs`是显式可选的固定主机RSS适配器，透明回退，无Edge依赖。真正许可由本轮toolsFor注册与派工快照决定。
+
+`domain/claim-grounding.mjs`用于新请求逐条fact/inference及原文片段检查；旧请求缺策略则保留原工具Schema及行为。JSON空白容忍仅用于完整警告快照；取得时刻与正文内容分别验证。SQLite增量表`course_read_observations`保存同正文的逐读者取得时间，首次取得字段与旧历史不回写。
+
+`weather-warning.mjs`限定官方完整JSON与有界结果规则。仅该规则模型调用顺序执行而保持独立上下文；首轮与恢复汇总均使用公开报告摘要，失败席附非研究报告回执。只汇总恢复最多一次、原总预算与截止不变。新发布若核验席失败或来自维护重验，则reviewRequired明确提示，不把概率发布等同于质量通过。
+
+结果核验API不接受客户端自填outcome/URL/time，也不调用模型；固定来源读取后单独封存结果证据与逐份Brier，不将事后结果混进旧Run，不改概率和用量。重复核验幂等；已结算任务拒绝再开预测Run。通用题自动结算仍未完成，此前“评分UI未实现”的边界现仅对该警告子集有所收窄。
+
+维护入口revalidate-warning-candidate默认dry-run，只有失败review中的最后原样propose_forecast、已知用量、原期限与正常守卫全部满足才可封存。保存publicationMode与原失败；它不是日常自动恢复策略。真实记录及内容限制见DELIVERY_STATUS_REPORT.md。
+
+## 固定价格预测与最新数据（2026-11-21）
+
+`market-resolution.mjs`新增PRICE_POLICY/PRICE_URL/PRICE_RULE、匿名固定Binance读取、明确BTC-USDT计价以及已关闭分钟桶统计。原Coinbase报价适配器字面行为不变；只有严格价格契约由gateway.toolsFor的marketResolution选择专用get_market_quote v2和get_market_history。不是任意URL/交易/认证接口，也不在来源失败时静默换源。
+
+价格发布守卫要求三席全部完整、各自引用本人现价、统计席引用本人历史与逐份裁决，不能以两席代替。新行情正文明确systemObservedAt，JSON只容忍字符串外空白，等值数字用十进制字符串规范化而不用Number合并大数；缺片段反馈仅提供本人已读的实际citationHints。完整rawCandles及规范化桶保存在证据，模型仅接收可引用统计摘要，避免重复传数组。
+
+在review前，三席已完成后，由程序读取固定价格来源最新quote/history，有tool.started/completed、预算、回执及main读者证据。state.priceFinalSnapshot及latestReference独立保存，normalized.baseline不变。研究汇总只重传公开报告/证据摘要及新观察。发布时新现价超过两分钟则拒绝，下一次review重新刷新；模拟慢响应回归检查基准不移动。
+
+价格结果独立事务封存，使用目标后5分钟首次成功新报价，验证固定契约、版本、原基准、时间/来源模式与原文值一致；Brier属于单题，不训练或校准模型。闭环无需额外模型请求。通用recordResult拒绝固定契约，API不接客户端结果标签；模拟结果与真实资格分开。第一次失败及新正常发布记录并存，实际结果和限制见FINANCIAL_PREDICTION_REPORT.md。

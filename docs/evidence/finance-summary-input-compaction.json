@@ -1,0 +1,10 @@
+{
+  "runId": "course_run_9962c5fe-3928-4b3a-83c4-aab905d9e788",
+  "originalInputBytes": 27162,
+  "summaryInputBytes": 10252,
+  "toolBytes": 1856,
+  "requestedOutputTokens": 16384,
+  "conservativeReservedTokens": 30540,
+  "remainingTokens": 47140,
+  "unbilledRetryEligible": true
+}

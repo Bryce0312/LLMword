@@ -1,0 +1,430 @@
+{
+  "version": 1,
+  "kind": "warning-live-validation",
+  "notAccuracyBenchmark": true,
+  "capturedAt": "2026-11-21T06:08:43.188Z",
+  "requestId": "course_request_70787cc6-509f-41f5-87b0-929e2c3410f5",
+  "title": "真实警告预测：发布到结果核验",
+  "question": "香港天文台在固定目标时点后的首次有界观察中，红色火灾危险警告是否仍有效？",
+  "mode": "live",
+  "targetAt": "2026-11-21T06:20:02.938Z",
+  "status": "insufficient",
+  "metrics": {
+    "runs": 1,
+    "forecasts": 0,
+    "modelRequests": 13,
+    "toolCalls": 11,
+    "totalTokens": 111070
+  },
+  "checks": [
+    "从十类目录选三类独立执行"
+  ],
+  "forecast": null,
+  "result": null,
+  "normalized": {
+    "type": "binary",
+    "question": "香港天文台在固定目标时点后的首次有界观察中，红色火灾危险警告是否仍有效？（判定时点：2026-11-21 14:20:02 (Asia/Shanghai, UTC+08:00)）",
+    "object": "红色火灾危险警告在目标时点后5分钟内首次成功取得的香港天文台warnsum快照中的有效状态",
+    "options": [],
+    "candidateUniverseRule": "",
+    "timezone": "Asia/Shanghai",
+    "forecastClosesAt": "2026-11-21T06:20:02.938Z",
+    "targetAt": "2026-11-21T06:20:02.938Z",
+    "resolutionRuleVersion": 1,
+    "resolutionRule": "以目标时点后5分钟内首次成功取得的香港天文台warnsum完整快照为准：WFIRE的code为WFIRER且actionCode不是CANCEL则Yes，否则No；未在观察窗口取得有效快照则不结算。此规则使用有界首次观察，不声称精确秒级历史状态。",
+    "resolutionSource": {
+      "kind": "specified_source",
+      "url": "https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=en"
+    },
+    "unresolvablePolicy": "若在目标时点后0-5分钟（06:20:02.938Z至06:25:02.938Z）观察窗口内未成功取得含WFIRE条目的有效warnsum完整快照，则不结算（void），不依据窗口外的快照判定。",
+    "status": "ready",
+    "validation": {
+      "ready": true,
+      "missingFields": []
+    },
+    "predictionId": "prediction_course_request_70787cc6-509f-41f5-87b0-929e2c3410f5",
+    "topicId": "topic_course_request_70787cc6-509f-41f5-87b0-929e2c3410f5",
+    "version": 1,
+    "scoringEligible": true,
+    "createdAt": "2026-11-21T06:06:53.240Z",
+    "updatedAt": "2026-11-21T06:06:53.240Z",
+    "forecast": null,
+    "latestRun": null,
+    "activeRunId": null,
+    "watchQuery": "香港天文台 火災危險警告 WFIRE",
+    "sourceVerified": true,
+    "sourceEvidenceId": "course_evidence_3d151b56d418f9acda864599bdb0e390",
+    "interpretation": "以目标时点06:20:02.938Z后5分钟（至06:25:02.938Z）内首次成功取得的香港天文台warnsum完整快照为准。WFIRE的code为WFIRER且actionCode不是CANCEL则判定Yes；否则No；未在观察窗口取得有效快照则不结算。时间以UTC为权威，快照须来自官方数据接口。",
+    "defaultAssumptions": [
+      "观察窗口为目标时点后0-5分钟（06:20:02.938Z至06:25:02.938Z）",
+      "有效快照指成功取得并含WFIRE条目的完整warnsum数据",
+      "code=WFIRER且actionCode≠CANCEL视为警告仍有效",
+      "数据来源仅限resolutionSourceUrl指定的香港天文台官方接口"
+    ],
+    "currentReference": null,
+    "baseline": null,
+    "sourceLimitations": [
+      "已读证据中的warnsum快照（code=WFIRER，actionCode=ISSUE）采集于当前时刻约06:06Z，早于观察窗口06:20-06:25Z，属背景状态而非窗口内结果；最终判定须以窗口内实际取得的快照为准",
+      "截至当前仅见ISSUE（发出）状态，未见取消（CANCEL）记录，但无法预知窗口内是否转为CANCEL"
+    ],
+    "conditionalOnly": false,
+    "timeContext": {
+      "nowUtc": "2026-11-21T06:06:53.238Z",
+      "nowLocalLabel": "2026-11-21 14:06:53 (Asia/Shanghai, UTC+08:00)",
+      "windowStartsAtUtc": "2026-11-21T06:05:02.957Z",
+      "windowStartsAtLocalLabel": "2026-11-21 14:05:02 (Asia/Shanghai, UTC+08:00)",
+      "targetAtUtc": "2026-11-21T06:20:02.938Z",
+      "targetAtLocalLabel": "2026-11-21 14:20:02 (Asia/Shanghai, UTC+08:00)",
+      "forecastClosesAtUtc": "2026-11-21T06:20:02.938Z",
+      "forecastClosesAtLocalLabel": "2026-11-21 14:20:02 (Asia/Shanghai, UTC+08:00)",
+      "timezone": "Asia/Shanghai",
+      "utcOffset": "UTC+08:00",
+      "authority": "UTC instant is authoritative; local labels are server-generated and display-only."
+    },
+    "temporalPolicy": "at_target",
+    "researchBasis": {
+      "mode": "verified-source",
+      "summary": "已读取公开研究依据；这不等同于官方已经确认未来结果。"
+    },
+    "temporalPolicyBasis": "课程首版语义启发式；目标时点状态题在T之前不能以当前状态结算。"
+  },
+  "error": null,
+  "assignments": [
+    {
+      "investigationProfile": {
+        "version": "investigation-methods-v2",
+        "roleId": "official"
+      },
+      "groundingPolicy": "quoted-claims-v1",
+      "review": null,
+      "methodProfile": null,
+      "assignmentId": "course_run_5a41ef15-cfbe-4318-9935-fd08fd76e5ab_official_initial",
+      "agentSpecId": "official",
+      "roleId": "official",
+      "name": "官方资料研究员",
+      "status": "failed",
+      "report": null,
+      "followUp": false,
+      "objective": "读取resolutionSourceUrl（data.weather.gov.hk warnsum&lang=en），确认WFIRE条目的code字段取值是否为WFIRER、actionCode可能取值（如ISSUE/EXTEND/CANCEL），并在目标时点后5分钟观察窗口内尝试取得快照，记录快照的实际时间戳与内容，说明能否取得有效快照。",
+      "reason": "官方接口是判定规则的直接数据来源，需核验字段结构与窗口内快照可取得性。",
+      "cycle": 1,
+      "budget": {
+        "maxModelRequests": 5,
+        "maxToolCalls": 6,
+        "maxTotalTokens": 40000,
+        "maxTokens": 8192
+      },
+      "usage": {
+        "modelRequests": 4,
+        "toolCalls": 3,
+        "totalTokens": 19891,
+        "unknownUsage": true
+      },
+      "error": {
+        "code": "COURSE_BUDGET",
+        "message": "剩余预算不足以安全发起下一次模型请求，保留已取得资料。",
+        "retryable": false
+      }
+    },
+    {
+      "investigationProfile": {
+        "version": "investigation-methods-v2",
+        "roleId": "timeline"
+      },
+      "groundingPolicy": "quoted-claims-v1",
+      "review": null,
+      "methodProfile": null,
+      "assignmentId": "course_run_5a41ef15-cfbe-4318-9935-fd08fd76e5ab_timeline_initial",
+      "agentSpecId": "timeline",
+      "roleId": "timeline",
+      "name": "新闻时间线研究员",
+      "status": "failed",
+      "report": null,
+      "followUp": false,
+      "objective": "用search_news以中英文检索香港天文台红色火灾危险警告的发布、维持或取消记录，区分事件发生时间、公告发布时间与转载时间，查找目标时点前后是否有取消公告，作为背景线索，并注明来源时间与可靠性。",
+      "reason": "新闻时间线可提供警告状态的旁证，并核对取消发生的时序。",
+      "cycle": 1,
+      "budget": {
+        "maxModelRequests": 5,
+        "maxToolCalls": 6,
+        "maxTotalTokens": 40000,
+        "maxTokens": 8192
+      },
+      "usage": {
+        "modelRequests": 5,
+        "toolCalls": 6,
+        "totalTokens": 49625,
+        "unknownUsage": false
+      },
+      "error": {
+        "code": "BUDGET_EXHAUSTED",
+        "message": "研究员已用完本次调查预算，保留取得的证据和缺口。",
+        "retryable": false
+      }
+    },
+    {
+      "investigationProfile": {
+        "version": "investigation-methods-v2",
+        "roleId": "verification"
+      },
+      "groundingPolicy": "quoted-claims-v1",
+      "review": null,
+      "methodProfile": null,
+      "assignmentId": "course_run_5a41ef15-cfbe-4318-9935-fd08fd76e5ab_verification_initial",
+      "agentSpecId": "verification",
+      "roleId": "verification",
+      "name": "反证与核验研究员",
+      "status": "failed",
+      "report": null,
+      "followUp": false,
+      "objective": "反证核验：检查官方快照中WFIRE的code是否确为WFIRER、actionCode是否为CANCEL，核对快照时间戳是否落在目标时点后5分钟窗口内，主动寻找矛盾材料（如警告已被取消、代码不符、快照超出窗口），并逐条确认引用片段是否真正支持相关主张。",
+      "reason": "需要独立核对判定条件与时间边界，避免仅依赖单一来源或忽略矛盾证据。",
+      "cycle": 1,
+      "budget": {
+        "maxModelRequests": 5,
+        "maxToolCalls": 6,
+        "maxTotalTokens": 40000,
+        "maxTokens": 8192
+      },
+      "usage": {
+        "modelRequests": 3,
+        "toolCalls": 2,
+        "totalTokens": 12462,
+        "unknownUsage": true
+      },
+      "error": {
+        "code": "COURSE_BUDGET",
+        "message": "剩余预算不足以安全发起下一次模型请求，保留已取得资料。",
+        "retryable": false
+      }
+    }
+  ],
+  "snapshots": [
+    {
+      "label": "真实预测协作（只读）",
+      "status": "insufficient",
+      "collaboration": {
+        "version": 1,
+        "runId": "course_run_5a41ef15-cfbe-4318-9935-fd08fd76e5ab",
+        "modelMode": "live",
+        "sourceMode": "live",
+        "team": [
+          {
+            "assignmentId": "course_run_5a41ef15-cfbe-4318-9935-fd08fd76e5ab_official_initial",
+            "roleId": "official",
+            "name": "官方资料研究员",
+            "objective": "读取resolutionSourceUrl（data.weather.gov.hk warnsum&lang=en），确认WFIRE条目的code字段取值是否为WFIRER、actionCode可能取值（如ISSUE/EXTEND/CANCEL），并在目标时点后5分钟观察窗口内尝试取得快照，记录快照的实际时间戳与内容，说明能否取得有效快照。",
+            "reason": "官方接口是判定规则的直接数据来源，需核验字段结构与窗口内快照可取得性。",
+            "followUp": false,
+            "cycle": 1,
+            "status": "failed",
+            "reportStatus": null,
+            "summary": "剩余预算不足以安全发起下一次模型请求，保留已取得资料。",
+            "probability": null,
+            "evidenceIds": [],
+            "support": [],
+            "counterevidence": [],
+            "missingEvidence": [],
+            "decision": null,
+            "review": null
+          },
+          {
+            "assignmentId": "course_run_5a41ef15-cfbe-4318-9935-fd08fd76e5ab_timeline_initial",
+            "roleId": "timeline",
+            "name": "新闻时间线研究员",
+            "objective": "用search_news以中英文检索香港天文台红色火灾危险警告的发布、维持或取消记录，区分事件发生时间、公告发布时间与转载时间，查找目标时点前后是否有取消公告，作为背景线索，并注明来源时间与可靠性。",
+            "reason": "新闻时间线可提供警告状态的旁证，并核对取消发生的时序。",
+            "followUp": false,
+            "cycle": 1,
+            "status": "failed",
+            "reportStatus": null,
+            "summary": "研究员已用完本次调查预算，保留取得的证据和缺口。",
+            "probability": null,
+            "evidenceIds": [],
+            "support": [],
+            "counterevidence": [],
+            "missingEvidence": [],
+            "decision": null,
+            "review": null
+          },
+          {
+            "assignmentId": "course_run_5a41ef15-cfbe-4318-9935-fd08fd76e5ab_verification_initial",
+            "roleId": "verification",
+            "name": "反证与核验研究员",
+            "objective": "反证核验：检查官方快照中WFIRE的code是否确为WFIRER、actionCode是否为CANCEL，核对快照时间戳是否落在目标时点后5分钟窗口内，主动寻找矛盾材料（如警告已被取消、代码不符、快照超出窗口），并逐条确认引用片段是否真正支持相关主张。",
+            "reason": "需要独立核对判定条件与时间边界，避免仅依赖单一来源或忽略矛盾证据。",
+            "followUp": false,
+            "cycle": 1,
+            "status": "failed",
+            "reportStatus": null,
+            "summary": "剩余预算不足以安全发起下一次模型请求，保留已取得资料。",
+            "probability": null,
+            "evidenceIds": [],
+            "support": [],
+            "counterevidence": [],
+            "missingEvidence": [],
+            "decision": null,
+            "review": null
+          }
+        ],
+        "reviews": [],
+        "reports": [
+          {
+            "assignmentId": "course_run_5a41ef15-cfbe-4318-9935-fd08fd76e5ab_official_initial",
+            "roleId": "official",
+            "name": "官方资料研究员",
+            "objective": "读取resolutionSourceUrl（data.weather.gov.hk warnsum&lang=en），确认WFIRE条目的code字段取值是否为WFIRER、actionCode可能取值（如ISSUE/EXTEND/CANCEL），并在目标时点后5分钟观察窗口内尝试取得快照，记录快照的实际时间戳与内容，说明能否取得有效快照。",
+            "reason": "官方接口是判定规则的直接数据来源，需核验字段结构与窗口内快照可取得性。",
+            "followUp": false,
+            "cycle": 1,
+            "status": "failed",
+            "reportStatus": null,
+            "summary": "剩余预算不足以安全发起下一次模型请求，保留已取得资料。",
+            "probability": null,
+            "evidenceIds": [],
+            "support": [],
+            "counterevidence": [],
+            "missingEvidence": [],
+            "decision": null,
+            "review": null
+          },
+          {
+            "assignmentId": "course_run_5a41ef15-cfbe-4318-9935-fd08fd76e5ab_timeline_initial",
+            "roleId": "timeline",
+            "name": "新闻时间线研究员",
+            "objective": "用search_news以中英文检索香港天文台红色火灾危险警告的发布、维持或取消记录，区分事件发生时间、公告发布时间与转载时间，查找目标时点前后是否有取消公告，作为背景线索，并注明来源时间与可靠性。",
+            "reason": "新闻时间线可提供警告状态的旁证，并核对取消发生的时序。",
+            "followUp": false,
+            "cycle": 1,
+            "status": "failed",
+            "reportStatus": null,
+            "summary": "研究员已用完本次调查预算，保留取得的证据和缺口。",
+            "probability": null,
+            "evidenceIds": [],
+            "support": [],
+            "counterevidence": [],
+            "missingEvidence": [],
+            "decision": null,
+            "review": null
+          },
+          {
+            "assignmentId": "course_run_5a41ef15-cfbe-4318-9935-fd08fd76e5ab_verification_initial",
+            "roleId": "verification",
+            "name": "反证与核验研究员",
+            "objective": "反证核验：检查官方快照中WFIRE的code是否确为WFIRER、actionCode是否为CANCEL，核对快照时间戳是否落在目标时点后5分钟窗口内，主动寻找矛盾材料（如警告已被取消、代码不符、快照超出窗口），并逐条确认引用片段是否真正支持相关主张。",
+            "reason": "需要独立核对判定条件与时间边界，避免仅依赖单一来源或忽略矛盾证据。",
+            "followUp": false,
+            "cycle": 1,
+            "status": "failed",
+            "reportStatus": null,
+            "summary": "剩余预算不足以安全发起下一次模型请求，保留已取得资料。",
+            "probability": null,
+            "evidenceIds": [],
+            "support": [],
+            "counterevidence": [],
+            "missingEvidence": [],
+            "decision": null,
+            "review": null
+          }
+        ],
+        "sources": [
+          {
+            "evidenceId": "course_evidence_07d2fb2e9f010b845aea1b87f7792571",
+            "title": "Status of Fire Danger Warning",
+            "url": "https://www.hko.gov.hk/textonly/warning/ei.htm",
+            "publishedAt": null,
+            "obtainedAt": "2026-11-21T06:06:11.364Z",
+            "marketQuote": null
+          },
+          {
+            "evidenceId": "course_evidence_2f163b044afb46f2a151ff0158c73df9",
+            "title": "紅色火災危險警告",
+            "url": "https://www.info.gov.hk/gia/general/202611/21/P2026112100117.htm",
+            "publishedAt": null,
+            "obtainedAt": "2026-11-21T06:05:34.192Z",
+            "marketQuote": null
+          },
+          {
+            "evidenceId": "course_evidence_3d151b56d418f9acda864599bdb0e390",
+            "title": "香港天文台警告摘要（完整JSON）",
+            "url": "https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=en",
+            "publishedAt": null,
+            "obtainedAt": "2026-11-21T06:05:31.845Z",
+            "marketQuote": null
+          }
+        ],
+        "triage": {
+          "kind": "initial",
+          "reason": "首次按题选择差异职责。",
+          "newEvidenceIds": []
+        },
+        "decision": null,
+        "conclusion": "本轮未发布新判断，缺口与失败记录保留。"
+      }
+    }
+  ],
+  "events": [
+    {
+      "schemaVersion": 1,
+      "serverEpoch": "d2e1e89f-6ed8-47ac-91f5-771d23dfa1c8",
+      "eventId": "event_77ce27f5-ab9b-4cb7-9eeb-860aa29b4610",
+      "requestId": "course_request_70787cc6-509f-41f5-87b0-929e2c3410f5",
+      "runId": "course_run_5a41ef15-cfbe-4318-9935-fd08fd76e5ab",
+      "topicId": "topic_course_request_70787cc6-509f-41f5-87b0-929e2c3410f5",
+      "predictionId": null,
+      "scope": "live",
+      "trigger": "manual",
+      "emittedAt": "2026-11-21T06:05:22.774Z",
+      "type": "team.selected",
+      "payload": {
+        "team": [
+          {
+            "roleId": "official",
+            "name": "官方资料研究员",
+            "objective": "读取resolutionSourceUrl（data.weather.gov.hk warnsum&lang=en），确认WFIRE条目的code字段取值是否为WFIRER、actionCode可能取值（如ISSUE/EXTEND/CANCEL），并在目标时点后5分钟观察窗口内尝试取得快照，记录快照的实际时间戳与内容，说明能否取得有效快照。",
+            "reason": "官方接口是判定规则的直接数据来源，需核验字段结构与窗口内快照可取得性。"
+          },
+          {
+            "roleId": "timeline",
+            "name": "新闻时间线研究员",
+            "objective": "用search_news以中英文检索香港天文台红色火灾危险警告的发布、维持或取消记录，区分事件发生时间、公告发布时间与转载时间，查找目标时点前后是否有取消公告，作为背景线索，并注明来源时间与可靠性。",
+            "reason": "新闻时间线可提供警告状态的旁证，并核对取消发生的时序。"
+          },
+          {
+            "roleId": "verification",
+            "name": "反证与核验研究员",
+            "objective": "反证核验：检查官方快照中WFIRE的code是否确为WFIRER、actionCode是否为CANCEL，核对快照时间戳是否落在目标时点后5分钟窗口内，主动寻找矛盾材料（如警告已被取消、代码不符、快照超出窗口），并逐条确认引用片段是否真正支持相关主张。",
+            "reason": "需要独立核对判定条件与时间边界，避免仅依赖单一来源或忽略矛盾证据。"
+          }
+        ],
+        "cycle": 1,
+        "reason": "先整理题意与分工，来源核查交由独立研究员。"
+      },
+      "seq": 4
+    },
+    {
+      "schemaVersion": 1,
+      "serverEpoch": "d2e1e89f-6ed8-47ac-91f5-771d23dfa1c8",
+      "eventId": "course_run_5a41ef15-cfbe-4318-9935-fd08fd76e5ab_finished",
+      "requestId": "course_request_70787cc6-509f-41f5-87b0-929e2c3410f5",
+      "runId": "course_run_5a41ef15-cfbe-4318-9935-fd08fd76e5ab",
+      "topicId": "topic_course_request_70787cc6-509f-41f5-87b0-929e2c3410f5",
+      "predictionId": "prediction_course_request_70787cc6-509f-41f5-87b0-929e2c3410f5",
+      "scope": "live",
+      "trigger": "manual",
+      "emittedAt": "2026-11-21T06:08:42.776Z",
+      "type": "run.finished",
+      "payload": {
+        "status": "insufficient",
+        "summary": "本轮三名研究员（official/timeline/verification）的调查任务均因预算耗尽而失败（retryable=false），未返回任何报告或逐字原文片段。我在review阶段仅收到harness的证据摘要（约06:06Z的warnsum快照显示WFIRE code=WFIRER、actionCode=ISSUE），但没有可引用的8-600字符逐字原文，无法满足quoted-claims-v1的grounding要求。同时判定窗口（06:20:02.938Z–06:25:02.938Z）在目标时点之后、当前尚未发生，无法以现有背景快照冒充窗口内结果。在此条件下提交概率将是无原文支撑的臆断，故停止并说明缺口。"
+      },
+      "seq": 64
+    }
+  ],
+  "reviewNotes": [
+    "本次资料不足，未发布预测、无评分；保留失败历史，不计为成功案例。",
+    "原检查项只确认从目录选择了三类角色；不能据此声称三份研究报告均已完成。"
+  ],
+  "reviewedAt": "2026-11-21",
+  "autonomousValidationPassed": false
+}

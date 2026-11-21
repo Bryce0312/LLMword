@@ -1,0 +1,78 @@
+{
+  "checkedAt": "2026-11-21T08:23:44.434Z",
+  "testedCopy": "tmp/financial-acceptance-clean/LLMword",
+  "config": {
+    "modelMode": "mock",
+    "sourceMode": "replay",
+    "configured": false
+  },
+  "results": [
+    {
+      "size": "desktop",
+      "kind": "mock",
+      "width": 1365,
+      "scrollWidth": 1350,
+      "mockLabel": true,
+      "liveLabel": false,
+      "quotes": 11,
+      "hasScorePanel": true,
+      "globalError": false
+    },
+    {
+      "size": "desktop",
+      "kind": "failed",
+      "width": 1365,
+      "scrollWidth": 1350,
+      "mockLabel": false,
+      "liveLabel": true,
+      "quotes": 5,
+      "hasScorePanel": false,
+      "globalError": false
+    },
+    {
+      "size": "desktop",
+      "kind": "live",
+      "width": 1365,
+      "scrollWidth": 1350,
+      "mockLabel": false,
+      "liveLabel": true,
+      "quotes": 17,
+      "hasScorePanel": true,
+      "globalError": false
+    },
+    {
+      "size": "mobile",
+      "kind": "mock",
+      "width": 390,
+      "scrollWidth": 390,
+      "mockLabel": true,
+      "liveLabel": false,
+      "quotes": 11,
+      "hasScorePanel": true,
+      "globalError": false
+    },
+    {
+      "size": "mobile",
+      "kind": "failed",
+      "width": 390,
+      "scrollWidth": 390,
+      "mockLabel": false,
+      "liveLabel": true,
+      "quotes": 5,
+      "hasScorePanel": false,
+      "globalError": false
+    },
+    {
+      "size": "mobile",
+      "kind": "live",
+      "width": 390,
+      "scrollWidth": 390,
+      "mockLabel": false,
+      "liveLabel": true,
+      "quotes": 17,
+      "hasScorePanel": true,
+      "globalError": false
+    }
+  ],
+  "consoleErrors": []
+}

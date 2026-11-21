@@ -1,0 +1,88 @@
+{
+  "kind": "public-model-candidate-regression",
+  "notAccuracyBenchmark": true,
+  "runId": "course_run_5f080e00-fdeb-4d8b-9946-9f422f705c74",
+  "claims": [
+    {
+      "claim": "截至06:20:42Z快照，WFIRE的code=WFIRER、type=Red、actionCode=ISSUE，红色火灾危险警告处于生效状态。",
+      "evidenceIds": [
+        "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+      ],
+      "basis": "fact",
+      "citations": [
+        {
+          "evidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+          "quote": "\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\""
+        }
+      ]
+    },
+    {
+      "claim": "该警告的issueTime与updateTime均为2026-11-21T06:00:00+08:00，表明自06:00发布后至取得快照时无后续更新或取消。",
+      "evidenceIds": [
+        "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+      ],
+      "basis": "fact",
+      "citations": [
+        {
+          "evidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+          "quote": "\"issueTime\":\"2026-11-21T06:00:00+08:00\",\"updateTime\":\"2026-11-21T06:00:00+08:00\""
+        }
+      ]
+    },
+    {
+      "claim": "红色火灾危险警告通常持续较长时间，发布后约15分钟内被取消的概率较低，故目标时点后首次有界观察中仍有效的概率较高。",
+      "evidenceIds": [
+        "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+      ],
+      "basis": "inference",
+      "citations": [
+        {
+          "evidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+          "quote": "\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T06:00:00+08:00\""
+        }
+      ]
+    },
+    {
+      "claim": "结算规则要求以目标时点06:35:29Z后5分钟内首次成功取得的warnsum快照为准，该结算快照尚未取得，当前证据仅为06:20:42Z基线，不能据此确认目标时点后的实际状态。",
+      "evidenceIds": [
+        "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+      ],
+      "basis": "inference",
+      "citations": [
+        {
+          "evidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+          "quote": "\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T06:00:00+08:00\""
+        }
+      ]
+    }
+  ],
+  "evidence": [
+    {
+      "evidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+      "text": "HKO warnsum complete JSON snapshot:\n{\"WFIRE\":{\"name\":\"Fire Danger Warning\",\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T06:00:00+08:00\",\"updateTime\":\"2026-11-21T06:00:00+08:00\"}}",
+      "obtainedAt": "2026-11-21T06:20:41.990Z",
+      "publishedAt": null,
+      "readBy": [
+        "course_run_5f080e00-fdeb-4d8b-9946-9f422f705c74_industry_initial",
+        "course_run_5f080e00-fdeb-4d8b-9946-9f422f705c74_official_initial",
+        "course_run_5f080e00-fdeb-4d8b-9946-9f422f705c74_verification_initial"
+      ],
+      "readObservations": [],
+      "weatherWarning": {
+        "redFireActive": true,
+        "warnings": {
+          "WFIRE": {
+            "name": "Fire Danger Warning",
+            "code": "WFIRER",
+            "type": "Red",
+            "actionCode": "ISSUE",
+            "issueTime": "2026-11-21T06:00:00+08:00",
+            "updateTime": "2026-11-21T06:00:00+08:00"
+          }
+        },
+        "completeSnapshot": true,
+        "observationMeaning": "system-retrieval-time"
+      }
+    }
+  ]
+}

@@ -1,0 +1,3082 @@
+{
+  "version": 1,
+  "notAccuracyBenchmark": true,
+  "cases": [
+    {
+      "version": 1,
+      "id": "hko-red-fire",
+      "title": "红色火灾危险警告：预测到结果核验",
+      "question": "香港天文台在固定目标时点后的首次有界观察中，红色火灾危险警告是否仍有效？",
+      "mode": "mock",
+      "notAccuracyBenchmark": true,
+      "checks": [
+        "三类角色独立调用官方警告工具",
+        "逐条依据有已读原文片段",
+        "目标前禁止结果核验",
+        "来源失败不判No",
+        "目标后有效快照确定结果并计算协议Brier",
+        "重复核验不重复读取",
+        "原概率、证据和模型用量不回写",
+        "数据库重开结果一致"
+      ],
+      "metrics": {
+        "runs": 1,
+        "forecasts": 1,
+        "modelRequests": 12,
+        "toolCalls": 4,
+        "totalTokens": 2160
+      },
+      "snapshots": [
+        {
+          "label": "预测发布",
+          "status": "completed",
+          "collaboration": {
+            "version": 1,
+            "runId": "course_run_63b53b79-009e-4694-9f99-b765a48dbb51",
+            "modelMode": "mock",
+            "sourceMode": "replay",
+            "team": [
+              {
+                "assignmentId": "course_run_63b53b79-009e-4694-9f99-b765a48dbb51_official_initial",
+                "roleId": "official",
+                "name": "官方资料研究员",
+                "objective": "香港天文台在固定目标时点后的首次有界观察中，红色火灾危险警告是否仍有效？。以原始公告、正式文件和指定结果来源核查事实。区分正式发布、草案与二手转述；缺少原文时说明。",
+                "reason": "协议模拟按题选择official。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟official报告：已读取「【虚构】天文台警告协议样例」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "basis": "inference",
+                    "citations": [
+                      {
+                        "evidenceId": "course_evidence_360be1e27282ea4c30ddbf99a3239fe0",
+                        "quote": "HKO warnsum complete JSON snapshot:\n{\"WFIRE\":{\"name\":\"Fire Danger Warning\",\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T00:00:00.000Z\",\"updateTime\":\"20"
+                      }
+                    ],
+                    "evidenceIds": [
+                      "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                    ]
+                  }
+                ],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_63b53b79-009e-4694-9f99-b765a48dbb51_official_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_63b53b79-009e-4694-9f99-b765a48dbb51_industry_initial",
+                "roleId": "industry",
+                "name": "行业与专业研究员",
+                "objective": "香港天文台在固定目标时点后的首次有界观察中，红色火灾危险警告是否仍有效？。检查技术、行业和制度条件。说明判断的适用范围、必要条件及专业资料缺口，避免把行业经验当作已核实事实。",
+                "reason": "协议模拟按题选择industry。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟industry报告：已读取「【虚构】天文台警告协议样例」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "basis": "inference",
+                    "citations": [
+                      {
+                        "evidenceId": "course_evidence_360be1e27282ea4c30ddbf99a3239fe0",
+                        "quote": "HKO warnsum complete JSON snapshot:\n{\"WFIRE\":{\"name\":\"Fire Danger Warning\",\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T00:00:00.000Z\",\"updateTime\":\"20"
+                      }
+                    ],
+                    "evidenceIds": [
+                      "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                    ]
+                  }
+                ],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_63b53b79-009e-4694-9f99-b765a48dbb51_industry_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_63b53b79-009e-4694-9f99-b765a48dbb51_verification_initial",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "香港天文台在固定目标时点后的首次有界观察中，红色火灾危险警告是否仍有效？。优先寻找与关键主张矛盾的材料，核验出处、时间和来源独立性。证据不足可以保留异议；团队一致不等于事实正确。",
+                "reason": "协议模拟按题选择verification。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟verification报告：已读取「【虚构】天文台警告协议样例」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "basis": "inference",
+                    "citations": [
+                      {
+                        "evidenceId": "course_evidence_360be1e27282ea4c30ddbf99a3239fe0",
+                        "quote": "HKO warnsum complete JSON snapshot:\n{\"WFIRE\":{\"name\":\"Fire Danger Warning\",\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T00:00:00.000Z\",\"updateTime\":\"20"
+                      }
+                    ],
+                    "evidenceIds": [
+                      "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "演示线索不能自动证明事件已发生。",
+                    "basis": "inference",
+                    "citations": [
+                      {
+                        "evidenceId": "course_evidence_360be1e27282ea4c30ddbf99a3239fe0",
+                        "quote": "HKO warnsum complete JSON snapshot:\n{\"WFIRE\":{\"name\":\"Fire Danger Warning\",\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T00:00:00.000Z\",\"updateTime\":\"20"
+                      }
+                    ],
+                    "evidenceIds": [
+                      "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_63b53b79-009e-4694-9f99-b765a48dbb51_verification_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                  ]
+                },
+                "review": null
+              }
+            ],
+            "reviews": [
+              {
+                "assignmentId": "course_run_63b53b79-009e-4694-9f99-b765a48dbb51_verification_followup_2",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "复核协议示例新闻线索与正式来源的口径是否一致。问题：香港天文台在固定目标时点后的首次有界观察中，红色火灾危险警告是否仍有效？",
+                "reason": "协议示例中新闻线索与正式披露的证明范围不同，需要再读取并明确证据边界。",
+                "followUp": true,
+                "cycle": 2,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟verification报告：已读取「【虚构】天文台警告协议样例」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "basis": "inference",
+                    "citations": [
+                      {
+                        "evidenceId": "course_evidence_360be1e27282ea4c30ddbf99a3239fe0",
+                        "quote": "HKO warnsum complete JSON snapshot:\n{\"WFIRE\":{\"name\":\"Fire Danger Warning\",\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T00:00:00.000Z\",\"updateTime\":\"20"
+                      }
+                    ],
+                    "evidenceIds": [
+                      "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "演示线索不能自动证明事件已发生。",
+                    "basis": "inference",
+                    "citations": [
+                      {
+                        "evidenceId": "course_evidence_360be1e27282ea4c30ddbf99a3239fe0",
+                        "quote": "HKO warnsum complete JSON snapshot:\n{\"WFIRE\":{\"name\":\"Fire Danger Warning\",\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T00:00:00.000Z\",\"updateTime\":\"20"
+                      }
+                    ],
+                    "evidenceIds": [
+                      "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_63b53b79-009e-4694-9f99-b765a48dbb51_verification_followup_2",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                  ]
+                },
+                "review": {
+                  "objective": "复核协议示例新闻线索与正式来源的口径是否一致。问题：香港天文台在固定目标时点后的首次有界观察中，红色火灾危险警告是否仍有效？",
+                  "reason": "协议示例中新闻线索与正式披露的证明范围不同，需要再读取并明确证据边界。",
+                  "evidenceIds": [
+                    "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                  ],
+                  "parentAssignmentIds": [
+                    "course_run_63b53b79-009e-4694-9f99-b765a48dbb51_official_initial",
+                    "course_run_63b53b79-009e-4694-9f99-b765a48dbb51_industry_initial",
+                    "course_run_63b53b79-009e-4694-9f99-b765a48dbb51_verification_initial"
+                  ],
+                  "requestedAt": "2026-11-21T00:00:00.000Z"
+                },
+                "previousSummary": "协议模拟verification报告：已读取「【虚构】天文台警告协议样例」，保留来源证明范围。",
+                "probabilityBefore": null,
+                "probabilityAfter": null,
+                "newEvidenceIds": [],
+                "responseStatus": "submitted"
+              }
+            ],
+            "reports": [
+              {
+                "assignmentId": "course_run_63b53b79-009e-4694-9f99-b765a48dbb51_official_initial",
+                "roleId": "official",
+                "name": "官方资料研究员",
+                "objective": "香港天文台在固定目标时点后的首次有界观察中，红色火灾危险警告是否仍有效？。以原始公告、正式文件和指定结果来源核查事实。区分正式发布、草案与二手转述；缺少原文时说明。",
+                "reason": "协议模拟按题选择official。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟official报告：已读取「【虚构】天文台警告协议样例」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "basis": "inference",
+                    "citations": [
+                      {
+                        "evidenceId": "course_evidence_360be1e27282ea4c30ddbf99a3239fe0",
+                        "quote": "HKO warnsum complete JSON snapshot:\n{\"WFIRE\":{\"name\":\"Fire Danger Warning\",\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T00:00:00.000Z\",\"updateTime\":\"20"
+                      }
+                    ],
+                    "evidenceIds": [
+                      "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                    ]
+                  }
+                ],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_63b53b79-009e-4694-9f99-b765a48dbb51_official_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_63b53b79-009e-4694-9f99-b765a48dbb51_industry_initial",
+                "roleId": "industry",
+                "name": "行业与专业研究员",
+                "objective": "香港天文台在固定目标时点后的首次有界观察中，红色火灾危险警告是否仍有效？。检查技术、行业和制度条件。说明判断的适用范围、必要条件及专业资料缺口，避免把行业经验当作已核实事实。",
+                "reason": "协议模拟按题选择industry。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟industry报告：已读取「【虚构】天文台警告协议样例」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "basis": "inference",
+                    "citations": [
+                      {
+                        "evidenceId": "course_evidence_360be1e27282ea4c30ddbf99a3239fe0",
+                        "quote": "HKO warnsum complete JSON snapshot:\n{\"WFIRE\":{\"name\":\"Fire Danger Warning\",\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T00:00:00.000Z\",\"updateTime\":\"20"
+                      }
+                    ],
+                    "evidenceIds": [
+                      "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                    ]
+                  }
+                ],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_63b53b79-009e-4694-9f99-b765a48dbb51_industry_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_63b53b79-009e-4694-9f99-b765a48dbb51_verification_initial",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "香港天文台在固定目标时点后的首次有界观察中，红色火灾危险警告是否仍有效？。优先寻找与关键主张矛盾的材料，核验出处、时间和来源独立性。证据不足可以保留异议；团队一致不等于事实正确。",
+                "reason": "协议模拟按题选择verification。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟verification报告：已读取「【虚构】天文台警告协议样例」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "basis": "inference",
+                    "citations": [
+                      {
+                        "evidenceId": "course_evidence_360be1e27282ea4c30ddbf99a3239fe0",
+                        "quote": "HKO warnsum complete JSON snapshot:\n{\"WFIRE\":{\"name\":\"Fire Danger Warning\",\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T00:00:00.000Z\",\"updateTime\":\"20"
+                      }
+                    ],
+                    "evidenceIds": [
+                      "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "演示线索不能自动证明事件已发生。",
+                    "basis": "inference",
+                    "citations": [
+                      {
+                        "evidenceId": "course_evidence_360be1e27282ea4c30ddbf99a3239fe0",
+                        "quote": "HKO warnsum complete JSON snapshot:\n{\"WFIRE\":{\"name\":\"Fire Danger Warning\",\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T00:00:00.000Z\",\"updateTime\":\"20"
+                      }
+                    ],
+                    "evidenceIds": [
+                      "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_63b53b79-009e-4694-9f99-b765a48dbb51_verification_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_63b53b79-009e-4694-9f99-b765a48dbb51_verification_followup_2",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "复核协议示例新闻线索与正式来源的口径是否一致。问题：香港天文台在固定目标时点后的首次有界观察中，红色火灾危险警告是否仍有效？",
+                "reason": "协议示例中新闻线索与正式披露的证明范围不同，需要再读取并明确证据边界。",
+                "followUp": true,
+                "cycle": 2,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟verification报告：已读取「【虚构】天文台警告协议样例」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "basis": "inference",
+                    "citations": [
+                      {
+                        "evidenceId": "course_evidence_360be1e27282ea4c30ddbf99a3239fe0",
+                        "quote": "HKO warnsum complete JSON snapshot:\n{\"WFIRE\":{\"name\":\"Fire Danger Warning\",\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T00:00:00.000Z\",\"updateTime\":\"20"
+                      }
+                    ],
+                    "evidenceIds": [
+                      "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "演示线索不能自动证明事件已发生。",
+                    "basis": "inference",
+                    "citations": [
+                      {
+                        "evidenceId": "course_evidence_360be1e27282ea4c30ddbf99a3239fe0",
+                        "quote": "HKO warnsum complete JSON snapshot:\n{\"WFIRE\":{\"name\":\"Fire Danger Warning\",\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T00:00:00.000Z\",\"updateTime\":\"20"
+                      }
+                    ],
+                    "evidenceIds": [
+                      "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_63b53b79-009e-4694-9f99-b765a48dbb51_verification_followup_2",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                  ]
+                },
+                "review": {
+                  "objective": "复核协议示例新闻线索与正式来源的口径是否一致。问题：香港天文台在固定目标时点后的首次有界观察中，红色火灾危险警告是否仍有效？",
+                  "reason": "协议示例中新闻线索与正式披露的证明范围不同，需要再读取并明确证据边界。",
+                  "evidenceIds": [
+                    "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                  ],
+                  "parentAssignmentIds": [
+                    "course_run_63b53b79-009e-4694-9f99-b765a48dbb51_official_initial",
+                    "course_run_63b53b79-009e-4694-9f99-b765a48dbb51_industry_initial",
+                    "course_run_63b53b79-009e-4694-9f99-b765a48dbb51_verification_initial"
+                  ],
+                  "requestedAt": "2026-11-21T00:00:00.000Z"
+                }
+              }
+            ],
+            "sources": [
+              {
+                "evidenceId": "course_evidence_360be1e27282ea4c30ddbf99a3239fe0",
+                "title": "【虚构】天文台警告协议样例",
+                "url": "https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=en",
+                "publishedAt": null,
+                "obtainedAt": "2026-11-21T00:00:00.000Z",
+                "marketQuote": null
+              }
+            ],
+            "triage": {
+              "kind": "initial",
+              "reason": "首次按题选择差异职责。",
+              "newEvidenceIds": []
+            },
+            "decision": {
+              "kind": "forecast",
+              "groundingPolicy": "quoted-claims-v1",
+              "reasoningClaims": [
+                {
+                  "claim": "该演示原文可用于核对本次子问题。",
+                  "evidenceIds": [
+                    "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                  ],
+                  "basis": "inference",
+                  "citations": [
+                    {
+                      "evidenceId": "course_evidence_360be1e27282ea4c30ddbf99a3239fe0",
+                      "quote": "HKO warnsum complete JSON snapshot:\n{\"WFIRE\":{\"name\":\"Fire Danger Warning\",\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T00:00:00.000Z\",\"updateTime\":\"20"
+                    }
+                  ]
+                },
+                {
+                  "claim": "该演示原文可用于核对本次子问题。",
+                  "evidenceIds": [
+                    "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                  ],
+                  "basis": "inference",
+                  "citations": [
+                    {
+                      "evidenceId": "course_evidence_360be1e27282ea4c30ddbf99a3239fe0",
+                      "quote": "HKO warnsum complete JSON snapshot:\n{\"WFIRE\":{\"name\":\"Fire Danger Warning\",\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T00:00:00.000Z\",\"updateTime\":\"20"
+                    }
+                  ]
+                },
+                {
+                  "claim": "该演示原文可用于核对本次子问题。",
+                  "evidenceIds": [
+                    "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                  ],
+                  "basis": "inference",
+                  "citations": [
+                    {
+                      "evidenceId": "course_evidence_360be1e27282ea4c30ddbf99a3239fe0",
+                      "quote": "HKO warnsum complete JSON snapshot:\n{\"WFIRE\":{\"name\":\"Fire Danger Warning\",\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T00:00:00.000Z\",\"updateTime\":\"20"
+                    }
+                  ]
+                },
+                {
+                  "claim": "该演示原文可用于核对本次子问题。",
+                  "evidenceIds": [
+                    "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                  ],
+                  "basis": "inference",
+                  "citations": [
+                    {
+                      "evidenceId": "course_evidence_360be1e27282ea4c30ddbf99a3239fe0",
+                      "quote": "HKO warnsum complete JSON snapshot:\n{\"WFIRE\":{\"name\":\"Fire Danger Warning\",\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T00:00:00.000Z\",\"updateTime\":\"20"
+                    }
+                  ]
+                }
+              ],
+              "forecastId": "course_forecast_f8f3f67e-9039-4c03-87a3-f7670829ccb1",
+              "probabilityYes": 0.5700000000000001,
+              "previousProbabilityYes": null,
+              "delta": null,
+              "summary": "协议模拟：已合并三份独立报告及针对性核验。此数值只演示完整流程，不是真实事件预测。",
+              "evidenceIds": [
+                "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+              ],
+              "dissent": [
+                "模拟资料无法支持现实预测准确率主张。"
+              ],
+              "evidenceAdequacy": "limited",
+              "scoringEligible": false,
+              "recordedNotes": 4,
+              "totalReports": 4
+            },
+            "conclusion": "已发布；可逐项查看补查答复与裁决。"
+          }
+        },
+        {
+          "label": "结果核验后（原预测保留）",
+          "status": "completed",
+          "collaboration": {
+            "version": 1,
+            "runId": "course_run_63b53b79-009e-4694-9f99-b765a48dbb51",
+            "modelMode": "mock",
+            "sourceMode": "replay",
+            "team": [
+              {
+                "assignmentId": "course_run_63b53b79-009e-4694-9f99-b765a48dbb51_official_initial",
+                "roleId": "official",
+                "name": "官方资料研究员",
+                "objective": "香港天文台在固定目标时点后的首次有界观察中，红色火灾危险警告是否仍有效？。以原始公告、正式文件和指定结果来源核查事实。区分正式发布、草案与二手转述；缺少原文时说明。",
+                "reason": "协议模拟按题选择official。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟official报告：已读取「【虚构】天文台警告协议样例」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "basis": "inference",
+                    "citations": [
+                      {
+                        "evidenceId": "course_evidence_360be1e27282ea4c30ddbf99a3239fe0",
+                        "quote": "HKO warnsum complete JSON snapshot:\n{\"WFIRE\":{\"name\":\"Fire Danger Warning\",\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T00:00:00.000Z\",\"updateTime\":\"20"
+                      }
+                    ],
+                    "evidenceIds": [
+                      "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                    ]
+                  }
+                ],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_63b53b79-009e-4694-9f99-b765a48dbb51_official_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_63b53b79-009e-4694-9f99-b765a48dbb51_industry_initial",
+                "roleId": "industry",
+                "name": "行业与专业研究员",
+                "objective": "香港天文台在固定目标时点后的首次有界观察中，红色火灾危险警告是否仍有效？。检查技术、行业和制度条件。说明判断的适用范围、必要条件及专业资料缺口，避免把行业经验当作已核实事实。",
+                "reason": "协议模拟按题选择industry。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟industry报告：已读取「【虚构】天文台警告协议样例」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "basis": "inference",
+                    "citations": [
+                      {
+                        "evidenceId": "course_evidence_360be1e27282ea4c30ddbf99a3239fe0",
+                        "quote": "HKO warnsum complete JSON snapshot:\n{\"WFIRE\":{\"name\":\"Fire Danger Warning\",\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T00:00:00.000Z\",\"updateTime\":\"20"
+                      }
+                    ],
+                    "evidenceIds": [
+                      "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                    ]
+                  }
+                ],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_63b53b79-009e-4694-9f99-b765a48dbb51_industry_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_63b53b79-009e-4694-9f99-b765a48dbb51_verification_initial",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "香港天文台在固定目标时点后的首次有界观察中，红色火灾危险警告是否仍有效？。优先寻找与关键主张矛盾的材料，核验出处、时间和来源独立性。证据不足可以保留异议；团队一致不等于事实正确。",
+                "reason": "协议模拟按题选择verification。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟verification报告：已读取「【虚构】天文台警告协议样例」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "basis": "inference",
+                    "citations": [
+                      {
+                        "evidenceId": "course_evidence_360be1e27282ea4c30ddbf99a3239fe0",
+                        "quote": "HKO warnsum complete JSON snapshot:\n{\"WFIRE\":{\"name\":\"Fire Danger Warning\",\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T00:00:00.000Z\",\"updateTime\":\"20"
+                      }
+                    ],
+                    "evidenceIds": [
+                      "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "演示线索不能自动证明事件已发生。",
+                    "basis": "inference",
+                    "citations": [
+                      {
+                        "evidenceId": "course_evidence_360be1e27282ea4c30ddbf99a3239fe0",
+                        "quote": "HKO warnsum complete JSON snapshot:\n{\"WFIRE\":{\"name\":\"Fire Danger Warning\",\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T00:00:00.000Z\",\"updateTime\":\"20"
+                      }
+                    ],
+                    "evidenceIds": [
+                      "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_63b53b79-009e-4694-9f99-b765a48dbb51_verification_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                  ]
+                },
+                "review": null
+              }
+            ],
+            "reviews": [
+              {
+                "assignmentId": "course_run_63b53b79-009e-4694-9f99-b765a48dbb51_verification_followup_2",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "复核协议示例新闻线索与正式来源的口径是否一致。问题：香港天文台在固定目标时点后的首次有界观察中，红色火灾危险警告是否仍有效？",
+                "reason": "协议示例中新闻线索与正式披露的证明范围不同，需要再读取并明确证据边界。",
+                "followUp": true,
+                "cycle": 2,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟verification报告：已读取「【虚构】天文台警告协议样例」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "basis": "inference",
+                    "citations": [
+                      {
+                        "evidenceId": "course_evidence_360be1e27282ea4c30ddbf99a3239fe0",
+                        "quote": "HKO warnsum complete JSON snapshot:\n{\"WFIRE\":{\"name\":\"Fire Danger Warning\",\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T00:00:00.000Z\",\"updateTime\":\"20"
+                      }
+                    ],
+                    "evidenceIds": [
+                      "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "演示线索不能自动证明事件已发生。",
+                    "basis": "inference",
+                    "citations": [
+                      {
+                        "evidenceId": "course_evidence_360be1e27282ea4c30ddbf99a3239fe0",
+                        "quote": "HKO warnsum complete JSON snapshot:\n{\"WFIRE\":{\"name\":\"Fire Danger Warning\",\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T00:00:00.000Z\",\"updateTime\":\"20"
+                      }
+                    ],
+                    "evidenceIds": [
+                      "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_63b53b79-009e-4694-9f99-b765a48dbb51_verification_followup_2",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                  ]
+                },
+                "review": {
+                  "objective": "复核协议示例新闻线索与正式来源的口径是否一致。问题：香港天文台在固定目标时点后的首次有界观察中，红色火灾危险警告是否仍有效？",
+                  "reason": "协议示例中新闻线索与正式披露的证明范围不同，需要再读取并明确证据边界。",
+                  "evidenceIds": [
+                    "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                  ],
+                  "parentAssignmentIds": [
+                    "course_run_63b53b79-009e-4694-9f99-b765a48dbb51_official_initial",
+                    "course_run_63b53b79-009e-4694-9f99-b765a48dbb51_industry_initial",
+                    "course_run_63b53b79-009e-4694-9f99-b765a48dbb51_verification_initial"
+                  ],
+                  "requestedAt": "2026-11-21T00:00:00.000Z"
+                },
+                "previousSummary": "协议模拟verification报告：已读取「【虚构】天文台警告协议样例」，保留来源证明范围。",
+                "probabilityBefore": null,
+                "probabilityAfter": null,
+                "newEvidenceIds": [],
+                "responseStatus": "submitted"
+              }
+            ],
+            "reports": [
+              {
+                "assignmentId": "course_run_63b53b79-009e-4694-9f99-b765a48dbb51_official_initial",
+                "roleId": "official",
+                "name": "官方资料研究员",
+                "objective": "香港天文台在固定目标时点后的首次有界观察中，红色火灾危险警告是否仍有效？。以原始公告、正式文件和指定结果来源核查事实。区分正式发布、草案与二手转述；缺少原文时说明。",
+                "reason": "协议模拟按题选择official。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟official报告：已读取「【虚构】天文台警告协议样例」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "basis": "inference",
+                    "citations": [
+                      {
+                        "evidenceId": "course_evidence_360be1e27282ea4c30ddbf99a3239fe0",
+                        "quote": "HKO warnsum complete JSON snapshot:\n{\"WFIRE\":{\"name\":\"Fire Danger Warning\",\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T00:00:00.000Z\",\"updateTime\":\"20"
+                      }
+                    ],
+                    "evidenceIds": [
+                      "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                    ]
+                  }
+                ],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_63b53b79-009e-4694-9f99-b765a48dbb51_official_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_63b53b79-009e-4694-9f99-b765a48dbb51_industry_initial",
+                "roleId": "industry",
+                "name": "行业与专业研究员",
+                "objective": "香港天文台在固定目标时点后的首次有界观察中，红色火灾危险警告是否仍有效？。检查技术、行业和制度条件。说明判断的适用范围、必要条件及专业资料缺口，避免把行业经验当作已核实事实。",
+                "reason": "协议模拟按题选择industry。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟industry报告：已读取「【虚构】天文台警告协议样例」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "basis": "inference",
+                    "citations": [
+                      {
+                        "evidenceId": "course_evidence_360be1e27282ea4c30ddbf99a3239fe0",
+                        "quote": "HKO warnsum complete JSON snapshot:\n{\"WFIRE\":{\"name\":\"Fire Danger Warning\",\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T00:00:00.000Z\",\"updateTime\":\"20"
+                      }
+                    ],
+                    "evidenceIds": [
+                      "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                    ]
+                  }
+                ],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_63b53b79-009e-4694-9f99-b765a48dbb51_industry_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_63b53b79-009e-4694-9f99-b765a48dbb51_verification_initial",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "香港天文台在固定目标时点后的首次有界观察中，红色火灾危险警告是否仍有效？。优先寻找与关键主张矛盾的材料，核验出处、时间和来源独立性。证据不足可以保留异议；团队一致不等于事实正确。",
+                "reason": "协议模拟按题选择verification。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟verification报告：已读取「【虚构】天文台警告协议样例」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "basis": "inference",
+                    "citations": [
+                      {
+                        "evidenceId": "course_evidence_360be1e27282ea4c30ddbf99a3239fe0",
+                        "quote": "HKO warnsum complete JSON snapshot:\n{\"WFIRE\":{\"name\":\"Fire Danger Warning\",\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T00:00:00.000Z\",\"updateTime\":\"20"
+                      }
+                    ],
+                    "evidenceIds": [
+                      "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "演示线索不能自动证明事件已发生。",
+                    "basis": "inference",
+                    "citations": [
+                      {
+                        "evidenceId": "course_evidence_360be1e27282ea4c30ddbf99a3239fe0",
+                        "quote": "HKO warnsum complete JSON snapshot:\n{\"WFIRE\":{\"name\":\"Fire Danger Warning\",\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T00:00:00.000Z\",\"updateTime\":\"20"
+                      }
+                    ],
+                    "evidenceIds": [
+                      "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_63b53b79-009e-4694-9f99-b765a48dbb51_verification_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_63b53b79-009e-4694-9f99-b765a48dbb51_verification_followup_2",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "复核协议示例新闻线索与正式来源的口径是否一致。问题：香港天文台在固定目标时点后的首次有界观察中，红色火灾危险警告是否仍有效？",
+                "reason": "协议示例中新闻线索与正式披露的证明范围不同，需要再读取并明确证据边界。",
+                "followUp": true,
+                "cycle": 2,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟verification报告：已读取「【虚构】天文台警告协议样例」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "basis": "inference",
+                    "citations": [
+                      {
+                        "evidenceId": "course_evidence_360be1e27282ea4c30ddbf99a3239fe0",
+                        "quote": "HKO warnsum complete JSON snapshot:\n{\"WFIRE\":{\"name\":\"Fire Danger Warning\",\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T00:00:00.000Z\",\"updateTime\":\"20"
+                      }
+                    ],
+                    "evidenceIds": [
+                      "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "演示线索不能自动证明事件已发生。",
+                    "basis": "inference",
+                    "citations": [
+                      {
+                        "evidenceId": "course_evidence_360be1e27282ea4c30ddbf99a3239fe0",
+                        "quote": "HKO warnsum complete JSON snapshot:\n{\"WFIRE\":{\"name\":\"Fire Danger Warning\",\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T00:00:00.000Z\",\"updateTime\":\"20"
+                      }
+                    ],
+                    "evidenceIds": [
+                      "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_63b53b79-009e-4694-9f99-b765a48dbb51_verification_followup_2",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                  ]
+                },
+                "review": {
+                  "objective": "复核协议示例新闻线索与正式来源的口径是否一致。问题：香港天文台在固定目标时点后的首次有界观察中，红色火灾危险警告是否仍有效？",
+                  "reason": "协议示例中新闻线索与正式披露的证明范围不同，需要再读取并明确证据边界。",
+                  "evidenceIds": [
+                    "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                  ],
+                  "parentAssignmentIds": [
+                    "course_run_63b53b79-009e-4694-9f99-b765a48dbb51_official_initial",
+                    "course_run_63b53b79-009e-4694-9f99-b765a48dbb51_industry_initial",
+                    "course_run_63b53b79-009e-4694-9f99-b765a48dbb51_verification_initial"
+                  ],
+                  "requestedAt": "2026-11-21T00:00:00.000Z"
+                }
+              }
+            ],
+            "sources": [
+              {
+                "evidenceId": "course_evidence_360be1e27282ea4c30ddbf99a3239fe0",
+                "title": "【虚构】天文台警告协议样例",
+                "url": "https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=en",
+                "publishedAt": null,
+                "obtainedAt": "2026-11-21T00:00:00.000Z",
+                "marketQuote": null
+              }
+            ],
+            "triage": {
+              "kind": "initial",
+              "reason": "首次按题选择差异职责。",
+              "newEvidenceIds": []
+            },
+            "decision": {
+              "kind": "forecast",
+              "groundingPolicy": "quoted-claims-v1",
+              "reasoningClaims": [
+                {
+                  "claim": "该演示原文可用于核对本次子问题。",
+                  "evidenceIds": [
+                    "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                  ],
+                  "basis": "inference",
+                  "citations": [
+                    {
+                      "evidenceId": "course_evidence_360be1e27282ea4c30ddbf99a3239fe0",
+                      "quote": "HKO warnsum complete JSON snapshot:\n{\"WFIRE\":{\"name\":\"Fire Danger Warning\",\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T00:00:00.000Z\",\"updateTime\":\"20"
+                    }
+                  ]
+                },
+                {
+                  "claim": "该演示原文可用于核对本次子问题。",
+                  "evidenceIds": [
+                    "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                  ],
+                  "basis": "inference",
+                  "citations": [
+                    {
+                      "evidenceId": "course_evidence_360be1e27282ea4c30ddbf99a3239fe0",
+                      "quote": "HKO warnsum complete JSON snapshot:\n{\"WFIRE\":{\"name\":\"Fire Danger Warning\",\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T00:00:00.000Z\",\"updateTime\":\"20"
+                    }
+                  ]
+                },
+                {
+                  "claim": "该演示原文可用于核对本次子问题。",
+                  "evidenceIds": [
+                    "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                  ],
+                  "basis": "inference",
+                  "citations": [
+                    {
+                      "evidenceId": "course_evidence_360be1e27282ea4c30ddbf99a3239fe0",
+                      "quote": "HKO warnsum complete JSON snapshot:\n{\"WFIRE\":{\"name\":\"Fire Danger Warning\",\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T00:00:00.000Z\",\"updateTime\":\"20"
+                    }
+                  ]
+                },
+                {
+                  "claim": "该演示原文可用于核对本次子问题。",
+                  "evidenceIds": [
+                    "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+                  ],
+                  "basis": "inference",
+                  "citations": [
+                    {
+                      "evidenceId": "course_evidence_360be1e27282ea4c30ddbf99a3239fe0",
+                      "quote": "HKO warnsum complete JSON snapshot:\n{\"WFIRE\":{\"name\":\"Fire Danger Warning\",\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T00:00:00.000Z\",\"updateTime\":\"20"
+                    }
+                  ]
+                }
+              ],
+              "forecastId": "course_forecast_f8f3f67e-9039-4c03-87a3-f7670829ccb1",
+              "probabilityYes": 0.5700000000000001,
+              "previousProbabilityYes": null,
+              "delta": null,
+              "summary": "协议模拟：已合并三份独立报告及针对性核验。此数值只演示完整流程，不是真实事件预测。",
+              "evidenceIds": [
+                "course_evidence_360be1e27282ea4c30ddbf99a3239fe0"
+              ],
+              "dissent": [
+                "模拟资料无法支持现实预测准确率主张。"
+              ],
+              "evidenceAdequacy": "limited",
+              "scoringEligible": false,
+              "recordedNotes": 4,
+              "totalReports": 4
+            },
+            "conclusion": "已发布；可逐项查看补查答复与裁决。"
+          }
+        }
+      ],
+      "result": {
+        "requestId": "course_request_4f8c8146-3e6d-4323-a263-444591698181",
+        "predictionId": "prediction_course_request_4f8c8146-3e6d-4323-a263-444591698181",
+        "predictionVersion": 1,
+        "outcome": 0,
+        "knownAt": "2026-11-21T00:15:01.000Z",
+        "observedAt": "2026-11-21T00:15:01.000Z",
+        "status": "known",
+        "resolutionPolicy": "hko-red-fire-observation-v1",
+        "rule": "以目标时点后5分钟内首次成功取得的香港天文台warnsum完整快照为准：WFIRE的code为WFIRER且actionCode不是CANCEL则Yes，否则No；未在观察窗口取得有效快照则不结算。此规则使用有界首次观察，不声称精确秒级历史状态。",
+        "evidenceIds": [
+          "resolution_evidence_d912d12c-b92e-4f95-a92c-76bbdb86a2d7"
+        ],
+        "evidence": [
+          {
+            "title": "【虚构】天文台警告协议样例",
+            "url": "https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=en",
+            "text": "HKO warnsum complete JSON snapshot:\n{}",
+            "rawJson": "{}",
+            "obtainedAt": "2026-11-21T00:15:01.000Z",
+            "publishedAt": null,
+            "sourceMode": "replay",
+            "fixture": true,
+            "referenceable": true,
+            "contentHash": "a8b8c1d6e09a46aae82b5093c4e63eaa883263721daec64d4f97ce7c2e214564",
+            "language": "en",
+            "weatherWarning": {
+              "redFireActive": false,
+              "warnings": {},
+              "completeSnapshot": true,
+              "observationMeaning": "system-retrieval-time"
+            },
+            "evidenceId": "resolution_evidence_d912d12c-b92e-4f95-a92c-76bbdb86a2d7",
+            "purpose": "resolution",
+            "completeSnapshot": true
+          }
+        ],
+        "summary": "有界首次观察：红色火灾危险警告不在有效警告快照中（No）。",
+        "scoringEligible": false,
+        "scores": [
+          {
+            "forecastId": "course_forecast_f8f3f67e-9039-4c03-87a3-f7670829ccb1",
+            "probabilityYes": 0.5700000000000001,
+            "brier": 0.3249000000000001,
+            "scoringEligible": false,
+            "label": "模拟协议分数，不计真实成绩"
+          }
+        ]
+      }
+    },
+    {
+      "version": 1,
+      "kind": "warning-live-validation",
+      "notAccuracyBenchmark": true,
+      "capturedAt": "2026-11-21T06:08:43.188Z",
+      "requestId": "course_request_70787cc6-509f-41f5-87b0-929e2c3410f5",
+      "title": "真实警告预测：资料不足未发布",
+      "question": "香港天文台在固定目标时点后的首次有界观察中，红色火灾危险警告是否仍有效？",
+      "mode": "live",
+      "targetAt": "2026-11-21T06:20:02.938Z",
+      "status": "insufficient",
+      "metrics": {
+        "runs": 1,
+        "forecasts": 0,
+        "modelRequests": 13,
+        "toolCalls": 11,
+        "totalTokens": 111070
+      },
+      "checks": [
+        "从十类目录选三类独立执行"
+      ],
+      "forecast": null,
+      "result": null,
+      "normalized": {
+        "type": "binary",
+        "question": "香港天文台在固定目标时点后的首次有界观察中，红色火灾危险警告是否仍有效？（判定时点：2026-11-21 14:20:02 (Asia/Shanghai, UTC+08:00)）",
+        "object": "红色火灾危险警告在目标时点后5分钟内首次成功取得的香港天文台warnsum快照中的有效状态",
+        "options": [],
+        "candidateUniverseRule": "",
+        "timezone": "Asia/Shanghai",
+        "forecastClosesAt": "2026-11-21T06:20:02.938Z",
+        "targetAt": "2026-11-21T06:20:02.938Z",
+        "resolutionRuleVersion": 1,
+        "resolutionRule": "以目标时点后5分钟内首次成功取得的香港天文台warnsum完整快照为准：WFIRE的code为WFIRER且actionCode不是CANCEL则Yes，否则No；未在观察窗口取得有效快照则不结算。此规则使用有界首次观察，不声称精确秒级历史状态。",
+        "resolutionSource": {
+          "kind": "specified_source",
+          "url": "https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=en"
+        },
+        "unresolvablePolicy": "若在目标时点后0-5分钟（06:20:02.938Z至06:25:02.938Z）观察窗口内未成功取得含WFIRE条目的有效warnsum完整快照，则不结算（void），不依据窗口外的快照判定。",
+        "status": "ready",
+        "validation": {
+          "ready": true,
+          "missingFields": []
+        },
+        "predictionId": "prediction_course_request_70787cc6-509f-41f5-87b0-929e2c3410f5",
+        "topicId": "topic_course_request_70787cc6-509f-41f5-87b0-929e2c3410f5",
+        "version": 1,
+        "scoringEligible": true,
+        "createdAt": "2026-11-21T06:06:53.240Z",
+        "updatedAt": "2026-11-21T06:06:53.240Z",
+        "forecast": null,
+        "latestRun": null,
+        "activeRunId": null,
+        "watchQuery": "香港天文台 火災危險警告 WFIRE",
+        "sourceVerified": true,
+        "sourceEvidenceId": "course_evidence_3d151b56d418f9acda864599bdb0e390",
+        "interpretation": "以目标时点06:20:02.938Z后5分钟（至06:25:02.938Z）内首次成功取得的香港天文台warnsum完整快照为准。WFIRE的code为WFIRER且actionCode不是CANCEL则判定Yes；否则No；未在观察窗口取得有效快照则不结算。时间以UTC为权威，快照须来自官方数据接口。",
+        "defaultAssumptions": [
+          "观察窗口为目标时点后0-5分钟（06:20:02.938Z至06:25:02.938Z）",
+          "有效快照指成功取得并含WFIRE条目的完整warnsum数据",
+          "code=WFIRER且actionCode≠CANCEL视为警告仍有效",
+          "数据来源仅限resolutionSourceUrl指定的香港天文台官方接口"
+        ],
+        "currentReference": null,
+        "baseline": null,
+        "sourceLimitations": [
+          "已读证据中的warnsum快照（code=WFIRER，actionCode=ISSUE）采集于当前时刻约06:06Z，早于观察窗口06:20-06:25Z，属背景状态而非窗口内结果；最终判定须以窗口内实际取得的快照为准",
+          "截至当前仅见ISSUE（发出）状态，未见取消（CANCEL）记录，但无法预知窗口内是否转为CANCEL"
+        ],
+        "conditionalOnly": false,
+        "timeContext": {
+          "nowUtc": "2026-11-21T06:06:53.238Z",
+          "nowLocalLabel": "2026-11-21 14:06:53 (Asia/Shanghai, UTC+08:00)",
+          "windowStartsAtUtc": "2026-11-21T06:05:02.957Z",
+          "windowStartsAtLocalLabel": "2026-11-21 14:05:02 (Asia/Shanghai, UTC+08:00)",
+          "targetAtUtc": "2026-11-21T06:20:02.938Z",
+          "targetAtLocalLabel": "2026-11-21 14:20:02 (Asia/Shanghai, UTC+08:00)",
+          "forecastClosesAtUtc": "2026-11-21T06:20:02.938Z",
+          "forecastClosesAtLocalLabel": "2026-11-21 14:20:02 (Asia/Shanghai, UTC+08:00)",
+          "timezone": "Asia/Shanghai",
+          "utcOffset": "UTC+08:00",
+          "authority": "UTC instant is authoritative; local labels are server-generated and display-only."
+        },
+        "temporalPolicy": "at_target",
+        "researchBasis": {
+          "mode": "verified-source",
+          "summary": "已读取公开研究依据；这不等同于官方已经确认未来结果。"
+        },
+        "temporalPolicyBasis": "课程首版语义启发式；目标时点状态题在T之前不能以当前状态结算。"
+      },
+      "error": null,
+      "assignments": [
+        {
+          "investigationProfile": {
+            "version": "investigation-methods-v2",
+            "roleId": "official"
+          },
+          "groundingPolicy": "quoted-claims-v1",
+          "review": null,
+          "methodProfile": null,
+          "assignmentId": "course_run_5a41ef15-cfbe-4318-9935-fd08fd76e5ab_official_initial",
+          "agentSpecId": "official",
+          "roleId": "official",
+          "name": "官方资料研究员",
+          "status": "failed",
+          "report": null,
+          "followUp": false,
+          "objective": "读取resolutionSourceUrl（data.weather.gov.hk warnsum&lang=en），确认WFIRE条目的code字段取值是否为WFIRER、actionCode可能取值（如ISSUE/EXTEND/CANCEL），并在目标时点后5分钟观察窗口内尝试取得快照，记录快照的实际时间戳与内容，说明能否取得有效快照。",
+          "reason": "官方接口是判定规则的直接数据来源，需核验字段结构与窗口内快照可取得性。",
+          "cycle": 1,
+          "budget": {
+            "maxModelRequests": 5,
+            "maxToolCalls": 6,
+            "maxTotalTokens": 40000,
+            "maxTokens": 8192
+          },
+          "usage": {
+            "modelRequests": 4,
+            "toolCalls": 3,
+            "totalTokens": 19891,
+            "unknownUsage": true
+          },
+          "error": {
+            "code": "COURSE_BUDGET",
+            "message": "剩余预算不足以安全发起下一次模型请求，保留已取得资料。",
+            "retryable": false
+          }
+        },
+        {
+          "investigationProfile": {
+            "version": "investigation-methods-v2",
+            "roleId": "timeline"
+          },
+          "groundingPolicy": "quoted-claims-v1",
+          "review": null,
+          "methodProfile": null,
+          "assignmentId": "course_run_5a41ef15-cfbe-4318-9935-fd08fd76e5ab_timeline_initial",
+          "agentSpecId": "timeline",
+          "roleId": "timeline",
+          "name": "新闻时间线研究员",
+          "status": "failed",
+          "report": null,
+          "followUp": false,
+          "objective": "用search_news以中英文检索香港天文台红色火灾危险警告的发布、维持或取消记录，区分事件发生时间、公告发布时间与转载时间，查找目标时点前后是否有取消公告，作为背景线索，并注明来源时间与可靠性。",
+          "reason": "新闻时间线可提供警告状态的旁证，并核对取消发生的时序。",
+          "cycle": 1,
+          "budget": {
+            "maxModelRequests": 5,
+            "maxToolCalls": 6,
+            "maxTotalTokens": 40000,
+            "maxTokens": 8192
+          },
+          "usage": {
+            "modelRequests": 5,
+            "toolCalls": 6,
+            "totalTokens": 49625,
+            "unknownUsage": false
+          },
+          "error": {
+            "code": "BUDGET_EXHAUSTED",
+            "message": "研究员已用完本次调查预算，保留取得的证据和缺口。",
+            "retryable": false
+          }
+        },
+        {
+          "investigationProfile": {
+            "version": "investigation-methods-v2",
+            "roleId": "verification"
+          },
+          "groundingPolicy": "quoted-claims-v1",
+          "review": null,
+          "methodProfile": null,
+          "assignmentId": "course_run_5a41ef15-cfbe-4318-9935-fd08fd76e5ab_verification_initial",
+          "agentSpecId": "verification",
+          "roleId": "verification",
+          "name": "反证与核验研究员",
+          "status": "failed",
+          "report": null,
+          "followUp": false,
+          "objective": "反证核验：检查官方快照中WFIRE的code是否确为WFIRER、actionCode是否为CANCEL，核对快照时间戳是否落在目标时点后5分钟窗口内，主动寻找矛盾材料（如警告已被取消、代码不符、快照超出窗口），并逐条确认引用片段是否真正支持相关主张。",
+          "reason": "需要独立核对判定条件与时间边界，避免仅依赖单一来源或忽略矛盾证据。",
+          "cycle": 1,
+          "budget": {
+            "maxModelRequests": 5,
+            "maxToolCalls": 6,
+            "maxTotalTokens": 40000,
+            "maxTokens": 8192
+          },
+          "usage": {
+            "modelRequests": 3,
+            "toolCalls": 2,
+            "totalTokens": 12462,
+            "unknownUsage": true
+          },
+          "error": {
+            "code": "COURSE_BUDGET",
+            "message": "剩余预算不足以安全发起下一次模型请求，保留已取得资料。",
+            "retryable": false
+          }
+        }
+      ],
+      "snapshots": [
+        {
+          "label": "真实预测协作（只读）",
+          "status": "insufficient",
+          "collaboration": {
+            "version": 1,
+            "runId": "course_run_5a41ef15-cfbe-4318-9935-fd08fd76e5ab",
+            "modelMode": "live",
+            "sourceMode": "live",
+            "team": [
+              {
+                "assignmentId": "course_run_5a41ef15-cfbe-4318-9935-fd08fd76e5ab_official_initial",
+                "roleId": "official",
+                "name": "官方资料研究员",
+                "objective": "读取resolutionSourceUrl（data.weather.gov.hk warnsum&lang=en），确认WFIRE条目的code字段取值是否为WFIRER、actionCode可能取值（如ISSUE/EXTEND/CANCEL），并在目标时点后5分钟观察窗口内尝试取得快照，记录快照的实际时间戳与内容，说明能否取得有效快照。",
+                "reason": "官方接口是判定规则的直接数据来源，需核验字段结构与窗口内快照可取得性。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "failed",
+                "reportStatus": null,
+                "summary": "剩余预算不足以安全发起下一次模型请求，保留已取得资料。",
+                "probability": null,
+                "evidenceIds": [],
+                "support": [],
+                "counterevidence": [],
+                "missingEvidence": [],
+                "decision": null,
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_5a41ef15-cfbe-4318-9935-fd08fd76e5ab_timeline_initial",
+                "roleId": "timeline",
+                "name": "新闻时间线研究员",
+                "objective": "用search_news以中英文检索香港天文台红色火灾危险警告的发布、维持或取消记录，区分事件发生时间、公告发布时间与转载时间，查找目标时点前后是否有取消公告，作为背景线索，并注明来源时间与可靠性。",
+                "reason": "新闻时间线可提供警告状态的旁证，并核对取消发生的时序。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "failed",
+                "reportStatus": null,
+                "summary": "研究员已用完本次调查预算，保留取得的证据和缺口。",
+                "probability": null,
+                "evidenceIds": [],
+                "support": [],
+                "counterevidence": [],
+                "missingEvidence": [],
+                "decision": null,
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_5a41ef15-cfbe-4318-9935-fd08fd76e5ab_verification_initial",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "反证核验：检查官方快照中WFIRE的code是否确为WFIRER、actionCode是否为CANCEL，核对快照时间戳是否落在目标时点后5分钟窗口内，主动寻找矛盾材料（如警告已被取消、代码不符、快照超出窗口），并逐条确认引用片段是否真正支持相关主张。",
+                "reason": "需要独立核对判定条件与时间边界，避免仅依赖单一来源或忽略矛盾证据。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "failed",
+                "reportStatus": null,
+                "summary": "剩余预算不足以安全发起下一次模型请求，保留已取得资料。",
+                "probability": null,
+                "evidenceIds": [],
+                "support": [],
+                "counterevidence": [],
+                "missingEvidence": [],
+                "decision": null,
+                "review": null
+              }
+            ],
+            "reviews": [],
+            "reports": [
+              {
+                "assignmentId": "course_run_5a41ef15-cfbe-4318-9935-fd08fd76e5ab_official_initial",
+                "roleId": "official",
+                "name": "官方资料研究员",
+                "objective": "读取resolutionSourceUrl（data.weather.gov.hk warnsum&lang=en），确认WFIRE条目的code字段取值是否为WFIRER、actionCode可能取值（如ISSUE/EXTEND/CANCEL），并在目标时点后5分钟观察窗口内尝试取得快照，记录快照的实际时间戳与内容，说明能否取得有效快照。",
+                "reason": "官方接口是判定规则的直接数据来源，需核验字段结构与窗口内快照可取得性。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "failed",
+                "reportStatus": null,
+                "summary": "剩余预算不足以安全发起下一次模型请求，保留已取得资料。",
+                "probability": null,
+                "evidenceIds": [],
+                "support": [],
+                "counterevidence": [],
+                "missingEvidence": [],
+                "decision": null,
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_5a41ef15-cfbe-4318-9935-fd08fd76e5ab_timeline_initial",
+                "roleId": "timeline",
+                "name": "新闻时间线研究员",
+                "objective": "用search_news以中英文检索香港天文台红色火灾危险警告的发布、维持或取消记录，区分事件发生时间、公告发布时间与转载时间，查找目标时点前后是否有取消公告，作为背景线索，并注明来源时间与可靠性。",
+                "reason": "新闻时间线可提供警告状态的旁证，并核对取消发生的时序。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "failed",
+                "reportStatus": null,
+                "summary": "研究员已用完本次调查预算，保留取得的证据和缺口。",
+                "probability": null,
+                "evidenceIds": [],
+                "support": [],
+                "counterevidence": [],
+                "missingEvidence": [],
+                "decision": null,
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_5a41ef15-cfbe-4318-9935-fd08fd76e5ab_verification_initial",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "反证核验：检查官方快照中WFIRE的code是否确为WFIRER、actionCode是否为CANCEL，核对快照时间戳是否落在目标时点后5分钟窗口内，主动寻找矛盾材料（如警告已被取消、代码不符、快照超出窗口），并逐条确认引用片段是否真正支持相关主张。",
+                "reason": "需要独立核对判定条件与时间边界，避免仅依赖单一来源或忽略矛盾证据。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "failed",
+                "reportStatus": null,
+                "summary": "剩余预算不足以安全发起下一次模型请求，保留已取得资料。",
+                "probability": null,
+                "evidenceIds": [],
+                "support": [],
+                "counterevidence": [],
+                "missingEvidence": [],
+                "decision": null,
+                "review": null
+              }
+            ],
+            "sources": [
+              {
+                "evidenceId": "course_evidence_07d2fb2e9f010b845aea1b87f7792571",
+                "title": "Status of Fire Danger Warning",
+                "url": "https://www.hko.gov.hk/textonly/warning/ei.htm",
+                "publishedAt": null,
+                "obtainedAt": "2026-11-21T06:06:11.364Z",
+                "marketQuote": null
+              },
+              {
+                "evidenceId": "course_evidence_2f163b044afb46f2a151ff0158c73df9",
+                "title": "紅色火災危險警告",
+                "url": "https://www.info.gov.hk/gia/general/202611/21/P2026112100117.htm",
+                "publishedAt": null,
+                "obtainedAt": "2026-11-21T06:05:34.192Z",
+                "marketQuote": null
+              },
+              {
+                "evidenceId": "course_evidence_3d151b56d418f9acda864599bdb0e390",
+                "title": "香港天文台警告摘要（完整JSON）",
+                "url": "https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=en",
+                "publishedAt": null,
+                "obtainedAt": "2026-11-21T06:05:31.845Z",
+                "marketQuote": null
+              }
+            ],
+            "triage": {
+              "kind": "initial",
+              "reason": "首次按题选择差异职责。",
+              "newEvidenceIds": []
+            },
+            "decision": null,
+            "conclusion": "本轮未发布新判断，缺口与失败记录保留。"
+          }
+        }
+      ],
+      "events": [
+        {
+          "schemaVersion": 1,
+          "serverEpoch": "d2e1e89f-6ed8-47ac-91f5-771d23dfa1c8",
+          "eventId": "event_77ce27f5-ab9b-4cb7-9eeb-860aa29b4610",
+          "requestId": "course_request_70787cc6-509f-41f5-87b0-929e2c3410f5",
+          "runId": "course_run_5a41ef15-cfbe-4318-9935-fd08fd76e5ab",
+          "topicId": "topic_course_request_70787cc6-509f-41f5-87b0-929e2c3410f5",
+          "predictionId": null,
+          "scope": "live",
+          "trigger": "manual",
+          "emittedAt": "2026-11-21T06:05:22.774Z",
+          "type": "team.selected",
+          "payload": {
+            "team": [
+              {
+                "roleId": "official",
+                "name": "官方资料研究员",
+                "objective": "读取resolutionSourceUrl（data.weather.gov.hk warnsum&lang=en），确认WFIRE条目的code字段取值是否为WFIRER、actionCode可能取值（如ISSUE/EXTEND/CANCEL），并在目标时点后5分钟观察窗口内尝试取得快照，记录快照的实际时间戳与内容，说明能否取得有效快照。",
+                "reason": "官方接口是判定规则的直接数据来源，需核验字段结构与窗口内快照可取得性。"
+              },
+              {
+                "roleId": "timeline",
+                "name": "新闻时间线研究员",
+                "objective": "用search_news以中英文检索香港天文台红色火灾危险警告的发布、维持或取消记录，区分事件发生时间、公告发布时间与转载时间，查找目标时点前后是否有取消公告，作为背景线索，并注明来源时间与可靠性。",
+                "reason": "新闻时间线可提供警告状态的旁证，并核对取消发生的时序。"
+              },
+              {
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "反证核验：检查官方快照中WFIRE的code是否确为WFIRER、actionCode是否为CANCEL，核对快照时间戳是否落在目标时点后5分钟窗口内，主动寻找矛盾材料（如警告已被取消、代码不符、快照超出窗口），并逐条确认引用片段是否真正支持相关主张。",
+                "reason": "需要独立核对判定条件与时间边界，避免仅依赖单一来源或忽略矛盾证据。"
+              }
+            ],
+            "cycle": 1,
+            "reason": "先整理题意与分工，来源核查交由独立研究员。"
+          },
+          "seq": 4
+        },
+        {
+          "schemaVersion": 1,
+          "serverEpoch": "d2e1e89f-6ed8-47ac-91f5-771d23dfa1c8",
+          "eventId": "course_run_5a41ef15-cfbe-4318-9935-fd08fd76e5ab_finished",
+          "requestId": "course_request_70787cc6-509f-41f5-87b0-929e2c3410f5",
+          "runId": "course_run_5a41ef15-cfbe-4318-9935-fd08fd76e5ab",
+          "topicId": "topic_course_request_70787cc6-509f-41f5-87b0-929e2c3410f5",
+          "predictionId": "prediction_course_request_70787cc6-509f-41f5-87b0-929e2c3410f5",
+          "scope": "live",
+          "trigger": "manual",
+          "emittedAt": "2026-11-21T06:08:42.776Z",
+          "type": "run.finished",
+          "payload": {
+            "status": "insufficient",
+            "summary": "本轮三名研究员（official/timeline/verification）的调查任务均因预算耗尽而失败（retryable=false），未返回任何报告或逐字原文片段。我在review阶段仅收到harness的证据摘要（约06:06Z的warnsum快照显示WFIRE code=WFIRER、actionCode=ISSUE），但没有可引用的8-600字符逐字原文，无法满足quoted-claims-v1的grounding要求。同时判定窗口（06:20:02.938Z–06:25:02.938Z）在目标时点之后、当前尚未发生，无法以现有背景快照冒充窗口内结果。在此条件下提交概率将是无原文支撑的臆断，故停止并说明缺口。"
+          },
+          "seq": 64
+        }
+      ],
+      "reviewNotes": [
+        "本次资料不足，未发布预测、无评分；保留失败历史，不计为成功案例。",
+        "原检查项只确认从目录选择了三类角色；不能据此声称三份研究报告均已完成。"
+      ],
+      "reviewedAt": "2026-11-21",
+      "autonomousValidationPassed": false,
+      "id": "hko-red-fire-course_request_70787cc6-509f-41f5-87b0-929e2c3410f5"
+    },
+    {
+      "version": 1,
+      "kind": "warning-live-validation",
+      "notAccuracyBenchmark": true,
+      "capturedAt": "2026-11-21T06:35:33.033Z",
+      "requestId": "course_request_6df34f91-a8c3-45e1-a081-e64429d3c749",
+      "title": "真实警告预测：维护恢复与到期核验",
+      "question": "香港天文台在固定目标时点后的首次有界观察中，红色火灾危险警告是否仍有效？",
+      "mode": "live",
+      "targetAt": "2026-11-21T06:35:29.095Z",
+      "status": "closed",
+      "metrics": {
+        "runs": 1,
+        "forecasts": 1,
+        "modelRequests": 11,
+        "toolCalls": 3,
+        "totalTokens": 64880
+      },
+      "checks": [
+        "真实模型目标前发布预测",
+        "从十类目录按题派出三类研究员，完成情况保留在逐份记录",
+        "预测依据保留逐条已读原文片段",
+        "到期取得完整官方快照并单独保存结果",
+        "计算单题Brier并保留资格标识"
+      ],
+      "forecast": {
+        "forecastId": "course_forecast_f8405233-2116-455d-9967-949cd4cffd6f",
+        "requestId": "course_request_6df34f91-a8c3-45e1-a081-e64429d3c749",
+        "runId": "course_run_5f080e00-fdeb-4d8b-9946-9f422f705c74",
+        "predictionId": "prediction_course_request_6df34f91-a8c3-45e1-a081-e64429d3c749",
+        "predictionVersion": 1,
+        "probabilityYes": 0.85,
+        "probabilityNo": 0.15000000000000002,
+        "summary": "截至取得快照时（2026-11-21T06:20:42Z，早于目标时点06:35:29Z），香港天文台warnsum中WFIRE条目为code=WFIRER、type=Red、actionCode=ISSUE，且issueTime与updateTime均为06:00+08:00，说明红色火灾危险警告自06:00发布后至取得时无任何更新或取消动作。该警告为\"仍有效\"状态。红色火灾危险警告通常以日或更长为周期生效，发布后15分钟内被取消的概率较低，据此推断目标时点后首次有界观察中其仍为有效的概率较高（约0.85）。但必须强调：结算规则以目标时点06:35:29Z后5分钟内（06:35:29–06:40:29Z）首次成功取得的warnsum快照为准，而该结算快照尚未取得；当前证据仅代表06:20:42Z基线状态，本次为概率推断，不能视为确定事实。官方发布/取消阈值与actionCode完整枚举亦未在接口数据中体现，存在不确定性。",
+        "decisionNotes": [
+          {
+            "assignmentId": "course_run_5f080e00-fdeb-4d8b-9946-9f422f705c74_official_initial",
+            "disposition": "adopted",
+            "reason": "确认快照显示WFIRE为Red/ISSUE状态，作为基线推断依据。",
+            "evidenceIds": [
+              "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+            ]
+          },
+          {
+            "assignmentId": "course_run_5f080e00-fdeb-4d8b-9946-9f422f705c74_industry_initial",
+            "disposition": "qualified",
+            "reason": "同样确认ISSUE基线，但指出官方阈值与actionCode枚举未取得，增加不确定性。",
+            "evidenceIds": [
+              "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+            ]
+          },
+          {
+            "assignmentId": "course_run_5f080e00-fdeb-4d8b-9946-9f422f705c74_verification_initial",
+            "disposition": "rejected",
+            "reason": "程序失败回执，未交付有效独立核验报告，不能采信。",
+            "evidenceIds": []
+          }
+        ],
+        "evidenceIds": [
+          "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+        ],
+        "evidenceAdequacy": "limited",
+        "dissent": [
+          "结算依据（目标时点后5分钟内首次快照）尚未取得，当前所有报告均基于06:20:42Z的基线快照，无法直接确认目标时点后状态。",
+          "独立核验席未交付有效报告（blocked），缺少第二独立来源交叉印证。",
+          "官方发布/取消阈值及actionCode完整枚举未取得，难以量化取消风险。"
+        ],
+        "issuedAt": "2026-11-21T06:34:12.222Z",
+        "publishedAt": "2026-11-21T06:34:12.222Z",
+        "knowledgeCutoff": "2026-11-21T06:34:12.222Z",
+        "targetAt": "2026-11-21T06:35:29.095Z",
+        "resolutionRuleVersion": 1,
+        "modelMode": "live",
+        "modelRef": "deepseek-v4-pro",
+        "sourceMode": "live",
+        "kind": "forecast",
+        "defaultAssumptions": [],
+        "currentReference": null,
+        "sourceLimitations": [
+          "仅支持 get_weather_warning 单一官方完整JSON快照，无全网调查。",
+          "目标时点后（06:35:29–06:40:29Z）的结算快照尚未取得，当前证据仅为06:20:42Z基线状态。",
+          "官方发布/取消阈值与actionCode完整枚举未在接口数据中体现。"
+        ],
+        "researchBasis": {
+          "mode": "verified-source",
+          "summary": "已读取公开研究依据；这不等同于官方已经确认未来结果。"
+        },
+        "timeContext": {
+          "nowUtc": "2026-11-21T06:21:36.422Z",
+          "nowLocalLabel": "2026-11-21 14:21:36 (Asia/Shanghai, UTC+08:00)",
+          "windowStartsAtUtc": "2026-11-21T06:20:29.123Z",
+          "windowStartsAtLocalLabel": "2026-11-21 14:20:29 (Asia/Shanghai, UTC+08:00)",
+          "targetAtUtc": "2026-11-21T06:35:29.095Z",
+          "targetAtLocalLabel": "2026-11-21 14:35:29 (Asia/Shanghai, UTC+08:00)",
+          "forecastClosesAtUtc": "2026-11-21T06:35:29.095Z",
+          "forecastClosesAtLocalLabel": "2026-11-21 14:35:29 (Asia/Shanghai, UTC+08:00)",
+          "timezone": "Asia/Shanghai",
+          "utcOffset": "UTC+08:00",
+          "authority": "UTC instant is authoritative; local labels are server-generated and display-only."
+        },
+        "baseline": null,
+        "scoringEligible": true,
+        "label": "模型事件概率估计",
+        "reasoningClaims": [
+          {
+            "claim": "截至06:20:42Z快照，WFIRE的code=WFIRER、type=Red、actionCode=ISSUE，红色火灾危险警告处于生效状态。",
+            "evidenceIds": [
+              "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+            ],
+            "basis": "fact",
+            "citations": [
+              {
+                "evidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+                "quote": "\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\""
+              }
+            ]
+          },
+          {
+            "claim": "该警告的issueTime与updateTime均为2026-11-21T06:00:00+08:00，表明自06:00发布后至取得快照时无后续更新或取消。",
+            "evidenceIds": [
+              "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+            ],
+            "basis": "fact",
+            "citations": [
+              {
+                "evidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+                "quote": "\"issueTime\":\"2026-11-21T06:00:00+08:00\",\"updateTime\":\"2026-11-21T06:00:00+08:00\""
+              }
+            ]
+          },
+          {
+            "claim": "红色火灾危险警告通常持续较长时间，发布后约15分钟内被取消的概率较低，故目标时点后首次有界观察中仍有效的概率较高。",
+            "evidenceIds": [
+              "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+            ],
+            "basis": "inference",
+            "citations": [
+              {
+                "evidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+                "quote": "\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T06:00:00+08:00\""
+              }
+            ]
+          },
+          {
+            "claim": "结算规则要求以目标时点06:35:29Z后5分钟内首次成功取得的warnsum快照为准，该结算快照尚未取得，当前证据仅为06:20:42Z基线，不能据此确认目标时点后的实际状态。",
+            "evidenceIds": [
+              "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+            ],
+            "basis": "inference",
+            "citations": [
+              {
+                "evidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+                "quote": "\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T06:00:00+08:00\""
+              }
+            ]
+          }
+        ],
+        "groundingPolicy": "quoted-claims-v1",
+        "publicationMode": "revalidated-recorded-model-candidate",
+        "statusFacts": [
+          {
+            "key": "baseline",
+            "label": "基准",
+            "text": "未取得可核验数值基准",
+            "status": "unverified"
+          },
+          {
+            "key": "kind",
+            "label": "估计类型",
+            "text": "概率预测",
+            "status": "forecast"
+          },
+          {
+            "key": "scoring",
+            "label": "计分",
+            "text": "可计分",
+            "status": "eligible"
+          },
+          {
+            "key": "adequacy",
+            "label": "资料充分度",
+            "text": "有限",
+            "status": "limited"
+          },
+          {
+            "key": "target",
+            "label": "固定到期",
+            "text": "2026-11-21 14:35:29 (Asia/Shanghai, UTC+08:00)",
+            "status": "info"
+          }
+        ],
+        "summaryConflict": {
+          "detected": false,
+          "reasons": []
+        },
+        "baselineVerified": false,
+        "conditionalOnly": false,
+        "statusLabel": "概率预测 · 基准未核验 · 可计分"
+      },
+      "result": {
+        "requestId": "course_request_6df34f91-a8c3-45e1-a081-e64429d3c749",
+        "predictionId": "prediction_course_request_6df34f91-a8c3-45e1-a081-e64429d3c749",
+        "predictionVersion": 1,
+        "outcome": 1,
+        "knownAt": "2026-11-21T06:35:33.011Z",
+        "observedAt": "2026-11-21T06:35:33.010Z",
+        "status": "known",
+        "resolutionPolicy": "hko-red-fire-observation-v1",
+        "rule": "以目标时点后5分钟内首次成功取得的香港天文台warnsum完整快照为准：WFIRE的code为WFIRER且actionCode不是CANCEL则Yes，否则No；未在观察窗口取得有效快照则不结算。此规则使用有界首次观察，不声称精确秒级历史状态。",
+        "evidenceIds": [
+          "resolution_evidence_3a73c878-f052-457b-9408-c088dc90d5bb"
+        ],
+        "evidence": [
+          {
+            "title": "香港天文台警告摘要（完整JSON）",
+            "url": "https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=en",
+            "text": "HKO warnsum complete JSON snapshot:\n{\"WFIRE\":{\"name\":\"Fire Danger Warning\",\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T06:00:00+08:00\",\"updateTime\":\"2026-11-21T06:00:00+08:00\"}}",
+            "rawJson": "{\"WFIRE\":{\"name\":\"Fire Danger Warning\",\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T06:00:00+08:00\",\"updateTime\":\"2026-11-21T06:00:00+08:00\"}}",
+            "obtainedAt": "2026-11-21T06:35:33.010Z",
+            "publishedAt": null,
+            "sourceMode": "live",
+            "fixture": false,
+            "referenceable": true,
+            "contentHash": "15204789a8fbeecc2d357fad7fcce5411607aafbf626365bf01fb552358b7905",
+            "language": "en",
+            "weatherWarning": {
+              "redFireActive": true,
+              "warnings": {
+                "WFIRE": {
+                  "name": "Fire Danger Warning",
+                  "code": "WFIRER",
+                  "type": "Red",
+                  "actionCode": "ISSUE",
+                  "issueTime": "2026-11-21T06:00:00+08:00",
+                  "updateTime": "2026-11-21T06:00:00+08:00"
+                }
+              },
+              "completeSnapshot": true,
+              "observationMeaning": "system-retrieval-time"
+            },
+            "evidenceId": "resolution_evidence_3a73c878-f052-457b-9408-c088dc90d5bb",
+            "purpose": "resolution",
+            "completeSnapshot": true
+          }
+        ],
+        "summary": "有界首次观察：红色火灾危险警告有效（Yes）。",
+        "scoringEligible": true,
+        "scores": [
+          {
+            "forecastId": "course_forecast_f8405233-2116-455d-9967-949cd4cffd6f",
+            "probabilityYes": 0.85,
+            "brier": 0.022500000000000006,
+            "scoringEligible": true,
+            "label": "单题Brier，不代表总体准确率"
+          }
+        ]
+      },
+      "normalized": {
+        "type": "binary",
+        "question": "香港天文台在固定目标时点后的首次有界观察中，红色火灾危险警告是否仍有效？（判定时点：2026-11-21 14:35:29 (Asia/Shanghai, UTC+08:00)）",
+        "object": "香港天文台（HKO）红色火灾危险警告（WFIRE）在目标时点后首次有界观察中的有效状态。",
+        "options": [],
+        "candidateUniverseRule": "",
+        "timezone": "Asia/Shanghai",
+        "forecastClosesAt": "2026-11-21T06:35:29.095Z",
+        "targetAt": "2026-11-21T06:35:29.095Z",
+        "resolutionRuleVersion": 1,
+        "resolutionRule": "以目标时点后5分钟内首次成功取得的香港天文台warnsum完整快照为准：WFIRE的code为WFIRER且actionCode不是CANCEL则Yes，否则No；未在观察窗口取得有效快照则不结算。此规则使用有界首次观察，不声称精确秒级历史状态。",
+        "resolutionSource": {
+          "kind": "specified_source",
+          "url": "https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=en"
+        },
+        "unresolvablePolicy": "目标时点后5分钟观察窗口内未取得有效warnsum完整快照，则不结算（unresolvable）。",
+        "status": "ready",
+        "validation": {
+          "ready": true,
+          "missingFields": []
+        },
+        "predictionId": "prediction_course_request_6df34f91-a8c3-45e1-a081-e64429d3c749",
+        "topicId": "topic_course_request_6df34f91-a8c3-45e1-a081-e64429d3c749",
+        "version": 1,
+        "scoringEligible": true,
+        "createdAt": "2026-11-21T06:21:36.424Z",
+        "updatedAt": "2026-11-21T06:21:36.424Z",
+        "forecast": null,
+        "latestRun": null,
+        "activeRunId": null,
+        "watchQuery": "香港天文台 红色火灾危险警告 warnsum WFIRE",
+        "sourceVerified": true,
+        "sourceEvidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+        "interpretation": "strict规则已锁定：结算以目标时点2026-11-21T06:35:29.095Z后5分钟内首次成功取得的warnsum完整快照为准；该快照中WFIRE的code=WFIRER且actionCode≠CANCEL则Yes，否则No；窗口内无有效快照不结算。当前子Agent已读快照（取得于06:20:42Z，早于目标时点）显示WFIRE code=WFIRER、actionCode=ISSUE，属基线状态，不能提前结算，仅作对未来观察的推断依据。",
+        "defaultAssumptions": [],
+        "currentReference": null,
+        "baseline": null,
+        "sourceLimitations": [
+          "仅支持 get_weather_warning 单一官方完整JSON快照，无全网调查",
+          "目标时点后的结算快照尚未取得，当前证据仅代表06:20:42Z基线状态"
+        ],
+        "conditionalOnly": false,
+        "timeContext": {
+          "nowUtc": "2026-11-21T06:21:36.422Z",
+          "nowLocalLabel": "2026-11-21 14:21:36 (Asia/Shanghai, UTC+08:00)",
+          "windowStartsAtUtc": "2026-11-21T06:20:29.123Z",
+          "windowStartsAtLocalLabel": "2026-11-21 14:20:29 (Asia/Shanghai, UTC+08:00)",
+          "targetAtUtc": "2026-11-21T06:35:29.095Z",
+          "targetAtLocalLabel": "2026-11-21 14:35:29 (Asia/Shanghai, UTC+08:00)",
+          "forecastClosesAtUtc": "2026-11-21T06:35:29.095Z",
+          "forecastClosesAtLocalLabel": "2026-11-21 14:35:29 (Asia/Shanghai, UTC+08:00)",
+          "timezone": "Asia/Shanghai",
+          "utcOffset": "UTC+08:00",
+          "authority": "UTC instant is authoritative; local labels are server-generated and display-only."
+        },
+        "temporalPolicy": "at_target",
+        "researchBasis": {
+          "mode": "verified-source",
+          "summary": "已读取公开研究依据；这不等同于官方已经确认未来结果。"
+        },
+        "temporalPolicyBasis": "课程首版语义启发式；目标时点状态题在T之前不能以当前状态结算。"
+      },
+      "error": null,
+      "assignments": [
+        {
+          "investigationProfile": {
+            "version": "investigation-methods-v2",
+            "roleId": "official"
+          },
+          "groundingPolicy": "quoted-claims-v1",
+          "review": null,
+          "methodProfile": null,
+          "assignmentId": "course_run_5f080e00-fdeb-4d8b-9946-9f422f705c74_official_initial",
+          "agentSpecId": "official",
+          "roleId": "official",
+          "name": "官方资料研究员",
+          "status": "completed",
+          "report": {
+            "status": "complete",
+            "summary": "已取得香港天文台warnsum完整快照（取得时间2026-11-21T06:20:42Z，早于目标时点06:35:29Z）。快照中WFIRE字段：code=WFIRER、type=Red、actionCode=ISSUE，issueTime与updateTime均为2026-11-21T06:00:00+08:00（即11-20T22:00:00Z）。确认当前红色火灾危险警告仍有效（未取消）。本次观察仅代表取得时刻的基线状态，早于结算窗口，不能据此提前判定目标时点后首次有界观察的结果。",
+            "evidenceIds": [
+              "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+            ],
+            "support": [
+              {
+                "claim": "当前快照中WFIRE的code取值为\"WFIRER\"，type为\"Red\"，确认是红色火灾危险警告。",
+                "basis": "fact",
+                "evidenceIds": [
+                  "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+                ],
+                "citations": [
+                  {
+                    "evidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+                    "quote": "\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\""
+                  }
+                ]
+              },
+              {
+                "claim": "当前actionCode为\"ISSUE\"而非\"CANCEL\"，依结算规则红色火灾危险警告当前处于仍有效状态。",
+                "basis": "fact",
+                "evidenceIds": [
+                  "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+                ],
+                "citations": [
+                  {
+                    "evidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+                    "quote": "\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T06:00:00+08:00\""
+                  }
+                ]
+              },
+              {
+                "claim": "警告issueTime为2026-11-21T06:00:00+08:00（约8.5小时前发布），截至快照仍为ISSUE且updateTime未变更，推断目标时点后首次观察仍有效的可能性较高。",
+                "basis": "inference",
+                "evidenceIds": [
+                  "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+                ],
+                "citations": [
+                  {
+                    "evidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+                    "quote": "\"issueTime\":\"2026-11-21T06:00:00+08:00\",\"updateTime\":\"2026-11-21T06:00:00+08:00\""
+                  }
+                ]
+              }
+            ],
+            "counterevidence": [
+              {
+                "claim": "本快照的updateTime停留在06:00+08:00，且取得时间早于目标时点06:35:29Z及结算观察窗口，不属于目标时点后5分钟内的首次观察，不能据此直接结算未来结果。",
+                "basis": "inference",
+                "evidenceIds": [
+                  "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+                ],
+                "citations": [
+                  {
+                    "evidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+                    "quote": "\"issueTime\":\"2026-11-21T06:00:00+08:00\",\"updateTime\":\"2026-11-21T06:00:00+08:00\""
+                  }
+                ]
+              }
+            ],
+            "missingEvidence": [
+              "目标时点06:35:29Z后5分钟内（06:35:29–06:40:29Z）的warnsum快照尚未取得，该快照才是结算依据",
+              "目标时点后HKO是否发布CANCEL或变更actionCode的原始记录未取得"
+            ],
+            "probability": 0.7,
+            "nextSuggestion": "在目标时点06:35:29Z（UTC）之后、5分钟窗口内再次调用get_weather_warning取得首次有效快照，检查WFIRE的code是否仍为WFIRER且actionCode是否为CANCEL，以完成正式结算观察。当前快照仅作为目标时点前的基线，不构成结算证据。",
+            "resultId": "bddc3910-7800-404a-8124-c4322d273b16",
+            "topicId": "topic_course_request_6df34f91-a8c3-45e1-a081-e64429d3c749",
+            "predictionId": "prediction_course_request_6df34f91-a8c3-45e1-a081-e64429d3c749",
+            "runId": "course_run_5f080e00-fdeb-4d8b-9946-9f422f705c74",
+            "assignmentId": "course_run_5f080e00-fdeb-4d8b-9946-9f422f705c74_official_initial",
+            "agentInstanceId": "course_run_5f080e00-fdeb-4d8b-9946-9f422f705c74_official_initial_actor",
+            "agentSpecId": "official",
+            "specVersion": 1
+          },
+          "followUp": false,
+          "objective": "从香港天文台warnsum数据接口（https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=en）读取当前WFIRE警告的实际字段，确认code取值（是否WFIRER）、actionCode取值及snapshot时间，作为官方原始数据的当前基线。区分'已取消'与'仍有效'的字段表达方式。",
+          "reason": "判定规则完全依赖官方warnsum的code与actionCode字段，必须由官方资料研究员取得并逐字引用。",
+          "cycle": 1,
+          "budget": {
+            "maxModelRequests": 4,
+            "maxToolCalls": 2,
+            "maxTotalTokens": 18000,
+            "maxTokens": 4096
+          },
+          "usage": {
+            "modelRequests": 3,
+            "toolCalls": 1,
+            "totalTokens": 17810,
+            "unknownUsage": false
+          },
+          "error": null
+        },
+        {
+          "investigationProfile": {
+            "version": "investigation-methods-v2",
+            "roleId": "verification"
+          },
+          "groundingPolicy": "quoted-claims-v1",
+          "review": null,
+          "methodProfile": null,
+          "assignmentId": "course_run_5f080e00-fdeb-4d8b-9946-9f422f705c74_verification_initial",
+          "agentSpecId": "verification",
+          "roleId": "verification",
+          "name": "反证与核验研究员",
+          "status": "failed",
+          "report": {
+            "status": "blocked",
+            "summary": "【程序失败回执，非研究报告】该席未交付有效报告，不能视为独立核验完成。",
+            "evidenceIds": [],
+            "support": [],
+            "counterevidence": [],
+            "missingEvidence": [
+              "独立核验未完成"
+            ],
+            "probability": null,
+            "completionMode": "harness-failure-receipt"
+          },
+          "followUp": false,
+          "objective": "核对红色火灾危险警告WFIRE的含义与取消/生效状态在官方接口中的表达方式，寻找与'当前仍有效'相矛盾的材料（例如天文台已发布取消通知、actionCode=CANCEL的历史模式），并检查warnsum字段语义与判定规则是否一致。",
+          "reason": "反证席须确认判定规则与接口实际字段的对应关系是否成立，避免把字段名误读为有效状态。",
+          "cycle": 1,
+          "budget": {
+            "maxModelRequests": 4,
+            "maxToolCalls": 2,
+            "maxTotalTokens": 18000,
+            "maxTokens": 4096
+          },
+          "usage": {
+            "modelRequests": 3,
+            "toolCalls": 1,
+            "totalTokens": 8736,
+            "unknownUsage": false
+          },
+          "error": {
+            "code": "COURSE_BUDGET",
+            "message": "剩余预算不足以安全发起下一次模型请求，保留已取得资料。",
+            "retryable": false
+          }
+        },
+        {
+          "investigationProfile": {
+            "version": "investigation-methods-v2",
+            "roleId": "industry"
+          },
+          "groundingPolicy": "quoted-claims-v1",
+          "review": null,
+          "methodProfile": null,
+          "assignmentId": "course_run_5f080e00-fdeb-4d8b-9946-9f422f705c74_industry_initial",
+          "agentSpecId": "industry",
+          "roleId": "industry",
+          "name": "行业与专业研究员",
+          "status": "completed",
+          "report": {
+            "status": "complete",
+            "summary": "本次仅取得一次warnsum完整快照（取得于2026-11-21T06:20:42Z，早于目标时点06:35:29Z）。快照显示WFIRE条目：code=WFIRER、type=Red、actionCode=ISSUE，issueTime与updateTime均为2026-11-21T06:00:00+08:00，即红色火灾危险警告此刻生效且发布后未再更新。接口字段语义（name/code/type/actionCode/issueTime/updateTime）可从快照结构直接确认，但发布/取消的官方阈值与actionCode完整枚举未在接口数据中体现，属于行业常识/待补资料。当前ISSUE状态不保证目标时点后结算快照仍为ISSUE。",
+            "evidenceIds": [
+              "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+            ],
+            "support": [
+              {
+                "claim": "截至取得快照时，warnsum中WFIRE的code=WFIRER、type=Red、actionCode=ISSUE，红色火灾危险警告处于生效状态。",
+                "basis": "fact",
+                "evidenceIds": [
+                  "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+                ],
+                "citations": [
+                  {
+                    "evidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+                    "quote": "\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T06:00:00+08:00\",\"updateTime\":\"2026-11-21T06:00:00+08:00\""
+                  }
+                ]
+              },
+              {
+                "claim": "该快照的issueTime与updateTime均为2026-11-21T06:00:00+08:00，说明发布后至取得时无更新。",
+                "basis": "fact",
+                "evidenceIds": [
+                  "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+                ],
+                "citations": [
+                  {
+                    "evidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+                    "quote": "\"issueTime\":\"2026-11-21T06:00:00+08:00\",\"updateTime\":\"2026-11-21T06:00:00+08:00\""
+                  }
+                ]
+              },
+              {
+                "claim": "warnsum按警告代码返回对象，含name/code/type/actionCode/issueTime/updateTime字段；actionCode=ISSUE表示当前生效，CANCEL表示取消（CANCEL语义来自结算规则与接口惯例，本次仅直接观察到ISSUE）。",
+                "basis": "inference",
+                "evidenceIds": [
+                  "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+                ],
+                "citations": [
+                  {
+                    "evidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+                    "quote": "\"name\":\"Fire Danger Warning\",\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\""
+                  }
+                ]
+              }
+            ],
+            "counterevidence": [
+              {
+                "claim": "本快照取得于06:20:42Z，早于目标时点06:35:29Z；结算以目标后5分钟内首次快照为准，当前ISSUE不保证目标观察时仍为ISSUE而非CANCEL。",
+                "basis": "inference",
+                "evidenceIds": [
+                  "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+                ],
+                "citations": [
+                  {
+                    "evidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+                    "quote": "\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T06:00:00+08:00\""
+                  }
+                ]
+              },
+              {
+                "claim": "单次快照仅显示actionCode=ISSUE，未直接呈现CANCEL值或历史动作序列，无法据此证实取消流程的实际触发条件。",
+                "basis": "inference",
+                "evidenceIds": [
+                  "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+                ],
+                "citations": [
+                  {
+                    "evidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+                    "quote": "\"WFIRE\":{\"name\":\"Fire Danger Warning\",\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\""
+                  }
+                ]
+              }
+            ],
+            "missingEvidence": [
+              "红色火灾危险警告的官方发布/取消阈值（如相对湿度、火险指数）未在接口数据中体现，需HKO官方说明文档",
+              "warnsum接口actionCode的官方枚举定义（ISSUE/CANCEL/UPDATE等）未直接取得",
+              "updateTime在续发或取消场景下的变化规律无历史快照佐证",
+              "目标时点后5分钟内的结算快照尚未取得，无法对最终结果下结论"
+            ],
+            "probability": 0.88,
+            "nextSuggestion": "目标时点后5分钟内重新调用warnsum取得结算快照，比对WFIRE的actionCode是否变为CANCEL；如需核对发布阈值与字段枚举，可查阅HKO官方API文档或说明页。",
+            "resultId": "1da9cb8c-706a-4b11-b37f-b9a1501a82f2",
+            "topicId": "topic_course_request_6df34f91-a8c3-45e1-a081-e64429d3c749",
+            "predictionId": "prediction_course_request_6df34f91-a8c3-45e1-a081-e64429d3c749",
+            "runId": "course_run_5f080e00-fdeb-4d8b-9946-9f422f705c74",
+            "assignmentId": "course_run_5f080e00-fdeb-4d8b-9946-9f422f705c74_industry_initial",
+            "agentInstanceId": "course_run_5f080e00-fdeb-4d8b-9946-9f422f705c74_industry_initial_actor",
+            "agentSpecId": "industry",
+            "specVersion": 1
+          },
+          "followUp": false,
+          "objective": "说明红色火灾危险警告的适用条件、发布/取消的典型制度流程，以及warnsum接口中警告状态字段的一般语义与更新时间特性；把行业常识与已核实的接口数据分开。",
+          "reason": "帮助判断观察窗口内快照能否反映目标时点后的有效状态，识别可能的字段滞后或缺项风险。",
+          "cycle": 1,
+          "budget": {
+            "maxModelRequests": 4,
+            "maxToolCalls": 2,
+            "maxTotalTokens": 18000,
+            "maxTokens": 4096
+          },
+          "usage": {
+            "modelRequests": 2,
+            "toolCalls": 1,
+            "totalTokens": 10495,
+            "unknownUsage": false
+          },
+          "error": null
+        }
+      ],
+      "snapshots": [
+        {
+          "label": "真实预测协作（只读）",
+          "status": "completed",
+          "collaboration": {
+            "version": 1,
+            "runId": "course_run_5f080e00-fdeb-4d8b-9946-9f422f705c74",
+            "modelMode": "live",
+            "sourceMode": "live",
+            "team": [
+              {
+                "assignmentId": "course_run_5f080e00-fdeb-4d8b-9946-9f422f705c74_official_initial",
+                "roleId": "official",
+                "name": "官方资料研究员",
+                "objective": "从香港天文台warnsum数据接口（https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=en）读取当前WFIRE警告的实际字段，确认code取值（是否WFIRER）、actionCode取值及snapshot时间，作为官方原始数据的当前基线。区分'已取消'与'仍有效'的字段表达方式。",
+                "reason": "判定规则完全依赖官方warnsum的code与actionCode字段，必须由官方资料研究员取得并逐字引用。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "已取得香港天文台warnsum完整快照（取得时间2026-11-21T06:20:42Z，早于目标时点06:35:29Z）。快照中WFIRE字段：code=WFIRER、type=Red、actionCode=ISSUE，issueTime与updateTime均为2026-11-21T06:00:00+08:00（即11-20T22:00:00Z）。确认当前红色火灾危险警告仍有效（未取消）。本次观察仅代表取得时刻的基线状态，早于结算窗口，不能据此提前判定目标时点后首次有界观察的结果。",
+                "probability": 0.7,
+                "evidenceIds": [
+                  "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+                ],
+                "support": [
+                  {
+                    "claim": "当前快照中WFIRE的code取值为\"WFIRER\"，type为\"Red\"，确认是红色火灾危险警告。",
+                    "basis": "fact",
+                    "citations": [
+                      {
+                        "evidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+                        "quote": "\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\""
+                      }
+                    ],
+                    "evidenceIds": [
+                      "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+                    ]
+                  },
+                  {
+                    "claim": "当前actionCode为\"ISSUE\"而非\"CANCEL\"，依结算规则红色火灾危险警告当前处于仍有效状态。",
+                    "basis": "fact",
+                    "citations": [
+                      {
+                        "evidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+                        "quote": "\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T06:00:00+08:00\""
+                      }
+                    ],
+                    "evidenceIds": [
+                      "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+                    ]
+                  },
+                  {
+                    "claim": "警告issueTime为2026-11-21T06:00:00+08:00（约8.5小时前发布），截至快照仍为ISSUE且updateTime未变更，推断目标时点后首次观察仍有效的可能性较高。",
+                    "basis": "inference",
+                    "citations": [
+                      {
+                        "evidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+                        "quote": "\"issueTime\":\"2026-11-21T06:00:00+08:00\",\"updateTime\":\"2026-11-21T06:00:00+08:00\""
+                      }
+                    ],
+                    "evidenceIds": [
+                      "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "本快照的updateTime停留在06:00+08:00，且取得时间早于目标时点06:35:29Z及结算观察窗口，不属于目标时点后5分钟内的首次观察，不能据此直接结算未来结果。",
+                    "basis": "inference",
+                    "citations": [
+                      {
+                        "evidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+                        "quote": "\"issueTime\":\"2026-11-21T06:00:00+08:00\",\"updateTime\":\"2026-11-21T06:00:00+08:00\""
+                      }
+                    ],
+                    "evidenceIds": [
+                      "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "目标时点06:35:29Z后5分钟内（06:35:29–06:40:29Z）的warnsum快照尚未取得，该快照才是结算依据",
+                  "目标时点后HKO是否发布CANCEL或变更actionCode的原始记录未取得"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_5f080e00-fdeb-4d8b-9946-9f422f705c74_official_initial",
+                  "disposition": "adopted",
+                  "reason": "确认快照显示WFIRE为Red/ISSUE状态，作为基线推断依据。",
+                  "evidenceIds": [
+                    "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_5f080e00-fdeb-4d8b-9946-9f422f705c74_verification_initial",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "核对红色火灾危险警告WFIRE的含义与取消/生效状态在官方接口中的表达方式，寻找与'当前仍有效'相矛盾的材料（例如天文台已发布取消通知、actionCode=CANCEL的历史模式），并检查warnsum字段语义与判定规则是否一致。",
+                "reason": "反证席须确认判定规则与接口实际字段的对应关系是否成立，避免把字段名误读为有效状态。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "failed",
+                "reportStatus": "blocked",
+                "summary": "【程序失败回执，非研究报告】该席未交付有效报告，不能视为独立核验完成。",
+                "probability": null,
+                "evidenceIds": [],
+                "support": [],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "独立核验未完成"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_5f080e00-fdeb-4d8b-9946-9f422f705c74_verification_initial",
+                  "disposition": "rejected",
+                  "reason": "程序失败回执，未交付有效独立核验报告，不能采信。",
+                  "evidenceIds": []
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_5f080e00-fdeb-4d8b-9946-9f422f705c74_industry_initial",
+                "roleId": "industry",
+                "name": "行业与专业研究员",
+                "objective": "说明红色火灾危险警告的适用条件、发布/取消的典型制度流程，以及warnsum接口中警告状态字段的一般语义与更新时间特性；把行业常识与已核实的接口数据分开。",
+                "reason": "帮助判断观察窗口内快照能否反映目标时点后的有效状态，识别可能的字段滞后或缺项风险。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "本次仅取得一次warnsum完整快照（取得于2026-11-21T06:20:42Z，早于目标时点06:35:29Z）。快照显示WFIRE条目：code=WFIRER、type=Red、actionCode=ISSUE，issueTime与updateTime均为2026-11-21T06:00:00+08:00，即红色火灾危险警告此刻生效且发布后未再更新。接口字段语义（name/code/type/actionCode/issueTime/updateTime）可从快照结构直接确认，但发布/取消的官方阈值与actionCode完整枚举未在接口数据中体现，属于行业常识/待补资料。当前ISSUE状态不保证目标时点后结算快照仍为ISSUE。",
+                "probability": 0.88,
+                "evidenceIds": [
+                  "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+                ],
+                "support": [
+                  {
+                    "claim": "截至取得快照时，warnsum中WFIRE的code=WFIRER、type=Red、actionCode=ISSUE，红色火灾危险警告处于生效状态。",
+                    "basis": "fact",
+                    "citations": [
+                      {
+                        "evidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+                        "quote": "\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T06:00:00+08:00\",\"updateTime\":\"2026-11-21T06:00:00+08:00\""
+                      }
+                    ],
+                    "evidenceIds": [
+                      "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+                    ]
+                  },
+                  {
+                    "claim": "该快照的issueTime与updateTime均为2026-11-21T06:00:00+08:00，说明发布后至取得时无更新。",
+                    "basis": "fact",
+                    "citations": [
+                      {
+                        "evidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+                        "quote": "\"issueTime\":\"2026-11-21T06:00:00+08:00\",\"updateTime\":\"2026-11-21T06:00:00+08:00\""
+                      }
+                    ],
+                    "evidenceIds": [
+                      "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+                    ]
+                  },
+                  {
+                    "claim": "warnsum按警告代码返回对象，含name/code/type/actionCode/issueTime/updateTime字段；actionCode=ISSUE表示当前生效，CANCEL表示取消（CANCEL语义来自结算规则与接口惯例，本次仅直接观察到ISSUE）。",
+                    "basis": "inference",
+                    "citations": [
+                      {
+                        "evidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+                        "quote": "\"name\":\"Fire Danger Warning\",\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\""
+                      }
+                    ],
+                    "evidenceIds": [
+                      "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "本快照取得于06:20:42Z，早于目标时点06:35:29Z；结算以目标后5分钟内首次快照为准，当前ISSUE不保证目标观察时仍为ISSUE而非CANCEL。",
+                    "basis": "inference",
+                    "citations": [
+                      {
+                        "evidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+                        "quote": "\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T06:00:00+08:00\""
+                      }
+                    ],
+                    "evidenceIds": [
+                      "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+                    ]
+                  },
+                  {
+                    "claim": "单次快照仅显示actionCode=ISSUE，未直接呈现CANCEL值或历史动作序列，无法据此证实取消流程的实际触发条件。",
+                    "basis": "inference",
+                    "citations": [
+                      {
+                        "evidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+                        "quote": "\"WFIRE\":{\"name\":\"Fire Danger Warning\",\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\""
+                      }
+                    ],
+                    "evidenceIds": [
+                      "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "红色火灾危险警告的官方发布/取消阈值（如相对湿度、火险指数）未在接口数据中体现，需HKO官方说明文档",
+                  "warnsum接口actionCode的官方枚举定义（ISSUE/CANCEL/UPDATE等）未直接取得",
+                  "updateTime在续发或取消场景下的变化规律无历史快照佐证",
+                  "目标时点后5分钟内的结算快照尚未取得，无法对最终结果下结论"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_5f080e00-fdeb-4d8b-9946-9f422f705c74_industry_initial",
+                  "disposition": "qualified",
+                  "reason": "同样确认ISSUE基线，但指出官方阈值与actionCode枚举未取得，增加不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+                  ]
+                },
+                "review": null
+              }
+            ],
+            "reviews": [],
+            "reports": [
+              {
+                "assignmentId": "course_run_5f080e00-fdeb-4d8b-9946-9f422f705c74_official_initial",
+                "roleId": "official",
+                "name": "官方资料研究员",
+                "objective": "从香港天文台warnsum数据接口（https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=en）读取当前WFIRE警告的实际字段，确认code取值（是否WFIRER）、actionCode取值及snapshot时间，作为官方原始数据的当前基线。区分'已取消'与'仍有效'的字段表达方式。",
+                "reason": "判定规则完全依赖官方warnsum的code与actionCode字段，必须由官方资料研究员取得并逐字引用。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "已取得香港天文台warnsum完整快照（取得时间2026-11-21T06:20:42Z，早于目标时点06:35:29Z）。快照中WFIRE字段：code=WFIRER、type=Red、actionCode=ISSUE，issueTime与updateTime均为2026-11-21T06:00:00+08:00（即11-20T22:00:00Z）。确认当前红色火灾危险警告仍有效（未取消）。本次观察仅代表取得时刻的基线状态，早于结算窗口，不能据此提前判定目标时点后首次有界观察的结果。",
+                "probability": 0.7,
+                "evidenceIds": [
+                  "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+                ],
+                "support": [
+                  {
+                    "claim": "当前快照中WFIRE的code取值为\"WFIRER\"，type为\"Red\"，确认是红色火灾危险警告。",
+                    "basis": "fact",
+                    "citations": [
+                      {
+                        "evidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+                        "quote": "\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\""
+                      }
+                    ],
+                    "evidenceIds": [
+                      "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+                    ]
+                  },
+                  {
+                    "claim": "当前actionCode为\"ISSUE\"而非\"CANCEL\"，依结算规则红色火灾危险警告当前处于仍有效状态。",
+                    "basis": "fact",
+                    "citations": [
+                      {
+                        "evidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+                        "quote": "\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T06:00:00+08:00\""
+                      }
+                    ],
+                    "evidenceIds": [
+                      "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+                    ]
+                  },
+                  {
+                    "claim": "警告issueTime为2026-11-21T06:00:00+08:00（约8.5小时前发布），截至快照仍为ISSUE且updateTime未变更，推断目标时点后首次观察仍有效的可能性较高。",
+                    "basis": "inference",
+                    "citations": [
+                      {
+                        "evidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+                        "quote": "\"issueTime\":\"2026-11-21T06:00:00+08:00\",\"updateTime\":\"2026-11-21T06:00:00+08:00\""
+                      }
+                    ],
+                    "evidenceIds": [
+                      "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "本快照的updateTime停留在06:00+08:00，且取得时间早于目标时点06:35:29Z及结算观察窗口，不属于目标时点后5分钟内的首次观察，不能据此直接结算未来结果。",
+                    "basis": "inference",
+                    "citations": [
+                      {
+                        "evidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+                        "quote": "\"issueTime\":\"2026-11-21T06:00:00+08:00\",\"updateTime\":\"2026-11-21T06:00:00+08:00\""
+                      }
+                    ],
+                    "evidenceIds": [
+                      "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "目标时点06:35:29Z后5分钟内（06:35:29–06:40:29Z）的warnsum快照尚未取得，该快照才是结算依据",
+                  "目标时点后HKO是否发布CANCEL或变更actionCode的原始记录未取得"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_5f080e00-fdeb-4d8b-9946-9f422f705c74_official_initial",
+                  "disposition": "adopted",
+                  "reason": "确认快照显示WFIRE为Red/ISSUE状态，作为基线推断依据。",
+                  "evidenceIds": [
+                    "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_5f080e00-fdeb-4d8b-9946-9f422f705c74_verification_initial",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "核对红色火灾危险警告WFIRE的含义与取消/生效状态在官方接口中的表达方式，寻找与'当前仍有效'相矛盾的材料（例如天文台已发布取消通知、actionCode=CANCEL的历史模式），并检查warnsum字段语义与判定规则是否一致。",
+                "reason": "反证席须确认判定规则与接口实际字段的对应关系是否成立，避免把字段名误读为有效状态。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "failed",
+                "reportStatus": "blocked",
+                "summary": "【程序失败回执，非研究报告】该席未交付有效报告，不能视为独立核验完成。",
+                "probability": null,
+                "evidenceIds": [],
+                "support": [],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "独立核验未完成"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_5f080e00-fdeb-4d8b-9946-9f422f705c74_verification_initial",
+                  "disposition": "rejected",
+                  "reason": "程序失败回执，未交付有效独立核验报告，不能采信。",
+                  "evidenceIds": []
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_5f080e00-fdeb-4d8b-9946-9f422f705c74_industry_initial",
+                "roleId": "industry",
+                "name": "行业与专业研究员",
+                "objective": "说明红色火灾危险警告的适用条件、发布/取消的典型制度流程，以及warnsum接口中警告状态字段的一般语义与更新时间特性；把行业常识与已核实的接口数据分开。",
+                "reason": "帮助判断观察窗口内快照能否反映目标时点后的有效状态，识别可能的字段滞后或缺项风险。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "本次仅取得一次warnsum完整快照（取得于2026-11-21T06:20:42Z，早于目标时点06:35:29Z）。快照显示WFIRE条目：code=WFIRER、type=Red、actionCode=ISSUE，issueTime与updateTime均为2026-11-21T06:00:00+08:00，即红色火灾危险警告此刻生效且发布后未再更新。接口字段语义（name/code/type/actionCode/issueTime/updateTime）可从快照结构直接确认，但发布/取消的官方阈值与actionCode完整枚举未在接口数据中体现，属于行业常识/待补资料。当前ISSUE状态不保证目标时点后结算快照仍为ISSUE。",
+                "probability": 0.88,
+                "evidenceIds": [
+                  "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+                ],
+                "support": [
+                  {
+                    "claim": "截至取得快照时，warnsum中WFIRE的code=WFIRER、type=Red、actionCode=ISSUE，红色火灾危险警告处于生效状态。",
+                    "basis": "fact",
+                    "citations": [
+                      {
+                        "evidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+                        "quote": "\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T06:00:00+08:00\",\"updateTime\":\"2026-11-21T06:00:00+08:00\""
+                      }
+                    ],
+                    "evidenceIds": [
+                      "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+                    ]
+                  },
+                  {
+                    "claim": "该快照的issueTime与updateTime均为2026-11-21T06:00:00+08:00，说明发布后至取得时无更新。",
+                    "basis": "fact",
+                    "citations": [
+                      {
+                        "evidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+                        "quote": "\"issueTime\":\"2026-11-21T06:00:00+08:00\",\"updateTime\":\"2026-11-21T06:00:00+08:00\""
+                      }
+                    ],
+                    "evidenceIds": [
+                      "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+                    ]
+                  },
+                  {
+                    "claim": "warnsum按警告代码返回对象，含name/code/type/actionCode/issueTime/updateTime字段；actionCode=ISSUE表示当前生效，CANCEL表示取消（CANCEL语义来自结算规则与接口惯例，本次仅直接观察到ISSUE）。",
+                    "basis": "inference",
+                    "citations": [
+                      {
+                        "evidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+                        "quote": "\"name\":\"Fire Danger Warning\",\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\""
+                      }
+                    ],
+                    "evidenceIds": [
+                      "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "本快照取得于06:20:42Z，早于目标时点06:35:29Z；结算以目标后5分钟内首次快照为准，当前ISSUE不保证目标观察时仍为ISSUE而非CANCEL。",
+                    "basis": "inference",
+                    "citations": [
+                      {
+                        "evidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+                        "quote": "\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T06:00:00+08:00\""
+                      }
+                    ],
+                    "evidenceIds": [
+                      "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+                    ]
+                  },
+                  {
+                    "claim": "单次快照仅显示actionCode=ISSUE，未直接呈现CANCEL值或历史动作序列，无法据此证实取消流程的实际触发条件。",
+                    "basis": "inference",
+                    "citations": [
+                      {
+                        "evidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+                        "quote": "\"WFIRE\":{\"name\":\"Fire Danger Warning\",\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\""
+                      }
+                    ],
+                    "evidenceIds": [
+                      "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "红色火灾危险警告的官方发布/取消阈值（如相对湿度、火险指数）未在接口数据中体现，需HKO官方说明文档",
+                  "warnsum接口actionCode的官方枚举定义（ISSUE/CANCEL/UPDATE等）未直接取得",
+                  "updateTime在续发或取消场景下的变化规律无历史快照佐证",
+                  "目标时点后5分钟内的结算快照尚未取得，无法对最终结果下结论"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_5f080e00-fdeb-4d8b-9946-9f422f705c74_industry_initial",
+                  "disposition": "qualified",
+                  "reason": "同样确认ISSUE基线，但指出官方阈值与actionCode枚举未取得，增加不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+                  ]
+                },
+                "review": null
+              }
+            ],
+            "sources": [
+              {
+                "evidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+                "title": "香港天文台警告摘要（完整JSON）",
+                "url": "https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=en",
+                "publishedAt": null,
+                "obtainedAt": "2026-11-21T06:20:41.990Z",
+                "marketQuote": null
+              }
+            ],
+            "triage": {
+              "kind": "initial",
+              "reason": "首次按题选择差异职责。",
+              "newEvidenceIds": []
+            },
+            "decision": {
+              "kind": "forecast",
+              "groundingPolicy": "quoted-claims-v1",
+              "reasoningClaims": [
+                {
+                  "claim": "截至06:20:42Z快照，WFIRE的code=WFIRER、type=Red、actionCode=ISSUE，红色火灾危险警告处于生效状态。",
+                  "evidenceIds": [
+                    "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+                  ],
+                  "basis": "fact",
+                  "citations": [
+                    {
+                      "evidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+                      "quote": "\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\""
+                    }
+                  ]
+                },
+                {
+                  "claim": "该警告的issueTime与updateTime均为2026-11-21T06:00:00+08:00，表明自06:00发布后至取得快照时无后续更新或取消。",
+                  "evidenceIds": [
+                    "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+                  ],
+                  "basis": "fact",
+                  "citations": [
+                    {
+                      "evidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+                      "quote": "\"issueTime\":\"2026-11-21T06:00:00+08:00\",\"updateTime\":\"2026-11-21T06:00:00+08:00\""
+                    }
+                  ]
+                },
+                {
+                  "claim": "红色火灾危险警告通常持续较长时间，发布后约15分钟内被取消的概率较低，故目标时点后首次有界观察中仍有效的概率较高。",
+                  "evidenceIds": [
+                    "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+                  ],
+                  "basis": "inference",
+                  "citations": [
+                    {
+                      "evidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+                      "quote": "\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T06:00:00+08:00\""
+                    }
+                  ]
+                },
+                {
+                  "claim": "结算规则要求以目标时点06:35:29Z后5分钟内首次成功取得的warnsum快照为准，该结算快照尚未取得，当前证据仅为06:20:42Z基线，不能据此确认目标时点后的实际状态。",
+                  "evidenceIds": [
+                    "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+                  ],
+                  "basis": "inference",
+                  "citations": [
+                    {
+                      "evidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+                      "quote": "\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T06:00:00+08:00\""
+                    }
+                  ]
+                }
+              ],
+              "forecastId": "course_forecast_f8405233-2116-455d-9967-949cd4cffd6f",
+              "probabilityYes": 0.85,
+              "previousProbabilityYes": null,
+              "delta": null,
+              "summary": "截至取得快照时（2026-11-21T06:20:42Z，早于目标时点06:35:29Z），香港天文台warnsum中WFIRE条目为code=WFIRER、type=Red、actionCode=ISSUE，且issueTime与updateTime均为06:00+08:00，说明红色火灾危险警告自06:00发布后至取得时无任何更新或取消动作。该警告为\"仍有效\"状态。红色火灾危险警告通常以日或更长为周期生效，发布后15分钟内被取消的概率较低，据此推断目标时点后首次有界观察中其仍为有效的概率较高（约0.85）。但必须强调：结算规则以目标时点06:35:29Z后5分钟内（06:35:29–06:40:29Z）首次成功取得的warnsum快照为准，而该结算快照尚未取得；当前证据仅代表06:20:42Z基线状态，本次为概率推断，不能视为确定事实。官方发布/取消阈值与actionCode完整枚举亦未在接口数据中体现，存在不确定性。",
+              "evidenceIds": [
+                "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+              ],
+              "dissent": [
+                "结算依据（目标时点后5分钟内首次快照）尚未取得，当前所有报告均基于06:20:42Z的基线快照，无法直接确认目标时点后状态。",
+                "独立核验席未交付有效报告（blocked），缺少第二独立来源交叉印证。",
+                "官方发布/取消阈值及actionCode完整枚举未取得，难以量化取消风险。"
+              ],
+              "evidenceAdequacy": "limited",
+              "scoringEligible": true,
+              "recordedNotes": 3,
+              "totalReports": 3
+            },
+            "conclusion": "已发布；本轮未进行定向补查。"
+          }
+        }
+      ],
+      "events": [
+        {
+          "schemaVersion": 1,
+          "serverEpoch": "d2e1e89f-6ed8-47ac-91f5-771d23dfa1c8",
+          "eventId": "event_d3e716ab-0e5c-4f3f-86f6-c29c91a43d85",
+          "requestId": "course_request_6df34f91-a8c3-45e1-a081-e64429d3c749",
+          "runId": "course_run_5f080e00-fdeb-4d8b-9946-9f422f705c74",
+          "topicId": "topic_course_request_6df34f91-a8c3-45e1-a081-e64429d3c749",
+          "predictionId": null,
+          "scope": "live",
+          "trigger": "manual",
+          "emittedAt": "2026-11-21T06:20:39.404Z",
+          "type": "team.selected",
+          "payload": {
+            "team": [
+              {
+                "roleId": "official",
+                "name": "官方资料研究员",
+                "objective": "从香港天文台warnsum数据接口（https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=en）读取当前WFIRE警告的实际字段，确认code取值（是否WFIRER）、actionCode取值及snapshot时间，作为官方原始数据的当前基线。区分'已取消'与'仍有效'的字段表达方式。",
+                "reason": "判定规则完全依赖官方warnsum的code与actionCode字段，必须由官方资料研究员取得并逐字引用。"
+              },
+              {
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "核对红色火灾危险警告WFIRE的含义与取消/生效状态在官方接口中的表达方式，寻找与'当前仍有效'相矛盾的材料（例如天文台已发布取消通知、actionCode=CANCEL的历史模式），并检查warnsum字段语义与判定规则是否一致。",
+                "reason": "反证席须确认判定规则与接口实际字段的对应关系是否成立，避免把字段名误读为有效状态。"
+              },
+              {
+                "roleId": "industry",
+                "name": "行业与专业研究员",
+                "objective": "说明红色火灾危险警告的适用条件、发布/取消的典型制度流程，以及warnsum接口中警告状态字段的一般语义与更新时间特性；把行业常识与已核实的接口数据分开。",
+                "reason": "帮助判断观察窗口内快照能否反映目标时点后的有效状态，识别可能的字段滞后或缺项风险。"
+              }
+            ],
+            "cycle": 1,
+            "reason": "先整理题意与分工，来源核查交由独立研究员。"
+          },
+          "seq": 68
+        },
+        {
+          "schemaVersion": 1,
+          "serverEpoch": "d2e1e89f-6ed8-47ac-91f5-771d23dfa1c8",
+          "eventId": "course_run_5f080e00-fdeb-4d8b-9946-9f422f705c74_failed",
+          "requestId": "course_request_6df34f91-a8c3-45e1-a081-e64429d3c749",
+          "runId": "course_run_5f080e00-fdeb-4d8b-9946-9f422f705c74",
+          "topicId": "topic_course_request_6df34f91-a8c3-45e1-a081-e64429d3c749",
+          "predictionId": "prediction_course_request_6df34f91-a8c3-45e1-a081-e64429d3c749",
+          "scope": "live",
+          "trigger": "manual",
+          "emittedAt": "2026-11-21T06:22:07.739Z",
+          "type": "run.finished",
+          "payload": {
+            "status": "failed",
+            "summary": "剩余预算不足以安全发起下一次模型请求，保留已取得资料。",
+            "error": {
+              "code": "COURSE_BUDGET",
+              "message": "剩余预算不足以安全发起下一次模型请求，保留已取得资料。",
+              "retryable": false
+            }
+          },
+          "seq": 108
+        },
+        {
+          "schemaVersion": 1,
+          "serverEpoch": "d2e1e89f-6ed8-47ac-91f5-771d23dfa1c8",
+          "eventId": "course_run_5f080e00-fdeb-4d8b-9946-9f422f705c74_summary_resume_1",
+          "requestId": "course_request_6df34f91-a8c3-45e1-a081-e64429d3c749",
+          "runId": "course_run_5f080e00-fdeb-4d8b-9946-9f422f705c74",
+          "topicId": "topic_course_request_6df34f91-a8c3-45e1-a081-e64429d3c749",
+          "predictionId": "prediction_course_request_6df34f91-a8c3-45e1-a081-e64429d3c749",
+          "scope": "live",
+          "trigger": "manual",
+          "emittedAt": "2026-11-21T06:28:24.858Z",
+          "type": "research.resume_requested",
+          "payload": {
+            "summary": "继续整理已有报告，不重新取证。",
+            "attempt": 1,
+            "unsentRetry": false,
+            "modelRequestsBefore": 10,
+            "maxTokens": 6000,
+            "policyVersion": "research-summary-v2"
+          },
+          "seq": 109
+        },
+        {
+          "schemaVersion": 1,
+          "serverEpoch": "d2e1e89f-6ed8-47ac-91f5-771d23dfa1c8",
+          "eventId": "course_run_5f080e00-fdeb-4d8b-9946-9f422f705c74_failed_1",
+          "requestId": "course_request_6df34f91-a8c3-45e1-a081-e64429d3c749",
+          "runId": "course_run_5f080e00-fdeb-4d8b-9946-9f422f705c74",
+          "topicId": "topic_course_request_6df34f91-a8c3-45e1-a081-e64429d3c749",
+          "predictionId": "prediction_course_request_6df34f91-a8c3-45e1-a081-e64429d3c749",
+          "scope": "live",
+          "trigger": "manual",
+          "emittedAt": "2026-11-21T06:28:53.414Z",
+          "type": "run.finished",
+          "payload": {
+            "status": "failed",
+            "summary": "主 Agent 已达到本轮调用上限。",
+            "error": {
+              "code": "MAIN_BUDGET",
+              "message": "主 Agent 已达到本轮调用上限。",
+              "retryable": false
+            }
+          },
+          "seq": 111
+        },
+        {
+          "schemaVersion": 1,
+          "serverEpoch": "d2e1e89f-6ed8-47ac-91f5-771d23dfa1c8",
+          "eventId": "course_run_5f080e00-fdeb-4d8b-9946-9f422f705c74_forecast",
+          "requestId": "course_request_6df34f91-a8c3-45e1-a081-e64429d3c749",
+          "runId": "course_run_5f080e00-fdeb-4d8b-9946-9f422f705c74",
+          "topicId": "topic_course_request_6df34f91-a8c3-45e1-a081-e64429d3c749",
+          "predictionId": "prediction_course_request_6df34f91-a8c3-45e1-a081-e64429d3c749",
+          "scope": "live",
+          "trigger": "manual",
+          "emittedAt": "2026-11-21T06:34:12.225Z",
+          "type": "forecast.published",
+          "payload": {
+            "forecastId": "course_forecast_f8405233-2116-455d-9967-949cd4cffd6f",
+            "requestId": "course_request_6df34f91-a8c3-45e1-a081-e64429d3c749",
+            "runId": "course_run_5f080e00-fdeb-4d8b-9946-9f422f705c74",
+            "predictionId": "prediction_course_request_6df34f91-a8c3-45e1-a081-e64429d3c749",
+            "predictionVersion": 1,
+            "probabilityYes": 0.85,
+            "probabilityNo": 0.15000000000000002,
+            "summary": "截至取得快照时（2026-11-21T06:20:42Z，早于目标时点06:35:29Z），香港天文台warnsum中WFIRE条目为code=WFIRER、type=Red、actionCode=ISSUE，且issueTime与updateTime均为06:00+08:00，说明红色火灾危险警告自06:00发布后至取得时无任何更新或取消动作。该警告为\"仍有效\"状态。红色火灾危险警告通常以日或更长为周期生效，发布后15分钟内被取消的概率较低，据此推断目标时点后首次有界观察中其仍为有效的概率较高（约0.85）。但必须强调：结算规则以目标时点06:35:29Z后5分钟内（06:35:29–06:40:29Z）首次成功取得的warnsum快照为准，而该结算快照尚未取得；当前证据仅代表06:20:42Z基线状态，本次为概率推断，不能视为确定事实。官方发布/取消阈值与actionCode完整枚举亦未在接口数据中体现，存在不确定性。",
+            "decisionNotes": [
+              {
+                "assignmentId": "course_run_5f080e00-fdeb-4d8b-9946-9f422f705c74_official_initial",
+                "disposition": "adopted",
+                "reason": "确认快照显示WFIRE为Red/ISSUE状态，作为基线推断依据。",
+                "evidenceIds": [
+                  "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+                ]
+              },
+              {
+                "assignmentId": "course_run_5f080e00-fdeb-4d8b-9946-9f422f705c74_industry_initial",
+                "disposition": "qualified",
+                "reason": "同样确认ISSUE基线，但指出官方阈值与actionCode枚举未取得，增加不确定性。",
+                "evidenceIds": [
+                  "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+                ]
+              },
+              {
+                "assignmentId": "course_run_5f080e00-fdeb-4d8b-9946-9f422f705c74_verification_initial",
+                "disposition": "rejected",
+                "reason": "程序失败回执，未交付有效独立核验报告，不能采信。",
+                "evidenceIds": []
+              }
+            ],
+            "evidenceIds": [
+              "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+            ],
+            "evidenceAdequacy": "limited",
+            "dissent": [
+              "结算依据（目标时点后5分钟内首次快照）尚未取得，当前所有报告均基于06:20:42Z的基线快照，无法直接确认目标时点后状态。",
+              "独立核验席未交付有效报告（blocked），缺少第二独立来源交叉印证。",
+              "官方发布/取消阈值及actionCode完整枚举未取得，难以量化取消风险。"
+            ],
+            "issuedAt": "2026-11-21T06:34:12.222Z",
+            "publishedAt": "2026-11-21T06:34:12.222Z",
+            "knowledgeCutoff": "2026-11-21T06:34:12.222Z",
+            "targetAt": "2026-11-21T06:35:29.095Z",
+            "resolutionRuleVersion": 1,
+            "modelMode": "live",
+            "modelRef": "deepseek-v4-pro",
+            "sourceMode": "live",
+            "kind": "forecast",
+            "defaultAssumptions": [],
+            "currentReference": null,
+            "sourceLimitations": [
+              "仅支持 get_weather_warning 单一官方完整JSON快照，无全网调查。",
+              "目标时点后（06:35:29–06:40:29Z）的结算快照尚未取得，当前证据仅为06:20:42Z基线状态。",
+              "官方发布/取消阈值与actionCode完整枚举未在接口数据中体现。"
+            ],
+            "researchBasis": {
+              "mode": "verified-source",
+              "summary": "已读取公开研究依据；这不等同于官方已经确认未来结果。"
+            },
+            "timeContext": {
+              "nowUtc": "2026-11-21T06:21:36.422Z",
+              "nowLocalLabel": "2026-11-21 14:21:36 (Asia/Shanghai, UTC+08:00)",
+              "windowStartsAtUtc": "2026-11-21T06:20:29.123Z",
+              "windowStartsAtLocalLabel": "2026-11-21 14:20:29 (Asia/Shanghai, UTC+08:00)",
+              "targetAtUtc": "2026-11-21T06:35:29.095Z",
+              "targetAtLocalLabel": "2026-11-21 14:35:29 (Asia/Shanghai, UTC+08:00)",
+              "forecastClosesAtUtc": "2026-11-21T06:35:29.095Z",
+              "forecastClosesAtLocalLabel": "2026-11-21 14:35:29 (Asia/Shanghai, UTC+08:00)",
+              "timezone": "Asia/Shanghai",
+              "utcOffset": "UTC+08:00",
+              "authority": "UTC instant is authoritative; local labels are server-generated and display-only."
+            },
+            "baseline": null,
+            "scoringEligible": true,
+            "label": "模型事件概率估计",
+            "reasoningClaims": [
+              {
+                "claim": "截至06:20:42Z快照，WFIRE的code=WFIRER、type=Red、actionCode=ISSUE，红色火灾危险警告处于生效状态。",
+                "evidenceIds": [
+                  "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+                ],
+                "basis": "fact",
+                "citations": [
+                  {
+                    "evidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+                    "quote": "\"code\":\"WFIRER\",\"type\":\"Red\",\"actionCode\":\"ISSUE\""
+                  }
+                ]
+              },
+              {
+                "claim": "该警告的issueTime与updateTime均为2026-11-21T06:00:00+08:00，表明自06:00发布后至取得快照时无后续更新或取消。",
+                "evidenceIds": [
+                  "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+                ],
+                "basis": "fact",
+                "citations": [
+                  {
+                    "evidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+                    "quote": "\"issueTime\":\"2026-11-21T06:00:00+08:00\",\"updateTime\":\"2026-11-21T06:00:00+08:00\""
+                  }
+                ]
+              },
+              {
+                "claim": "红色火灾危险警告通常持续较长时间，发布后约15分钟内被取消的概率较低，故目标时点后首次有界观察中仍有效的概率较高。",
+                "evidenceIds": [
+                  "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+                ],
+                "basis": "inference",
+                "citations": [
+                  {
+                    "evidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+                    "quote": "\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T06:00:00+08:00\""
+                  }
+                ]
+              },
+              {
+                "claim": "结算规则要求以目标时点06:35:29Z后5分钟内首次成功取得的warnsum快照为准，该结算快照尚未取得，当前证据仅为06:20:42Z基线，不能据此确认目标时点后的实际状态。",
+                "evidenceIds": [
+                  "course_evidence_f8114282a1540b7256c7fc936f08f75f"
+                ],
+                "basis": "inference",
+                "citations": [
+                  {
+                    "evidenceId": "course_evidence_f8114282a1540b7256c7fc936f08f75f",
+                    "quote": "\"actionCode\":\"ISSUE\",\"issueTime\":\"2026-11-21T06:00:00+08:00\""
+                  }
+                ]
+              }
+            ],
+            "groundingPolicy": "quoted-claims-v1",
+            "publicationMode": "revalidated-recorded-model-candidate",
+            "statusFacts": [
+              {
+                "key": "baseline",
+                "label": "基准",
+                "text": "未取得可核验数值基准",
+                "status": "unverified"
+              },
+              {
+                "key": "kind",
+                "label": "估计类型",
+                "text": "概率预测",
+                "status": "forecast"
+              },
+              {
+                "key": "scoring",
+                "label": "计分",
+                "text": "可计分",
+                "status": "eligible"
+              },
+              {
+                "key": "adequacy",
+                "label": "资料充分度",
+                "text": "有限",
+                "status": "limited"
+              },
+              {
+                "key": "target",
+                "label": "固定到期",
+                "text": "2026-11-21 14:35:29 (Asia/Shanghai, UTC+08:00)",
+                "status": "info"
+              }
+            ],
+            "summaryConflict": {
+              "detected": false,
+              "reasons": []
+            },
+            "baselineVerified": false,
+            "conditionalOnly": false,
+            "statusLabel": "概率预测 · 基准未核验 · 可计分"
+          },
+          "seq": 112
+        },
+        {
+          "schemaVersion": 1,
+          "serverEpoch": "d2e1e89f-6ed8-47ac-91f5-771d23dfa1c8",
+          "eventId": "event_361bf028-fb7e-431a-a7d2-01573a3f7bf1",
+          "requestId": "course_request_6df34f91-a8c3-45e1-a081-e64429d3c749",
+          "runId": "course_run_5f080e00-fdeb-4d8b-9946-9f422f705c74",
+          "topicId": "topic_course_request_6df34f91-a8c3-45e1-a081-e64429d3c749",
+          "predictionId": "prediction_course_request_6df34f91-a8c3-45e1-a081-e64429d3c749",
+          "scope": "live",
+          "trigger": "manual",
+          "emittedAt": "2026-11-21T06:34:12.226Z",
+          "type": "run.finished",
+          "payload": {
+            "status": "completed",
+            "summary": "引用中取得时间的元数据校验修复后，原模型候选重新通过发布守卫；没有追加模型请求。"
+          },
+          "seq": 114
+        },
+        {
+          "schemaVersion": 1,
+          "serverEpoch": "d2e1e89f-6ed8-47ac-91f5-771d23dfa1c8",
+          "eventId": "course_request_6df34f91-a8c3-45e1-a081-e64429d3c749_resolution",
+          "requestId": "course_request_6df34f91-a8c3-45e1-a081-e64429d3c749",
+          "runId": "course_run_5f080e00-fdeb-4d8b-9946-9f422f705c74",
+          "topicId": "topic_course_request_6df34f91-a8c3-45e1-a081-e64429d3c749",
+          "predictionId": "prediction_course_request_6df34f91-a8c3-45e1-a081-e64429d3c749",
+          "scope": "live",
+          "trigger": "manual",
+          "emittedAt": "2026-11-21T06:35:33.018Z",
+          "type": "resolution.recorded",
+          "payload": {
+            "outcome": 1,
+            "evidenceIds": [
+              "resolution_evidence_3a73c878-f052-457b-9408-c088dc90d5bb"
+            ],
+            "summary": "有界首次观察：红色火灾危险警告有效（Yes）。",
+            "scores": [
+              {
+                "forecastId": "course_forecast_f8405233-2116-455d-9967-949cd4cffd6f",
+                "probabilityYes": 0.85,
+                "brier": 0.022500000000000006,
+                "scoringEligible": true,
+                "label": "单题Brier，不代表总体准确率"
+              }
+            ]
+          },
+          "seq": 115
+        }
+      ],
+      "reviewNotes": [
+        "经维护重新验证原样已记录模型候选后封存；无新增模型请求、无改概率或回填时间，不属于完整自动流程验收。",
+        "初始三席中两份有效报告，verification仍为failed，附加的blocked回执是程序回执，不是独立核验报告。",
+        "实际发布14:34:12.222上海时间，目标14:35:29.095，仅提前76.873秒；不能称提前15分钟发布。",
+        "原摘要“发布后15分钟内”时间语义有误：警告06:00+08:00发布，约14:20+08:00取证；15分钟近似描述的是快照到目标的间隔，原封存未改写。",
+        "“通常按日或更长生效、短期取消少”未取得历史频率证据，85%是未校准推断；单题Brier0.0225不代表总体准确率。"
+      ],
+      "reviewedAt": "2026-11-21",
+      "autonomousValidationPassed": false,
+      "id": "hko-red-fire-course_request_6df34f91-a8c3-45e1-a081-e64429d3c749"
+    }
+  ]
+}

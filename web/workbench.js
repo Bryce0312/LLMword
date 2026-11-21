@@ -6,6 +6,7 @@ import { detail, reportView } from './workbench-detail.js'
 import { courseBoard, courseStartForm, mountCourseRequest } from './workbench-course.js'
 import { probeCourseCapability, unavailableCourseCapability, isMissingCourseApi, environmentPresentation } from './course-capability.mjs'
 import { providerConnectionView } from './workbench-provider.js'
+import { courseExamples } from './course-examples.js'
 
 const cache = { topics: [], predictions: [], agents: [], tools: [], config: {}, courseRequests: [], courseAvailable: false, courseCapability: null, courseHistoryError: null, runs: new Map(), events: new Map() }
 let projection = createProjectionState()
@@ -110,7 +111,7 @@ function connectEvents() {
 
 async function renderRoute() {
   const token = ++serial; const { parts, query } = route()
-  const courseRoute = parts[0] === 'course' || (parts[0] === 'predictions' && (!parts[1] || parts[1] === 'new'))
+  const courseRoute = parts[0] === 'course' || parts[0] === 'course-examples' || (parts[0] === 'predictions' && (!parts[1] || parts[1] === 'new'))
   document.body.classList.toggle('wb-course-route', courseRoute)
   if (courseRoute || parts[0] === 'model-connection') { stream?.close(); stream = null }
   else if (!stream) connectEvents()
@@ -125,7 +126,8 @@ async function renderRoute() {
   stage.querySelector('a').href = '/legacy.html'
   try {
     let nodes
-    if (parts[0] === 'course' && parts[1] && parts[1] !== 'new') { await mountCourseRequest(ctx, parts[1], token); return }
+    if (parts[0] === 'course-examples') nodes = await courseExamples({ finance: query.get('set') === 'finance' })
+    else if (parts[0] === 'course' && parts[1] && parts[1] !== 'new') { await mountCourseRequest(ctx, parts[1], token); return }
     else if ((parts[0] === 'course' && (!parts[1] || parts[1] === 'new')) || (parts[0] === 'predictions' && parts[1] === 'new')) nodes = courseStartForm(ctx, { standalone: true })
     else if (parts[0] === 'learning') nodes = await learning()
     else if (parts[0] === 'model-connection') nodes = await providerConnectionView(ctx)

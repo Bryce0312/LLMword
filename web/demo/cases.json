@@ -1,0 +1,3798 @@
+{
+  "version": 1,
+  "generatedAt": "2026-11-20T15:56:16.145Z",
+  "fixtureClock": "2026-11-20T04:00:00.000Z",
+  "notAccuracyBenchmark": true,
+  "description": "受控虚构材料驱动真实本地工具与编排；模型回答及token均为协议模拟，不是DeepSeek实跑或预测准确率实验。",
+  "cases": [
+    {
+      "id": "btc",
+      "title": "BTC：固定基准与核验协作",
+      "question": "比特币未来24小时会下跌吗？",
+      "mode": "mock",
+      "sourceMode": "replay",
+      "notAccuracyBenchmark": true,
+      "checks": [
+        "完整协作发布完成",
+        "模拟结果不可计分",
+        "保存带证据的定向补查及答复",
+        "各份报告均有公开裁决说明",
+        "固定基准与原题资产匹配",
+        "关闭并重开SQLite后协作记录完整一致"
+      ],
+      "snapshots": [
+        {
+          "label": "初次协作",
+          "runId": "course_run_74dd7cc7-d425-4441-b91f-6ed8ae2eccbd",
+          "status": "completed",
+          "collaboration": {
+            "version": 1,
+            "runId": "course_run_74dd7cc7-d425-4441-b91f-6ed8ae2eccbd",
+            "modelMode": "mock",
+            "sourceMode": "replay",
+            "team": [
+              {
+                "assignmentId": "course_run_74dd7cc7-d425-4441-b91f-6ed8ae2eccbd_market_initial",
+                "roleId": "market",
+                "name": "预测市场研究员",
+                "objective": "比特币未来24小时会下跌吗？。先区分现货价格、预测市场报价与本系统事件概率。首次建立BTC/ETH涨跌题时优先用get_market_quote取得本轮对应资产的现价快照，报告须引用该快照并写明交易对、USD单位和系统观察时间；工具失败或只取得另一资产报价时明确基准缺口。后续检查沿用已固定的原始基准，不把新现价改写成旧基准。再核对目标时点、结果判定规则及公开材料。无合约盘口时不编造盘口概率、价差或流动性，也不把现价涨跌直接换算为Yes概率。",
+                "reason": "协议模拟按题选择market。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟market报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_2e49927a9199a8485c14b821e0856fac",
+                  "course_evidence_5ed37cfe7afa97db6475bfe6a03eb1ee"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_2e49927a9199a8485c14b821e0856fac",
+                      "course_evidence_5ed37cfe7afa97db6475bfe6a03eb1ee"
+                    ]
+                  }
+                ],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_74dd7cc7-d425-4441-b91f-6ed8ae2eccbd_market_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_2e49927a9199a8485c14b821e0856fac",
+                    "course_evidence_5ed37cfe7afa97db6475bfe6a03eb1ee"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_74dd7cc7-d425-4441-b91f-6ed8ae2eccbd_statistics_initial",
+                "roleId": "statistics",
+                "name": "统计与指标研究员",
+                "objective": "比特币未来24小时会下跌吗？。核对指标口径、单位、样本和时段。只报告能够复核的数字；计算工具尚未接入时不要宣称执行过计算，缺数据须说明。",
+                "reason": "协议模拟按题选择statistics。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟statistics报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_2e49927a9199a8485c14b821e0856fac",
+                  "course_evidence_5ed37cfe7afa97db6475bfe6a03eb1ee"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_2e49927a9199a8485c14b821e0856fac",
+                      "course_evidence_5ed37cfe7afa97db6475bfe6a03eb1ee"
+                    ]
+                  }
+                ],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_74dd7cc7-d425-4441-b91f-6ed8ae2eccbd_statistics_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_2e49927a9199a8485c14b821e0856fac",
+                    "course_evidence_5ed37cfe7afa97db6475bfe6a03eb1ee"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_74dd7cc7-d425-4441-b91f-6ed8ae2eccbd_verification_initial",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "比特币未来24小时会下跌吗？。优先寻找与关键主张矛盾的材料，核验出处、时间和来源独立性。证据不足可以保留异议；团队一致不等于事实正确。",
+                "reason": "协议模拟按题选择verification。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟verification报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_2e49927a9199a8485c14b821e0856fac"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_2e49927a9199a8485c14b821e0856fac"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "演示线索不能自动证明事件已发生。",
+                    "evidenceIds": [
+                      "course_evidence_2e49927a9199a8485c14b821e0856fac"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_74dd7cc7-d425-4441-b91f-6ed8ae2eccbd_verification_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_2e49927a9199a8485c14b821e0856fac"
+                  ]
+                },
+                "review": null
+              }
+            ],
+            "reviews": [
+              {
+                "assignmentId": "course_run_74dd7cc7-d425-4441-b91f-6ed8ae2eccbd_verification_followup_2",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "复核协议示例新闻线索与正式来源的口径是否一致。问题：比特币未来24小时会下跌吗？",
+                "reason": "协议示例中新闻线索与正式披露的证明范围不同，需要再读取并明确证据边界。",
+                "followUp": true,
+                "cycle": 2,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟verification报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_2e49927a9199a8485c14b821e0856fac"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_2e49927a9199a8485c14b821e0856fac"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "演示线索不能自动证明事件已发生。",
+                    "evidenceIds": [
+                      "course_evidence_2e49927a9199a8485c14b821e0856fac"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_74dd7cc7-d425-4441-b91f-6ed8ae2eccbd_verification_followup_2",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_2e49927a9199a8485c14b821e0856fac"
+                  ]
+                },
+                "review": {
+                  "objective": "复核协议示例新闻线索与正式来源的口径是否一致。问题：比特币未来24小时会下跌吗？",
+                  "reason": "协议示例中新闻线索与正式披露的证明范围不同，需要再读取并明确证据边界。",
+                  "evidenceIds": [
+                    "course_evidence_2e49927a9199a8485c14b821e0856fac",
+                    "course_evidence_5ed37cfe7afa97db6475bfe6a03eb1ee"
+                  ],
+                  "parentAssignmentIds": [
+                    "course_run_74dd7cc7-d425-4441-b91f-6ed8ae2eccbd_market_initial",
+                    "course_run_74dd7cc7-d425-4441-b91f-6ed8ae2eccbd_statistics_initial",
+                    "course_run_74dd7cc7-d425-4441-b91f-6ed8ae2eccbd_verification_initial"
+                  ],
+                  "requestedAt": "2026-11-20T04:00:00.000Z"
+                },
+                "previousSummary": "协议模拟verification报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probabilityBefore": null,
+                "probabilityAfter": null,
+                "newEvidenceIds": [],
+                "responseStatus": "submitted"
+              }
+            ],
+            "reports": [
+              {
+                "assignmentId": "course_run_74dd7cc7-d425-4441-b91f-6ed8ae2eccbd_market_initial",
+                "roleId": "market",
+                "name": "预测市场研究员",
+                "objective": "比特币未来24小时会下跌吗？。先区分现货价格、预测市场报价与本系统事件概率。首次建立BTC/ETH涨跌题时优先用get_market_quote取得本轮对应资产的现价快照，报告须引用该快照并写明交易对、USD单位和系统观察时间；工具失败或只取得另一资产报价时明确基准缺口。后续检查沿用已固定的原始基准，不把新现价改写成旧基准。再核对目标时点、结果判定规则及公开材料。无合约盘口时不编造盘口概率、价差或流动性，也不把现价涨跌直接换算为Yes概率。",
+                "reason": "协议模拟按题选择market。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟market报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_2e49927a9199a8485c14b821e0856fac",
+                  "course_evidence_5ed37cfe7afa97db6475bfe6a03eb1ee"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_2e49927a9199a8485c14b821e0856fac",
+                      "course_evidence_5ed37cfe7afa97db6475bfe6a03eb1ee"
+                    ]
+                  }
+                ],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_74dd7cc7-d425-4441-b91f-6ed8ae2eccbd_market_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_2e49927a9199a8485c14b821e0856fac",
+                    "course_evidence_5ed37cfe7afa97db6475bfe6a03eb1ee"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_74dd7cc7-d425-4441-b91f-6ed8ae2eccbd_statistics_initial",
+                "roleId": "statistics",
+                "name": "统计与指标研究员",
+                "objective": "比特币未来24小时会下跌吗？。核对指标口径、单位、样本和时段。只报告能够复核的数字；计算工具尚未接入时不要宣称执行过计算，缺数据须说明。",
+                "reason": "协议模拟按题选择statistics。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟statistics报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_2e49927a9199a8485c14b821e0856fac",
+                  "course_evidence_5ed37cfe7afa97db6475bfe6a03eb1ee"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_2e49927a9199a8485c14b821e0856fac",
+                      "course_evidence_5ed37cfe7afa97db6475bfe6a03eb1ee"
+                    ]
+                  }
+                ],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_74dd7cc7-d425-4441-b91f-6ed8ae2eccbd_statistics_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_2e49927a9199a8485c14b821e0856fac",
+                    "course_evidence_5ed37cfe7afa97db6475bfe6a03eb1ee"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_74dd7cc7-d425-4441-b91f-6ed8ae2eccbd_verification_initial",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "比特币未来24小时会下跌吗？。优先寻找与关键主张矛盾的材料，核验出处、时间和来源独立性。证据不足可以保留异议；团队一致不等于事实正确。",
+                "reason": "协议模拟按题选择verification。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟verification报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_2e49927a9199a8485c14b821e0856fac"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_2e49927a9199a8485c14b821e0856fac"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "演示线索不能自动证明事件已发生。",
+                    "evidenceIds": [
+                      "course_evidence_2e49927a9199a8485c14b821e0856fac"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_74dd7cc7-d425-4441-b91f-6ed8ae2eccbd_verification_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_2e49927a9199a8485c14b821e0856fac"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_74dd7cc7-d425-4441-b91f-6ed8ae2eccbd_verification_followup_2",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "复核协议示例新闻线索与正式来源的口径是否一致。问题：比特币未来24小时会下跌吗？",
+                "reason": "协议示例中新闻线索与正式披露的证明范围不同，需要再读取并明确证据边界。",
+                "followUp": true,
+                "cycle": 2,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟verification报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_2e49927a9199a8485c14b821e0856fac"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_2e49927a9199a8485c14b821e0856fac"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "演示线索不能自动证明事件已发生。",
+                    "evidenceIds": [
+                      "course_evidence_2e49927a9199a8485c14b821e0856fac"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_74dd7cc7-d425-4441-b91f-6ed8ae2eccbd_verification_followup_2",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_2e49927a9199a8485c14b821e0856fac"
+                  ]
+                },
+                "review": {
+                  "objective": "复核协议示例新闻线索与正式来源的口径是否一致。问题：比特币未来24小时会下跌吗？",
+                  "reason": "协议示例中新闻线索与正式披露的证明范围不同，需要再读取并明确证据边界。",
+                  "evidenceIds": [
+                    "course_evidence_2e49927a9199a8485c14b821e0856fac",
+                    "course_evidence_5ed37cfe7afa97db6475bfe6a03eb1ee"
+                  ],
+                  "parentAssignmentIds": [
+                    "course_run_74dd7cc7-d425-4441-b91f-6ed8ae2eccbd_market_initial",
+                    "course_run_74dd7cc7-d425-4441-b91f-6ed8ae2eccbd_statistics_initial",
+                    "course_run_74dd7cc7-d425-4441-b91f-6ed8ae2eccbd_verification_initial"
+                  ],
+                  "requestedAt": "2026-11-20T04:00:00.000Z"
+                }
+              }
+            ],
+            "sources": [
+              {
+                "evidenceId": "course_evidence_2e49927a9199a8485c14b821e0856fac",
+                "title": "【虚构】公开状态",
+                "url": "https://example.com/course-lab/official",
+                "publishedAt": null,
+                "obtainedAt": "2026-11-20T04:00:00.000Z",
+                "marketQuote": null
+              },
+              {
+                "evidenceId": "course_evidence_5ed37cfe7afa97db6475bfe6a03eb1ee",
+                "title": "【虚构】BTC-USD 报价样例",
+                "url": "https://example.com/course-lab/market/BTC-USD",
+                "publishedAt": null,
+                "obtainedAt": "2026-11-20T04:00:00.000Z",
+                "marketQuote": {
+                  "provider": "synthetic-course-quote",
+                  "pair": "BTC-USD",
+                  "value": 100,
+                  "currency": "USD",
+                  "observedAt": "2026-11-20T04:00:00.000Z",
+                  "sourcePublishedAt": null,
+                  "timestampMeaning": "system-observation-time",
+                  "url": "https://example.com/course-lab/market/BTC-USD"
+                }
+              }
+            ],
+            "triage": {
+              "kind": "initial",
+              "reason": "首次按题选择差异职责。",
+              "newEvidenceIds": []
+            },
+            "decision": {
+              "forecastId": "course_forecast_a7fd9de3-cf0c-42f3-9e36-c7c6a9d409c7",
+              "probabilityYes": 0.54,
+              "previousProbabilityYes": null,
+              "delta": null,
+              "summary": "协议模拟：已合并三份独立报告及针对性核验。此数值只演示完整流程，不是真实事件预测。",
+              "evidenceIds": [
+                "course_evidence_2e49927a9199a8485c14b821e0856fac",
+                "course_evidence_5ed37cfe7afa97db6475bfe6a03eb1ee"
+              ],
+              "dissent": [
+                "模拟资料无法支持现实预测准确率主张。"
+              ],
+              "evidenceAdequacy": "limited",
+              "scoringEligible": false,
+              "recordedNotes": 4,
+              "totalReports": 4
+            },
+            "conclusion": "已发布；可逐项查看补查答复与裁决。"
+          },
+          "baseline": {
+            "kind": "price",
+            "value": 100,
+            "unit": "USD",
+            "currency": "USD",
+            "pair": "BTC-USD",
+            "observedAt": "2026-11-20T04:00:00.000Z",
+            "url": "https://example.com/course-lab/market/BTC-USD",
+            "evidenceId": "course_evidence_5ed37cfe7afa97db6475bfe6a03eb1ee",
+            "verified": true,
+            "synthetic": true,
+            "timestampMeaning": "system-observation-time"
+          },
+          "usage": {
+            "modelRequests": 18,
+            "toolCalls": 10,
+            "totalTokens": 3240,
+            "promptTokens": 2160,
+            "completionTokens": 1080,
+            "cacheHitTokens": 720,
+            "cacheMissTokens": 1440,
+            "unknownUsage": false
+          },
+          "error": null,
+          "forecastCount": 1
+        }
+      ],
+      "metrics": {
+        "runs": 1,
+        "forecasts": 1,
+        "modelRequests": 18,
+        "toolCalls": 10,
+        "totalTokens": 3240
+      }
+    },
+    {
+      "id": "eth",
+      "title": "ETH：资产匹配与独立取证",
+      "question": "ETH未来24小时会上涨吗？",
+      "mode": "mock",
+      "sourceMode": "replay",
+      "notAccuracyBenchmark": true,
+      "checks": [
+        "完整协作发布完成",
+        "模拟结果不可计分",
+        "保存带证据的定向补查及答复",
+        "各份报告均有公开裁决说明",
+        "固定基准与原题资产匹配",
+        "关闭并重开SQLite后协作记录完整一致"
+      ],
+      "snapshots": [
+        {
+          "label": "初次协作",
+          "runId": "course_run_e10dfe6f-43ed-4785-9238-96220bb50e2c",
+          "status": "completed",
+          "collaboration": {
+            "version": 1,
+            "runId": "course_run_e10dfe6f-43ed-4785-9238-96220bb50e2c",
+            "modelMode": "mock",
+            "sourceMode": "replay",
+            "team": [
+              {
+                "assignmentId": "course_run_e10dfe6f-43ed-4785-9238-96220bb50e2c_market_initial",
+                "roleId": "market",
+                "name": "预测市场研究员",
+                "objective": "ETH未来24小时会上涨吗？。先区分现货价格、预测市场报价与本系统事件概率。首次建立BTC/ETH涨跌题时优先用get_market_quote取得本轮对应资产的现价快照，报告须引用该快照并写明交易对、USD单位和系统观察时间；工具失败或只取得另一资产报价时明确基准缺口。后续检查沿用已固定的原始基准，不把新现价改写成旧基准。再核对目标时点、结果判定规则及公开材料。无合约盘口时不编造盘口概率、价差或流动性，也不把现价涨跌直接换算为Yes概率。",
+                "reason": "协议模拟按题选择market。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟market报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_02f653bca9ba9f3150a52059313c7923",
+                  "course_evidence_f538199679b074c66f97c258f7446524"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_02f653bca9ba9f3150a52059313c7923",
+                      "course_evidence_f538199679b074c66f97c258f7446524"
+                    ]
+                  }
+                ],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_e10dfe6f-43ed-4785-9238-96220bb50e2c_market_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_02f653bca9ba9f3150a52059313c7923",
+                    "course_evidence_f538199679b074c66f97c258f7446524"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_e10dfe6f-43ed-4785-9238-96220bb50e2c_statistics_initial",
+                "roleId": "statistics",
+                "name": "统计与指标研究员",
+                "objective": "ETH未来24小时会上涨吗？。核对指标口径、单位、样本和时段。只报告能够复核的数字；计算工具尚未接入时不要宣称执行过计算，缺数据须说明。",
+                "reason": "协议模拟按题选择statistics。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟statistics报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_02f653bca9ba9f3150a52059313c7923",
+                  "course_evidence_f538199679b074c66f97c258f7446524"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_02f653bca9ba9f3150a52059313c7923",
+                      "course_evidence_f538199679b074c66f97c258f7446524"
+                    ]
+                  }
+                ],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_e10dfe6f-43ed-4785-9238-96220bb50e2c_statistics_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_02f653bca9ba9f3150a52059313c7923",
+                    "course_evidence_f538199679b074c66f97c258f7446524"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_e10dfe6f-43ed-4785-9238-96220bb50e2c_verification_initial",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "ETH未来24小时会上涨吗？。优先寻找与关键主张矛盾的材料，核验出处、时间和来源独立性。证据不足可以保留异议；团队一致不等于事实正确。",
+                "reason": "协议模拟按题选择verification。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟verification报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_02f653bca9ba9f3150a52059313c7923"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_02f653bca9ba9f3150a52059313c7923"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "演示线索不能自动证明事件已发生。",
+                    "evidenceIds": [
+                      "course_evidence_02f653bca9ba9f3150a52059313c7923"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_e10dfe6f-43ed-4785-9238-96220bb50e2c_verification_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_02f653bca9ba9f3150a52059313c7923"
+                  ]
+                },
+                "review": null
+              }
+            ],
+            "reviews": [
+              {
+                "assignmentId": "course_run_e10dfe6f-43ed-4785-9238-96220bb50e2c_verification_followup_2",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "复核协议示例新闻线索与正式来源的口径是否一致。问题：ETH未来24小时会上涨吗？",
+                "reason": "协议示例中新闻线索与正式披露的证明范围不同，需要再读取并明确证据边界。",
+                "followUp": true,
+                "cycle": 2,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟verification报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_02f653bca9ba9f3150a52059313c7923"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_02f653bca9ba9f3150a52059313c7923"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "演示线索不能自动证明事件已发生。",
+                    "evidenceIds": [
+                      "course_evidence_02f653bca9ba9f3150a52059313c7923"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_e10dfe6f-43ed-4785-9238-96220bb50e2c_verification_followup_2",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_02f653bca9ba9f3150a52059313c7923"
+                  ]
+                },
+                "review": {
+                  "objective": "复核协议示例新闻线索与正式来源的口径是否一致。问题：ETH未来24小时会上涨吗？",
+                  "reason": "协议示例中新闻线索与正式披露的证明范围不同，需要再读取并明确证据边界。",
+                  "evidenceIds": [
+                    "course_evidence_02f653bca9ba9f3150a52059313c7923",
+                    "course_evidence_f538199679b074c66f97c258f7446524"
+                  ],
+                  "parentAssignmentIds": [
+                    "course_run_e10dfe6f-43ed-4785-9238-96220bb50e2c_market_initial",
+                    "course_run_e10dfe6f-43ed-4785-9238-96220bb50e2c_statistics_initial",
+                    "course_run_e10dfe6f-43ed-4785-9238-96220bb50e2c_verification_initial"
+                  ],
+                  "requestedAt": "2026-11-20T04:00:00.000Z"
+                },
+                "previousSummary": "协议模拟verification报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probabilityBefore": null,
+                "probabilityAfter": null,
+                "newEvidenceIds": [],
+                "responseStatus": "submitted"
+              }
+            ],
+            "reports": [
+              {
+                "assignmentId": "course_run_e10dfe6f-43ed-4785-9238-96220bb50e2c_market_initial",
+                "roleId": "market",
+                "name": "预测市场研究员",
+                "objective": "ETH未来24小时会上涨吗？。先区分现货价格、预测市场报价与本系统事件概率。首次建立BTC/ETH涨跌题时优先用get_market_quote取得本轮对应资产的现价快照，报告须引用该快照并写明交易对、USD单位和系统观察时间；工具失败或只取得另一资产报价时明确基准缺口。后续检查沿用已固定的原始基准，不把新现价改写成旧基准。再核对目标时点、结果判定规则及公开材料。无合约盘口时不编造盘口概率、价差或流动性，也不把现价涨跌直接换算为Yes概率。",
+                "reason": "协议模拟按题选择market。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟market报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_02f653bca9ba9f3150a52059313c7923",
+                  "course_evidence_f538199679b074c66f97c258f7446524"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_02f653bca9ba9f3150a52059313c7923",
+                      "course_evidence_f538199679b074c66f97c258f7446524"
+                    ]
+                  }
+                ],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_e10dfe6f-43ed-4785-9238-96220bb50e2c_market_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_02f653bca9ba9f3150a52059313c7923",
+                    "course_evidence_f538199679b074c66f97c258f7446524"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_e10dfe6f-43ed-4785-9238-96220bb50e2c_statistics_initial",
+                "roleId": "statistics",
+                "name": "统计与指标研究员",
+                "objective": "ETH未来24小时会上涨吗？。核对指标口径、单位、样本和时段。只报告能够复核的数字；计算工具尚未接入时不要宣称执行过计算，缺数据须说明。",
+                "reason": "协议模拟按题选择statistics。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟statistics报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_02f653bca9ba9f3150a52059313c7923",
+                  "course_evidence_f538199679b074c66f97c258f7446524"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_02f653bca9ba9f3150a52059313c7923",
+                      "course_evidence_f538199679b074c66f97c258f7446524"
+                    ]
+                  }
+                ],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_e10dfe6f-43ed-4785-9238-96220bb50e2c_statistics_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_02f653bca9ba9f3150a52059313c7923",
+                    "course_evidence_f538199679b074c66f97c258f7446524"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_e10dfe6f-43ed-4785-9238-96220bb50e2c_verification_initial",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "ETH未来24小时会上涨吗？。优先寻找与关键主张矛盾的材料，核验出处、时间和来源独立性。证据不足可以保留异议；团队一致不等于事实正确。",
+                "reason": "协议模拟按题选择verification。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟verification报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_02f653bca9ba9f3150a52059313c7923"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_02f653bca9ba9f3150a52059313c7923"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "演示线索不能自动证明事件已发生。",
+                    "evidenceIds": [
+                      "course_evidence_02f653bca9ba9f3150a52059313c7923"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_e10dfe6f-43ed-4785-9238-96220bb50e2c_verification_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_02f653bca9ba9f3150a52059313c7923"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_e10dfe6f-43ed-4785-9238-96220bb50e2c_verification_followup_2",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "复核协议示例新闻线索与正式来源的口径是否一致。问题：ETH未来24小时会上涨吗？",
+                "reason": "协议示例中新闻线索与正式披露的证明范围不同，需要再读取并明确证据边界。",
+                "followUp": true,
+                "cycle": 2,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟verification报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_02f653bca9ba9f3150a52059313c7923"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_02f653bca9ba9f3150a52059313c7923"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "演示线索不能自动证明事件已发生。",
+                    "evidenceIds": [
+                      "course_evidence_02f653bca9ba9f3150a52059313c7923"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_e10dfe6f-43ed-4785-9238-96220bb50e2c_verification_followup_2",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_02f653bca9ba9f3150a52059313c7923"
+                  ]
+                },
+                "review": {
+                  "objective": "复核协议示例新闻线索与正式来源的口径是否一致。问题：ETH未来24小时会上涨吗？",
+                  "reason": "协议示例中新闻线索与正式披露的证明范围不同，需要再读取并明确证据边界。",
+                  "evidenceIds": [
+                    "course_evidence_02f653bca9ba9f3150a52059313c7923",
+                    "course_evidence_f538199679b074c66f97c258f7446524"
+                  ],
+                  "parentAssignmentIds": [
+                    "course_run_e10dfe6f-43ed-4785-9238-96220bb50e2c_market_initial",
+                    "course_run_e10dfe6f-43ed-4785-9238-96220bb50e2c_statistics_initial",
+                    "course_run_e10dfe6f-43ed-4785-9238-96220bb50e2c_verification_initial"
+                  ],
+                  "requestedAt": "2026-11-20T04:00:00.000Z"
+                }
+              }
+            ],
+            "sources": [
+              {
+                "evidenceId": "course_evidence_02f653bca9ba9f3150a52059313c7923",
+                "title": "【虚构】公开状态",
+                "url": "https://example.com/course-lab/official",
+                "publishedAt": null,
+                "obtainedAt": "2026-11-20T04:00:00.000Z",
+                "marketQuote": null
+              },
+              {
+                "evidenceId": "course_evidence_f538199679b074c66f97c258f7446524",
+                "title": "【虚构】ETH-USD 报价样例",
+                "url": "https://example.com/course-lab/market/ETH-USD",
+                "publishedAt": null,
+                "obtainedAt": "2026-11-20T04:00:00.000Z",
+                "marketQuote": {
+                  "provider": "synthetic-course-quote",
+                  "pair": "ETH-USD",
+                  "value": 20,
+                  "currency": "USD",
+                  "observedAt": "2026-11-20T04:00:00.000Z",
+                  "sourcePublishedAt": null,
+                  "timestampMeaning": "system-observation-time",
+                  "url": "https://example.com/course-lab/market/ETH-USD"
+                }
+              }
+            ],
+            "triage": {
+              "kind": "initial",
+              "reason": "首次按题选择差异职责。",
+              "newEvidenceIds": []
+            },
+            "decision": {
+              "forecastId": "course_forecast_3dd3dea0-ee3d-429a-bc49-d6930d89e63b",
+              "probabilityYes": 0.5700000000000001,
+              "previousProbabilityYes": null,
+              "delta": null,
+              "summary": "协议模拟：已合并三份独立报告及针对性核验。此数值只演示完整流程，不是真实事件预测。",
+              "evidenceIds": [
+                "course_evidence_02f653bca9ba9f3150a52059313c7923",
+                "course_evidence_f538199679b074c66f97c258f7446524"
+              ],
+              "dissent": [
+                "模拟资料无法支持现实预测准确率主张。"
+              ],
+              "evidenceAdequacy": "limited",
+              "scoringEligible": false,
+              "recordedNotes": 4,
+              "totalReports": 4
+            },
+            "conclusion": "已发布；可逐项查看补查答复与裁决。"
+          },
+          "baseline": {
+            "kind": "price",
+            "value": 20,
+            "unit": "USD",
+            "currency": "USD",
+            "pair": "ETH-USD",
+            "observedAt": "2026-11-20T04:00:00.000Z",
+            "url": "https://example.com/course-lab/market/ETH-USD",
+            "evidenceId": "course_evidence_f538199679b074c66f97c258f7446524",
+            "verified": true,
+            "synthetic": true,
+            "timestampMeaning": "system-observation-time"
+          },
+          "usage": {
+            "modelRequests": 18,
+            "toolCalls": 10,
+            "totalTokens": 3240,
+            "promptTokens": 2160,
+            "completionTokens": 1080,
+            "cacheHitTokens": 720,
+            "cacheMissTokens": 1440,
+            "unknownUsage": false
+          },
+          "error": null,
+          "forecastCount": 1
+        }
+      ],
+      "metrics": {
+        "runs": 1,
+        "forecasts": 1,
+        "modelRequests": 18,
+        "toolCalls": 10,
+        "totalTokens": 3240
+      }
+    },
+    {
+      "id": "wrong-asset",
+      "title": "错资产报价：降级并保留缺口",
+      "question": "BTC未来24小时会下跌吗？",
+      "mode": "mock",
+      "sourceMode": "replay",
+      "notAccuracyBenchmark": true,
+      "checks": [
+        "完整协作发布完成",
+        "模拟结果不可计分",
+        "保存带证据的定向补查及答复",
+        "各份报告均有公开裁决说明",
+        "基准缺失或错配时保持条件估计",
+        "首轮市场报告明确资料不足",
+        "关闭并重开SQLite后协作记录完整一致"
+      ],
+      "snapshots": [
+        {
+          "label": "初次协作",
+          "runId": "course_run_299b3134-e4f2-43d1-956e-8f19ade00552",
+          "status": "completed",
+          "collaboration": {
+            "version": 1,
+            "runId": "course_run_299b3134-e4f2-43d1-956e-8f19ade00552",
+            "modelMode": "mock",
+            "sourceMode": "replay",
+            "team": [
+              {
+                "assignmentId": "course_run_299b3134-e4f2-43d1-956e-8f19ade00552_market_initial",
+                "roleId": "market",
+                "name": "预测市场研究员",
+                "objective": "BTC未来24小时会下跌吗？。先区分现货价格、预测市场报价与本系统事件概率。首次建立BTC/ETH涨跌题时优先用get_market_quote取得本轮对应资产的现价快照，报告须引用该快照并写明交易对、USD单位和系统观察时间；工具失败或只取得另一资产报价时明确基准缺口。后续检查沿用已固定的原始基准，不把新现价改写成旧基准。再核对目标时点、结果判定规则及公开材料。无合约盘口时不编造盘口概率、价差或流动性，也不把现价涨跌直接换算为Yes概率。",
+                "reason": "协议模拟按题选择market。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "insufficient",
+                "summary": "市场研究员未在本轮引用可核验的 BTC-USD 现价快照；价格基准未确认。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_5993ae1577b237eac28ae982264bff78",
+                  "course_evidence_a626bd3fb7473dfb6385d4d381f34822"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_5993ae1577b237eac28ae982264bff78",
+                      "course_evidence_a626bd3fb7473dfb6385d4d381f34822"
+                    ]
+                  }
+                ],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。",
+                  "市场研究员未在本轮引用可核验的 BTC-USD 现价快照；价格基准未确认。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_299b3134-e4f2-43d1-956e-8f19ade00552_market_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：该报告资料不足，保留缺口，不将其候选概率作为已确认事实。",
+                  "evidenceIds": [
+                    "course_evidence_5993ae1577b237eac28ae982264bff78",
+                    "course_evidence_a626bd3fb7473dfb6385d4d381f34822"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_299b3134-e4f2-43d1-956e-8f19ade00552_statistics_initial",
+                "roleId": "statistics",
+                "name": "统计与指标研究员",
+                "objective": "BTC未来24小时会下跌吗？。核对指标口径、单位、样本和时段。只报告能够复核的数字；计算工具尚未接入时不要宣称执行过计算，缺数据须说明。",
+                "reason": "协议模拟按题选择statistics。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟statistics报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_5993ae1577b237eac28ae982264bff78",
+                  "course_evidence_a626bd3fb7473dfb6385d4d381f34822"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_5993ae1577b237eac28ae982264bff78",
+                      "course_evidence_a626bd3fb7473dfb6385d4d381f34822"
+                    ]
+                  }
+                ],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_299b3134-e4f2-43d1-956e-8f19ade00552_statistics_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_5993ae1577b237eac28ae982264bff78",
+                    "course_evidence_a626bd3fb7473dfb6385d4d381f34822"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_299b3134-e4f2-43d1-956e-8f19ade00552_verification_initial",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "BTC未来24小时会下跌吗？。优先寻找与关键主张矛盾的材料，核验出处、时间和来源独立性。证据不足可以保留异议；团队一致不等于事实正确。",
+                "reason": "协议模拟按题选择verification。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟verification报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_5993ae1577b237eac28ae982264bff78"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_5993ae1577b237eac28ae982264bff78"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "演示线索不能自动证明事件已发生。",
+                    "evidenceIds": [
+                      "course_evidence_5993ae1577b237eac28ae982264bff78"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_299b3134-e4f2-43d1-956e-8f19ade00552_verification_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_5993ae1577b237eac28ae982264bff78"
+                  ]
+                },
+                "review": null
+              }
+            ],
+            "reviews": [
+              {
+                "assignmentId": "course_run_299b3134-e4f2-43d1-956e-8f19ade00552_verification_followup_2",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "复核协议示例新闻线索与正式来源的口径是否一致。问题：BTC未来24小时会下跌吗？",
+                "reason": "协议示例中新闻线索与正式披露的证明范围不同，需要再读取并明确证据边界。",
+                "followUp": true,
+                "cycle": 2,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟verification报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_5993ae1577b237eac28ae982264bff78"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_5993ae1577b237eac28ae982264bff78"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "演示线索不能自动证明事件已发生。",
+                    "evidenceIds": [
+                      "course_evidence_5993ae1577b237eac28ae982264bff78"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_299b3134-e4f2-43d1-956e-8f19ade00552_verification_followup_2",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_5993ae1577b237eac28ae982264bff78"
+                  ]
+                },
+                "review": {
+                  "objective": "复核协议示例新闻线索与正式来源的口径是否一致。问题：BTC未来24小时会下跌吗？",
+                  "reason": "协议示例中新闻线索与正式披露的证明范围不同，需要再读取并明确证据边界。",
+                  "evidenceIds": [
+                    "course_evidence_5993ae1577b237eac28ae982264bff78",
+                    "course_evidence_a626bd3fb7473dfb6385d4d381f34822"
+                  ],
+                  "parentAssignmentIds": [
+                    "course_run_299b3134-e4f2-43d1-956e-8f19ade00552_market_initial",
+                    "course_run_299b3134-e4f2-43d1-956e-8f19ade00552_statistics_initial",
+                    "course_run_299b3134-e4f2-43d1-956e-8f19ade00552_verification_initial"
+                  ],
+                  "requestedAt": "2026-11-20T04:00:00.000Z"
+                },
+                "previousSummary": "协议模拟verification报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probabilityBefore": null,
+                "probabilityAfter": null,
+                "newEvidenceIds": [],
+                "responseStatus": "submitted"
+              }
+            ],
+            "reports": [
+              {
+                "assignmentId": "course_run_299b3134-e4f2-43d1-956e-8f19ade00552_market_initial",
+                "roleId": "market",
+                "name": "预测市场研究员",
+                "objective": "BTC未来24小时会下跌吗？。先区分现货价格、预测市场报价与本系统事件概率。首次建立BTC/ETH涨跌题时优先用get_market_quote取得本轮对应资产的现价快照，报告须引用该快照并写明交易对、USD单位和系统观察时间；工具失败或只取得另一资产报价时明确基准缺口。后续检查沿用已固定的原始基准，不把新现价改写成旧基准。再核对目标时点、结果判定规则及公开材料。无合约盘口时不编造盘口概率、价差或流动性，也不把现价涨跌直接换算为Yes概率。",
+                "reason": "协议模拟按题选择market。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "insufficient",
+                "summary": "市场研究员未在本轮引用可核验的 BTC-USD 现价快照；价格基准未确认。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_5993ae1577b237eac28ae982264bff78",
+                  "course_evidence_a626bd3fb7473dfb6385d4d381f34822"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_5993ae1577b237eac28ae982264bff78",
+                      "course_evidence_a626bd3fb7473dfb6385d4d381f34822"
+                    ]
+                  }
+                ],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。",
+                  "市场研究员未在本轮引用可核验的 BTC-USD 现价快照；价格基准未确认。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_299b3134-e4f2-43d1-956e-8f19ade00552_market_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：该报告资料不足，保留缺口，不将其候选概率作为已确认事实。",
+                  "evidenceIds": [
+                    "course_evidence_5993ae1577b237eac28ae982264bff78",
+                    "course_evidence_a626bd3fb7473dfb6385d4d381f34822"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_299b3134-e4f2-43d1-956e-8f19ade00552_statistics_initial",
+                "roleId": "statistics",
+                "name": "统计与指标研究员",
+                "objective": "BTC未来24小时会下跌吗？。核对指标口径、单位、样本和时段。只报告能够复核的数字；计算工具尚未接入时不要宣称执行过计算，缺数据须说明。",
+                "reason": "协议模拟按题选择statistics。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟statistics报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_5993ae1577b237eac28ae982264bff78",
+                  "course_evidence_a626bd3fb7473dfb6385d4d381f34822"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_5993ae1577b237eac28ae982264bff78",
+                      "course_evidence_a626bd3fb7473dfb6385d4d381f34822"
+                    ]
+                  }
+                ],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_299b3134-e4f2-43d1-956e-8f19ade00552_statistics_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_5993ae1577b237eac28ae982264bff78",
+                    "course_evidence_a626bd3fb7473dfb6385d4d381f34822"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_299b3134-e4f2-43d1-956e-8f19ade00552_verification_initial",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "BTC未来24小时会下跌吗？。优先寻找与关键主张矛盾的材料，核验出处、时间和来源独立性。证据不足可以保留异议；团队一致不等于事实正确。",
+                "reason": "协议模拟按题选择verification。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟verification报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_5993ae1577b237eac28ae982264bff78"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_5993ae1577b237eac28ae982264bff78"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "演示线索不能自动证明事件已发生。",
+                    "evidenceIds": [
+                      "course_evidence_5993ae1577b237eac28ae982264bff78"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_299b3134-e4f2-43d1-956e-8f19ade00552_verification_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_5993ae1577b237eac28ae982264bff78"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_299b3134-e4f2-43d1-956e-8f19ade00552_verification_followup_2",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "复核协议示例新闻线索与正式来源的口径是否一致。问题：BTC未来24小时会下跌吗？",
+                "reason": "协议示例中新闻线索与正式披露的证明范围不同，需要再读取并明确证据边界。",
+                "followUp": true,
+                "cycle": 2,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟verification报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_5993ae1577b237eac28ae982264bff78"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_5993ae1577b237eac28ae982264bff78"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "演示线索不能自动证明事件已发生。",
+                    "evidenceIds": [
+                      "course_evidence_5993ae1577b237eac28ae982264bff78"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_299b3134-e4f2-43d1-956e-8f19ade00552_verification_followup_2",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_5993ae1577b237eac28ae982264bff78"
+                  ]
+                },
+                "review": {
+                  "objective": "复核协议示例新闻线索与正式来源的口径是否一致。问题：BTC未来24小时会下跌吗？",
+                  "reason": "协议示例中新闻线索与正式披露的证明范围不同，需要再读取并明确证据边界。",
+                  "evidenceIds": [
+                    "course_evidence_5993ae1577b237eac28ae982264bff78",
+                    "course_evidence_a626bd3fb7473dfb6385d4d381f34822"
+                  ],
+                  "parentAssignmentIds": [
+                    "course_run_299b3134-e4f2-43d1-956e-8f19ade00552_market_initial",
+                    "course_run_299b3134-e4f2-43d1-956e-8f19ade00552_statistics_initial",
+                    "course_run_299b3134-e4f2-43d1-956e-8f19ade00552_verification_initial"
+                  ],
+                  "requestedAt": "2026-11-20T04:00:00.000Z"
+                }
+              }
+            ],
+            "sources": [
+              {
+                "evidenceId": "course_evidence_5993ae1577b237eac28ae982264bff78",
+                "title": "【虚构】公开状态",
+                "url": "https://example.com/course-lab/official",
+                "publishedAt": null,
+                "obtainedAt": "2026-11-20T04:00:00.000Z",
+                "marketQuote": null
+              },
+              {
+                "evidenceId": "course_evidence_a626bd3fb7473dfb6385d4d381f34822",
+                "title": "【虚构】ETH-USD 报价样例",
+                "url": "https://example.com/course-lab/market/ETH-USD",
+                "publishedAt": null,
+                "obtainedAt": "2026-11-20T04:00:00.000Z",
+                "marketQuote": {
+                  "provider": "synthetic-course-quote",
+                  "pair": "ETH-USD",
+                  "value": 20,
+                  "currency": "USD",
+                  "observedAt": "2026-11-20T04:00:00.000Z",
+                  "sourcePublishedAt": null,
+                  "timestampMeaning": "system-observation-time",
+                  "url": "https://example.com/course-lab/market/ETH-USD"
+                }
+              }
+            ],
+            "triage": {
+              "kind": "initial",
+              "reason": "首次按题选择差异职责。",
+              "newEvidenceIds": []
+            },
+            "decision": {
+              "forecastId": "course_forecast_59e84f05-5a6d-4e74-b679-f09d559c85f2",
+              "probabilityYes": 0.5700000000000001,
+              "previousProbabilityYes": null,
+              "delta": null,
+              "summary": "协议模拟：已合并三份独立报告及针对性核验。此数值只演示完整流程，不是真实事件预测。",
+              "evidenceIds": [
+                "course_evidence_5993ae1577b237eac28ae982264bff78",
+                "course_evidence_a626bd3fb7473dfb6385d4d381f34822"
+              ],
+              "dissent": [
+                "模拟资料无法支持现实预测准确率主张。"
+              ],
+              "evidenceAdequacy": "limited",
+              "scoringEligible": false,
+              "recordedNotes": 4,
+              "totalReports": 4
+            },
+            "conclusion": "已发布；可逐项查看补查答复与裁决。"
+          },
+          "baseline": {
+            "kind": "directional",
+            "value": null,
+            "unit": null,
+            "observedAt": null,
+            "url": "https://example.com/course-lab/official",
+            "evidenceId": "course_evidence_5993ae1577b237eac28ae982264bff78",
+            "verified": false
+          },
+          "usage": {
+            "modelRequests": 18,
+            "toolCalls": 10,
+            "totalTokens": 3240,
+            "promptTokens": 2160,
+            "completionTokens": 1080,
+            "cacheHitTokens": 720,
+            "cacheMissTokens": 1440,
+            "unknownUsage": false
+          },
+          "error": null,
+          "forecastCount": 1
+        }
+      ],
+      "metrics": {
+        "runs": 1,
+        "forecasts": 1,
+        "modelRequests": 18,
+        "toolCalls": 10,
+        "totalTokens": 3240
+      }
+    },
+    {
+      "id": "no-quote",
+      "title": "报价不可用：继续调查但不伪造基准",
+      "question": "BTC未来24小时会下跌吗？",
+      "mode": "mock",
+      "sourceMode": "replay",
+      "notAccuracyBenchmark": true,
+      "checks": [
+        "完整协作发布完成",
+        "模拟结果不可计分",
+        "保存带证据的定向补查及答复",
+        "各份报告均有公开裁决说明",
+        "基准缺失或错配时保持条件估计",
+        "首轮市场报告明确资料不足",
+        "关闭并重开SQLite后协作记录完整一致"
+      ],
+      "snapshots": [
+        {
+          "label": "初次协作",
+          "runId": "course_run_c2771907-9bb9-4888-9ff3-f88603e9cc4f",
+          "status": "completed",
+          "collaboration": {
+            "version": 1,
+            "runId": "course_run_c2771907-9bb9-4888-9ff3-f88603e9cc4f",
+            "modelMode": "mock",
+            "sourceMode": "replay",
+            "team": [
+              {
+                "assignmentId": "course_run_c2771907-9bb9-4888-9ff3-f88603e9cc4f_market_initial",
+                "roleId": "market",
+                "name": "预测市场研究员",
+                "objective": "BTC未来24小时会下跌吗？。先区分现货价格、预测市场报价与本系统事件概率。首次建立BTC/ETH涨跌题时优先用get_market_quote取得本轮对应资产的现价快照，报告须引用该快照并写明交易对、USD单位和系统观察时间；工具失败或只取得另一资产报价时明确基准缺口。后续检查沿用已固定的原始基准，不把新现价改写成旧基准。再核对目标时点、结果判定规则及公开材料。无合约盘口时不编造盘口概率、价差或流动性，也不把现价涨跌直接换算为Yes概率。",
+                "reason": "协议模拟按题选择market。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "insufficient",
+                "summary": "市场研究员未在本轮引用可核验的 BTC-USD 现价快照；价格基准未确认。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_7fd2601cf229561182ce325be05a346d"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_7fd2601cf229561182ce325be05a346d"
+                    ]
+                  }
+                ],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。",
+                  "市场研究员未在本轮引用可核验的 BTC-USD 现价快照；价格基准未确认。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_c2771907-9bb9-4888-9ff3-f88603e9cc4f_market_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：该报告资料不足，保留缺口，不将其候选概率作为已确认事实。",
+                  "evidenceIds": [
+                    "course_evidence_7fd2601cf229561182ce325be05a346d"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_c2771907-9bb9-4888-9ff3-f88603e9cc4f_statistics_initial",
+                "roleId": "statistics",
+                "name": "统计与指标研究员",
+                "objective": "BTC未来24小时会下跌吗？。核对指标口径、单位、样本和时段。只报告能够复核的数字；计算工具尚未接入时不要宣称执行过计算，缺数据须说明。",
+                "reason": "协议模拟按题选择statistics。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟statistics报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_7fd2601cf229561182ce325be05a346d"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_7fd2601cf229561182ce325be05a346d"
+                    ]
+                  }
+                ],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_c2771907-9bb9-4888-9ff3-f88603e9cc4f_statistics_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_7fd2601cf229561182ce325be05a346d"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_c2771907-9bb9-4888-9ff3-f88603e9cc4f_verification_initial",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "BTC未来24小时会下跌吗？。优先寻找与关键主张矛盾的材料，核验出处、时间和来源独立性。证据不足可以保留异议；团队一致不等于事实正确。",
+                "reason": "协议模拟按题选择verification。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟verification报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_7fd2601cf229561182ce325be05a346d"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_7fd2601cf229561182ce325be05a346d"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "演示线索不能自动证明事件已发生。",
+                    "evidenceIds": [
+                      "course_evidence_7fd2601cf229561182ce325be05a346d"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_c2771907-9bb9-4888-9ff3-f88603e9cc4f_verification_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_7fd2601cf229561182ce325be05a346d"
+                  ]
+                },
+                "review": null
+              }
+            ],
+            "reviews": [
+              {
+                "assignmentId": "course_run_c2771907-9bb9-4888-9ff3-f88603e9cc4f_verification_followup_2",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "复核协议示例新闻线索与正式来源的口径是否一致。问题：BTC未来24小时会下跌吗？",
+                "reason": "协议示例中新闻线索与正式披露的证明范围不同，需要再读取并明确证据边界。",
+                "followUp": true,
+                "cycle": 2,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟verification报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_7fd2601cf229561182ce325be05a346d"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_7fd2601cf229561182ce325be05a346d"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "演示线索不能自动证明事件已发生。",
+                    "evidenceIds": [
+                      "course_evidence_7fd2601cf229561182ce325be05a346d"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_c2771907-9bb9-4888-9ff3-f88603e9cc4f_verification_followup_2",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_7fd2601cf229561182ce325be05a346d"
+                  ]
+                },
+                "review": {
+                  "objective": "复核协议示例新闻线索与正式来源的口径是否一致。问题：BTC未来24小时会下跌吗？",
+                  "reason": "协议示例中新闻线索与正式披露的证明范围不同，需要再读取并明确证据边界。",
+                  "evidenceIds": [
+                    "course_evidence_7fd2601cf229561182ce325be05a346d"
+                  ],
+                  "parentAssignmentIds": [
+                    "course_run_c2771907-9bb9-4888-9ff3-f88603e9cc4f_market_initial",
+                    "course_run_c2771907-9bb9-4888-9ff3-f88603e9cc4f_statistics_initial",
+                    "course_run_c2771907-9bb9-4888-9ff3-f88603e9cc4f_verification_initial"
+                  ],
+                  "requestedAt": "2026-11-20T04:00:00.000Z"
+                },
+                "previousSummary": "协议模拟verification报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probabilityBefore": null,
+                "probabilityAfter": null,
+                "newEvidenceIds": [],
+                "responseStatus": "submitted"
+              }
+            ],
+            "reports": [
+              {
+                "assignmentId": "course_run_c2771907-9bb9-4888-9ff3-f88603e9cc4f_market_initial",
+                "roleId": "market",
+                "name": "预测市场研究员",
+                "objective": "BTC未来24小时会下跌吗？。先区分现货价格、预测市场报价与本系统事件概率。首次建立BTC/ETH涨跌题时优先用get_market_quote取得本轮对应资产的现价快照，报告须引用该快照并写明交易对、USD单位和系统观察时间；工具失败或只取得另一资产报价时明确基准缺口。后续检查沿用已固定的原始基准，不把新现价改写成旧基准。再核对目标时点、结果判定规则及公开材料。无合约盘口时不编造盘口概率、价差或流动性，也不把现价涨跌直接换算为Yes概率。",
+                "reason": "协议模拟按题选择market。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "insufficient",
+                "summary": "市场研究员未在本轮引用可核验的 BTC-USD 现价快照；价格基准未确认。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_7fd2601cf229561182ce325be05a346d"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_7fd2601cf229561182ce325be05a346d"
+                    ]
+                  }
+                ],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。",
+                  "市场研究员未在本轮引用可核验的 BTC-USD 现价快照；价格基准未确认。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_c2771907-9bb9-4888-9ff3-f88603e9cc4f_market_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：该报告资料不足，保留缺口，不将其候选概率作为已确认事实。",
+                  "evidenceIds": [
+                    "course_evidence_7fd2601cf229561182ce325be05a346d"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_c2771907-9bb9-4888-9ff3-f88603e9cc4f_statistics_initial",
+                "roleId": "statistics",
+                "name": "统计与指标研究员",
+                "objective": "BTC未来24小时会下跌吗？。核对指标口径、单位、样本和时段。只报告能够复核的数字；计算工具尚未接入时不要宣称执行过计算，缺数据须说明。",
+                "reason": "协议模拟按题选择statistics。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟statistics报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_7fd2601cf229561182ce325be05a346d"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_7fd2601cf229561182ce325be05a346d"
+                    ]
+                  }
+                ],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_c2771907-9bb9-4888-9ff3-f88603e9cc4f_statistics_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_7fd2601cf229561182ce325be05a346d"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_c2771907-9bb9-4888-9ff3-f88603e9cc4f_verification_initial",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "BTC未来24小时会下跌吗？。优先寻找与关键主张矛盾的材料，核验出处、时间和来源独立性。证据不足可以保留异议；团队一致不等于事实正确。",
+                "reason": "协议模拟按题选择verification。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟verification报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_7fd2601cf229561182ce325be05a346d"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_7fd2601cf229561182ce325be05a346d"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "演示线索不能自动证明事件已发生。",
+                    "evidenceIds": [
+                      "course_evidence_7fd2601cf229561182ce325be05a346d"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_c2771907-9bb9-4888-9ff3-f88603e9cc4f_verification_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_7fd2601cf229561182ce325be05a346d"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_c2771907-9bb9-4888-9ff3-f88603e9cc4f_verification_followup_2",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "复核协议示例新闻线索与正式来源的口径是否一致。问题：BTC未来24小时会下跌吗？",
+                "reason": "协议示例中新闻线索与正式披露的证明范围不同，需要再读取并明确证据边界。",
+                "followUp": true,
+                "cycle": 2,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟verification报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_7fd2601cf229561182ce325be05a346d"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_7fd2601cf229561182ce325be05a346d"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "演示线索不能自动证明事件已发生。",
+                    "evidenceIds": [
+                      "course_evidence_7fd2601cf229561182ce325be05a346d"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_c2771907-9bb9-4888-9ff3-f88603e9cc4f_verification_followup_2",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_7fd2601cf229561182ce325be05a346d"
+                  ]
+                },
+                "review": {
+                  "objective": "复核协议示例新闻线索与正式来源的口径是否一致。问题：BTC未来24小时会下跌吗？",
+                  "reason": "协议示例中新闻线索与正式披露的证明范围不同，需要再读取并明确证据边界。",
+                  "evidenceIds": [
+                    "course_evidence_7fd2601cf229561182ce325be05a346d"
+                  ],
+                  "parentAssignmentIds": [
+                    "course_run_c2771907-9bb9-4888-9ff3-f88603e9cc4f_market_initial",
+                    "course_run_c2771907-9bb9-4888-9ff3-f88603e9cc4f_statistics_initial",
+                    "course_run_c2771907-9bb9-4888-9ff3-f88603e9cc4f_verification_initial"
+                  ],
+                  "requestedAt": "2026-11-20T04:00:00.000Z"
+                }
+              }
+            ],
+            "sources": [
+              {
+                "evidenceId": "course_evidence_7fd2601cf229561182ce325be05a346d",
+                "title": "【虚构】公开状态",
+                "url": "https://example.com/course-lab/official",
+                "publishedAt": null,
+                "obtainedAt": "2026-11-20T04:00:00.000Z",
+                "marketQuote": null
+              }
+            ],
+            "triage": {
+              "kind": "initial",
+              "reason": "首次按题选择差异职责。",
+              "newEvidenceIds": []
+            },
+            "decision": {
+              "forecastId": "course_forecast_1611cda8-7549-4fed-9b5d-58986cd3045f",
+              "probabilityYes": 0.69,
+              "previousProbabilityYes": null,
+              "delta": null,
+              "summary": "协议模拟：已合并三份独立报告及针对性核验。此数值只演示完整流程，不是真实事件预测。",
+              "evidenceIds": [
+                "course_evidence_7fd2601cf229561182ce325be05a346d"
+              ],
+              "dissent": [
+                "模拟资料无法支持现实预测准确率主张。"
+              ],
+              "evidenceAdequacy": "limited",
+              "scoringEligible": false,
+              "recordedNotes": 4,
+              "totalReports": 4
+            },
+            "conclusion": "已发布；可逐项查看补查答复与裁决。"
+          },
+          "baseline": {
+            "kind": "directional",
+            "value": null,
+            "unit": null,
+            "observedAt": null,
+            "url": "https://example.com/course-lab/official",
+            "evidenceId": "course_evidence_7fd2601cf229561182ce325be05a346d",
+            "verified": false
+          },
+          "usage": {
+            "modelRequests": 18,
+            "toolCalls": 10,
+            "totalTokens": 3240,
+            "promptTokens": 2160,
+            "completionTokens": 1080,
+            "cacheHitTokens": 720,
+            "cacheMissTokens": 1440,
+            "unknownUsage": false
+          },
+          "error": null,
+          "forecastCount": 1
+        }
+      ],
+      "metrics": {
+        "runs": 1,
+        "forecasts": 1,
+        "modelRequests": 18,
+        "toolCalls": 10,
+        "totalTokens": 3240
+      }
+    },
+    {
+      "id": "gold",
+      "title": "黄金：不支持的结构化报价",
+      "question": "黄金未来24小时会下跌吗？",
+      "mode": "mock",
+      "sourceMode": "replay",
+      "notAccuracyBenchmark": true,
+      "checks": [
+        "完整协作发布完成",
+        "模拟结果不可计分",
+        "保存带证据的定向补查及答复",
+        "各份报告均有公开裁决说明",
+        "基准缺失或错配时保持条件估计",
+        "关闭并重开SQLite后协作记录完整一致"
+      ],
+      "snapshots": [
+        {
+          "label": "初次协作",
+          "runId": "course_run_8c080c4d-5bde-4915-a835-a4ca172aaee9",
+          "status": "completed",
+          "collaboration": {
+            "version": 1,
+            "runId": "course_run_8c080c4d-5bde-4915-a835-a4ca172aaee9",
+            "modelMode": "mock",
+            "sourceMode": "replay",
+            "team": [
+              {
+                "assignmentId": "course_run_8c080c4d-5bde-4915-a835-a4ca172aaee9_market_initial",
+                "roleId": "market",
+                "name": "预测市场研究员",
+                "objective": "黄金未来24小时会下跌吗？。先区分现货价格、预测市场报价与本系统事件概率。首次建立BTC/ETH涨跌题时优先用get_market_quote取得本轮对应资产的现价快照，报告须引用该快照并写明交易对、USD单位和系统观察时间；工具失败或只取得另一资产报价时明确基准缺口。后续检查沿用已固定的原始基准，不把新现价改写成旧基准。再核对目标时点、结果判定规则及公开材料。无合约盘口时不编造盘口概率、价差或流动性，也不把现价涨跌直接换算为Yes概率。",
+                "reason": "协议模拟按题选择market。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟market报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_d7484bde259a4c3d1416f72b97999f1e"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_d7484bde259a4c3d1416f72b97999f1e"
+                    ]
+                  }
+                ],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_8c080c4d-5bde-4915-a835-a4ca172aaee9_market_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_d7484bde259a4c3d1416f72b97999f1e"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_8c080c4d-5bde-4915-a835-a4ca172aaee9_statistics_initial",
+                "roleId": "statistics",
+                "name": "统计与指标研究员",
+                "objective": "黄金未来24小时会下跌吗？。核对指标口径、单位、样本和时段。只报告能够复核的数字；计算工具尚未接入时不要宣称执行过计算，缺数据须说明。",
+                "reason": "协议模拟按题选择statistics。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟statistics报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_d7484bde259a4c3d1416f72b97999f1e"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_d7484bde259a4c3d1416f72b97999f1e"
+                    ]
+                  }
+                ],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_8c080c4d-5bde-4915-a835-a4ca172aaee9_statistics_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_d7484bde259a4c3d1416f72b97999f1e"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_8c080c4d-5bde-4915-a835-a4ca172aaee9_verification_initial",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "黄金未来24小时会下跌吗？。优先寻找与关键主张矛盾的材料，核验出处、时间和来源独立性。证据不足可以保留异议；团队一致不等于事实正确。",
+                "reason": "协议模拟按题选择verification。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟verification报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_d7484bde259a4c3d1416f72b97999f1e"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_d7484bde259a4c3d1416f72b97999f1e"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "演示线索不能自动证明事件已发生。",
+                    "evidenceIds": [
+                      "course_evidence_d7484bde259a4c3d1416f72b97999f1e"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_8c080c4d-5bde-4915-a835-a4ca172aaee9_verification_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_d7484bde259a4c3d1416f72b97999f1e"
+                  ]
+                },
+                "review": null
+              }
+            ],
+            "reviews": [
+              {
+                "assignmentId": "course_run_8c080c4d-5bde-4915-a835-a4ca172aaee9_verification_followup_2",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "复核协议示例新闻线索与正式来源的口径是否一致。问题：黄金未来24小时会下跌吗？",
+                "reason": "协议示例中新闻线索与正式披露的证明范围不同，需要再读取并明确证据边界。",
+                "followUp": true,
+                "cycle": 2,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟verification报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_d7484bde259a4c3d1416f72b97999f1e"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_d7484bde259a4c3d1416f72b97999f1e"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "演示线索不能自动证明事件已发生。",
+                    "evidenceIds": [
+                      "course_evidence_d7484bde259a4c3d1416f72b97999f1e"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_8c080c4d-5bde-4915-a835-a4ca172aaee9_verification_followup_2",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_d7484bde259a4c3d1416f72b97999f1e"
+                  ]
+                },
+                "review": {
+                  "objective": "复核协议示例新闻线索与正式来源的口径是否一致。问题：黄金未来24小时会下跌吗？",
+                  "reason": "协议示例中新闻线索与正式披露的证明范围不同，需要再读取并明确证据边界。",
+                  "evidenceIds": [
+                    "course_evidence_d7484bde259a4c3d1416f72b97999f1e"
+                  ],
+                  "parentAssignmentIds": [
+                    "course_run_8c080c4d-5bde-4915-a835-a4ca172aaee9_market_initial",
+                    "course_run_8c080c4d-5bde-4915-a835-a4ca172aaee9_statistics_initial",
+                    "course_run_8c080c4d-5bde-4915-a835-a4ca172aaee9_verification_initial"
+                  ],
+                  "requestedAt": "2026-11-20T04:00:00.000Z"
+                },
+                "previousSummary": "协议模拟verification报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probabilityBefore": null,
+                "probabilityAfter": null,
+                "newEvidenceIds": [],
+                "responseStatus": "submitted"
+              }
+            ],
+            "reports": [
+              {
+                "assignmentId": "course_run_8c080c4d-5bde-4915-a835-a4ca172aaee9_market_initial",
+                "roleId": "market",
+                "name": "预测市场研究员",
+                "objective": "黄金未来24小时会下跌吗？。先区分现货价格、预测市场报价与本系统事件概率。首次建立BTC/ETH涨跌题时优先用get_market_quote取得本轮对应资产的现价快照，报告须引用该快照并写明交易对、USD单位和系统观察时间；工具失败或只取得另一资产报价时明确基准缺口。后续检查沿用已固定的原始基准，不把新现价改写成旧基准。再核对目标时点、结果判定规则及公开材料。无合约盘口时不编造盘口概率、价差或流动性，也不把现价涨跌直接换算为Yes概率。",
+                "reason": "协议模拟按题选择market。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟market报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_d7484bde259a4c3d1416f72b97999f1e"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_d7484bde259a4c3d1416f72b97999f1e"
+                    ]
+                  }
+                ],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_8c080c4d-5bde-4915-a835-a4ca172aaee9_market_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_d7484bde259a4c3d1416f72b97999f1e"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_8c080c4d-5bde-4915-a835-a4ca172aaee9_statistics_initial",
+                "roleId": "statistics",
+                "name": "统计与指标研究员",
+                "objective": "黄金未来24小时会下跌吗？。核对指标口径、单位、样本和时段。只报告能够复核的数字；计算工具尚未接入时不要宣称执行过计算，缺数据须说明。",
+                "reason": "协议模拟按题选择statistics。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟statistics报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_d7484bde259a4c3d1416f72b97999f1e"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_d7484bde259a4c3d1416f72b97999f1e"
+                    ]
+                  }
+                ],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_8c080c4d-5bde-4915-a835-a4ca172aaee9_statistics_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_d7484bde259a4c3d1416f72b97999f1e"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_8c080c4d-5bde-4915-a835-a4ca172aaee9_verification_initial",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "黄金未来24小时会下跌吗？。优先寻找与关键主张矛盾的材料，核验出处、时间和来源独立性。证据不足可以保留异议；团队一致不等于事实正确。",
+                "reason": "协议模拟按题选择verification。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟verification报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_d7484bde259a4c3d1416f72b97999f1e"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_d7484bde259a4c3d1416f72b97999f1e"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "演示线索不能自动证明事件已发生。",
+                    "evidenceIds": [
+                      "course_evidence_d7484bde259a4c3d1416f72b97999f1e"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_8c080c4d-5bde-4915-a835-a4ca172aaee9_verification_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_d7484bde259a4c3d1416f72b97999f1e"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_8c080c4d-5bde-4915-a835-a4ca172aaee9_verification_followup_2",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "复核协议示例新闻线索与正式来源的口径是否一致。问题：黄金未来24小时会下跌吗？",
+                "reason": "协议示例中新闻线索与正式披露的证明范围不同，需要再读取并明确证据边界。",
+                "followUp": true,
+                "cycle": 2,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟verification报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_d7484bde259a4c3d1416f72b97999f1e"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_d7484bde259a4c3d1416f72b97999f1e"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "演示线索不能自动证明事件已发生。",
+                    "evidenceIds": [
+                      "course_evidence_d7484bde259a4c3d1416f72b97999f1e"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_8c080c4d-5bde-4915-a835-a4ca172aaee9_verification_followup_2",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_d7484bde259a4c3d1416f72b97999f1e"
+                  ]
+                },
+                "review": {
+                  "objective": "复核协议示例新闻线索与正式来源的口径是否一致。问题：黄金未来24小时会下跌吗？",
+                  "reason": "协议示例中新闻线索与正式披露的证明范围不同，需要再读取并明确证据边界。",
+                  "evidenceIds": [
+                    "course_evidence_d7484bde259a4c3d1416f72b97999f1e"
+                  ],
+                  "parentAssignmentIds": [
+                    "course_run_8c080c4d-5bde-4915-a835-a4ca172aaee9_market_initial",
+                    "course_run_8c080c4d-5bde-4915-a835-a4ca172aaee9_statistics_initial",
+                    "course_run_8c080c4d-5bde-4915-a835-a4ca172aaee9_verification_initial"
+                  ],
+                  "requestedAt": "2026-11-20T04:00:00.000Z"
+                }
+              }
+            ],
+            "sources": [
+              {
+                "evidenceId": "course_evidence_d7484bde259a4c3d1416f72b97999f1e",
+                "title": "【虚构】公开状态",
+                "url": "https://example.com/course-lab/official",
+                "publishedAt": null,
+                "obtainedAt": "2026-11-20T04:00:00.000Z",
+                "marketQuote": null
+              }
+            ],
+            "triage": {
+              "kind": "initial",
+              "reason": "首次按题选择差异职责。",
+              "newEvidenceIds": []
+            },
+            "decision": {
+              "forecastId": "course_forecast_09b85d4e-9c43-4b17-b9b1-b9d55bfbe34b",
+              "probabilityYes": 0.69,
+              "previousProbabilityYes": null,
+              "delta": null,
+              "summary": "协议模拟：已合并三份独立报告及针对性核验。此数值只演示完整流程，不是真实事件预测。",
+              "evidenceIds": [
+                "course_evidence_d7484bde259a4c3d1416f72b97999f1e"
+              ],
+              "dissent": [
+                "模拟资料无法支持现实预测准确率主张。"
+              ],
+              "evidenceAdequacy": "limited",
+              "scoringEligible": false,
+              "recordedNotes": 4,
+              "totalReports": 4
+            },
+            "conclusion": "已发布；可逐项查看补查答复与裁决。"
+          },
+          "baseline": {
+            "kind": "directional",
+            "value": null,
+            "unit": null,
+            "observedAt": null,
+            "url": "https://example.com/course-lab/official",
+            "evidenceId": "course_evidence_d7484bde259a4c3d1416f72b97999f1e",
+            "verified": false
+          },
+          "usage": {
+            "modelRequests": 16,
+            "toolCalls": 8,
+            "totalTokens": 2880,
+            "promptTokens": 1920,
+            "completionTokens": 960,
+            "cacheHitTokens": 640,
+            "cacheMissTokens": 1280,
+            "unknownUsage": false
+          },
+          "error": null,
+          "forecastCount": 1
+        }
+      ],
+      "metrics": {
+        "runs": 1,
+        "forecasts": 1,
+        "modelRequests": 16,
+        "toolCalls": 8,
+        "totalTokens": 2880
+      }
+    },
+    {
+      "id": "update",
+      "title": "新证据：局部复核与无变化检查",
+      "question": "比特币未来24小时会上涨吗？",
+      "mode": "mock",
+      "sourceMode": "replay",
+      "notAccuracyBenchmark": true,
+      "checks": [
+        "完整协作发布完成",
+        "模拟结果不可计分",
+        "保存带证据的定向补查及答复",
+        "各份报告均有公开裁决说明",
+        "固定基准与原题资产匹配",
+        "新正文触发相关研究员与核验席局部复核",
+        "复核实际载入上一判断记忆，固定基准不变",
+        "重复检查不派工、不增加概率点",
+        "关闭并重开SQLite后协作记录完整一致"
+      ],
+      "snapshots": [
+        {
+          "label": "初次协作",
+          "runId": "course_run_c1f20270-3acf-4de8-8e6b-8657673b9813",
+          "status": "completed",
+          "collaboration": {
+            "version": 1,
+            "runId": "course_run_c1f20270-3acf-4de8-8e6b-8657673b9813",
+            "modelMode": "mock",
+            "sourceMode": "replay",
+            "team": [
+              {
+                "assignmentId": "course_run_c1f20270-3acf-4de8-8e6b-8657673b9813_market_initial",
+                "roleId": "market",
+                "name": "预测市场研究员",
+                "objective": "比特币未来24小时会上涨吗？。先区分现货价格、预测市场报价与本系统事件概率。首次建立BTC/ETH涨跌题时优先用get_market_quote取得本轮对应资产的现价快照，报告须引用该快照并写明交易对、USD单位和系统观察时间；工具失败或只取得另一资产报价时明确基准缺口。后续检查沿用已固定的原始基准，不把新现价改写成旧基准。再核对目标时点、结果判定规则及公开材料。无合约盘口时不编造盘口概率、价差或流动性，也不把现价涨跌直接换算为Yes概率。",
+                "reason": "协议模拟按题选择market。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟market报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_4b7b5b79b9392214df567850204bba01",
+                  "course_evidence_e8f54477f197543a3c5e0cd1d7320a14"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_4b7b5b79b9392214df567850204bba01",
+                      "course_evidence_e8f54477f197543a3c5e0cd1d7320a14"
+                    ]
+                  }
+                ],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_c1f20270-3acf-4de8-8e6b-8657673b9813_market_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_4b7b5b79b9392214df567850204bba01",
+                    "course_evidence_e8f54477f197543a3c5e0cd1d7320a14"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_c1f20270-3acf-4de8-8e6b-8657673b9813_statistics_initial",
+                "roleId": "statistics",
+                "name": "统计与指标研究员",
+                "objective": "比特币未来24小时会上涨吗？。核对指标口径、单位、样本和时段。只报告能够复核的数字；计算工具尚未接入时不要宣称执行过计算，缺数据须说明。",
+                "reason": "协议模拟按题选择statistics。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟statistics报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_4b7b5b79b9392214df567850204bba01",
+                  "course_evidence_e8f54477f197543a3c5e0cd1d7320a14"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_4b7b5b79b9392214df567850204bba01",
+                      "course_evidence_e8f54477f197543a3c5e0cd1d7320a14"
+                    ]
+                  }
+                ],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_c1f20270-3acf-4de8-8e6b-8657673b9813_statistics_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_4b7b5b79b9392214df567850204bba01",
+                    "course_evidence_e8f54477f197543a3c5e0cd1d7320a14"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_c1f20270-3acf-4de8-8e6b-8657673b9813_verification_initial",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "比特币未来24小时会上涨吗？。优先寻找与关键主张矛盾的材料，核验出处、时间和来源独立性。证据不足可以保留异议；团队一致不等于事实正确。",
+                "reason": "协议模拟按题选择verification。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟verification报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_4b7b5b79b9392214df567850204bba01"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_4b7b5b79b9392214df567850204bba01"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "演示线索不能自动证明事件已发生。",
+                    "evidenceIds": [
+                      "course_evidence_4b7b5b79b9392214df567850204bba01"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_c1f20270-3acf-4de8-8e6b-8657673b9813_verification_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_4b7b5b79b9392214df567850204bba01"
+                  ]
+                },
+                "review": null
+              }
+            ],
+            "reviews": [
+              {
+                "assignmentId": "course_run_c1f20270-3acf-4de8-8e6b-8657673b9813_verification_followup_2",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "复核协议示例新闻线索与正式来源的口径是否一致。问题：比特币未来24小时会上涨吗？",
+                "reason": "协议示例中新闻线索与正式披露的证明范围不同，需要再读取并明确证据边界。",
+                "followUp": true,
+                "cycle": 2,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟verification报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_4b7b5b79b9392214df567850204bba01"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_4b7b5b79b9392214df567850204bba01"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "演示线索不能自动证明事件已发生。",
+                    "evidenceIds": [
+                      "course_evidence_4b7b5b79b9392214df567850204bba01"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_c1f20270-3acf-4de8-8e6b-8657673b9813_verification_followup_2",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_4b7b5b79b9392214df567850204bba01"
+                  ]
+                },
+                "review": {
+                  "objective": "复核协议示例新闻线索与正式来源的口径是否一致。问题：比特币未来24小时会上涨吗？",
+                  "reason": "协议示例中新闻线索与正式披露的证明范围不同，需要再读取并明确证据边界。",
+                  "evidenceIds": [
+                    "course_evidence_4b7b5b79b9392214df567850204bba01",
+                    "course_evidence_e8f54477f197543a3c5e0cd1d7320a14"
+                  ],
+                  "parentAssignmentIds": [
+                    "course_run_c1f20270-3acf-4de8-8e6b-8657673b9813_market_initial",
+                    "course_run_c1f20270-3acf-4de8-8e6b-8657673b9813_statistics_initial",
+                    "course_run_c1f20270-3acf-4de8-8e6b-8657673b9813_verification_initial"
+                  ],
+                  "requestedAt": "2026-11-20T04:00:00.000Z"
+                },
+                "previousSummary": "协议模拟verification报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probabilityBefore": null,
+                "probabilityAfter": null,
+                "newEvidenceIds": [],
+                "responseStatus": "submitted"
+              }
+            ],
+            "reports": [
+              {
+                "assignmentId": "course_run_c1f20270-3acf-4de8-8e6b-8657673b9813_market_initial",
+                "roleId": "market",
+                "name": "预测市场研究员",
+                "objective": "比特币未来24小时会上涨吗？。先区分现货价格、预测市场报价与本系统事件概率。首次建立BTC/ETH涨跌题时优先用get_market_quote取得本轮对应资产的现价快照，报告须引用该快照并写明交易对、USD单位和系统观察时间；工具失败或只取得另一资产报价时明确基准缺口。后续检查沿用已固定的原始基准，不把新现价改写成旧基准。再核对目标时点、结果判定规则及公开材料。无合约盘口时不编造盘口概率、价差或流动性，也不把现价涨跌直接换算为Yes概率。",
+                "reason": "协议模拟按题选择market。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟market报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_4b7b5b79b9392214df567850204bba01",
+                  "course_evidence_e8f54477f197543a3c5e0cd1d7320a14"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_4b7b5b79b9392214df567850204bba01",
+                      "course_evidence_e8f54477f197543a3c5e0cd1d7320a14"
+                    ]
+                  }
+                ],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_c1f20270-3acf-4de8-8e6b-8657673b9813_market_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_4b7b5b79b9392214df567850204bba01",
+                    "course_evidence_e8f54477f197543a3c5e0cd1d7320a14"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_c1f20270-3acf-4de8-8e6b-8657673b9813_statistics_initial",
+                "roleId": "statistics",
+                "name": "统计与指标研究员",
+                "objective": "比特币未来24小时会上涨吗？。核对指标口径、单位、样本和时段。只报告能够复核的数字；计算工具尚未接入时不要宣称执行过计算，缺数据须说明。",
+                "reason": "协议模拟按题选择statistics。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟statistics报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_4b7b5b79b9392214df567850204bba01",
+                  "course_evidence_e8f54477f197543a3c5e0cd1d7320a14"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_4b7b5b79b9392214df567850204bba01",
+                      "course_evidence_e8f54477f197543a3c5e0cd1d7320a14"
+                    ]
+                  }
+                ],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_c1f20270-3acf-4de8-8e6b-8657673b9813_statistics_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_4b7b5b79b9392214df567850204bba01",
+                    "course_evidence_e8f54477f197543a3c5e0cd1d7320a14"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_c1f20270-3acf-4de8-8e6b-8657673b9813_verification_initial",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "比特币未来24小时会上涨吗？。优先寻找与关键主张矛盾的材料，核验出处、时间和来源独立性。证据不足可以保留异议；团队一致不等于事实正确。",
+                "reason": "协议模拟按题选择verification。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟verification报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_4b7b5b79b9392214df567850204bba01"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_4b7b5b79b9392214df567850204bba01"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "演示线索不能自动证明事件已发生。",
+                    "evidenceIds": [
+                      "course_evidence_4b7b5b79b9392214df567850204bba01"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_c1f20270-3acf-4de8-8e6b-8657673b9813_verification_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_4b7b5b79b9392214df567850204bba01"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_c1f20270-3acf-4de8-8e6b-8657673b9813_verification_followup_2",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "复核协议示例新闻线索与正式来源的口径是否一致。问题：比特币未来24小时会上涨吗？",
+                "reason": "协议示例中新闻线索与正式披露的证明范围不同，需要再读取并明确证据边界。",
+                "followUp": true,
+                "cycle": 2,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟verification报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_4b7b5b79b9392214df567850204bba01"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_4b7b5b79b9392214df567850204bba01"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "演示线索不能自动证明事件已发生。",
+                    "evidenceIds": [
+                      "course_evidence_4b7b5b79b9392214df567850204bba01"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_c1f20270-3acf-4de8-8e6b-8657673b9813_verification_followup_2",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_4b7b5b79b9392214df567850204bba01"
+                  ]
+                },
+                "review": {
+                  "objective": "复核协议示例新闻线索与正式来源的口径是否一致。问题：比特币未来24小时会上涨吗？",
+                  "reason": "协议示例中新闻线索与正式披露的证明范围不同，需要再读取并明确证据边界。",
+                  "evidenceIds": [
+                    "course_evidence_4b7b5b79b9392214df567850204bba01",
+                    "course_evidence_e8f54477f197543a3c5e0cd1d7320a14"
+                  ],
+                  "parentAssignmentIds": [
+                    "course_run_c1f20270-3acf-4de8-8e6b-8657673b9813_market_initial",
+                    "course_run_c1f20270-3acf-4de8-8e6b-8657673b9813_statistics_initial",
+                    "course_run_c1f20270-3acf-4de8-8e6b-8657673b9813_verification_initial"
+                  ],
+                  "requestedAt": "2026-11-20T04:00:00.000Z"
+                }
+              }
+            ],
+            "sources": [
+              {
+                "evidenceId": "course_evidence_4b7b5b79b9392214df567850204bba01",
+                "title": "【虚构】公开状态",
+                "url": "https://example.com/course-lab/official",
+                "publishedAt": null,
+                "obtainedAt": "2026-11-20T04:00:00.000Z",
+                "marketQuote": null
+              },
+              {
+                "evidenceId": "course_evidence_e8f54477f197543a3c5e0cd1d7320a14",
+                "title": "【虚构】BTC-USD 报价样例",
+                "url": "https://example.com/course-lab/market/BTC-USD",
+                "publishedAt": null,
+                "obtainedAt": "2026-11-20T04:00:00.000Z",
+                "marketQuote": {
+                  "provider": "synthetic-course-quote",
+                  "pair": "BTC-USD",
+                  "value": 100,
+                  "currency": "USD",
+                  "observedAt": "2026-11-20T04:00:00.000Z",
+                  "sourcePublishedAt": null,
+                  "timestampMeaning": "system-observation-time",
+                  "url": "https://example.com/course-lab/market/BTC-USD"
+                }
+              }
+            ],
+            "triage": {
+              "kind": "initial",
+              "reason": "首次按题选择差异职责。",
+              "newEvidenceIds": []
+            },
+            "decision": {
+              "forecastId": "course_forecast_7ce3398e-c6c4-425d-a7f7-79168fd8fcef",
+              "probabilityYes": 0.54,
+              "previousProbabilityYes": null,
+              "delta": null,
+              "summary": "协议模拟：已合并三份独立报告及针对性核验。此数值只演示完整流程，不是真实事件预测。",
+              "evidenceIds": [
+                "course_evidence_4b7b5b79b9392214df567850204bba01",
+                "course_evidence_e8f54477f197543a3c5e0cd1d7320a14"
+              ],
+              "dissent": [
+                "模拟资料无法支持现实预测准确率主张。"
+              ],
+              "evidenceAdequacy": "limited",
+              "scoringEligible": false,
+              "recordedNotes": 4,
+              "totalReports": 4
+            },
+            "conclusion": "已发布；可逐项查看补查答复与裁决。"
+          },
+          "baseline": {
+            "kind": "price",
+            "value": 100,
+            "unit": "USD",
+            "currency": "USD",
+            "pair": "BTC-USD",
+            "observedAt": "2026-11-20T04:00:00.000Z",
+            "url": "https://example.com/course-lab/market/BTC-USD",
+            "evidenceId": "course_evidence_e8f54477f197543a3c5e0cd1d7320a14",
+            "verified": true,
+            "synthetic": true,
+            "timestampMeaning": "system-observation-time"
+          },
+          "usage": {
+            "modelRequests": 18,
+            "toolCalls": 10,
+            "totalTokens": 3240,
+            "promptTokens": 2160,
+            "completionTokens": 1080,
+            "cacheHitTokens": 720,
+            "cacheMissTokens": 1440,
+            "unknownUsage": false
+          },
+          "error": null,
+          "forecastCount": 1
+        },
+        {
+          "label": "新证据局部复核",
+          "runId": "course_run_99bcee24-002d-4861-b3fb-c207e32975f2",
+          "status": "completed",
+          "collaboration": {
+            "version": 1,
+            "runId": "course_run_99bcee24-002d-4861-b3fb-c207e32975f2",
+            "modelMode": "mock",
+            "sourceMode": "replay",
+            "team": [
+              {
+                "assignmentId": "course_run_99bcee24-002d-4861-b3fb-c207e32975f2_market_initial",
+                "roleId": "market",
+                "name": "预测市场研究员",
+                "objective": "比特币未来24小时会上涨吗？。先区分现货价格、预测市场报价与本系统事件概率。首次建立BTC/ETH涨跌题时优先用get_market_quote取得本轮对应资产的现价快照，报告须引用该快照并写明交易对、USD单位和系统观察时间；工具失败或只取得另一资产报价时明确基准缺口。后续检查沿用已固定的原始基准，不把新现价改写成旧基准。再核对目标时点、结果判定规则及公开材料。无合约盘口时不编造盘口概率、价差或流动性，也不把现价涨跌直接换算为Yes概率。",
+                "reason": "协议演示按题选择market的调查方法，不把所有题目交给相同团队。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟market报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_b855763b550dc1e4461449fbee0d517f",
+                  "course_evidence_e8f54477f197543a3c5e0cd1d7320a14"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_b855763b550dc1e4461449fbee0d517f",
+                      "course_evidence_e8f54477f197543a3c5e0cd1d7320a14"
+                    ]
+                  }
+                ],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_99bcee24-002d-4861-b3fb-c207e32975f2_market_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_b855763b550dc1e4461449fbee0d517f",
+                    "course_evidence_e8f54477f197543a3c5e0cd1d7320a14"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_99bcee24-002d-4861-b3fb-c207e32975f2_verification_initial",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "比特币未来24小时会上涨吗？。优先寻找与关键主张矛盾的材料，核验出处、时间和来源独立性。证据不足可以保留异议；团队一致不等于事实正确。",
+                "reason": "协议演示按题选择verification的调查方法，不把所有题目交给相同团队。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟verification报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_b855763b550dc1e4461449fbee0d517f"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_b855763b550dc1e4461449fbee0d517f"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "演示线索不能自动证明事件已发生。",
+                    "evidenceIds": [
+                      "course_evidence_b855763b550dc1e4461449fbee0d517f"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_99bcee24-002d-4861-b3fb-c207e32975f2_verification_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_b855763b550dc1e4461449fbee0d517f"
+                  ]
+                },
+                "review": null
+              }
+            ],
+            "reviews": [
+              {
+                "assignmentId": "course_run_99bcee24-002d-4861-b3fb-c207e32975f2_verification_followup_2",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "复核协议示例新闻线索与正式来源的口径是否一致。问题：比特币未来24小时会上涨吗？",
+                "reason": "协议示例中新闻线索与正式披露的证明范围不同，需要再读取并明确证据边界。",
+                "followUp": true,
+                "cycle": 2,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟verification报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_b855763b550dc1e4461449fbee0d517f"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_b855763b550dc1e4461449fbee0d517f"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "演示线索不能自动证明事件已发生。",
+                    "evidenceIds": [
+                      "course_evidence_b855763b550dc1e4461449fbee0d517f"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_99bcee24-002d-4861-b3fb-c207e32975f2_verification_followup_2",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_b855763b550dc1e4461449fbee0d517f"
+                  ]
+                },
+                "review": {
+                  "objective": "复核协议示例新闻线索与正式来源的口径是否一致。问题：比特币未来24小时会上涨吗？",
+                  "reason": "协议示例中新闻线索与正式披露的证明范围不同，需要再读取并明确证据边界。",
+                  "evidenceIds": [
+                    "course_evidence_b855763b550dc1e4461449fbee0d517f",
+                    "course_evidence_e8f54477f197543a3c5e0cd1d7320a14"
+                  ],
+                  "parentAssignmentIds": [
+                    "course_run_99bcee24-002d-4861-b3fb-c207e32975f2_market_initial",
+                    "course_run_99bcee24-002d-4861-b3fb-c207e32975f2_verification_initial"
+                  ],
+                  "requestedAt": "2026-11-20T04:00:00.000Z"
+                },
+                "previousSummary": "协议模拟verification报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probabilityBefore": null,
+                "probabilityAfter": null,
+                "newEvidenceIds": [],
+                "responseStatus": "submitted"
+              }
+            ],
+            "reports": [
+              {
+                "assignmentId": "course_run_99bcee24-002d-4861-b3fb-c207e32975f2_market_initial",
+                "roleId": "market",
+                "name": "预测市场研究员",
+                "objective": "比特币未来24小时会上涨吗？。先区分现货价格、预测市场报价与本系统事件概率。首次建立BTC/ETH涨跌题时优先用get_market_quote取得本轮对应资产的现价快照，报告须引用该快照并写明交易对、USD单位和系统观察时间；工具失败或只取得另一资产报价时明确基准缺口。后续检查沿用已固定的原始基准，不把新现价改写成旧基准。再核对目标时点、结果判定规则及公开材料。无合约盘口时不编造盘口概率、价差或流动性，也不把现价涨跌直接换算为Yes概率。",
+                "reason": "协议演示按题选择market的调查方法，不把所有题目交给相同团队。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟market报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_b855763b550dc1e4461449fbee0d517f",
+                  "course_evidence_e8f54477f197543a3c5e0cd1d7320a14"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_b855763b550dc1e4461449fbee0d517f",
+                      "course_evidence_e8f54477f197543a3c5e0cd1d7320a14"
+                    ]
+                  }
+                ],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_99bcee24-002d-4861-b3fb-c207e32975f2_market_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_b855763b550dc1e4461449fbee0d517f",
+                    "course_evidence_e8f54477f197543a3c5e0cd1d7320a14"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_99bcee24-002d-4861-b3fb-c207e32975f2_verification_initial",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "比特币未来24小时会上涨吗？。优先寻找与关键主张矛盾的材料，核验出处、时间和来源独立性。证据不足可以保留异议；团队一致不等于事实正确。",
+                "reason": "协议演示按题选择verification的调查方法，不把所有题目交给相同团队。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟verification报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_b855763b550dc1e4461449fbee0d517f"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_b855763b550dc1e4461449fbee0d517f"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "演示线索不能自动证明事件已发生。",
+                    "evidenceIds": [
+                      "course_evidence_b855763b550dc1e4461449fbee0d517f"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_99bcee24-002d-4861-b3fb-c207e32975f2_verification_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_b855763b550dc1e4461449fbee0d517f"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_99bcee24-002d-4861-b3fb-c207e32975f2_verification_followup_2",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "复核协议示例新闻线索与正式来源的口径是否一致。问题：比特币未来24小时会上涨吗？",
+                "reason": "协议示例中新闻线索与正式披露的证明范围不同，需要再读取并明确证据边界。",
+                "followUp": true,
+                "cycle": 2,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟verification报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_b855763b550dc1e4461449fbee0d517f"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_b855763b550dc1e4461449fbee0d517f"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "演示线索不能自动证明事件已发生。",
+                    "evidenceIds": [
+                      "course_evidence_b855763b550dc1e4461449fbee0d517f"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_99bcee24-002d-4861-b3fb-c207e32975f2_verification_followup_2",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_b855763b550dc1e4461449fbee0d517f"
+                  ]
+                },
+                "review": {
+                  "objective": "复核协议示例新闻线索与正式来源的口径是否一致。问题：比特币未来24小时会上涨吗？",
+                  "reason": "协议示例中新闻线索与正式披露的证明范围不同，需要再读取并明确证据边界。",
+                  "evidenceIds": [
+                    "course_evidence_b855763b550dc1e4461449fbee0d517f",
+                    "course_evidence_e8f54477f197543a3c5e0cd1d7320a14"
+                  ],
+                  "parentAssignmentIds": [
+                    "course_run_99bcee24-002d-4861-b3fb-c207e32975f2_market_initial",
+                    "course_run_99bcee24-002d-4861-b3fb-c207e32975f2_verification_initial"
+                  ],
+                  "requestedAt": "2026-11-20T04:00:00.000Z"
+                }
+              }
+            ],
+            "sources": [
+              {
+                "evidenceId": "course_evidence_b855763b550dc1e4461449fbee0d517f",
+                "title": "【虚构】公开状态",
+                "url": "https://example.com/course-lab/official",
+                "publishedAt": null,
+                "obtainedAt": "2026-11-20T04:00:00.000Z",
+                "marketQuote": null
+              },
+              {
+                "evidenceId": "course_evidence_e8f54477f197543a3c5e0cd1d7320a14",
+                "title": "【虚构】BTC-USD 报价样例",
+                "url": "https://example.com/course-lab/market/BTC-USD",
+                "publishedAt": null,
+                "obtainedAt": "2026-11-20T04:00:00.000Z",
+                "marketQuote": {
+                  "provider": "synthetic-course-quote",
+                  "pair": "BTC-USD",
+                  "value": 100,
+                  "currency": "USD",
+                  "observedAt": "2026-11-20T04:00:00.000Z",
+                  "sourcePublishedAt": null,
+                  "timestampMeaning": "system-observation-time",
+                  "url": "https://example.com/course-lab/market/BTC-USD"
+                }
+              }
+            ],
+            "triage": {
+              "kind": "local",
+              "reason": "协议模拟：普通增量只安排相关研究员和核验席。",
+              "newEvidenceIds": [
+                "course_evidence_b855763b550dc1e4461449fbee0d517f"
+              ]
+            },
+            "decision": {
+              "forecastId": "course_forecast_f8aa6079-d14b-42b1-844f-f1aa551fe216",
+              "probabilityYes": 0.66,
+              "previousProbabilityYes": 0.54,
+              "delta": 0.12,
+              "summary": "协议模拟：已合并三份独立报告及针对性核验。此数值只演示完整流程，不是真实事件预测。",
+              "evidenceIds": [
+                "course_evidence_b855763b550dc1e4461449fbee0d517f",
+                "course_evidence_e8f54477f197543a3c5e0cd1d7320a14"
+              ],
+              "dissent": [
+                "模拟资料无法支持现实预测准确率主张。"
+              ],
+              "evidenceAdequacy": "limited",
+              "scoringEligible": false,
+              "recordedNotes": 3,
+              "totalReports": 3
+            },
+            "conclusion": "已发布；可逐项查看补查答复与裁决。"
+          },
+          "baseline": {
+            "kind": "price",
+            "value": 100,
+            "unit": "USD",
+            "currency": "USD",
+            "pair": "BTC-USD",
+            "observedAt": "2026-11-20T04:00:00.000Z",
+            "url": "https://example.com/course-lab/market/BTC-USD",
+            "evidenceId": "course_evidence_e8f54477f197543a3c5e0cd1d7320a14",
+            "verified": true,
+            "synthetic": true,
+            "timestampMeaning": "system-observation-time"
+          },
+          "usage": {
+            "modelRequests": 14,
+            "toolCalls": 9,
+            "totalTokens": 2520,
+            "promptTokens": 1680,
+            "completionTokens": 840,
+            "cacheHitTokens": 560,
+            "cacheMissTokens": 1120,
+            "unknownUsage": false
+          },
+          "error": null,
+          "forecastCount": 2
+        },
+        {
+          "label": "重复资料检查",
+          "runId": "course_run_e5f2ec63-6585-4ca1-8b2a-ed2fb16930ea",
+          "status": "completed",
+          "collaboration": {
+            "version": 1,
+            "runId": "course_run_e5f2ec63-6585-4ca1-8b2a-ed2fb16930ea",
+            "modelMode": "mock",
+            "sourceMode": "replay",
+            "team": [],
+            "reviews": [],
+            "reports": [],
+            "sources": [
+              {
+                "evidenceId": "course_evidence_b855763b550dc1e4461449fbee0d517f",
+                "title": "【虚构】公开状态",
+                "url": "https://example.com/course-lab/official",
+                "publishedAt": null,
+                "obtainedAt": "2026-11-20T04:00:00.000Z",
+                "marketQuote": null
+              },
+              {
+                "evidenceId": "course_evidence_e8f54477f197543a3c5e0cd1d7320a14",
+                "title": "【虚构】BTC-USD 报价样例",
+                "url": "https://example.com/course-lab/market/BTC-USD",
+                "publishedAt": null,
+                "obtainedAt": "2026-11-20T04:00:00.000Z",
+                "marketQuote": {
+                  "provider": "synthetic-course-quote",
+                  "pair": "BTC-USD",
+                  "value": 100,
+                  "currency": "USD",
+                  "observedAt": "2026-11-20T04:00:00.000Z",
+                  "sourcePublishedAt": null,
+                  "timestampMeaning": "system-observation-time",
+                  "url": "https://example.com/course-lab/market/BTC-USD"
+                }
+              }
+            ],
+            "triage": {
+              "kind": "no_change",
+              "reason": "内容重复、价格变化未达阈值或来源不可读，不新增概率。",
+              "newEvidenceIds": []
+            },
+            "decision": null,
+            "conclusion": "本次检查未发布新判断，保留上一判断。"
+          },
+          "baseline": {
+            "kind": "price",
+            "value": 100,
+            "unit": "USD",
+            "currency": "USD",
+            "pair": "BTC-USD",
+            "observedAt": "2026-11-20T04:00:00.000Z",
+            "url": "https://example.com/course-lab/market/BTC-USD",
+            "evidenceId": "course_evidence_e8f54477f197543a3c5e0cd1d7320a14",
+            "verified": true,
+            "synthetic": true,
+            "timestampMeaning": "system-observation-time"
+          },
+          "usage": {
+            "modelRequests": 0,
+            "toolCalls": 4,
+            "totalTokens": 0,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "cacheHitTokens": 0,
+            "cacheMissTokens": 0,
+            "unknownUsage": false
+          },
+          "error": null,
+          "forecastCount": 2
+        }
+      ],
+      "metrics": {
+        "runs": 3,
+        "forecasts": 2,
+        "modelRequests": 32,
+        "toolCalls": 23,
+        "totalTokens": 5760
+      }
+    },
+    {
+      "id": "recovery",
+      "title": "模型鉴权失败后恢复",
+      "question": "虚构科技展未来24小时会开幕吗？",
+      "mode": "mock",
+      "sourceMode": "replay",
+      "notAccuracyBenchmark": true,
+      "checks": [
+        "鉴权失败停止执行并保留安全错误",
+        "同题重试成功，原失败历史保留",
+        "完整协作发布完成",
+        "模拟结果不可计分",
+        "保存带证据的定向补查及答复",
+        "各份报告均有公开裁决说明",
+        "关闭并重开SQLite后协作记录完整一致"
+      ],
+      "snapshots": [
+        {
+          "label": "失败记录",
+          "runId": "course_run_039bb5ae-e33b-4d41-8e40-11d3f82ca65e",
+          "status": "failed",
+          "collaboration": {
+            "version": 1,
+            "runId": "course_run_039bb5ae-e33b-4d41-8e40-11d3f82ca65e",
+            "modelMode": "mock",
+            "sourceMode": "replay",
+            "team": [],
+            "reviews": [],
+            "reports": [],
+            "sources": [],
+            "triage": {
+              "kind": "initial",
+              "reason": "首次按题选择差异职责。",
+              "newEvidenceIds": []
+            },
+            "decision": null,
+            "conclusion": "本轮未发布新判断，缺口与失败记录保留。"
+          },
+          "baseline": null,
+          "usage": {
+            "modelRequests": 1,
+            "toolCalls": 0,
+            "totalTokens": 0,
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "cacheHitTokens": 0,
+            "cacheMissTokens": 0,
+            "unknownUsage": true
+          },
+          "error": {
+            "code": "MODEL_AUTH_FAILED",
+            "message": "模型服务鉴权失败，请检查服务端凭据后手动重试。",
+            "retryable": false,
+            "actionRequired": true
+          },
+          "forecastCount": 0
+        },
+        {
+          "label": "初次协作",
+          "runId": "course_run_4ffa0b99-6558-46c2-9bb3-fd74557c330e",
+          "status": "completed",
+          "collaboration": {
+            "version": 1,
+            "runId": "course_run_4ffa0b99-6558-46c2-9bb3-fd74557c330e",
+            "modelMode": "mock",
+            "sourceMode": "replay",
+            "team": [
+              {
+                "assignmentId": "course_run_4ffa0b99-6558-46c2-9bb3-fd74557c330e_official_initial",
+                "roleId": "official",
+                "name": "官方资料研究员",
+                "objective": "虚构科技展未来24小时会开幕吗？。以原始公告、正式文件和指定结果来源核查事实。区分正式发布、草案与二手转述；缺少原文时说明。",
+                "reason": "协议模拟按题选择official。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟official报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_e27703cbff8372d8bbeb243feacff8f5"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_e27703cbff8372d8bbeb243feacff8f5"
+                    ]
+                  }
+                ],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_4ffa0b99-6558-46c2-9bb3-fd74557c330e_official_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_e27703cbff8372d8bbeb243feacff8f5"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_4ffa0b99-6558-46c2-9bb3-fd74557c330e_timeline_initial",
+                "roleId": "timeline",
+                "name": "新闻时间线研究员",
+                "objective": "虚构科技展未来24小时会开幕吗？。按材料明确的发布时间排列事件，区分首发、更正与转载。时间不明保留缺口，不把转载数量当独立证据。",
+                "reason": "协议模拟按题选择timeline。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟timeline报告：已读取「【虚构】新闻线索」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_eac210a01a2786a58b18b1d589ec834b"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_eac210a01a2786a58b18b1d589ec834b"
+                    ]
+                  }
+                ],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_4ffa0b99-6558-46c2-9bb3-fd74557c330e_timeline_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_eac210a01a2786a58b18b1d589ec834b"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_4ffa0b99-6558-46c2-9bb3-fd74557c330e_verification_initial",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "虚构科技展未来24小时会开幕吗？。优先寻找与关键主张矛盾的材料，核验出处、时间和来源独立性。证据不足可以保留异议；团队一致不等于事实正确。",
+                "reason": "协议模拟按题选择verification。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟verification报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_e27703cbff8372d8bbeb243feacff8f5"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_e27703cbff8372d8bbeb243feacff8f5"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "演示线索不能自动证明事件已发生。",
+                    "evidenceIds": [
+                      "course_evidence_e27703cbff8372d8bbeb243feacff8f5"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_4ffa0b99-6558-46c2-9bb3-fd74557c330e_verification_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_e27703cbff8372d8bbeb243feacff8f5"
+                  ]
+                },
+                "review": null
+              }
+            ],
+            "reviews": [
+              {
+                "assignmentId": "course_run_4ffa0b99-6558-46c2-9bb3-fd74557c330e_verification_followup_2",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "复核协议示例新闻线索与正式来源的口径是否一致。问题：虚构科技展未来24小时会开幕吗？",
+                "reason": "协议示例中新闻线索与正式披露的证明范围不同，需要再读取并明确证据边界。",
+                "followUp": true,
+                "cycle": 2,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟verification报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_e27703cbff8372d8bbeb243feacff8f5"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_e27703cbff8372d8bbeb243feacff8f5"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "演示线索不能自动证明事件已发生。",
+                    "evidenceIds": [
+                      "course_evidence_e27703cbff8372d8bbeb243feacff8f5"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_4ffa0b99-6558-46c2-9bb3-fd74557c330e_verification_followup_2",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_e27703cbff8372d8bbeb243feacff8f5"
+                  ]
+                },
+                "review": {
+                  "objective": "复核协议示例新闻线索与正式来源的口径是否一致。问题：虚构科技展未来24小时会开幕吗？",
+                  "reason": "协议示例中新闻线索与正式披露的证明范围不同，需要再读取并明确证据边界。",
+                  "evidenceIds": [
+                    "course_evidence_e27703cbff8372d8bbeb243feacff8f5",
+                    "course_evidence_eac210a01a2786a58b18b1d589ec834b"
+                  ],
+                  "parentAssignmentIds": [
+                    "course_run_4ffa0b99-6558-46c2-9bb3-fd74557c330e_official_initial",
+                    "course_run_4ffa0b99-6558-46c2-9bb3-fd74557c330e_timeline_initial",
+                    "course_run_4ffa0b99-6558-46c2-9bb3-fd74557c330e_verification_initial"
+                  ],
+                  "requestedAt": "2026-11-20T04:00:00.000Z"
+                },
+                "previousSummary": "协议模拟verification报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probabilityBefore": null,
+                "probabilityAfter": null,
+                "newEvidenceIds": [],
+                "responseStatus": "submitted"
+              }
+            ],
+            "reports": [
+              {
+                "assignmentId": "course_run_4ffa0b99-6558-46c2-9bb3-fd74557c330e_official_initial",
+                "roleId": "official",
+                "name": "官方资料研究员",
+                "objective": "虚构科技展未来24小时会开幕吗？。以原始公告、正式文件和指定结果来源核查事实。区分正式发布、草案与二手转述；缺少原文时说明。",
+                "reason": "协议模拟按题选择official。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟official报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_e27703cbff8372d8bbeb243feacff8f5"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_e27703cbff8372d8bbeb243feacff8f5"
+                    ]
+                  }
+                ],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_4ffa0b99-6558-46c2-9bb3-fd74557c330e_official_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_e27703cbff8372d8bbeb243feacff8f5"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_4ffa0b99-6558-46c2-9bb3-fd74557c330e_timeline_initial",
+                "roleId": "timeline",
+                "name": "新闻时间线研究员",
+                "objective": "虚构科技展未来24小时会开幕吗？。按材料明确的发布时间排列事件，区分首发、更正与转载。时间不明保留缺口，不把转载数量当独立证据。",
+                "reason": "协议模拟按题选择timeline。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟timeline报告：已读取「【虚构】新闻线索」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_eac210a01a2786a58b18b1d589ec834b"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_eac210a01a2786a58b18b1d589ec834b"
+                    ]
+                  }
+                ],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_4ffa0b99-6558-46c2-9bb3-fd74557c330e_timeline_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_eac210a01a2786a58b18b1d589ec834b"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_4ffa0b99-6558-46c2-9bb3-fd74557c330e_verification_initial",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "虚构科技展未来24小时会开幕吗？。优先寻找与关键主张矛盾的材料，核验出处、时间和来源独立性。证据不足可以保留异议；团队一致不等于事实正确。",
+                "reason": "协议模拟按题选择verification。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟verification报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_e27703cbff8372d8bbeb243feacff8f5"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_e27703cbff8372d8bbeb243feacff8f5"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "演示线索不能自动证明事件已发生。",
+                    "evidenceIds": [
+                      "course_evidence_e27703cbff8372d8bbeb243feacff8f5"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_4ffa0b99-6558-46c2-9bb3-fd74557c330e_verification_initial",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_e27703cbff8372d8bbeb243feacff8f5"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_4ffa0b99-6558-46c2-9bb3-fd74557c330e_verification_followup_2",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "复核协议示例新闻线索与正式来源的口径是否一致。问题：虚构科技展未来24小时会开幕吗？",
+                "reason": "协议示例中新闻线索与正式披露的证明范围不同，需要再读取并明确证据边界。",
+                "followUp": true,
+                "cycle": 2,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "协议模拟verification报告：已读取「【虚构】公开状态」，保留来源证明范围。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_e27703cbff8372d8bbeb243feacff8f5"
+                ],
+                "support": [
+                  {
+                    "claim": "该演示原文可用于核对本次子问题。",
+                    "evidenceIds": [
+                      "course_evidence_e27703cbff8372d8bbeb243feacff8f5"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "演示线索不能自动证明事件已发生。",
+                    "evidenceIds": [
+                      "course_evidence_e27703cbff8372d8bbeb243feacff8f5"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "现实前瞻结果尚未在此协议示例中验证。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_4ffa0b99-6558-46c2-9bb3-fd74557c330e_verification_followup_2",
+                  "disposition": "qualified",
+                  "reason": "协议模拟：保留该报告实际已读材料作为调查依据，未消除未来结果的不确定性。",
+                  "evidenceIds": [
+                    "course_evidence_e27703cbff8372d8bbeb243feacff8f5"
+                  ]
+                },
+                "review": {
+                  "objective": "复核协议示例新闻线索与正式来源的口径是否一致。问题：虚构科技展未来24小时会开幕吗？",
+                  "reason": "协议示例中新闻线索与正式披露的证明范围不同，需要再读取并明确证据边界。",
+                  "evidenceIds": [
+                    "course_evidence_e27703cbff8372d8bbeb243feacff8f5",
+                    "course_evidence_eac210a01a2786a58b18b1d589ec834b"
+                  ],
+                  "parentAssignmentIds": [
+                    "course_run_4ffa0b99-6558-46c2-9bb3-fd74557c330e_official_initial",
+                    "course_run_4ffa0b99-6558-46c2-9bb3-fd74557c330e_timeline_initial",
+                    "course_run_4ffa0b99-6558-46c2-9bb3-fd74557c330e_verification_initial"
+                  ],
+                  "requestedAt": "2026-11-20T04:00:00.000Z"
+                }
+              }
+            ],
+            "sources": [
+              {
+                "evidenceId": "course_evidence_e27703cbff8372d8bbeb243feacff8f5",
+                "title": "【虚构】公开状态",
+                "url": "https://example.com/course-lab/official",
+                "publishedAt": null,
+                "obtainedAt": "2026-11-20T04:00:00.000Z",
+                "marketQuote": null
+              },
+              {
+                "evidenceId": "course_evidence_eac210a01a2786a58b18b1d589ec834b",
+                "title": "【虚构】新闻线索",
+                "url": "https://example.com/course-lab/news",
+                "publishedAt": null,
+                "obtainedAt": "2026-11-20T04:00:00.000Z",
+                "marketQuote": null
+              }
+            ],
+            "triage": {
+              "kind": "initial",
+              "reason": "首次按题选择差异职责。",
+              "newEvidenceIds": []
+            },
+            "decision": {
+              "forecastId": "course_forecast_239eb042-a614-465a-9c5c-2abb244431b0",
+              "probabilityYes": 0.5,
+              "previousProbabilityYes": null,
+              "delta": null,
+              "summary": "协议模拟：已合并三份独立报告及针对性核验。此数值只演示完整流程，不是真实事件预测。",
+              "evidenceIds": [
+                "course_evidence_e27703cbff8372d8bbeb243feacff8f5",
+                "course_evidence_eac210a01a2786a58b18b1d589ec834b"
+              ],
+              "dissent": [
+                "模拟资料无法支持现实预测准确率主张。"
+              ],
+              "evidenceAdequacy": "limited",
+              "scoringEligible": false,
+              "recordedNotes": 4,
+              "totalReports": 4
+            },
+            "conclusion": "已发布；可逐项查看补查答复与裁决。"
+          },
+          "baseline": null,
+          "usage": {
+            "modelRequests": 16,
+            "toolCalls": 8,
+            "totalTokens": 2880,
+            "promptTokens": 1920,
+            "completionTokens": 960,
+            "cacheHitTokens": 640,
+            "cacheMissTokens": 1280,
+            "unknownUsage": false
+          },
+          "error": null,
+          "forecastCount": 1
+        }
+      ],
+      "metrics": {
+        "runs": 2,
+        "forecasts": 1,
+        "modelRequests": 17,
+        "toolCalls": 8,
+        "totalTokens": 2880
+      }
+    }
+  ]
+}

@@ -6,6 +6,17 @@ import { runWorker } from './worker-loop.mjs'
 const environment = { WORLD_API_KEY: 'fixture-credential', WORLD_MODEL_NAME: 'fixture-model', WORLD_BASE_URL: 'http://127.0.0.1:9999/v1' }
 const message = { role: 'assistant', content: null, tool_calls: [{ id: 'call-1', type: 'function', function: { name: 'search_docs', arguments: '{"query":"appointment"}' } }], reasoning_content: 'PRIVATE PROTOCOL FIXTURE' }
 
+test('versioned research calls can lower reasoning effort without changing the provider defaults', async () => {
+  const bodies = []
+  const provider = createModelProvider({ ...environment, WORLD_BASE_URL: 'https://api.deepseek.com', WORLD_MODEL_PROTOCOL: 'deepseek', WORLD_MODEL_THINKING: 'enabled', WORLD_MODEL_REASONING_EFFORT: 'high' }, async (_url, options) => {
+    bodies.push(JSON.parse(options.body)); return Response.json({ choices: [{ message, finish_reason: 'tool_calls' }], usage: { total_tokens: 10 } })
+  })
+  await provider.complete({ messages: [], tools: [], maxTokens: 100, reasoningEffortOverride: 'low' })
+  await provider.complete({ messages: [], tools: [], maxTokens: 100 })
+  assert.equal(bodies[0].reasoning_effort, 'low'); assert.equal(bodies[1].reasoning_effort, 'high')
+  assert.equal(provider.settings.reasoningEffort, 'high')
+})
+
 test('native provider sends tool definitions and returns the full assistant message', async () => {
   const requests = []
   const provider = createModelProvider(environment, async (url, options) => {

@@ -1,4 +1,8 @@
 import { randomUUID } from 'node:crypto'
+import { validateDecisionNotes } from './collaboration.mjs'
+import { assembleResearchCandidate } from './research-assembly.mjs'
+import { unsentSummaryRequest } from './research-summary.mjs'
+import { validateGroundedClaims } from '../domain/claim-grounding.mjs'
 import { mkdirSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { DatabaseSync } from 'node:sqlite'
@@ -6,6 +10,8 @@ import { digest, domainFailure, identifier, json, validDate } from '../domain/co
 import { requiresWeatherObservation } from './course-context.mjs'
 import { buildMemorySnapshot } from './memory-policy.mjs'
 import { deriveForecastStatus } from './forecast-facts.mjs'
+import { WARNING_URL, WARNING_POLICY, WARNING_RULE, parseWarnings } from './weather-warning.mjs'
+import { PRICE_URL, PRICE_POLICY, PRICE_RULE, parsePriceSnapshot } from './market-resolution.mjs'
 
 export const courseFailure = (code, message, status = 400) => Object.assign(domainFailure(code, message, status), { courseSafe: true })
 const terminal = new Set(['completed', 'insufficient', 'failed', 'cancelled'])
@@ -42,8 +48,10 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
         CREATE TABLE IF NOT EXISTS course_receipts (run_id TEXT NOT NULL REFERENCES course_runs(id), call_key TEXT NOT NULL, input_hash TEXT NOT NULL, record_json TEXT NOT NULL, PRIMARY KEY(run_id,call_key)) STRICT;
         CREATE TABLE IF NOT EXISTS course_evidence (run_id TEXT NOT NULL REFERENCES course_runs(id), evidence_id TEXT NOT NULL, record_json TEXT NOT NULL, PRIMARY KEY(run_id,evidence_id)) STRICT;
         CREATE TABLE IF NOT EXISTS course_reads (run_id TEXT NOT NULL, evidence_id TEXT NOT NULL, reader_id TEXT NOT NULL, PRIMARY KEY(run_id,evidence_id,reader_id), FOREIGN KEY(run_id,evidence_id) REFERENCES course_evidence(run_id,evidence_id)) STRICT;
+        CREATE TABLE IF NOT EXISTS course_read_observations (run_id TEXT NOT NULL, evidence_id TEXT NOT NULL, reader_id TEXT NOT NULL, observed_at TEXT NOT NULL, PRIMARY KEY(run_id,evidence_id,reader_id,observed_at), FOREIGN KEY(run_id,evidence_id) REFERENCES course_evidence(run_id,evidence_id)) STRICT;
         CREATE TABLE IF NOT EXISTS course_relations (id TEXT PRIMARY KEY, run_id TEXT NOT NULL REFERENCES course_runs(id), record_json TEXT NOT NULL) STRICT;
         CREATE TABLE IF NOT EXISTS course_forecasts (id TEXT PRIMARY KEY, run_id TEXT UNIQUE NOT NULL REFERENCES course_runs(id), input_hash TEXT NOT NULL, record_json TEXT NOT NULL) STRICT;
+        CREATE TABLE IF NOT EXISTS course_research_reports (id TEXT PRIMARY KEY, run_id TEXT UNIQUE NOT NULL REFERENCES course_runs(id), input_hash TEXT NOT NULL, record_json TEXT NOT NULL) STRICT;
         CREATE TABLE IF NOT EXISTS course_watches (request_id TEXT PRIMARY KEY REFERENCES course_requests(id), record_json TEXT NOT NULL) STRICT;
         CREATE TABLE IF NOT EXISTS course_results (request_id TEXT PRIMARY KEY REFERENCES course_requests(id), record_json TEXT NOT NULL) STRICT;
         CREATE TABLE IF NOT EXISTS course_operations (operation_key TEXT PRIMARY KEY, input_hash TEXT NOT NULL, record_json TEXT NOT NULL) STRICT;
@@ -91,6 +99,7 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
   function queue(requestId, trigger, configuration = {}) {
     const request = requireRequest(requestId)
     if (request.status === 'stopped') throw courseFailure('REQUEST_STOPPED', '这项跟踪已经停止。', 409)
+    if (request.status === 'closed' || db.prepare('SELECT 1 FROM course_results WHERE request_id=?').get(requestId)) throw courseFailure('REQUEST_CLOSED', '本题已有结果，不能重新创建调查或改写预测。', 409)
     const previous = db.prepare('SELECT record_json FROM course_runs WHERE request_id=? ORDER BY rowid DESC').all(requestId).map(decode)
     const busy = previous.find((run) => !terminal.has(run.status))
     if (busy) return busy
@@ -109,7 +118,7 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
   }
   function evidenceFor(runId) {
     return db.prepare('SELECT record_json FROM course_evidence WHERE run_id=? ORDER BY evidence_id').all(runId).map(decode)
-      .map((record) => ({ ...record, readBy: db.prepare('SELECT reader_id FROM course_reads WHERE run_id=? AND evidence_id=?').all(runId, record.evidenceId).map((row) => row.reader_id) }))
+      .map((record) => ({ ...record, readBy: db.prepare('SELECT reader_id FROM course_reads WHERE run_id=? AND evidence_id=?').all(runId, record.evidenceId).map((row) => row.reader_id), readObservations: db.prepare('SELECT reader_id,observed_at FROM course_read_observations WHERE run_id=? AND evidence_id=? ORDER BY observed_at,reader_id').all(runId, record.evidenceId).map(row => ({ readerId: row.reader_id, obtainedAt: row.observed_at })) }))
   }
   return {
     metadata: { schemaVersion: 1, serverEpoch: epoch }, clock, getRequest, requireRequest, getRun, requireRun,
@@ -136,6 +145,30 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
       })
     },
     queueRun: (requestId, trigger = 'manual', configuration = {}) => tx(() => queue(requestId, trigger, configuration)),
+    resumeResearchSummary(runId, { maxTokens } = {}) {
+      return tx(() => {
+        const run = requireRun(runId), request = requireRequest(run.requestId)
+        const workers = db.prepare('SELECT record_json FROM course_assignments WHERE run_id=?').all(runId).map(decode)
+        const unsent = unsentSummaryRequest(run, workers)
+        const boundedForecast = request.resolutionPolicy?.version === WARNING_POLICY && Date.parse(request.normalized?.forecastClosesAt) > Date.parse(clock())
+        const budgetSummary = boundedForecast && run.error?.code === 'COURSE_BUDGET' && !run.state.summaryResumeCount
+        if (request.purpose !== 'research' && !boundedForecast || request.status === 'stopped' || run.status !== 'failed' || run.phase !== 'review' || (run.error?.code !== 'MODEL_INCOMPLETE' && !unsent && !budgetSummary) || run.usage.unknownUsage || !run.state.main || run.usage.totalTokens >= tokenLimit(run)) throw courseFailure('RESEARCH_RESUME_UNAVAILABLE', '此运行不能只续写汇总，请查看其失败原因。', 409)
+        if (db.prepare('SELECT 1 FROM course_research_reports WHERE run_id=?').get(runId)) throw courseFailure('RESEARCH_CONFLICT', '研报已经封存。', 409)
+        if (db.prepare('SELECT 1 FROM course_forecasts WHERE run_id=?').get(runId)) throw courseFailure('FORECAST_CONFLICT', '预测已经封存。', 409)
+        if (new Set(workers.filter((item) => item.status === 'completed' && item.report?.evidenceIds?.length).map((item) => item.roleId)).size < 2) throw courseFailure('RESEARCH_RESUME_UNAVAILABLE', '已有有效报告不足，不能只续写汇总。', 409)
+        const count = (run.state.summaryResumeCount || 0) + (unsent ? 0 : 1)
+        if (count > (request.purpose === 'research' ? 2 : 1)) throw courseFailure('RESEARCH_RESUME_LIMIT', '本轮汇总续写次数已用完。', 409)
+        run.state.summaryResumeCount = count
+        if (unsent) run.state.summaryBudgetRetryCount = 1
+        const outputLimit = Number.isInteger(maxTokens) ? boundedForecast ? Math.max(1024, Math.min(16384, maxTokens)) : Math.max(run.budget?.maxTokens || 0, Math.min(16384, maxTokens)) : run.budget?.maxTokens
+        run.budget = { ...run.budget, maxTokens: outputLimit, mainRequests: (run.state.main.calls || 0) + 1 }
+        Object.assign(run.state.main, { currentAttempt: 0, pending: null, retryNotBefore: null, lastRetry: null })
+        Object.assign(run, { status: 'queued', error: null, message: '继续整理已有报告，不重新取证。', updatedAt: clock() })
+        writeRun(run); writeRequest({ ...request, status: 'researching', error: null, updatedAt: clock() })
+        append(run, { eventId: `${runId}_summary_resume_${count}${unsent ? '_unsent_retry' : ''}`, type: 'research.resume_requested', payload: { summary: run.message, attempt: count, unsentRetry: unsent, modelRequestsBefore: run.usage.modelRequests, maxTokens: outputLimit, policyVersion: 'research-summary-v2' } })
+        return run
+      })
+    },
     updateRequest(requestId, patch) {
       return tx(() => {
         const request = requireRequest(requestId)
@@ -242,6 +275,7 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
         if (old && old.contentHash !== record.contentHash) throw courseFailure('EVIDENCE_CONFLICT', '同一材料编号对应不同原文。', 409)
         if (!old) db.prepare('INSERT INTO course_evidence VALUES (?,?,?)').run(runId, record.evidenceId, json({ ...record, runId, obtainedAt: clock() }))
         db.prepare('INSERT OR IGNORE INTO course_reads VALUES (?,?,?)').run(runId, record.evidenceId, readerId)
+        db.prepare('INSERT OR IGNORE INTO course_read_observations VALUES (?,?,?,?)').run(runId, record.evidenceId, readerId, clock())
         return old || record
       })
     },
@@ -250,7 +284,7 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
         const run = active(runId)
         writeRun({ ...run, predictionId, predictionVersion })
         for (const item of evidenceFor(runId)) {
-          const { readBy, ...record } = item
+          const { readBy, readObservations, ...record } = item
           db.prepare('UPDATE course_evidence SET record_json=? WHERE run_id=? AND evidence_id=?').run(json({ ...record, predictionId, predictionVersion }), runId, item.evidenceId)
         }
         for (const relation of db.prepare('SELECT record_json FROM course_relations WHERE run_id=?').all(runId).map(decode)) {
@@ -277,7 +311,51 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
     listRelations: ({ requestId } = {}) => (requestId
       ? db.prepare('SELECT e.record_json FROM course_relations e JOIN course_runs r ON r.id=e.run_id WHERE r.request_id=? ORDER BY e.rowid').all(requestId)
       : db.prepare('SELECT record_json FROM course_relations ORDER BY rowid').all()).map(decode),
-    publishForecast(runId, candidate, currentPrediction) {
+    listResearchReports: ({ requestId } = {}) => (requestId
+      ? db.prepare('SELECT f.record_json FROM course_research_reports f JOIN course_runs r ON r.id=f.run_id WHERE r.request_id=? ORDER BY f.rowid').all(requestId)
+      : db.prepare('SELECT record_json FROM course_research_reports ORDER BY rowid').all()).map(decode),
+    publishResearch(runId, candidate, { assemble = false } = {}) {
+      return tx(() => {
+        const recovery = assemble ? requireRun(runId) : null
+        if (assemble) {
+          const request = requireRequest(recovery.requestId)
+          if (request.purpose !== 'research' || request.status === 'stopped' || recovery.status !== 'failed' || recovery.phase !== 'review' || !['MODEL_INCOMPLETE', 'COURSE_BUDGET'].includes(recovery.error?.code) || !recovery.state.summaryResumeCount && recovery.error?.code !== 'MODEL_INCOMPLETE' || recovery.usage.unknownUsage) throw courseFailure('RESEARCH_ASSEMBLY_UNAVAILABLE', '仅汇总截断的研究任务可整理已有报告。', 409)
+          const workers = db.prepare('SELECT record_json FROM course_assignments WHERE run_id=?').all(runId).map(decode)
+          if (new Set(workers.filter((item) => item.status === 'completed' && item.report?.status === 'complete' && item.report.evidenceIds?.length).map((item) => item.roleId)).size < 2) throw courseFailure('REPORTS_INSUFFICIENT', '至少需要两个不同职责的完整报告。', 409)
+          candidate = assembleResearchCandidate(workers, evidenceFor(runId))
+          if (new Set(candidate.decisionNotes.map((note) => workers.find((item) => item.assignmentId === note.assignmentId)?.roleId)).size < 2) throw courseFailure('REPORTS_INSUFFICIENT', '有效已读报告不足。', 409)
+        }
+        const hash = digest(candidate)
+        const old = db.prepare('SELECT * FROM course_research_reports WHERE run_id=?').get(runId)
+        if (old) { if (old.input_hash !== hash) throw courseFailure('RESEARCH_CONFLICT', '本轮研报已封存。', 409); return decode(old) }
+        const run = recovery || active(runId), request = requireRequest(run.requestId), at = clock()
+        if (request.purpose !== 'research') throw courseFailure('RESEARCH_PURPOSE', '此任务不是研报任务。', 409)
+        if (run.usage.totalTokens > tokenLimit(run)) throw courseFailure('COURSE_BUDGET', '超出预算不能封存研报。', 409)
+        const available = evidenceFor(runId).filter((item) => item.text?.trim() && item.readBy.some((reader) => reader !== 'main') && Date.parse(item.obtainedAt) <= Date.parse(at) && (!item.publishedAt || Date.parse(item.publishedAt) <= Date.parse(at)))
+        const ids = new Set(available.map((item) => item.evidenceId))
+        if (!candidate.summary?.trim() || !candidate.findings?.length || candidate.findings.some((finding) => !finding.claim?.trim() || !finding.evidenceIds?.length || finding.evidenceIds.some((id) => !ids.has(id)))) throw courseFailure('RESEARCH_EVIDENCE', '研报须引用本轮研究员实际读取且时间有效的原文。', 409)
+        let groundedFindings = candidate.findings
+        if (request.groundingPolicy && !assemble) try { groundedFindings = validateGroundedClaims(candidate.findings, available, { asOf: at }) } catch (error) { throw courseFailure('CLAIM_GROUNDING', error.message, 409) }
+        const workers = db.prepare('SELECT record_json FROM course_assignments WHERE run_id=?').all(runId).map(decode)
+        if (new Set(workers.filter((item) => item.report && item.report.status !== 'blocked').map((item) => item.roleId)).size < 2) throw courseFailure('REPORTS_INSUFFICIENT', '研报至少需要两个不同职责的实际报告。', 409)
+        let decisionNotes
+        try { decisionNotes = validateDecisionNotes(candidate.decisionNotes, workers, [...ids]) } catch (error) { throw courseFailure('DECISION_EVIDENCE', error.message, 409) }
+        const value = { reportId: id('course_research'), requestId: run.requestId, runId, topicId: run.topicId, summary: candidate.summary,
+          findings: groundedFindings, limitations: candidate.limitations || [], decisionNotes, evidenceIds: [...new Set(candidate.findings.flatMap((item) => item.evidenceIds))],
+          publishedAt: at, knowledgeCutoff: at, modelMode: run.modelMode, sourceMode: run.sourceMode, modelRef: run.modelRef, kind: 'research_report', scoringEligible: false,
+          assemblyMode: assemble ? 'harness' : 'supervisor', groundingPolicy: request.groundingPolicy || null, ...(assemble ? { quality: 'limited', summaryFailure: run.error } : {}) }
+        db.prepare('INSERT INTO course_research_reports VALUES (?,?,?,?)').run(value.reportId, runId, hash, json(value))
+        append(run, { eventId: `${runId}_research_report`, type: 'research.published', payload: value })
+        if (assemble) {
+          writeRun({ ...run, status: 'completed', error: null, message: value.summary, updatedAt: at })
+          writeRequest({ ...request, status: 'completed', activeRunId: null, error: null, message: value.summary, updatedAt: at })
+          append(run, { type: 'research.assembled', payload: { assemblyMode: 'harness', summaryFailure: run.error, summary: value.summary } })
+          append(run, { type: 'run.finished', payload: { status: 'completed', assemblyMode: 'harness', summary: value.summary } })
+        }
+        return value
+      })
+    },
+    publishForecast(runId, candidate, currentPrediction, { recoverRecordedCandidate = false } = {}) {
       return tx(() => {
         const hash = digest(candidate)
         const old = db.prepare('SELECT * FROM course_forecasts WHERE run_id=?').get(runId)
@@ -285,8 +363,14 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
           if (old.input_hash !== hash) throw courseFailure('FORECAST_CONFLICT', '本轮已经封存另一份预测。', 409)
           return decode(old)
         }
-        const run = active(runId)
+        const run = recoverRecordedCandidate ? requireRun(runId) : active(runId)
         const request = requireRequest(run.requestId)
+        if (recoverRecordedCandidate) {
+          const proposal = run.state.main?.messages?.filter(message => message.role === 'assistant').flatMap(message => message.tool_calls || []).findLast(call => call.function?.name === 'propose_forecast')
+          let original; try { original = JSON.parse(proposal?.function.arguments) } catch {}
+          if (request.resolutionPolicy?.version !== WARNING_POLICY || request.status === 'stopped' || run.status !== 'failed' || run.phase !== 'review' || run.error?.code !== 'MAIN_BUDGET' || run.usage.unknownUsage || !original || digest(original) !== digest(candidate)) throw courseFailure('CANDIDATE_RECOVERY_UNAVAILABLE', '只能重验已记录且未封存的原始模型候选，不能人工改写概率或绕过失败。', 409)
+        }
+        if (request.purpose === 'research') throw courseFailure('RESEARCH_PURPOSE', '研报任务不能发布预测概率。', 409)
         const at = clock()
         if (run.usage.totalTokens > tokenLimit(run)) throw courseFailure('COURSE_BUDGET', '超出本轮预算后不能发布预测。', 409)
         if (currentPrediction?.predictionId !== run.predictionId || currentPrediction.version !== run.predictionVersion || currentPrediction.type !== 'binary') throw courseFailure('FORECAST_VERSION', '题目版本已经改变，不能发布旧契约判断。', 409)
@@ -298,11 +382,25 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
         const cited = candidate.evidenceIds.map((evidenceId) => available.find((item) => item.evidenceId === evidenceId))
         if (cited.some((item) => !item || !item.text?.trim() || !item.readBy.length || item.predictionId !== run.predictionId || Date.parse(item.obtainedAt) > Date.parse(at) || (item.publishedAt && Date.parse(item.publishedAt) > Date.parse(at)))) throw courseFailure('FORECAST_EVIDENCE', '引用不属于当前题目或未实际取得原文。', 409)
         if (!available.some((item) => item.url === currentPrediction.resolutionSource.url && item.readBy.length)) throw courseFailure('RESOLUTION_SOURCE_UNREAD', '指定结果来源尚未实际读取。', 409)
+        let groundedReasoning = candidate.reasoningClaims || []
+        if (request.groundingPolicy) try { groundedReasoning = validateGroundedClaims(candidate.reasoningClaims, cited, { asOf: at }) } catch (error) { throw courseFailure('CLAIM_GROUNDING', error.message, 409) }
         const workers = db.prepare('SELECT record_json FROM course_assignments WHERE run_id=?').all(runId).map(decode)
+        let decisionNotes
+        try { decisionNotes = validateDecisionNotes(candidate.decisionNotes, workers, available.filter((item) => item.text?.trim() && item.readBy.length && item.predictionId === run.predictionId && Date.parse(item.obtainedAt) <= Date.parse(at) && (!item.publishedAt || Date.parse(item.publishedAt) <= Date.parse(at))).map((item) => item.evidenceId)) }
+        catch (error) { throw courseFailure('DECISION_EVIDENCE', error.message, 409) }
         if (workers.filter((worker) => !worker.followUp && worker.status === 'completed' && worker.report?.status === 'complete').length < 2 || !cited.some((item) => item.readBy.some((reader) => reader !== 'main'))) throw courseFailure('REPORTS_INSUFFICIENT', '独立调查或已读证据不足。', 409)
+        if (request.resolutionPolicy?.version === PRICE_POLICY) {
+          const fresh = run.state.priceFinalSnapshot, latest = run.state.latestReference
+          if (!fresh || latest?.evidenceId !== fresh.quoteEvidenceId || !available.some(source => source.evidenceId === fresh.quoteEvidenceId && source.readBy.includes('main')) || !Number.isFinite(Date.parse(latest.observedAt)) || Date.parse(latest.observedAt) > Date.parse(at) || Date.parse(at) - Date.parse(latest.observedAt) > 120000) throw courseFailure('PRICE_REVIEW_STALE', '汇总前最新行情缺失或已超过两分钟，须重新取得后再发布；初始基准不变。', 409)
+          const team = workers.filter(worker => !worker.followUp)
+          if (team.length !== 3 || !['market','statistics','verification'].every(role => team.some(worker => worker.roleId === role && worker.status === 'completed' && worker.report?.status === 'complete' && available.some(source => source.marketQuote?.pair === 'BTC-USDT' && source.readBy.includes(worker.assignmentId) && worker.report.evidenceIds.includes(source.evidenceId))))) throw courseFailure('PRICE_TEAM_INCOMPLETE', '固定价格验收需市场、统计、核验三席全部完成并各自引用本人已读现价，不能用两席替代。', 409)
+          const statistician = team.find(worker => worker.roleId === 'statistics')
+          if (!available.some(source => source.marketHistory?.pair === 'BTC-USDT' && source.readBy.includes(statistician.assignmentId) && statistician.report.evidenceIds.includes(source.evidenceId))) throw courseFailure('PRICE_HISTORY_REQUIRED', '统计席须引用本人实际读取的已关闭分钟桶，不能捏造历史样本。', 409)
+          if (!decisionNotes || !team.every(worker => decisionNotes.some(note => note.assignmentId === worker.assignmentId))) throw courseFailure('DECISION_EVIDENCE', '价格验收须逐份交代三席报告的处理。', 409)
+        }
         const value = { forecastId: id('course_forecast'), requestId: run.requestId, runId, predictionId: run.predictionId,
           predictionVersion: run.predictionVersion, probabilityYes: candidate.probabilityYes, probabilityNo: 1 - candidate.probabilityYes,
-          summary: candidate.summary, evidenceIds: candidate.evidenceIds, evidenceAdequacy: candidate.evidenceAdequacy || 'limited',
+          summary: candidate.summary, decisionNotes, evidenceIds: candidate.evidenceIds, evidenceAdequacy: candidate.evidenceAdequacy || 'limited',
           dissent: candidate.dissent || [], issuedAt: at, publishedAt: at, knowledgeCutoff: at, targetAt: currentPrediction.targetAt,
           resolutionRuleVersion: currentPrediction.resolutionRuleVersion, modelMode: run.modelMode, modelRef: run.modelRef || null, sourceMode: run.sourceMode,
           kind: request.normalized?.conditionalOnly ? 'conditional_estimate' : 'forecast',
@@ -312,10 +410,24 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
           baseline: request.normalized?.baseline || request.normalized?.currentReference || null,
           scoringEligible: currentPrediction.scoringEligible !== false && !request.normalized?.baseline?.synthetic && !request.normalized?.conditionalOnly && run.modelMode === 'live' && run.sourceMode === 'live' && cited.every((item) => item.sourceMode === 'live' && !item.fixture),
           label: run.modelMode === 'mock' || run.sourceMode !== 'live' ? '协议模拟或回放资料结果，不是真实预测' : '模型事件概率估计' }
+        value.reasoningClaims = groundedReasoning; value.groundingPolicy = request.groundingPolicy || null
+        if (recoverRecordedCandidate) value.publicationMode = 'revalidated-recorded-model-candidate'
+        if (request.groundingPolicy) {
+          const verified = workers.some(worker => worker.roleId === 'verification' && worker.status === 'completed' && worker.report?.status === 'complete')
+          value.reviewRequired = !verified || recoverRecordedCandidate
+          value.reviewReasons = [!verified ? '核验席未完成有效报告，不能视为完整独立核验。' : null, recoverRecordedCandidate ? '原模型候选经过维护重验后封存，不能计为完整自动流程成功。' : null].filter(Boolean)
+        }
         Object.assign(value, deriveForecastStatus(value))
         db.prepare('INSERT INTO course_forecasts VALUES (?,?,?,?)').run(value.forecastId, runId, hash, json(value))
         append(run, { eventId: `${runId}_forecast`, type: 'forecast.published', payload: value })
         writeRequest({ ...request, latestForecastId: value.forecastId, updatedAt: at })
+        if (recoverRecordedCandidate) {
+          const message = '引用中取得时间的元数据校验修复后，原模型候选重新通过发布守卫；没有追加模型请求。'
+          writeRun({ ...run, status: 'completed', phase: 'finished', error: null, message, updatedAt: at })
+          writeRequest({ ...request, status: 'completed', activeRunId: null, latestForecastId: value.forecastId, error: null, message, updatedAt: at })
+          append(run, { type: 'forecast.revalidated', payload: { forecastId: value.forecastId, originalFailure: run.error, summary: message } })
+          append(run, { type: 'run.finished', payload: { status: 'completed', summary: message } })
+        }
         return value
       })
     },
@@ -346,6 +458,7 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
     recordResult(requestId, result) {
       return tx(() => {
         const request = requireRequest(requestId)
+        if (request.resolutionPolicy) throw courseFailure('STRUCTURED_RESULT_REQUIRED', '此固定契约只能通过结果核验入口读取来源，不能直接提交结果标签。', 409)
         if (requiresWeatherObservation(request)) throw courseFailure('WEATHER_OBSERVATION_REQUIRED', '预设天气题需要人工或后续结构化实况验证；当前通用网页不能登记降雨YES或NO结果。', 409)
         if (request.normalized?.conditionalOnly) throw courseFailure('CONDITIONAL_RESULT', '条件性估计缺少固定可核验基准，不能冒充已结算结果。', 409)
         if (request.normalized?.temporalPolicy === 'at_target' && Date.parse(clock()) < Date.parse(request.normalized.targetAt)) throw courseFailure('RESULT_NOT_AVAILABLE', '这是目标时点状态题；目标尚未到达，当前状态不能登记为未来结果。', 409)
@@ -359,6 +472,68 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
       })
     },
     getResult: (requestId) => decode(db.prepare('SELECT record_json FROM course_results WHERE request_id=?').get(requestId)),
+    recordPriceResult(requestId, source) {
+      return tx(() => {
+        const request = requireRequest(requestId), at = clock(), policy = request.resolutionPolicy
+        const old = decode(db.prepare('SELECT record_json FROM course_results WHERE request_id=?').get(requestId))
+        if (old) return old
+        const contract = request.normalized, target = Date.parse(contract?.targetAt), observed = Date.parse(source.obtainedAt), base = contract?.baseline
+        if (request.status === 'stopped' || request.activeRunId || policy?.version !== PRICE_POLICY || contract?.resolutionSource?.url !== PRICE_URL || contract.resolutionRule !== PRICE_RULE || contract.targetAt !== policy.targetAt || contract.temporalPolicy !== 'at_target') throw courseFailure('RESOLUTION_UNAVAILABLE', '此任务没有有效固定价格契约，或仍在调查/已经停止。', 409)
+        if (!Number.isFinite(target) || Date.parse(at) < target) throw courseFailure('RESULT_NOT_AVAILABLE', '目标尚未到达，当前价格不能作为未来结果。', 409)
+        if (!Number.isFinite(observed) || observed < target || observed > target + 300000 || Date.parse(at) > target + 300000 || observed > Date.parse(at) || Date.parse(at)-observed > 15000) throw courseFailure('RESOLUTION_WINDOW', '未在目标后5分钟观察窗口取得新报价，保持不可核验。', 409)
+        if (source.sourceMode !== (request.modelMode === 'mock' ? 'replay' : 'live') || request.modelMode === 'live' && (source.fixture || base?.synthetic) || contract.conditionalOnly || base?.pair !== 'BTC-USDT' || !base.verified || !Number.isFinite(base.value) || base.value <= 0 || !Number.isFinite(Date.parse(base.observedAt)) || Date.parse(base.observedAt) < Date.parse(request.createdAt) || Date.parse(base.observedAt) >= target) throw courseFailure('RESULT_PROVENANCE', '报价、固定基准或来源模式不符，不能结算。', 409)
+        let value; try { value = parsePriceSnapshot(source, { allowFixture: request.modelMode === 'mock' }) } catch { throw courseFailure('RESULT_EVIDENCE', '报价原文与结构化价格不符或无效，不能把来源失败判No。', 409) }
+        const forecasts = db.prepare('SELECT f.record_json FROM course_forecasts f JOIN course_runs r ON r.id=f.run_id WHERE r.request_id=? ORDER BY f.rowid').all(requestId).map(decode)
+          .filter(f => f.predictionVersion === request.predictionVersion && Date.parse(f.targetAt) === target && Date.parse(f.publishedAt) < target)
+        if (!forecasts.length) throw courseFailure('FORECAST_REQUIRED', '没有目标前发布的预测，不能计算预测评分。', 409)
+        if (forecasts.some(f => digest(f.baseline) !== digest(base))) throw courseFailure('PRICE_BASELINE_CONFLICT', '结果基准与封存预测不一致，不能重选基准。', 409)
+        const outcome = value > base.value ? 1 : 0, evidenceId = id('resolution_evidence')
+        const result = { requestId, predictionId: request.predictionId, predictionVersion: request.predictionVersion, outcome, knownAt: at, observedAt: source.obtainedAt,
+          status: 'known', resolutionPolicy: PRICE_POLICY, rule: PRICE_RULE, baseline: base, observedValue: value, change: value-base.value, changePct:(value/base.value-1)*100,
+          evidenceIds:[evidenceId], evidence:[{...source,evidenceId,purpose:'resolution'}],
+          summary:`有界首次观察：BTC-USDT ${value} USDT，固定基准${base.value} USDT，${outcome ? '严格高于（Yes）' : '等于或低于（No）'}。`,
+          scoringEligible: request.modelMode === 'live' && source.sourceMode === 'live' && forecasts.some(f=>f.scoringEligible),
+          scores:forecasts.map(f=>({forecastId:f.forecastId,probabilityYes:f.probabilityYes,brier:(f.probabilityYes-outcome)**2,
+            scoringEligible:Boolean(f.scoringEligible && source.sourceMode === 'live' && !source.fixture),label:f.scoringEligible && !source.fixture ? '单题Brier，不代表总体准确率' : '模拟协议分数，不计真实成绩'})) }
+        db.prepare('INSERT INTO course_results VALUES (?,?)').run(requestId,json(result))
+        writeRequest({...request,status:'closed',activeRunId:null,updatedAt:at})
+        const watch=decode(db.prepare('SELECT record_json FROM course_watches WHERE request_id=?').get(requestId))
+        if(watch)db.prepare('UPDATE course_watches SET record_json=? WHERE request_id=?').run(json({...watch,status:'closed',nextDueAt:null}),requestId)
+        append(requireRun(forecasts.at(-1).runId),{eventId:`${requestId}_resolution`,type:'resolution.recorded',payload:{outcome,evidenceIds:[evidenceId],summary:result.summary,scores:result.scores}})
+        return result
+      })
+    },
+    recordWarningResult(requestId, source) {
+      return tx(() => {
+        const request = requireRequest(requestId), at = clock()
+        const old = decode(db.prepare('SELECT record_json FROM course_results WHERE request_id=?').get(requestId))
+        if (old) return old
+        const policy = request.resolutionPolicy, target = Date.parse(request.normalized?.targetAt), observed = Date.parse(source.obtainedAt)
+        if (request.status === 'stopped' || request.activeRunId || policy?.version !== WARNING_POLICY || request.normalized?.resolutionSource?.url !== WARNING_URL || request.normalized?.resolutionRule !== WARNING_RULE || request.normalized?.targetAt !== policy.targetAt) throw courseFailure('RESOLUTION_UNAVAILABLE', '此任务没有可核验的固定警告契约，或仍在调查/已经停止。', 409)
+        if (!Number.isFinite(target) || Date.parse(at) < target) throw courseFailure('RESULT_NOT_AVAILABLE', '目标时点尚未到达，当前状态不能当作未来结果。', 409)
+        if (!Number.isFinite(observed) || observed < target || observed > target + 300000 || Date.parse(at) > target + 300000 || Math.abs(Date.parse(at) - observed) > 15000) throw courseFailure('RESOLUTION_WINDOW', '未在目标后的5分钟观察窗口取得新快照，保持不可核验。', 409)
+        if (source.url !== WARNING_URL || source.sourceMode !== (request.modelMode === 'mock' ? 'replay' : 'live') || request.modelMode === 'live' && source.fixture || request.normalized.conditionalOnly) throw courseFailure('RESULT_PROVENANCE', '结果来源模式、地址或预测资格不符。', 409)
+        let parsed; try { parsed = parseWarnings(JSON.parse(source.rawJson || source.text), source.obtainedAt) } catch { throw courseFailure('RESULT_EVIDENCE', '警告快照不是有效完整JSON，不能把读取失败判为No。', 409) }
+        const forecasts = db.prepare('SELECT f.record_json FROM course_forecasts f JOIN course_runs r ON r.id=f.run_id WHERE r.request_id=? ORDER BY f.rowid').all(requestId).map(decode)
+          .filter((item) => item.predictionVersion === request.predictionVersion && Date.parse(item.targetAt) === target && Date.parse(item.publishedAt) < target)
+        if (!forecasts.length) throw courseFailure('FORECAST_REQUIRED', '本题没有目标前发布的预测，不能登记预测评分。', 409)
+        const outcome = parsed.redFireActive ? 1 : 0, evidenceId = id('resolution_evidence')
+        const value = { requestId, predictionId: request.predictionId, predictionVersion: request.predictionVersion, outcome, knownAt: at, observedAt: source.obtainedAt,
+          status: 'known', resolutionPolicy: WARNING_POLICY, rule: WARNING_RULE, evidenceIds: [evidenceId],
+          evidence: [{ ...source, evidenceId, purpose: 'resolution', completeSnapshot: true }],
+          summary: `有界首次观察：红色火灾危险警告${outcome ? '有效（Yes）' : '不在有效警告快照中（No）'}。`,
+          scoringEligible: request.modelMode === 'live' && source.sourceMode === 'live' && forecasts.some(f => f.scoringEligible),
+          scores: forecasts.map((f) => ({ forecastId: f.forecastId, probabilityYes: f.probabilityYes, brier: (f.probabilityYes - outcome) ** 2,
+            scoringEligible: Boolean(f.scoringEligible && source.sourceMode === 'live' && !source.fixture), label: f.scoringEligible && !source.fixture ? '单题Brier，不代表总体准确率' : '模拟协议分数，不计真实成绩' })) }
+        db.prepare('INSERT INTO course_results VALUES (?,?)').run(requestId, json(value))
+        writeRequest({ ...request, status: 'closed', activeRunId: null, updatedAt: at })
+        const watch = decode(db.prepare('SELECT record_json FROM course_watches WHERE request_id=?').get(requestId))
+        if (watch) db.prepare('UPDATE course_watches SET record_json=? WHERE request_id=?').run(json({ ...watch, status: 'closed', nextDueAt: null }), requestId)
+        const run = requireRun(forecasts.at(-1).runId)
+        append(run, { eventId: `${requestId}_resolution`, type: 'resolution.recorded', payload: { outcome, evidenceIds: [evidenceId], summary: value.summary, scores: value.scores } })
+        return value
+      })
+    },
     stop(requestId) {
       return tx(() => {
         const request = requireRequest(requestId)

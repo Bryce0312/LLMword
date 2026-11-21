@@ -1,5 +1,6 @@
 import Ajv from 'ajv'
 import { COURSE_ROLE_IDS } from './course-context.mjs'
+import { groundedClaimSchema } from '../domain/claim-grounding.mjs'
 
 const roles = COURSE_ROLE_IDS
 const string = (maxLength = 2000) => ({ type: 'string', minLength: 1, maxLength })
@@ -7,6 +8,11 @@ const ids = { type: 'array', uniqueItems: true, items: string(120), maxItems: 30
 const object = (properties, required = Object.keys(properties)) => ({ type: 'object', additionalProperties: false, properties, required })
 
 export const definitions = {
+  submit_research_report: ['提交已披露财报和管理层表述的核验研报，不输出概率或预测成绩。逐项发现必须引用本轮原文；说明表述归属、口径、限制及逐报告裁决。', object({
+    summary: string(3000), findings: { type: 'array', minItems: 1, maxItems: 10, items: groundedClaimSchema },
+    limitations: { type: 'array', maxItems: 12, items: string(1000) },
+    decisionNotes: { type: 'array', maxItems: 12, items: object({ assignmentId: string(200), disposition: { enum: ['adopted', 'qualified', 'rejected'] }, reason: string(1000), evidenceIds: ids }) },
+  })],
   draft_and_delegate: ['第一步只整理题意和分工，不调查或预测。给待核验草稿及三位不同职责（含verification）的调查任务；来源、规则和基准交研究员实际取证。', object({
     question: string(1000), object: string(500), interpretation: string(1000),
     defaultAssumptions: { type: 'array', maxItems: 6, items: string(500) },
@@ -25,6 +31,8 @@ export const definitions = {
   })],
   request_followup: ['围绕实际报告中的具体争议，给一位相关研究员定向补查或答复。次数由本轮harness剩余预算决定，不编造争议，不重复全网研究。', object({ roleId: { enum: roles }, objective: string(3000), reason: string(1500), evidenceIds: ids })],
   propose_forecast: ['提交二元候选，发布由应用独立验证。已知结果请明确 outcomeKnown，不把结果伪装成预测。', object({
+    reasoningClaims: { type: 'array', minItems: 1, maxItems: 8, items: groundedClaimSchema },
+    decisionNotes: { type: 'array', maxItems: 12, items: object({ assignmentId: string(200), disposition: { enum: ['adopted', 'qualified', 'rejected'] }, reason: string(1000), evidenceIds: ids }) },
     probabilityYes: { type: 'number', minimum: 0, maximum: 1 }, summary: string(2000), evidenceIds: ids,
     evidenceAdequacy: { enum: ['adequate', 'limited'] }, dissent: { type: 'array', items: string(1000), maxItems: 10 },
     outcomeKnown: { type: 'boolean' }, outcome: { type: ['integer', 'null'], enum: [0, 1, null] },

@@ -1,0 +1,175 @@
+{
+  "finishedAt": "2026-11-21T07:03:47.394307+00:00",
+  "scope": "fresh extracted source on this Windows machine; not a claim of testing every OS/network",
+  "cleanCopy": "tmp/closure-final-check/LLMword",
+  "install": {
+    "command": "npm.cmd ci --ignore-scripts --no-audit --no-fund",
+    "exitCode": 0,
+    "packagesAdded": 5
+  },
+  "mockCase": {
+    "command": "node scripts/warning-case.mjs",
+    "checks": [
+      "三类角色独立调用官方警告工具",
+      "逐条依据有已读原文片段",
+      "目标前禁止结果核验",
+      "来源失败不判No",
+      "目标后有效快照确定结果并计算协议Brier",
+      "重复核验不重复读取",
+      "原概率、证据和模型用量不回写",
+      "数据库重开结果一致"
+    ],
+    "preservedPublicLiveArchives": 2,
+    "apiKeyRequired": false
+  },
+  "browser": {
+    "engine": "isolated headless Edge, extensions disabled",
+    "results": [
+      {
+        "label": "desktop",
+        "kind": "mock",
+        "width": 1365,
+        "scrollWidth": 1350,
+        "title": "协作验收案例",
+        "hasScore": true,
+        "hasQuote": true,
+        "mockLabel": true,
+        "liveLabel": false,
+        "maintenance": false,
+        "review": false,
+        "timeCorrection": false
+      },
+      {
+        "label": "desktop",
+        "kind": "live-recovered",
+        "width": 1365,
+        "scrollWidth": 1350,
+        "title": "协作验收案例",
+        "hasScore": true,
+        "hasQuote": true,
+        "mockLabel": false,
+        "liveLabel": true,
+        "maintenance": true,
+        "review": true,
+        "timeCorrection": true
+      },
+      {
+        "label": "desktop",
+        "kind": "live-failed",
+        "width": 1365,
+        "scrollWidth": 1350,
+        "title": "协作验收案例",
+        "hasScore": false,
+        "hasQuote": false,
+        "mockLabel": false,
+        "liveLabel": true,
+        "maintenance": false,
+        "review": true,
+        "timeCorrection": false
+      },
+      {
+        "label": "mobile",
+        "kind": "mock",
+        "width": 390,
+        "scrollWidth": 390,
+        "title": "协作验收案例",
+        "hasScore": true,
+        "hasQuote": true,
+        "mockLabel": true,
+        "liveLabel": false,
+        "maintenance": false,
+        "review": false,
+        "timeCorrection": false
+      },
+      {
+        "label": "mobile",
+        "kind": "live-recovered",
+        "width": 390,
+        "scrollWidth": 390,
+        "title": "协作验收案例",
+        "hasScore": true,
+        "hasQuote": true,
+        "mockLabel": false,
+        "liveLabel": true,
+        "maintenance": true,
+        "review": true,
+        "timeCorrection": true
+      },
+      {
+        "label": "mobile",
+        "kind": "live-failed",
+        "width": 390,
+        "scrollWidth": 390,
+        "title": "协作验收案例",
+        "hasScore": false,
+        "hasQuote": false,
+        "mockLabel": false,
+        "liveLabel": true,
+        "maintenance": false,
+        "review": true,
+        "timeCorrection": false
+      },
+      {
+        "kind": "fresh-mock-submission",
+        "requestId": "course_request_321ec4d5-687d-4a92-9b84-189dc3585f7d",
+        "status": "completed",
+        "probability": 0.5,
+        "groundingPolicy": "quoted-claims-v1",
+        "roles": [
+          {
+            "roleId": "market",
+            "status": "completed",
+            "reportStatus": "complete"
+          },
+          {
+            "roleId": "statistics",
+            "status": "completed",
+            "reportStatus": "complete"
+          },
+          {
+            "roleId": "verification",
+            "status": "completed",
+            "reportStatus": "complete"
+          }
+        ],
+        "modelMode": "mock",
+        "sourceMode": "replay",
+        "error": null,
+        "hasRoom": true,
+        "actorCount": 4,
+        "hasQuotes": true,
+        "hasMockLabel": true,
+        "hasPublished": true,
+        "globalError": false
+      }
+    ],
+    "consoleErrors": []
+  },
+  "applicationSourceFilesCompared": 140,
+  "applicationSourceSha256": "2df4d8d6da5cc86ae57de1d2aeccc313cfd5b5a44684544c660a6cdd95bb9671",
+  "regression": {
+    "finishedAt": "2026-11-21T06:55:24.662Z",
+    "nodeVersion": "v22.17.1",
+    "command": "node --test --test-reporter=tap",
+    "scope": "full",
+    "exitCode": 0,
+    "tests": 324,
+    "passed": 324,
+    "failed": 0,
+    "skipped": 0,
+    "cancelled": 0,
+    "durationMs": 23654.8701
+  },
+  "cleanup": {
+    "live4195Stopped": true,
+    "mock4206Stopped": true,
+    "isolatedBrowser9336Stopped": true,
+    "verifiedViaHttp": true
+  },
+  "githubUploaded": false,
+  "limits": [
+    "No API Key used in portability checks.",
+    "Bing optional; live availability depends on destination network.",
+    "Real warning archive is maintenance-recovered, not full autonomous acceptance."
+  ]
+}

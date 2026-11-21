@@ -1,0 +1,481 @@
+{
+  "requestId": "course_request_e4cdc924-857d-4de3-bc1d-ff15f4a683e9",
+  "reports": [
+    {
+      "role": "market",
+      "report": {
+        "status": "complete",
+        "summary": "已固定本轮基准：Binance BTC-USDT 现价 58263.34 USDT，交易对 BTC-USDT（symbol=BTCUSDT），单位 USDT（非 USD）。系统观察时间 2026-11-21T07:38:45.080Z（北京时间 2026-11-21 15:38:45）。目标时点 2026-11-21T08:08:32.434Z（16:08:32）尚未到达，未来现价尚未取得，基准由本轮首次成功报价固定，后续新价不改写旧基准。",
+        "evidenceIds": [
+          "course_evidence_849dabeb1b4d1ea7741080474393485c"
+        ],
+        "support": [
+          {
+            "claim": "本轮固定基准为 Binance BTC-USDT 现价 58263.34 USDT，交易对 BTC-USDT，货币单位 USDT。",
+            "basis": "fact",
+            "evidenceIds": [
+              "course_evidence_849dabeb1b4d1ea7741080474393485c"
+            ],
+            "citations": [
+              {
+                "evidenceId": "course_evidence_849dabeb1b4d1ea7741080474393485c",
+                "quote": "{\"provider\":\"binance-public\",\"pair\":\"BTC-USDT\",\"value\":58263.34,\"currency\":\"USDT\",\"rawSpot\":{\"symbol\":\"BTCUSDT\",\"price\":\"58263.34000000\"}}"
+              }
+            ]
+          },
+          {
+            "claim": "该现价快照的系统观察时间为 2026-11-21T07:38:45.080Z，早于目标时点 08:08:32.434Z，因此是基准而非未来结果。",
+            "basis": "fact",
+            "evidenceIds": [
+              "course_evidence_849dabeb1b4d1ea7741080474393485c"
+            ],
+            "citations": [
+              {
+                "evidenceId": "course_evidence_849dabeb1b4d1ea7741080474393485c",
+                "quote": "{\"provider\":\"binance-public\",\"pair\":\"BTC-USDT\",\"value\":58263.34,\"currency\":\"USDT\"}"
+              }
+            ]
+          }
+        ],
+        "counterevidence": [
+          {
+            "claim": "当前取得的是基准时刻价格，不能据此推断目标时点后现价是否高于基准；该方向判断属未校准推断。",
+            "basis": "inference",
+            "evidenceIds": [
+              "course_evidence_849dabeb1b4d1ea7741080474393485c"
+            ],
+            "citations": [
+              {
+                "evidenceId": "course_evidence_849dabeb1b4d1ea7741080474393485c",
+                "quote": "{\"provider\":\"binance-public\",\"pair\":\"BTC-USDT\",\"value\":58263.34,\"currency\":\"USDT\"}"
+              }
+            ]
+          }
+        ],
+        "missingEvidence": [
+          "目标时点 2026-11-21T08:08:32.434Z 后 5 分钟观察窗口内的 Binance BTC-USDT 现价尚未取得，无法判定 Yes/No。",
+          "未取得预测市场盘口报价或历史成交概率，无合约盘口流动性信息。",
+          "未读取分钟级历史样本，未对短期方向波动做样本描述。"
+        ],
+        "probability": null,
+        "nextSuggestion": "本轮任务仅为固定基准，已完成。待目标时点 2026-11-21T08:08:32.434Z 过后，调用 get_market_quote 取得同一接口首个有效现价，与基准 58263.34 USDT 严格比较：高于基准判 Yes，等于或低于判 No；若观察窗口内未取得有效现价则按不结算处理。"
+      }
+    },
+    {
+      "role": "market",
+      "report": {
+        "status": "complete",
+        "summary": "已固定本轮基准：Binance BTC-USDT 现价 58263.34 USDT，交易对 BTC-USDT（symbol=BTCUSDT），单位 USDT（非 USD）。系统观察时间 2026-11-21T07:38:45.080Z（北京时间 2026-11-21 15:38:45）。目标时点 2026-11-21T08:08:32.434Z（16:08:32）尚未到达，未来现价尚未取得；基准由本轮首次成功报价固定，后续新价不改写旧基准。",
+        "evidenceIds": [
+          "course_evidence_849dabeb1b4d1ea7741080474393485c"
+        ],
+        "support": [
+          {
+            "claim": "本轮固定基准为 Binance BTC-USDT 现价 58263.34 USDT，交易对 BTC-USDT，货币单位 USDT。",
+            "basis": "fact",
+            "evidenceIds": [
+              "course_evidence_849dabeb1b4d1ea7741080474393485c"
+            ],
+            "citations": [
+              {
+                "evidenceId": "course_evidence_849dabeb1b4d1ea7741080474393485c",
+                "quote": "\"pair\":\"BTC-USDT\",\"value\":58263.34,\"currency\":\"USDT\""
+              }
+            ]
+          },
+          {
+            "claim": "现价快照的系统观察时间为 2026-11-21T07:38:45.080Z，早于目标时点 08:08:32.434Z，因此是基准而非未来结果。",
+            "basis": "fact",
+            "evidenceIds": [
+              "course_evidence_849dabeb1b4d1ea7741080474393485c"
+            ],
+            "citations": [
+              {
+                "evidenceId": "course_evidence_849dabeb1b4d1ea7741080474393485c",
+                "quote": "\"rawSpot\":{\"symbol\":\"BTCUSDT\",\"price\":\"58263.34000000\"}"
+              }
+            ]
+          }
+        ],
+        "counterevidence": [
+          {
+            "claim": "当前取得的仅是基准时刻价格，不能据此判定目标时点后现价是否高于基准；该方向判断属未校准推断。",
+            "basis": "inference",
+            "evidenceIds": [
+              "course_evidence_849dabeb1b4d1ea7741080474393485c"
+            ],
+            "citations": [
+              {
+                "evidenceId": "course_evidence_849dabeb1b4d1ea7741080474393485c",
+                "quote": "\"value\":58263.34,\"currency\":\"USDT\""
+              }
+            ]
+          }
+        ],
+        "missingEvidence": [
+          "目标时点 2026-11-21T08:08:32.434Z 后 5 分钟观察窗口内的 Binance BTC-USDT 现价尚未取得，无法判定 Yes/No。",
+          "未取得预测市场盘口报价或历史成交概率，无合约盘口流动性信息。",
+          "未读取分钟级历史样本，未对短期方向波动做样本描述。"
+        ],
+        "probability": null,
+        "nextSuggestion": "本轮任务仅为固定基准，已完成。待目标时点 2026-11-21T08:08:32.434Z 过后，调用 get_market_quote 取得同一接口首个有效现价，与基准 58263.34 USDT 严格比较：高于基准判 Yes，等于或低于判 No；观察窗口内未取得有效现价则按不结算处理。"
+      }
+    },
+    {
+      "role": "market",
+      "report": {
+        "counterevidence": [
+          {
+            "basis": "inference",
+            "citations": [
+              {
+                "evidenceId": "course_evidence_849dabeb1b4d1ea7741080474393485c",
+                "quote": "\"value\":58263.34,\"currency\":\"USDT\""
+              }
+            ],
+            "claim": "当前取得的仅是基准时刻价格，不能据此判定目标时点后现价是否高于基准；该方向判断属未校准推断。",
+            "evidenceIds": [
+              "course_evidence_849dabeb1b4d1ea7741080474393485c"
+            ]
+          }
+        ],
+        "evidenceIds": [
+          "course_evidence_849dabeb1b4d1ea7741080474393485c"
+        ],
+        "missingEvidence": [
+          "目标时点 2026-11-21T08:08:32.434Z 后 5 分钟观察窗口内的 Binance BTC-USDT 现价尚未取得，无法判定 Yes/No。",
+          "未取得预测市场盘口报价或历史成交概率，无合约盘口流动性信息。",
+          "未读取分钟级历史样本，未对短期方向波动做样本描述。"
+        ],
+        "nextSuggestion": "本轮任务仅为固定基准，已完成。待目标时点 2026-11-21T08:08:32.434Z 过后，调用 get_market_quote 取得同一接口首个有效现价，与基准 58263.34 USDT 严格比较：高于基准判 Yes，等于或低于判 No；观察窗口内未取得有效现价则按不结算处理。",
+        "probability": null,
+        "status": "complete",
+        "summary": "已固定本轮基准：Binance BTC-USDT 现价 58263.34 USDT，交易对 BTC-USDT（symbol=BTCUSDT），货币单位 USDT（非 USD）。系统观察时间 2026-11-21T07:38:45.080Z（北京时间 2026-11-21 15:38:45）。目标时点 2026-11-21T08:08:32.434Z（16:08:32）尚未到达，未来现价尚未取得；基准由本轮首次成功报价固定，后续新价不改写旧基准。",
+        "support": [
+          {
+            "basis": "fact",
+            "citations": [
+              {
+                "evidenceId": "course_evidence_849dabeb1b4d1ea7741080474393485c",
+                "quote": "\"pair\":\"BTC-USDT\",\"value\":58263.34,\"currency\":\"USDT\""
+              }
+            ],
+            "claim": "本轮固定基准为 Binance BTC-USDT 现价 58263.34 USDT，交易对 BTC-USDT，货币单位 USDT（非 USD）。",
+            "evidenceIds": [
+              "course_evidence_849dabeb1b4d1ea7741080474393485c"
+            ]
+          },
+          {
+            "basis": "fact",
+            "citations": [
+              {
+                "evidenceId": "course_evidence_849dabeb1b4d1ea7741080474393485c",
+                "quote": "\"rawSpot\":{\"symbol\":\"BTCUSDT\",\"price\":\"58263.34000000\"}"
+              }
+            ],
+            "claim": "原始报价 symbol 为 BTCUSDT，原始价格字符串为 58263.34000000，与基准 58263.34 一致。",
+            "evidenceIds": [
+              "course_evidence_849dabeb1b4d1ea7741080474393485c"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "role": "statistics",
+      "report": {
+        "status": "insufficient",
+        "summary": "目标时点 2026-11-21T08:08:32.434Z（北京时间16:08:32）在当前观察时刻（07:39:53Z）尚未到达，属未来时刻。get_market_history 返回的已关闭分钟桶仅覆盖 07:09:00Z–07:38:00Z，末桶收盘价 58236.78 USDT；现价接口读取 58221.74 USDT。因目标时点及其后5分钟窗口尚无任何已关闭分钟桶，无法核对并报告该窗口内的有效现价，不能判定现价是否高于固定基准。需等待目标时点过后、窗口分钟桶关闭后再读取。",
+        "evidenceIds": [
+          "course_evidence_b221b7ac57eca2b009272bd90f36e234",
+          "course_evidence_c9e2cddd160dc161389aacffe144cb41"
+        ],
+        "support": [
+          {
+            "claim": "Binance BTC-USDT 现价为 58221.74 USDT，系统观察时间为 2026-11-21T07:39:53.214Z。",
+            "basis": "fact",
+            "evidenceIds": [
+              "course_evidence_b221b7ac57eca2b009272bd90f36e234"
+            ],
+            "citations": [
+              {
+                "evidenceId": "course_evidence_b221b7ac57eca2b009272bd90f36e234",
+                "quote": "{\"provider\":\"binance-public\",\"pair\":\"BTC-USDT\",\"value\":58221.74,\"currency\":\"USDT\",\"rawSpot\":{\"symbol\":\"BTCUSDT\",\"price\":\"58221.74000000\"}}"
+              }
+            ]
+          },
+          {
+            "claim": "最近已关闭分钟桶覆盖 2026-11-21T07:09:00.000Z 至 07:38:00.000Z，末桶收盘价 58236.78 USDT。",
+            "basis": "fact",
+            "evidenceIds": [
+              "course_evidence_c9e2cddd160dc161389aacffe144cb41"
+            ],
+            "citations": [
+              {
+                "evidenceId": "course_evidence_c9e2cddd160dc161389aacffe144cb41",
+                "quote": "firstBucket\":\"2026-11-21T07:09:00.000Z\",\"lastBucket\":\"2026-11-21T07:38:00.000Z\",\"firstOpen\":58250.25,\"lastClose\":58236.78"
+              }
+            ]
+          }
+        ],
+        "counterevidence": [
+          {
+            "claim": "目标时点 08:08:32Z 尚未到达，历史分钟桶最晚仅到 07:38:00Z，因此目标时点及其后5分钟窗口内不存在任何可读取的已关闭现价。",
+            "basis": "fact",
+            "evidenceIds": [
+              "course_evidence_c9e2cddd160dc161389aacffe144cb41"
+            ],
+            "citations": [
+              {
+                "evidenceId": "course_evidence_c9e2cddd160dc161389aacffe144cb41",
+                "quote": "lastBucket\":\"2026-11-21T07:38:00.000Z\""
+              }
+            ]
+          }
+        ],
+        "missingEvidence": [
+          "目标时点 2026-11-21T08:08:32.434Z 及之后5分钟窗口内的已关闭分钟桶或现价（尚未产生）",
+          "本轮市场研究员首次成功取得的固定基准价（未提供）",
+          "目标窗口内同一 BTCUSDT 接口的有效现价"
+        ],
+        "probability": null,
+        "nextSuggestion": "等待服务器时间越过目标时点 08:08:32.434Z 并经过5分钟观察窗口后，重新调用 get_market_history 读取该窗口已关闭的分钟桶，并再次读取现价以核对是否严格高于固定基准价，再作判定。"
+      }
+    },
+    {
+      "role": "statistics",
+      "report": {
+        "counterevidence": [
+          {
+            "basis": "inference",
+            "citations": [
+              {
+                "evidenceId": "course_evidence_c9e2cddd160dc161389aacffe144cb41",
+                "quote": "lastBucket\":\"2026-11-21T07:38:00.000Z\""
+              }
+            ],
+            "claim": "历史已关闭分钟桶的最晚时间戳为 07:38:00Z，早于目标时点 08:08:32Z，故目标时点及之后5分钟窗口内尚无可读取的已关闭现价。",
+            "evidenceIds": [
+              "course_evidence_c9e2cddd160dc161389aacffe144cb41"
+            ]
+          }
+        ],
+        "evidenceIds": [
+          "course_evidence_b221b7ac57eca2b009272bd90f36e234",
+          "course_evidence_c9e2cddd160dc161389aacffe144cb41"
+        ],
+        "missingEvidence": [
+          "目标时点 2026-11-21T08:08:32.434Z 及之后5分钟窗口内的已关闭分钟桶或现价（尚未产生）",
+          "本轮市场研究员首次成功取得的固定基准价（未提供）",
+          "目标窗口内同一 BTCUSDT 接口的有效现价"
+        ],
+        "nextSuggestion": "等待服务器时间越过目标时点 08:08:32.434Z 并经过5分钟观察窗口后，重新调用 get_market_history 读取该窗口已关闭的分钟桶，并再次读取现价以核对是否严格高于固定基准价。",
+        "probability": null,
+        "status": "insufficient",
+        "summary": "目标时点 2026-11-21T08:08:32.434Z（北京时间16:08:32）在当前观察时刻（07:39:53Z）尚未到达，属未来时刻。get_market_history 返回的已关闭分钟桶仅覆盖 07:09:00Z–07:38:00Z，末桶收盘价 58236.78 USDT；现价接口读取 58221.74 USDT。因目标时点及其后5分钟窗口尚无任何已关闭分钟桶，无法核对并报告该窗口内的有效现价，不能判定现价是否高于固定基准。需等待目标时点过后、窗口分钟桶关闭后再读取。",
+        "support": [
+          {
+            "basis": "fact",
+            "citations": [
+              {
+                "evidenceId": "course_evidence_b221b7ac57eca2b009272bd90f36e234",
+                "quote": "{\"provider\":\"binance-public\",\"pair\":\"BTC-USDT\",\"value\":58221.74,\"currency\":\"USDT\"}"
+              }
+            ],
+            "claim": "Binance BTC-USDT 现价为 58221.74 USDT。",
+            "evidenceIds": [
+              "course_evidence_b221b7ac57eca2b009272bd90f36e234"
+            ]
+          },
+          {
+            "basis": "fact",
+            "citations": [
+              {
+                "evidenceId": "course_evidence_c9e2cddd160dc161389aacffe144cb41",
+                "quote": "firstBucket\":\"2026-11-21T07:09:00.000Z\",\"lastBucket\":\"2026-11-21T07:38:00.000Z\",\"firstOpen\":58250.25,\"lastClose\":58236.78"
+              }
+            ],
+            "claim": "已关闭分钟桶覆盖 07:09:00Z–07:38:00Z，末桶收盘价 58236.78 USDT，首桶开盘价 58250.25 USDT。",
+            "evidenceIds": [
+              "course_evidence_c9e2cddd160dc161389aacffe144cb41"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "role": "verification",
+      "report": {
+        "status": "insufficient",
+        "summary": "核实结果：报价对确认为 BTCUSDT，币种为 USDT（非 USD），来源为 Binance 公共接口 data-api.binance.vision。但目标时点 08:08:32.434Z 尚在未来：本人现价读数 07:41:33Z（58244.36）与已关闭分钟桶（截至 07:40:00Z）均早于目标时点，落在观察窗口之前，属目标前基准读数，并非目标后观察。仅 Binance 单一来源，无法满足来源独立交叉验证；且未收到其他席位（市场/统计）的报价文本，无法逐条核对数字是否匹配。目标后5分钟窗口尚未到来，Yes/No 无法判定。",
+        "evidenceIds": [
+          "course_evidence_21f97b6f868dd868380ca6a64557b76e",
+          "course_evidence_21321011c0b8a329100b21228f63f737"
+        ],
+        "support": [
+          {
+            "claim": "报价为 BTCUSDT，币种为 USDT（非 USD），来源为 Binance 公共接口。",
+            "basis": "fact",
+            "evidenceIds": [
+              "course_evidence_21f97b6f868dd868380ca6a64557b76e"
+            ],
+            "citations": [
+              {
+                "evidenceId": "course_evidence_21f97b6f868dd868380ca6a64557b76e",
+                "quote": "\"pair\":\"BTC-USDT\",\"value\":58244.36,\"currency\":\"USDT\",\"rawSpot\":{\"symbol\":\"BTCUSDT\",\"price\":\"58244.36000000\"}"
+              }
+            ]
+          },
+          {
+            "claim": "已关闭分钟桶截至 07:40:00Z，早于目标时点 08:08:32.434Z，目标后观察窗口尚未开始。",
+            "basis": "fact",
+            "evidenceIds": [
+              "course_evidence_21321011c0b8a329100b21228f63f737"
+            ],
+            "citations": [
+              {
+                "evidenceId": "course_evidence_21321011c0b8a329100b21228f63f737",
+                "quote": "\"firstBucket\":\"2026-11-21T07:11:00.000Z\",\"lastBucket\":\"2026-11-21T07:40:00.000Z\",\"firstOpen\":58470,\"lastClose\":58240.84"
+              }
+            ]
+          }
+        ],
+        "counterevidence": [
+          {
+            "claim": "现价与历史分钟桶均来自同一 Binance 数据源，无独立第二来源可交叉验证。",
+            "basis": "fact",
+            "evidenceIds": [
+              "course_evidence_21f97b6f868dd868380ca6a64557b76e",
+              "course_evidence_21321011c0b8a329100b21228f63f737"
+            ],
+            "citations": [
+              {
+                "evidenceId": "course_evidence_21f97b6f868dd868380ca6a64557b76e",
+                "quote": "\"provider\":\"binance-public\",\"pair\":\"BTC-USDT\""
+              },
+              {
+                "evidenceId": "course_evidence_21321011c0b8a329100b21228f63f737",
+                "quote": "\"provider\":\"binance-public\",\"pair\":\"BTC-USDT\",\"granularitySeconds\":60"
+              }
+            ]
+          }
+        ],
+        "missingEvidence": [
+          "未收到市场/统计席位的报价文本，无法逐条核对数字是否匹配",
+          "目标后5分钟观察窗口（08:08:32–08:13:32Z）尚未到来，无目标后有效现价",
+          "无第二独立来源（如其他交易所）供交叉验证",
+          "未取得本轮市场席首次成功取得的固定基准价数值"
+        ],
+        "probability": null,
+        "nextSuggestion": "待目标时点 08:08:32Z 过后，重新读取 data-api.binance.vision BTCUSDT 现价，与市场席首次基准比对判定 Yes/No；同时补充一个独立来源（非 Binance vision）以核验来源独立性；并请求提供市场/统计两席的原始报价文本用于数字匹配核对。"
+      }
+    },
+    {
+      "role": "verification",
+      "report": {
+        "status": "insufficient",
+        "summary": "核实结果：报价对确认为 BTCUSDT，币种为 USDT（非 USD），来源为 Binance 公共接口 data-api.binance.vision。但目标时点 08:08:32.434Z 尚在未来：本人现价读数 07:41:33Z（58244.36）与已关闭分钟桶（截至 07:40:00Z）均早于目标时点，落在观察窗口之前，属目标前基准读数，并非目标后观察。仅 Binance 单一来源，无法交叉验证；且未收到其他席位（市场/统计）的报价文本，无法核对数字匹配。目标后5分钟窗口尚未到来，Yes/No 无法判定。",
+        "evidenceIds": [
+          "course_evidence_21f97b6f868dd868380ca6a64557b76e",
+          "course_evidence_21321011c0b8a329100b21228f63f737"
+        ],
+        "support": [
+          {
+            "claim": "报价对为 BTC-USDT，币种为 USDT，交易对符号为 BTCUSDT（非 USD）。",
+            "basis": "fact",
+            "evidenceIds": [
+              "course_evidence_21f97b6f868dd868380ca6a64557b76e"
+            ],
+            "citations": [
+              {
+                "evidenceId": "course_evidence_21f97b6f868dd868380ca6a64557b76e",
+                "quote": "\"pair\":\"BTC-USDT\",\"value\":58244.36,\"currency\":\"USDT\",\"rawSpot\":{\"symbol\":\"BTCUSDT\",\"price\":\"58244.36000000\"}"
+              }
+            ]
+          },
+          {
+            "claim": "本次现价读数为 58244.36 USDT。",
+            "basis": "fact",
+            "evidenceIds": [
+              "course_evidence_21f97b6f868dd868380ca6a64557b76e"
+            ],
+            "citations": [
+              {
+                "evidenceId": "course_evidence_21f97b6f868dd868380ca6a64557b76e",
+                "quote": "\"value\":58244.36,\"currency\":\"USDT\""
+              }
+            ]
+          },
+          {
+            "claim": "已读历史分钟桶最后一条为 07:40:00Z，早于目标时点，属目标前样本。",
+            "basis": "inference",
+            "evidenceIds": [
+              "course_evidence_21321011c0b8a329100b21228f63f737"
+            ],
+            "citations": [
+              {
+                "evidenceId": "course_evidence_21321011c0b8a329100b21228f63f737",
+                "quote": "\"firstBucket\":\"2026-11-21T07:11:00.000Z\",\"lastBucket\":\"2026-11-21T07:40:00.000Z\""
+              }
+            ]
+          }
+        ],
+        "counterevidence": [
+          {
+            "claim": "现价与历史分钟桶均来自同一 Binance 数据源（binance-public），无独立第二来源可交叉验证。",
+            "basis": "fact",
+            "evidenceIds": [
+              "course_evidence_21f97b6f868dd868380ca6a64557b76e",
+              "course_evidence_21321011c0b8a329100b21228f63f737"
+            ],
+            "citations": [
+              {
+                "evidenceId": "course_evidence_21f97b6f868dd868380ca6a64557b76e",
+                "quote": "\"provider\":\"binance-public\",\"pair\":\"BTC-USDT\""
+              },
+              {
+                "evidenceId": "course_evidence_21321011c0b8a329100b21228f63f737",
+                "quote": "\"provider\":\"binance-public\",\"pair\":\"BTC-USDT\",\"granularitySeconds\":60"
+              }
+            ]
+          }
+        ],
+        "missingEvidence": [
+          "未收到市场/统计席位的报价文本，无法逐条核对数字是否匹配",
+          "目标后5分钟观察窗口（08:08:32–08:13:32Z）尚未到来，无目标后有效现价",
+          "无第二独立来源（如其他交易所）供交叉验证",
+          "未取得本轮市场席首次成功取得的固定基准价数值"
+        ],
+        "probability": null,
+        "nextSuggestion": "待目标时点 08:08:32Z 过后，重新读取 data-api.binance.vision BTCUSDT 现价，与市场席首次基准比对判定 Yes/No；同时补充一个独立来源（非 Binance vision）以核验来源独立性；并请求提供市场/统计两席的原始报价文本用于数字匹配核对。"
+      }
+    }
+  ],
+  "evidence": [
+    {
+      "evidenceId": "course_evidence_21321011c0b8a329100b21228f63f737",
+      "text": "{\"provider\":\"binance-public\",\"pair\":\"BTC-USDT\",\"granularitySeconds\":60,\"closedCandlesOnly\":true,\"expectedCandles\":30,\"availableCandles\":30,\"missingCandles\":0,\"firstBucket\":\"2026-11-21T07:11:00.000Z\",\"lastBucket\":\"2026-11-21T07:40:00.000Z\",\"firstOpen\":58470,\"lastClose\":58240.84,\"observedReturnPct\":-0.3919274841799325,\"adjacentReturnCount\":29,\"sampleMinuteLogReturnSd\":0.0015759443870094665,\"methods\":\"returnPct=(lastClose/firstOpen-1)*100; sd=sample SD of adjacent minute log(close/previousClose); gaps excluded; descriptive sample, not calibrated future probability\",\"candles\":[{\"time\":\"2026-11-21T07:11:00.000Z\",\"low\":58300.01,\"high\":58470,\"open\":58470,\"close\":58343.4,\"volume\":53.75169},{\"time\":\"2026-11-21T07:12:00.000Z\",\"low\":58048.56,\"high\":58386.97,\"open\":58343.39,\"close\":58061.56,\"volume\":116.90925},{\"time\":\"2026-11-21T07:13:00.000Z\",\"low\":58052.84,\"high\":58203.97,\"open\":58061.56,\"close\":58165.28,\"volume\":73.7146},{\"time\":\"2026-11-21T07:14:00.000Z\",\"low\":58165.27,\"high\":58251.04,\"open\":58165.27,\"close\":58172.54,\"volume\":30.08749},{\"time\":\"2026-11-21T07:15:00.000Z\",\"low\":58114.4,\"high\":58230,\"open\":58172.53,\"close\":58120.95,\"volume\":36.70945},{\"time\":\"2026-11-21T07:16:00.000Z\",\"low\":58066.71,\"high\":58309.56,\"open\":58120.95,\"close\":58306.74,\"volume\":242.97576},{\"time\":\"2026-11-21T07:17:00.000Z\",\"low\":58250.84,\"high\":58513.01,\"open\":58306.74,\"close\":58471.79,\"volume\":275.34159},{\"time\":\"2026-11-21T07:18:00.000Z\",\"low\":58204.83,\"high\":58484.37,\"open\":58471.78,\"close\":58324.74,\"volume\":74.43082},{\"time\":\"2026-11-21T07:19:00.000Z\",\"low\":58250,\"high\":58373.7,\"open\":58324.73,\"close\":58274.34,\"volume\":99.23696},{\"time\":\"2026-11-21T07:20:00.000Z\",\"low\":58250,\"high\":58328.41,\"open\":58274.34,\"close\":58281.35,\"volume\":41.91914},{\"time\":\"2026-11-21T07:21:00.000Z\",\"low\":58212,\"high\":58292.84,\"open\":58281.35,\"close\":58255.35,\"volume\":27.04405},{\"time\":\"2026-11-21T07:22:00.000Z\",\"low\":58260.9,\"high\":58396.55,\"open\":58260.91,\"close\":58345.6,\"volume\":91.1747},{\"time\":\"2026-11-21T07:23:00.000Z\",\"low\":58340,\"high\":58377.91,\"open\":58345.61,\"close\":58347.1,\"volume\":16.38293},{\"time\":\"2026-11-21T07:24:00.000Z\",\"low\":58276.1,\"high\":58347.09,\"open\":58347.09,\"close\":58331.75,\"volume\":180.20962},{\"time\":\"2026-11-21T07:25:00.000Z\",\"low\":58207.31,\"high\":58356,\"open\":58331.75,\"close\":58207.31,\"volume\":63.35431},{\"time\":\"2026-11-21T07:26:00.000Z\",\"low\":58163.08,\"high\":58232.28,\"open\":58207.31,\"close\":58225.32,\"volume\":67.19165},{\"time\":\"2026-11-21T07:27:00.000Z\",\"low\":58118.77,\"high\":58225.32,\"open\":58225.32,\"close\":58160.44,\"volume\":37.84916},{\"time\":\"2026-11-21T07:28:00.000Z\",\"low\":58083.22,\"high\":58177.34,\"open\":58160.43,\"close\":58128.31,\"volume\":48.93018},{\"time\":\"2026-11-21T07:29:00.000Z\",\"low\":58128.31,\"high\":58217.73,\"open\":58128.31,\"close\":58153.26,\"volume\":26.97949},{\"time\":\"2026-11-21T07:30:00.000Z\",\"low\":58153.25,\"high\":58238.79,\"open\":58153.25,\"close\":58224.64,\"volume\":38.49715},{\"time\":\"2026-11-21T07:31:00.000Z\",\"low\":58126.42,\"high\":58224.65,\"open\":58224.65,\"close\":58219.58,\"volume\":40.7969},{\"time\":\"2026-11-21T07:32:00.000Z\",\"low\":58109.79,\"high\":58263.48,\"open\":58219.57,\"close\":58126.14,\"volume\":43.87167},{\"time\":\"2026-11-21T07:33:00.000Z\",\"low\":58115.1,\"high\":58220.31,\"open\":58126.14,\"close\":58160.94,\"volume\":51.09605},{\"time\":\"2026-11-21T07:34:00.000Z\",\"low\":58149.31,\"high\":58280,\"open\":58160.95,\"close\":58229.64,\"volume\":63.1412},{\"time\":\"2026-11-21T07:35:00.000Z\",\"low\":58195.87,\"high\":58249.47,\"open\":58229.65,\"close\":58249.47,\"volume\":38.29203},{\"time\":\"2026-11-21T07:36:00.000Z\",\"low\":58248.99,\"high\":58332.85,\"open\":58249,\"close\":58298.4,\"volume\":45.78431},{\"time\":\"2026-11-21T07:37:00.000Z\",\"low\":58220.05,\"high\":58307.39,\"open\":58298.4,\"close\":58297.97,\"volume\":39.7977},{\"time\":\"2026-11-21T07:38:00.000Z\",\"low\":58228.53,\"high\":58297.98,\"open\":58297.98,\"close\":58236.78,\"volume\":32.0105},{\"time\":\"2026-11-21T07:39:00.000Z\",\"low\":58200,\"high\":58248.44,\"open\":58236.79,\"close\":58225.34,\"volume\":40.69254},{\"time\":\"2026-11-21T07:40:00.000Z\",\"low\":58225.34,\"high\":58258.05,\"open\":58225.34,\"close\":58240.84,\"volume\":23.7525}]}",
+      "obtainedAt": "2026-11-21T07:41:34.218Z"
+    },
+    {
+      "evidenceId": "course_evidence_21f97b6f868dd868380ca6a64557b76e",
+      "text": "{\"provider\":\"binance-public\",\"pair\":\"BTC-USDT\",\"value\":58244.36,\"currency\":\"USDT\",\"rawSpot\":{\"symbol\":\"BTCUSDT\",\"price\":\"58244.36000000\"}}",
+      "obtainedAt": "2026-11-21T07:41:33.948Z"
+    },
+    {
+      "evidenceId": "course_evidence_849dabeb1b4d1ea7741080474393485c",
+      "text": "{\"provider\":\"binance-public\",\"pair\":\"BTC-USDT\",\"value\":58263.34,\"currency\":\"USDT\",\"rawSpot\":{\"symbol\":\"BTCUSDT\",\"price\":\"58263.34000000\"}}",
+      "obtainedAt": "2026-11-21T07:38:45.086Z"
+    },
+    {
+      "evidenceId": "course_evidence_b221b7ac57eca2b009272bd90f36e234",
+      "text": "{\"provider\":\"binance-public\",\"pair\":\"BTC-USDT\",\"value\":58221.74,\"currency\":\"USDT\",\"rawSpot\":{\"symbol\":\"BTCUSDT\",\"price\":\"58221.74000000\"}}",
+      "obtainedAt": "2026-11-21T07:39:53.228Z"
+    },
+    {
+      "evidenceId": "course_evidence_c9e2cddd160dc161389aacffe144cb41",
+      "text": "{\"provider\":\"binance-public\",\"pair\":\"BTC-USDT\",\"granularitySeconds\":60,\"closedCandlesOnly\":true,\"expectedCandles\":30,\"availableCandles\":30,\"missingCandles\":0,\"firstBucket\":\"2026-11-21T07:09:00.000Z\",\"lastBucket\":\"2026-11-21T07:38:00.000Z\",\"firstOpen\":58250.25,\"lastClose\":58236.78,\"observedReturnPct\":-0.02312436427311937,\"adjacentReturnCount\":29,\"sampleMinuteLogReturnSd\":0.001625906499768763,\"methods\":\"returnPct=(lastClose/firstOpen-1)*100; sd=sample SD of adjacent minute log(close/previousClose); gaps excluded; descriptive sample, not calibrated future probability\",\"candles\":[{\"time\":\"2026-11-21T07:09:00.000Z\",\"low\":58250.24,\"high\":58443.38,\"open\":58250.25,\"close\":58442.99,\"volume\":98.90023},{\"time\":\"2026-11-21T07:10:00.000Z\",\"low\":58429.92,\"high\":58672.05,\"open\":58442.99,\"close\":58470.01,\"volume\":136.99175},{\"time\":\"2026-11-21T07:11:00.000Z\",\"low\":58300.01,\"high\":58470,\"open\":58470,\"close\":58343.4,\"volume\":53.75169},{\"time\":\"2026-11-21T07:12:00.000Z\",\"low\":58048.56,\"high\":58386.97,\"open\":58343.39,\"close\":58061.56,\"volume\":116.90925},{\"time\":\"2026-11-21T07:13:00.000Z\",\"low\":58052.84,\"high\":58203.97,\"open\":58061.56,\"close\":58165.28,\"volume\":73.7146},{\"time\":\"2026-11-21T07:14:00.000Z\",\"low\":58165.27,\"high\":58251.04,\"open\":58165.27,\"close\":58172.54,\"volume\":30.08749},{\"time\":\"2026-11-21T07:15:00.000Z\",\"low\":58114.4,\"high\":58230,\"open\":58172.53,\"close\":58120.95,\"volume\":36.70945},{\"time\":\"2026-11-21T07:16:00.000Z\",\"low\":58066.71,\"high\":58309.56,\"open\":58120.95,\"close\":58306.74,\"volume\":242.97576},{\"time\":\"2026-11-21T07:17:00.000Z\",\"low\":58250.84,\"high\":58513.01,\"open\":58306.74,\"close\":58471.79,\"volume\":275.34159},{\"time\":\"2026-11-21T07:18:00.000Z\",\"low\":58204.83,\"high\":58484.37,\"open\":58471.78,\"close\":58324.74,\"volume\":74.43082},{\"time\":\"2026-11-21T07:19:00.000Z\",\"low\":58250,\"high\":58373.7,\"open\":58324.73,\"close\":58274.34,\"volume\":99.23696},{\"time\":\"2026-11-21T07:20:00.000Z\",\"low\":58250,\"high\":58328.41,\"open\":58274.34,\"close\":58281.35,\"volume\":41.91914},{\"time\":\"2026-11-21T07:21:00.000Z\",\"low\":58212,\"high\":58292.84,\"open\":58281.35,\"close\":58255.35,\"volume\":27.04405},{\"time\":\"2026-11-21T07:22:00.000Z\",\"low\":58260.9,\"high\":58396.55,\"open\":58260.91,\"close\":58345.6,\"volume\":91.1747},{\"time\":\"2026-11-21T07:23:00.000Z\",\"low\":58340,\"high\":58377.91,\"open\":58345.61,\"close\":58347.1,\"volume\":16.38293},{\"time\":\"2026-11-21T07:24:00.000Z\",\"low\":58276.1,\"high\":58347.09,\"open\":58347.09,\"close\":58331.75,\"volume\":180.20962},{\"time\":\"2026-11-21T07:25:00.000Z\",\"low\":58207.31,\"high\":58356,\"open\":58331.75,\"close\":58207.31,\"volume\":63.35431},{\"time\":\"2026-11-21T07:26:00.000Z\",\"low\":58163.08,\"high\":58232.28,\"open\":58207.31,\"close\":58225.32,\"volume\":67.19165},{\"time\":\"2026-11-21T07:27:00.000Z\",\"low\":58118.77,\"high\":58225.32,\"open\":58225.32,\"close\":58160.44,\"volume\":37.84916},{\"time\":\"2026-11-21T07:28:00.000Z\",\"low\":58083.22,\"high\":58177.34,\"open\":58160.43,\"close\":58128.31,\"volume\":48.93018},{\"time\":\"2026-11-21T07:29:00.000Z\",\"low\":58128.31,\"high\":58217.73,\"open\":58128.31,\"close\":58153.26,\"volume\":26.97949},{\"time\":\"2026-11-21T07:30:00.000Z\",\"low\":58153.25,\"high\":58238.79,\"open\":58153.25,\"close\":58224.64,\"volume\":38.49715},{\"time\":\"2026-11-21T07:31:00.000Z\",\"low\":58126.42,\"high\":58224.65,\"open\":58224.65,\"close\":58219.58,\"volume\":40.7969},{\"time\":\"2026-11-21T07:32:00.000Z\",\"low\":58109.79,\"high\":58263.48,\"open\":58219.57,\"close\":58126.14,\"volume\":43.87167},{\"time\":\"2026-11-21T07:33:00.000Z\",\"low\":58115.1,\"high\":58220.31,\"open\":58126.14,\"close\":58160.94,\"volume\":51.09605},{\"time\":\"2026-11-21T07:34:00.000Z\",\"low\":58149.31,\"high\":58280,\"open\":58160.95,\"close\":58229.64,\"volume\":63.1412},{\"time\":\"2026-11-21T07:35:00.000Z\",\"low\":58195.87,\"high\":58249.47,\"open\":58229.65,\"close\":58249.47,\"volume\":38.29203},{\"time\":\"2026-11-21T07:36:00.000Z\",\"low\":58248.99,\"high\":58332.85,\"open\":58249,\"close\":58298.4,\"volume\":45.78431},{\"time\":\"2026-11-21T07:37:00.000Z\",\"low\":58220.05,\"high\":58307.39,\"open\":58298.4,\"close\":58297.97,\"volume\":39.7977},{\"time\":\"2026-11-21T07:38:00.000Z\",\"low\":58228.53,\"high\":58297.98,\"open\":58297.98,\"close\":58236.78,\"volume\":32.0105}]}",
+      "obtainedAt": "2026-11-21T07:39:53.553Z"
+    }
+  ]
+}

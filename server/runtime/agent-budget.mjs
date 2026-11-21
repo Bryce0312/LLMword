@@ -12,7 +12,7 @@ export function workerBudgetState(budget, usage, { finishOnToolBudget = false } 
     reportStep: budget.maxModelRequests,
     outputTokens: Math.min(budget.maxTokens, remaining.totalTokens),
     remaining,
-    reportOnly: finishOnToolBudget && (remaining.modelRequests === 0 || remaining.toolCalls === 0),
+    reportOnly: finishOnToolBudget && (remaining.modelRequests === 0 || remaining.toolCalls === 0 || remaining.totalTokens <= (budget.reserveReportTokens || 0)),
     unknownUsage: Boolean(usage.unknownUsage),
   }
 }

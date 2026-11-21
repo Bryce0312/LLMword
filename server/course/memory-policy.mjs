@@ -120,3 +120,31 @@ export function buildMemorySnapshot({ requestId, predictionVersion = null, exclu
       archiveRetention: 'no-automatic-deletion', requiresRefresh: true },
   }
 }
+/** Compact only the model input; the full historical archive and UI stay unchanged. */
+export function memoryForModel(memory, { roleId, maxCharacters = 16000 } = {}) {
+  if (!memory) return null
+  const cut = (value, size = 350) => typeof value === 'string' ? value.slice(0, size) : ''
+  const forecast = (value) => value ? {
+    forecastId: value.forecastId, sourceRunId: value.sourceRunId, predictionVersion: value.predictionVersion,
+    probabilityYes: value.probabilityYes, issuedAt: value.issuedAt, summary: cut(value.summary),
+    statusLabel: value.statusLabel, baselineVerified: value.baselineVerified, conditionalOnly: value.conditionalOnly,
+    scoringEligible: value.scoringEligible, historical: true, modelMode: value.modelMode, sourceMode: value.sourceMode,
+    statusFacts: (value.statusFacts || []).slice(0, 6).map(({ key, label, text }) => ({ key, label, text: cut(text, 200) })),
+    summaryConflict: value.summaryConflict ? { detected: value.summaryConflict.detected, reasons: (value.summaryConflict.reasons || []).slice(0, 4).map((text) => cut(text, 160)) } : null,
+  } : null
+  const reports = (memory.reports || []).filter((item) => !roleId || [roleId, 'verification'].includes(item.roleId)).slice(0, 4)
+  const result = { historical: true, modelViewVersion: 1, summary: cut(memory.summary), policy: memory.policy,
+    sourceRunIds: memory.sourceRunIds, previousForecast: forecast(memory.previousForecast),
+    recentJudgments: (memory.recentJudgments || []).slice(0, 4).map((item) => ({ ...forecast(item), completedAt: item.completedAt,
+      unresolvedFactors: (item.unresolvedFactors || []).slice(0, 3).map((text) => cut(text, 180)) })),
+    reports: reports.map((item) => ({ sourceRunId: item.sourceRunId, roleId: item.roleId, status: item.status, summary: cut(item.summary),
+      evidenceIds: item.evidenceIds, missingEvidence: (item.missingEvidence || []).slice(0, 3).map((text) => cut(text, 180)), requiresRefresh: true })),
+    relations: (memory.relations || []).slice(0, 4).map(({ relationId, sourceRunId, relation, claim, evidenceId }) => ({ relationId, sourceRunId, relation, claim: cut(claim, 240), evidenceId, requiresRefresh: true })),
+    previousEvidence: (memory.previousEvidence || []).slice(0, 8).map(({ evidenceId, sourceRunId, title, url, publishedAt, obtainedAt }) => ({ evidenceId, sourceRunId, title: cut(title, 120), url: cut(url, 800), publishedAt, obtainedAt, requiresRefresh: true })),
+    reportCount: reports.length, relationCount: Math.min(4, memory.relations?.length || 0),
+    omission: '模型仅接收一次有界摘要；完整短期、长期档案保留，旧证据仍须重新读取。',
+  }
+  for (const key of ['previousEvidence', 'relations', 'reports', 'recentJudgments']) while (JSON.stringify(result).length > maxCharacters && result[key].length) result[key].pop()
+  result.reportCount = result.reports.length; result.relationCount = result.relations.length
+  return result
+}

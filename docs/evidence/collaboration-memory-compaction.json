@@ -1,0 +1,31 @@
+{
+  "measuredAt": "2026-11-20T15:56:07.072Z",
+  "sourceRunId": "course_run_31480119-4e44-4c4f-bd6a-4d56ad839f0c",
+  "measure": "serialized-JSON-characters-not-tokens",
+  "originalCharacters": 45335,
+  "views": [
+    {
+      "roleId": "main",
+      "characters": 7403,
+      "reportCount": 3,
+      "relationCount": 4,
+      "previousForecastId": "course_forecast_dc55fbde-6e8a-4b98-ba58-ce71d63f9808"
+    },
+    {
+      "roleId": "official",
+      "characters": 6757,
+      "reportCount": 2,
+      "relationCount": 4,
+      "previousForecastId": "course_forecast_dc55fbde-6e8a-4b98-ba58-ce71d63f9808"
+    },
+    {
+      "roleId": "verification",
+      "characters": 6059,
+      "reportCount": 1,
+      "relationCount": 4,
+      "previousForecastId": "course_forecast_dc55fbde-6e8a-4b98-ba58-ce71d63f9808"
+    }
+  ],
+  "liveRerunAfterCompaction": false,
+  "archiveModified": false
+}
