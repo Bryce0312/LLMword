@@ -1,6 +1,6 @@
 # V3.0 发行说明
 
-验证日期2026-11-21。用户已授权将本地完成版本发布到`Bryce0312/LLMword`的`V3.0`分支。基线为V2.0提交`9add50bf4392ee2f921c6e23b6a9aa7e3cfff1e0`，V2.0分支及前面同学的提交历史保留。远端发布是否完成，以GitHub的V3.0分支实际状态为准。
+验证日期2026-11-21。本版在原仓库[`Bryce0312/LLMword`的`V3.0`分支](https://github.com/Bryce0312/LLMword/tree/V3.0)维护。基线为V2.0提交`9add50bf4392ee2f921c6e23b6a9aa7e3cfff1e0`，V2.0分支及前面同学的提交历史保留。
 
 ## 改动范围
 
