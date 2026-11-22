@@ -1,5 +1,8 @@
-import { h, link, button, header, empty, select, badge, evidenceCard, api, write, toast, goto, fmt, route, labels } from './workbench-core.js'
+import { h, dataContent, dataLink, link, button, header, empty, select, badge, evidenceCard, api, write, toast, goto, fmt, route, labels } from './workbench-core.js'
 import { materialForm, agentForm } from './workbench-forms.js'
+import { researchSettingsPanel } from './research-settings.js'
+import { createAgentDeletionAction, agentDeletionError } from './agent-deletion.mjs'
+import { confirmationDialog } from './confirmation-dialog.js'
 
 function courseSlipState(record) {
   if (record.researchReport && record.status === 'completed') return '研报已保存'
@@ -17,30 +20,50 @@ function courseSlipState(record) {
 
 export function sidebar(ctx) {
   const { cache, projection, filterTopic } = ctx
-  const current = route().parts[0] === 'predictions' ? route().parts[1] : null
-  const chooser = select([['', '所有关注主题'], ...cache.topics.map((t) => [t.topicId, t.title])], filterTopic)
-  chooser.setAttribute('aria-label', '按主题筛选任务'); chooser.value = filterTopic
-  chooser.addEventListener('change', () => ctx.onFilter(chooser.value))
+  const roomShell = document.body.dataset.roomShell === 'true'
+  const currentRoute = route()
+  const current = roomShell && ctx.activePredictionId ? ctx.activePredictionId : currentRoute.parts[0] === 'predictions' ? currentRoute.parts[1] : null
+  const currentRequest = roomShell && ctx.activeCourseRequestId ? ctx.activeCourseRequestId : currentRoute.parts[0] === 'course' ? currentRoute.parts[1] : null
+  let chooser
+  if (!roomShell) {
+    chooser = select([['', '历史记录'], ...cache.topics.map((t) => [t.topicId, t.title])], filterTopic)
+    chooser.setAttribute('aria-label', '按主题筛选任务'); chooser.value = filterTopic
+    chooser.addEventListener('change', () => ctx.onFilter(chooser.value))
+  }
   const list = h('div', 'wb-task-list')
-  const coursePredictionIds = new Set((cache.courseRequests ?? []).map((r) => r.predictionId).filter(Boolean))
-  for (const record of [...(cache.courseRequests ?? [])].sort((a, b) => (Date.parse(b.createdAt) || 0) - (Date.parse(a.createdAt) || 0))) {
+  const courseRecords = (cache.courseRequests ?? []).filter(record => typeof (record.requestId ?? record.id) === 'string' && (record.requestId ?? record.id))
+  const coursePredictionIds = new Set(courseRecords.map((r) => r.predictionId).filter(Boolean))
+  for (const record of [...courseRecords].sort((a, b) => (Date.parse(b.createdAt) || 0) - (Date.parse(a.createdAt) || 0))) {
     const id = record.requestId ?? record.id; const normalized = record.normalized ?? record.prediction ?? {}
-    const card = link('', '#/course/' + id, 'wb-task-slip' + (route().parts[0] === 'course' && route().parts[1] === id ? ' is-selected' : ''))
-    const question = h('strong', '', record.question?.trim() || normalized.question || '正在整理题目')
+    if (typeof id !== 'string' || !id) continue
+    const card = link('', '#/course/' + encodeURIComponent(id), 'wb-task-slip' + (currentRequest === id ? ' is-selected' : ''))
+    card.dataset.requestId = id
+    if (currentRequest === id) card.setAttribute('aria-current', 'page')
+    const question = dataContent('strong', '', record.question?.trim() || normalized.question || '正在整理题目')
     question.title = normalized.question ?? question.textContent
     card.append(h('span', 'wb-slip-top', record.purpose === 'research' ? '财报核验' : '自动跟踪', h('span', 'wb-badge', courseSlipState(record))), question, h('small', '', record.purpose === 'research' ? record.researchReport ? '研报已封存' : '正在调查资料' : Number.isFinite(record.forecast?.probabilityYes) ? 'Yes ' + Math.round(record.forecast.probabilityYes * 100) + '%' : '暂未发布概率'))
+    if (roomShell) card.append(h('small', 'wb-history-created', record.createdAt ? '创建于 ' + fmt(record.createdAt, record.timezone) : '创建时间未提供'))
     list.append(card)
   }
-  for (const p of cache.predictions.filter((p) => !coursePredictionIds.has(p.predictionId) && (!filterTopic || p.topicId === filterTopic))) {
+  for (const p of cache.predictions.filter((p) => !coursePredictionIds.has(p.predictionId) && (roomShell || !filterTopic || p.topicId === filterTopic))) {
+    if (typeof p.predictionId !== 'string' || !p.predictionId) continue
     const unread = Object.values(projection.runs).filter((r) => r.predictionId === p.predictionId).reduce((n, r) => n + r.unread, 0)
-    const card = link('', '#/predictions/' + p.predictionId, 'wb-task-slip' + (current === p.predictionId ? ' is-selected' : ''))
+    const card = link('', '#/predictions/' + encodeURIComponent(p.predictionId), 'wb-task-slip' + (current === p.predictionId ? ' is-selected' : ''))
     if (current === p.predictionId) card.setAttribute('aria-current', 'page')
-    card.append(h('span', 'wb-slip-top', '是否发生', badge(p.status)), h('strong', '', p.question || '未命名预测草稿'), h('small', '', cache.topics.find((t) => t.topicId === p.topicId)?.title ?? '未命名主题'))
+    card.append(h('span', 'wb-slip-top', '是否发生', badge(p.status)), dataContent('strong', '', p.question || '未命名预测草稿'), dataContent('small', '', cache.topics.find((t) => t.topicId === p.topicId)?.title ?? '未命名主题'))
+    if (roomShell) card.append(h('small', 'wb-history-created', p.createdAt ? '创建于 ' + fmt(p.createdAt, p.timezone) : '创建时间未提供'))
     if (unread) card.append(h('span', 'wb-unread', unread + ' 条新进展'))
     list.append(card)
   }
+  if (roomShell) {
+    const warning = cache.courseHistoryError || (cache.courseCapability?.available === false ? cache.courseCapability.message || '当前服务暂不能读取自动跟踪历史；这里不会显示示例任务。' : null)
+    const notice = warning ? h('p', 'wb-sidebar-empty wb-history-error', warning) : null
+    notice?.setAttribute('role', 'status')
+    if (!list.children.length && !warning) list.append(h('p', 'wb-sidebar-empty', !cache.courseCapability ? '正在读取历史记录…' : '还没有已保存的预测或研报任务。可从“开始预测”创建第一项任务。'))
+    return [...(notice ? [notice] : []), list]
+  }
   if (!list.children.length) list.append(h('p', 'wb-sidebar-empty', '这里还没有任务纸签。写下一句希望验证的问题即可开始。'))
-  return [h('div', 'wb-sidebar-title', h('h2', '', '任务公告栏'), h('span', '', String(list.querySelectorAll('a').length))), chooser, link('＋ 开始事件跟踪', '#/course/new', 'wb-button wb-primary'), link('模型连接 · API Key', '#/model-connection', 'wb-side-link'), list, link('高级：材料研读', '#/advanced', 'wb-side-link'), link('工具台', '#/tools', 'wb-side-link'), link('旧历史案例回放', '/legacy.html', 'wb-side-link')]
+  return [chooser, list, link('高级：材料研读', '#/advanced', 'wb-side-link'), link('工具台', '#/tools', 'wb-side-link'), link('旧历史案例回放', '/legacy.html', 'wb-side-link')]
 }
 
 export function board(ctx) {
@@ -50,7 +73,7 @@ export function board(ctx) {
   const courseIds = new Set((cache.courseRequests ?? []).map((r) => r.predictionId).filter(Boolean))
   const rows = cache.predictions.filter((p) => !courseIds.has(p.predictionId) && (!filterTopic || p.topicId === filterTopic))
   const grid = h('div', 'wb-board-grid')
-  for (const p of rows) grid.append(h('article', 'wb-paper wb-board-card', h('div', 'wb-card-top', badge(p.status), h('span', '', '是／否预测')), h('h3', '', link(p.question || '未命名草稿', '#/predictions/' + p.predictionId)), h('p', 'wb-muted', cache.topics.find((t) => t.topicId === p.topicId)?.title), h('div', 'wb-card-probability', '—', h('small', '', '尚未发布概率')), h('p', '', '目标日期：' + fmt(p.targetAt, p.timezone)), link('打开研究室', '#/predictions/' + p.predictionId, 'wb-button')))
+  for (const p of rows) grid.append(h('article', 'wb-paper wb-board-card', h('div', 'wb-card-top', badge(p.status), h('span', '', '是／否预测')), h('h3', '', dataLink(p.question || '未命名草稿', '#/predictions/' + p.predictionId)), dataContent('p', 'wb-muted', cache.topics.find((t) => t.topicId === p.topicId)?.title), h('div', 'wb-card-probability', '—', h('small', '', '尚未发布概率')), h('p', '', '目标日期：' + fmt(p.targetAt, p.timezone)), link('打开研究室', '#/predictions/' + p.predictionId, 'wb-button')))
   rows.forEach((p, index) => grid.children[index].insertBefore(h('p', 'wb-muted', '最新研读：' + (p.latestRun ? (labels[p.latestRun.status] ?? p.latestRun.status) + ' · ' + fmt(p.latestRun.updatedAt) : '尚无报告')), grid.children[index].lastChild))
   const importButton = button('导入旧历史案例', async () => {
     importButton.disabled = true
@@ -69,13 +92,13 @@ export async function inbox(ctx, topicId, predictionId) {
   if (!t) throw new Error('找不到这个关注主题。')
   const p = ctx.cache.predictions.find((v) => v.predictionId === predictionId && v.topicId === topicId)
   const data = await api('/topics/' + topicId + '/evidence' + (p ? '?predictionId=' + encodeURIComponent(p.predictionId) : ''))
-  return [header('证据收报台', t.title + (p ? ' · 只看当前题关联材料' : ' · 主题全部材料'), p ? link('返回当前研究室', '#/predictions/' + p.predictionId, 'wb-button') : link('新建关联预测', '#/advanced/new?topicId=' + topicId, 'wb-button')), h('p', 'wb-purpose', '这里保存研究输入：原文、来源及取得时间。是否足以支持判断，要在研读报告中核对；材料不会自动进入学习评分。'), h('div', 'wb-inbox-layout', h('section', 'wb-paper', h('h2', 'wb-section-title', '已保存材料 (' + data.evidence.length + ')'), data.evidence.length ? data.evidence.map(evidenceCard) : empty('还没有关联材料', '粘贴原文并保存，再返回任务开始研读。')), materialForm(ctx.cache, topicId, p?.predictionId, ctx.render))]
+  return [header('证据收报台', [dataContent('span', '', t.title), p ? ' · 只看当前题关联材料' : ' · 主题全部材料'], p ? link('返回当前研究室', '#/predictions/' + p.predictionId, 'wb-button') : link('新建关联预测', '#/advanced/new?topicId=' + topicId, 'wb-button')), h('p', 'wb-purpose', '这里保存研究输入：原文、来源及取得时间。是否足以支持判断，要在研读报告中核对；材料不会自动进入学习评分。'), h('div', 'wb-inbox-layout', h('section', 'wb-paper', h('h2', 'wb-section-title', '已保存材料 (' + data.evidence.length + ')'), data.evidence.length ? data.evidence.map(evidenceCard) : empty('还没有关联材料', '粘贴原文并保存，再返回任务开始研读。')), materialForm(ctx.cache, topicId, p?.predictionId, ctx.render))]
 }
 
 export async function learning() {
   const data = await api('/learning'); const list = h('div', 'wb-paper')
   if (!data.entries.length) list.append(empty('还没有已结算的学习档案', '研读完成不等于预测结算。只有封存预测与真实结果对应后，误差和经验修订才会进入这里。', link('返回任务公告栏', '#/predictions', 'wb-button')))
-  for (const e of data.entries) list.append(h('article', 'wb-evidence-item', h('h3', '', e.target ?? e.question ?? '历史结算记录'), h('p', '', e.summary ?? '历史记录，实际口径以保存的原始结果为准。'), h('small', '', 'Brier：' + (e.brier ?? '未记录') + ' · ' + fmt(e.resolvedAt))))
+  for (const e of data.entries) list.append(h('article', 'wb-evidence-item', dataContent('h3', '', e.target ?? e.question ?? '历史结算记录'), dataContent('p', '', e.summary ?? '历史记录，实际口径以保存的原始结果为准。'), h('small', '', 'Brier：' + (e.brier ?? '未记录') + ' · ' + fmt(e.resolvedAt))))
   for (const [index, e] of data.entries.entries()) {
     const card = list.children[index]
     card.append(h('p', '', '历史预测 Yes：' + (Number.isFinite(e.probability) ? Math.round(e.probability * 100) + '%' : '未记录') + ' · 实际结果：' + (e.outcome === 1 || e.outcome === true ? '发生' : e.outcome === 0 || e.outcome === false ? '未发生' : '待核对')), h('span', 'wb-badge', e.scoringEligible === false ? '历史归档 · 不计入新评估' : '已结算记录'))
@@ -84,10 +107,42 @@ export async function learning() {
 }
 
 export function agents(ctx, agentId, historical) {
+  const ownerActive = () => typeof ctx.isActive !== 'function' || ctx.isActive()
   const grid = h('div', 'wb-agent-picker')
   ctx.cache.agents.forEach((a, index) => {
     const tile = link('', '#/agents/' + a.agentSpecId, 'wb-agent-tile' + (a.agentSpecId === agentId ? ' is-selected' : ''))
-    tile.append(h('span', 'wb-agent-symbol', ['⌕', '◷', '⚒', '♟', '▥', '◇', '☷', '↺', '⌘', '✓'][index % 10]), h('strong', '', a.name), h('small', '', '定义 v' + a.specVersion)); grid.append(tile)
+    tile.append(h('span', 'wb-agent-symbol', ['⌕', '◷', '⚒', '♟', '▥', '◇', '☷', '↺', '⌘', '✓'][index % 10]), dataContent('strong', '', a.name), h('small', '', '定义 v' + a.specVersion))
+    const errorNote = h('p', 'wb-agent-delete-error'); errorNote.hidden = true; errorNote.setAttribute('role', 'alert')
+    const seat = h('article', 'wb-agent-seat', tile)
+    const deleteSeat = createAgentDeletionAction(a, { confirm: message => ownerActive() ? confirmationDialog(message, { trigger: remove }) : false, request: api, availableCount: () => ctx.cache.courseCapability?.config?.roleCatalogue?.length ?? ctx.cache.agents.length })
+    let deleting = false
+    const remove = button('删除', async () => {
+      if (deleting || !ownerActive()) return
+      deleting = true; remove.disabled = true; errorNote.hidden = true
+      let deleted = false
+      try {
+        const result = await deleteSeat()
+        if (!result.deleted) return
+        deleted = true
+        ctx.cache.agents = ctx.cache.agents.filter(item => item.agentSpecId !== a.agentSpecId)
+        if (ownerActive()) seat.remove()
+        const [list, capability] = await Promise.allSettled([api('/agents'), ctx.checkCourseCapability()])
+        const listReady = list.status === 'fulfilled' && Array.isArray(list.value?.agents)
+        if (listReady) ctx.cache.agents = list.value.agents.filter(item => item.agentSpecId !== a.agentSpecId)
+        if (!ownerActive()) return
+        const current = route()
+        if (current.parts[0] === 'agents') {
+          if (current.parts[1] === a.agentSpecId) goto('/agents')
+          else await ctx.render()
+        }
+        if (!ownerActive()) return
+        toast('研究员席位已删除，新任务不再选用；历史记录保留。' + (!listReady || capability.status === 'rejected' ? '列表或能力状态未完整刷新，请重新读取。' : ''))
+      } catch (error) { if (ownerActive()) { errorNote.textContent = agentDeletionError(error); errorNote.hidden = false } }
+      finally { deleting = false; if (ownerActive()) { remove.disabled = false; if (remove.isConnected) remove.focus(); else if (deleted && route().parts[0] === 'agents') ctx.content?.focus() } }
+    }, 'wb-agent-delete')
+    remove.setAttribute('data-i18n-skip-attributes', 'title aria-label')
+    remove.setAttribute('aria-label', '删除研究员“' + a.name + '”'); remove.title = '删除研究员“' + a.name + '”'
+    seat.append(remove, errorNote); grid.append(seat)
   })
   const current = ctx.cache.agents.find((a) => a.agentSpecId === agentId)
   const finance = ctx.cache.courseCapability?.config?.roleCatalogue?.find((item) => item.roleId === agentId)
@@ -100,19 +155,19 @@ export function agents(ctx, agentId, historical) {
   if (a) {
     if (current) {
       const versions = select(Array.from({ length: current.specVersion }, (_, index) => [String(index + 1), '定义版本 v' + (index + 1)]), String(a.specVersion))
-      versions.setAttribute('aria-label', '查看研究员定义版本'); versions.addEventListener('change', () => goto('/agents/' + agentId + '?specVersion=' + versions.value))
+      versions.setAttribute('aria-label', '查看研究员定义版本'); versions.addEventListener('change', () => { if (ownerActive()) goto('/agents/' + agentId + '?specVersion=' + versions.value) })
       controls.append(h('span', '', '查看保存版本'), versions)
     }
-    form = agentForm(ctx.cache, a, (saved) => { if (creating || route().query.has('specVersion')) goto('/agents/' + saved.agentSpecId); else ctx.render() })
-    if (current && a.specVersion < current.specVersion) {
+    form = agentForm(ctx.cache, a, (saved) => { if (!ownerActive()) return; if (creating || route().query.has('specVersion')) goto('/agents/' + saved.agentSpecId); else ctx.render() }, { isActive: ctx.isActive })
+    if ((historical && !current) || (current && a.specVersion < current.specVersion)) {
       for (const control of form.querySelectorAll('input,textarea,select,button')) control.disabled = true
-      form.prepend(h('p', 'wb-purpose', '这是只读历史版本。要修改职责或工具许可，请切回最新定义 v' + current.specVersion + '。'))
+      form.prepend(h('p', 'wb-purpose', !current ? '这是已删除席位的只读历史版本，保留用于查看过往定义，不再用于新任务。' : '这是只读历史版本。要修改职责或工具许可，请切回最新定义 v' + current.specVersion + '。'))
     }
   }
-  return [header('研究员席位', ctx.cache.agents.length + ' 类角色模板；自动跟踪由主 Agent 从现有目录按题选择团队。', link('模型连接 · API Key', '#/model-connection', 'wb-button'), link('＋ 新建研究员', '#/agents/new', 'wb-button wb-primary')), grid, ...(investigationMethod ? [investigationMethod] : []), ...(financeMethod ? [financeMethod] : []), controls, form ?? empty('选择一个研究员席位', '查看职责、技能指令与工具许可。保存新版本不会修改旧运行。')]
+  return [researchSettingsPanel(), header('研究员席位', ctx.cache.agents.length + ' 类角色模板；自动跟踪由主 Agent 从现有目录按题选择团队。', link('＋ 新建研究员', '#/agents/new', 'wb-button wb-primary')), grid, ...(investigationMethod ? [investigationMethod] : []), ...(financeMethod ? [financeMethod] : []), controls, form ?? empty('选择一个研究员席位', '查看职责、技能指令与工具许可。保存新版本不会修改旧运行。')]
 }
 
 export function topicView(cache, topicId) {
   const t = cache.topics.find((v) => v.topicId === topicId); if (!t) throw new Error('找不到这个关注主题。')
-  return [header(t.title, '关注主题档案', link('新建关联预测题', '#/advanced/new?topicId=' + t.topicId, 'wb-button wb-primary')), h('section', 'wb-paper', h('h2', '', '背景'), h('p', 'wb-prewrap', t.background || '尚未填写背景。'), h('p', 'wb-muted', '资料模式：' + t.sourceMode + ' · 主题 v' + t.version), link('打开主题收报台', '#/topics/' + t.topicId + '/inbox', 'wb-button')), h('section', 'wb-paper', h('h2', '', '关联预测题'), cache.predictions.filter((p) => p.topicId === t.topicId).map((p) => { const course = (cache.courseRequests ?? []).find((r) => r.predictionId === p.predictionId); return h('p', 'wb-topic-question', link(p.question || '未命名草稿', course ? '#/course/' + (course.requestId ?? course.id) : '#/predictions/' + p.predictionId)) }))]
+  return [header(dataContent('span', '', t.title), '关注主题档案', link('新建关联预测题', '#/advanced/new?topicId=' + t.topicId, 'wb-button wb-primary')), h('section', 'wb-paper', h('h2', '', '背景'), dataContent('p', 'wb-prewrap', t.background || '尚未填写背景。'), h('p', 'wb-muted', '资料模式：' + t.sourceMode + ' · 主题 v' + t.version), link('打开主题收报台', '#/topics/' + t.topicId + '/inbox', 'wb-button')), h('section', 'wb-paper', h('h2', '', '关联预测题'), cache.predictions.filter((p) => p.topicId === t.topicId).map((p) => { const course = (cache.courseRequests ?? []).find((r) => r.predictionId === p.predictionId); return h('p', 'wb-topic-question', dataLink(p.question || '未命名草稿', course ? '#/course/' + (course.requestId ?? course.id) : '#/predictions/' + p.predictionId)) }))]
 }

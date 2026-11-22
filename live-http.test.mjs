@@ -11,13 +11,19 @@ import { join } from 'node:path'
 // key is only checked through public configuration.
 test('live entry starts without a key, refuses actions, then accepts a session key', { timeout: 20000 }, async t => {
   const folder = await mkdtemp(join(tmpdir(), 'llmword-live-keyless-'))
-  const model = createServer((_request, response) => {
-    response.writeHead(200, { 'Content-Type': 'application/json' }).end('{"data":[]}')
+  const received = []
+  const model = createServer((request, response) => {
+    let body = ''
+    request.on('data', part => { body += part })
+    request.on('end', () => {
+      received.push({ path: request.url, method: request.method, body: body ? JSON.parse(body) : null })
+      response.writeHead(request.method === 'GET' ? 200 : 400, { 'Content-Type': 'application/json' }).end(request.method === 'GET' ? '{"data":[]}' : '{"error":{"message":"local test stops before research"}}')
+    })
   })
   model.listen(0, '127.0.0.1'); await once(model, 'listening')
   const modelUrl = `http://127.0.0.1:${model.address().port}`
   const child = spawn(process.execPath, ['server/app.mjs'], { cwd: new URL('.', import.meta.url), env: { ...process.env,
-    WORLD_ENV: 'live', PORT: '0', WORLD_API_KEY: '', WORLD_MODEL_NAME: 'deepseek-v4-pro', WORLD_BASE_URL: modelUrl,
+    WORLD_ENV: 'live', PORT: '0', WORLD_API_KEY: '', WORLD_SEARCH_API_KEY: '', WORLD_MODEL_NAME: 'deepseek-v4-pro', WORLD_BASE_URL: modelUrl,
     WORLD_MODEL_PROTOCOL: 'deepseek', WORLD_MODEL_THINKING: 'disabled', WORLD_MODEL_REASONING_EFFORT: '',
     WORLD_MONITOR: 'off', WORLD_WORKBENCH: 'on', WORLD_RUNTIME: 'probe', WORLD_COURSE: 'on',
     WORLD_SEARCH_PROVIDER: 'deepseek', WORLD_COURSE_POLL_MS: '3600000',
@@ -58,7 +64,7 @@ test('live entry starts without a key, refuses actions, then accepts a session k
 
   const key = 'TEST_LIVE_SESSION_KEY_0001'
   const saved = await fetch(base + '/api/v1/course/provider-connection', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ apiKey: key }),
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ apiKey: key, url: modelUrl + '/api/v1//chat/completions', model: 'DeepSeek-V4-Flash' }),
   })
   assert.equal(saved.status, 200)
   const connected = await saved.json()
@@ -68,5 +74,16 @@ test('live entry starts without a key, refuses actions, then accepts a session k
   assert(!JSON.stringify(connected).includes(key))
 
   const after = await fetch(base + '/api/v1/course/config').then(response => response.json())
-  assert.equal(after.sources.mode, 'live')
+  assert.equal(after.sources.mode, 'unavailable')
+  assert.equal(connected.url, modelUrl + '/api/v1//chat/completions')
+  assert.equal(connected.model, 'DeepSeek-V4-Flash')
+  assert(received.some(item => item.method === 'GET' && item.path === '/api/v1//models'))
+  const started = await fetch(base + '/api/v1/course/requests', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ question: '本地接口配置测试', watch: false }) })
+  assert.equal(started.status, 202)
+  for (let attempt = 0; attempt < 100 && !received.some(item => item.method === 'POST'); attempt++) await new Promise(resolve => setTimeout(resolve, 20))
+  const call = received.find(item => item.method === 'POST')
+  assert.equal(call?.path, '/api/v1//chat/completions')
+  assert.equal(call?.body?.model, 'DeepSeek-V4-Flash')
+  assert.equal(call?.body?.thinking, undefined)
+  assert.equal(call?.body?.reasoning_effort, undefined)
 })

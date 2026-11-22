@@ -25,6 +25,10 @@ export async function handleCourseApi(course, req, res) {
     let match
     if (req.method === 'GET' && url.pathname === '/api/v1/course/config') {
       send(res, 200, typeof course.config === 'function' ? course.config() : course.capabilities || {})
+    } else if (url.pathname === '/api/v1/course/settings' && req.method === 'GET') {
+      send(res, 200, course.getSettings())
+    } else if (url.pathname === '/api/v1/course/settings' && req.method === 'PUT') {
+      send(res, 200, course.updateSettings(await body(req)))
     } else if (url.pathname === '/api/v1/course/requests' && req.method === 'GET') {
       send(res, 200, { requests: course.listRequests() })
     } else if (url.pathname === '/api/v1/course/requests' && req.method === 'POST') {

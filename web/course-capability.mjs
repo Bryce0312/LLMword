@@ -7,19 +7,13 @@ export function environmentPresentation(config = {}, connection = {}) {
   const live = mode === 'live'
   const configured = live && connection?.configured === true
   const state = ['connected', 'failed', 'unknown'].includes(connection?.connection) ? connection.connection : 'unknown'
-  let dot = 'idle', status = '未配置'
-  if (configured) {
-    if (state === 'connected') { dot = 'ready'; status = '已配置已连接' }
-    else if (state === 'failed') { dot = 'warning'; status = '已配置未连接' }
-    else { dot = 'warning'; status = '已配置待校验' }
-  }
+  const dot = !configured ? 'idle' : state === 'connected' ? 'ready' : 'warning'
+  const detail = !configured ? '当前AI模型未配置，请先在“模型连接”保存 API Key。'
+    : state === 'connected' ? config.sources?.available === false ? 'AI模型已配置且连接校验通过；官方搜索与网页读取尚未配置。' : 'AI模型已配置且连接校验通过，实际任务仍受余额与权限影响。'
+      : state === 'failed' ? 'AI模型已配置，但连接校验未通过；请检查 Key、账户权限或网络。' : 'AI模型已配置，连接状态待校验。'
   return { mode, configured, connection: state, dot,
-    text: live ? `真实环境 · ${status}` : '模拟环境 · 未配置',
-    title: live
-      ? state === 'connected' ? '真实模型与联网检索；/models 校验已通过，实际任务仍受余额与权限影响。'
-        : state === 'failed' ? 'Key 已保存但 /models 校验失败；请检查 Key、账户权限或网络后重新保存。'
-          : configured ? 'Key 已保存，尚未完成连接校验。' : '真实环境尚未保存 API Key；请先在“模型连接”保存后再开始。'
-      : '本地协议模拟与历史 / 测试快照；不能作为真实预测证据，也不会接收真实 Key。' }
+    text: live ? `真实环境 · AI模型${configured ? '已配置' : '未配置'}` : '模拟环境 · 未配置',
+    title: '显示当前运行环境和AI模型配置状态。' + (live ? detail : '本地协议模拟与历史 / 测试快照；不能作为真实预测证据，也不会接收真实 Key。') }
 }
 
 export function isMissingCourseApi(error = {}) {

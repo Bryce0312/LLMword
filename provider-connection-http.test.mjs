@@ -40,6 +40,8 @@ test('the local UI connection endpoint enables a real provider from a keyless de
   const capability = await fetch(base + '/api/v1/course/config').then(r => r.json())
   assert.equal(capability.modelMode, 'live')
   assert.equal(capability.sourceMode, 'live')
+  assert.equal(capability.sources.available, false)
+  assert.equal(configured.url, 'http://127.0.0.1:1/chat/completions')
   assert(!JSON.stringify(capability).includes(key))
   assert.deepEqual((await fetch(base + '/api/v1/course/requests').then(r => r.json())).requests, [])
   for (const file of await readdir(folder)) assert(!(await readFile(join(folder, file))).includes(Buffer.from(key)), 'Key must not be saved in ' + file)

@@ -1,0 +1,45 @@
+{
+  "finishedAt": "2026-11-22T03:49:37.889Z",
+  "nodeVersion": "v24.22.3",
+  "command": "node --test --test-reporter=tap",
+  "scope": "full",
+  "tests": 374,
+  "passed": 374,
+  "failed": 0,
+  "skipped": 0,
+  "cancelled": 0,
+  "durationMs": 6930.5504,
+  "noRealModelCalls": true,
+  "settings": {
+    "default": {
+      "mode": "limited",
+      "maxTotalTokens": 1000000
+    },
+    "presets": [
+      100000,
+      300000,
+      500000,
+      1000000
+    ],
+    "unlimited": null
+  },
+  "pricingSource": "https://api-docs.deepseek.com/quick_start/pricing/",
+  "verified": [
+    "persistent GET/PUT settings",
+    "new forecast snapshots including fixed rules",
+    "old request/run and watch budgets unchanged",
+    "unlimited total budget with finite output/call limits",
+    "pricing refreshed on each connection without API keys",
+    "official tiered rates parsed from source, unavailable providers are not priced"
+  ],
+  "browserVerification": {
+    "checkedAt": "2026-11-22T03:53:09.022Z",
+    "url": "http://127.0.0.1:4174/#/agents",
+    "defaultFiniteTokens": 1000000,
+    "unlimitedInputDisabled": true,
+    "finiteInputEditable": true,
+    "defaultBudgetSavedThroughUI": true,
+    "desktopPricingOnRight": true,
+    "narrowLayoutWraps": true
+  }
+}

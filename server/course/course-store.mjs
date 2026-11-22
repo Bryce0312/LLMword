@@ -1,4 +1,6 @@
 import { randomUUID } from 'node:crypto'
+import { buildTradingHorizon } from './trading-calendar.mjs'
+import { DEFAULT_PREDICTION_BUDGET, validatePredictionBudget, validatePredictionSettings, totalTokenLimitReached, totalTokenLimitExceeded } from './prediction-budget.mjs'
 import { validateDecisionNotes } from './collaboration.mjs'
 import { assembleResearchCandidate } from './research-assembly.mjs'
 import { unsentSummaryRequest } from './research-summary.mjs'
@@ -17,7 +19,6 @@ export const courseFailure = (code, message, status = 400) => Object.assign(doma
 const terminal = new Set(['completed', 'insufficient', 'failed', 'cancelled'])
 const decode = (row) => row ? JSON.parse(row.record_json) : null
 const id = (kind) => `${kind}_${randomUUID()}`
-const tokenLimit = (run) => run.budget?.maxTotalTokens || 120000
 
 /** Single-process course harness. SQLite owns committed state, never browser lifetime. */
 export function createCourseStore({ path, now = () => new Date() } = {}) {
@@ -40,6 +41,7 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
     db.exec('PRAGMA foreign_keys = ON; PRAGMA busy_timeout = 5000; PRAGMA journal_mode = WAL')
     tx(() => {
       db.exec(`
+        CREATE TABLE IF NOT EXISTS course_settings (key TEXT PRIMARY KEY, record_json TEXT NOT NULL) STRICT;
         CREATE TABLE IF NOT EXISTS course_metadata (key TEXT PRIMARY KEY, value TEXT NOT NULL) STRICT;
         CREATE TABLE IF NOT EXISTS course_requests (id TEXT PRIMARY KEY, record_json TEXT NOT NULL) STRICT;
         CREATE TABLE IF NOT EXISTS course_runs (id TEXT PRIMARY KEY, request_id TEXT NOT NULL REFERENCES course_requests(id), record_json TEXT NOT NULL) STRICT;
@@ -60,6 +62,7 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
       if (version && version.value !== '1') throw courseFailure('COURSE_SCHEMA', '课程数据库版本不受支持。', 500)
       db.prepare('INSERT OR IGNORE INTO course_metadata VALUES (?,?)').run('schemaVersion', '1')
       db.prepare('INSERT OR IGNORE INTO course_metadata VALUES (?,?)').run('epoch', randomUUID())
+      db.prepare('INSERT OR IGNORE INTO course_settings VALUES (?,?)').run('predictionBudget', json(DEFAULT_PREDICTION_BUDGET))
     })
   } catch (error) { db.close(); throw error }
   const epoch = db.prepare("SELECT value FROM course_metadata WHERE key='epoch'").get().value
@@ -109,7 +112,7 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
       trigger, topicId: request.topicId || null, predictionId: request.predictionId || null,
       predictionVersion: request.predictionVersion || null, modelMode: configuration.modelMode || request.modelMode, sourceMode: configuration.sourceMode || request.sourceMode,
       providerIdentity: configuration.providerIdentity || request.providerIdentity, modelRef: configuration.modelRef || request.modelRef || null, createdAt: at, updatedAt: at, state: {},
-      harnessVersion, budget: configuration.budget || request.budget || null,
+      harnessVersion, budget: request.budget || configuration.budget || null,
       usage: { modelRequests: 0, toolCalls: 0, totalTokens: 0, promptTokens: 0, completionTokens: 0, cacheHitTokens: 0, cacheMissTokens: 0, unknownUsage: false }, error: null }
     db.prepare('INSERT INTO course_runs VALUES (?,?,?)').run(run.runId, requestId, json(run))
     writeRequest({ ...request, activeRunId: run.runId, latestRunId: run.runId, status: 'queued', updatedAt: at })
@@ -120,13 +123,22 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
     return db.prepare('SELECT record_json FROM course_evidence WHERE run_id=? ORDER BY evidence_id').all(runId).map(decode)
       .map((record) => ({ ...record, readBy: db.prepare('SELECT reader_id FROM course_reads WHERE run_id=? AND evidence_id=?').all(runId, record.evidenceId).map((row) => row.reader_id), readObservations: db.prepare('SELECT reader_id,observed_at FROM course_read_observations WHERE run_id=? AND evidence_id=? ORDER BY observed_at,reader_id').all(runId, record.evidenceId).map(row => ({ readerId: row.reader_id, obtainedAt: row.observed_at })) }))
   }
+  const getSettings = () => ({ predictionBudget: decode(db.prepare('SELECT record_json FROM course_settings WHERE key=?').get('predictionBudget')) })
   return {
     metadata: { schemaVersion: 1, serverEpoch: epoch }, clock, getRequest, requireRequest, getRun, requireRun,
+    getSettings,
+    updateSettings(input) {
+      const value = validatePredictionSettings(input)
+      return tx(() => {
+        db.prepare('INSERT INTO course_settings VALUES (?,?) ON CONFLICT(key) DO UPDATE SET record_json=excluded.record_json').run('predictionBudget', json(value.predictionBudget))
+        return getSettings()
+      })
+    },
     listRequests: () => db.prepare('SELECT record_json FROM course_requests ORDER BY rowid DESC').all().map(decode),
     listRuns: ({ requestId } = {}) => (requestId
       ? db.prepare('SELECT record_json FROM course_runs WHERE request_id=? ORDER BY rowid').all(requestId)
       : db.prepare('SELECT record_json FROM course_runs ORDER BY rowid').all()).map(decode),
-    createRequest(input, { idempotencyKey } = {}) {
+    createRequest(input, { idempotencyKey, predictionBudget } = {}) {
       return tx(() => {
         const hash = digest(input)
         if (idempotencyKey !== undefined && (typeof idempotencyKey !== 'string' || !idempotencyKey.trim() || idempotencyKey.length > 120)) throw courseFailure('INVALID_IDEMPOTENCY_KEY', '幂等键格式无效。')
@@ -136,7 +148,9 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
           return requireRequest(decode(old).requestId)
         }
         const at = clock()
-        const request = { ...input, requestId: id('course_request'), status: 'queued', createdAt: at, updatedAt: at, normalized: null }
+        const snapshot = predictionBudget && (input.purpose || 'forecast') === 'forecast' ? validatePredictionBudget(predictionBudget) : null
+        const request = { ...input, ...(snapshot ? { budget: { ...input.budget, maxTotalTokens: snapshot.maxTotalTokens } } : {}), requestId: id('course_request'), status: 'queued', createdAt: at, updatedAt: at, normalized: null }
+        if (input.horizonTradingDays !== undefined && !input.strict?.targetAt) request.tradingHorizon = buildTradingHorizon({ question: input.question, market: input.market, tradingDays: input.horizonTradingDays, createdAt: at })
         db.prepare('INSERT INTO course_requests VALUES (?,?)').run(request.requestId, json(request))
         const run = queue(request.requestId, 'manual')
         const result = { ...requireRequest(request.requestId), activeRunId: run.runId }
@@ -152,7 +166,7 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
         const unsent = unsentSummaryRequest(run, workers)
         const boundedForecast = request.resolutionPolicy?.version === WARNING_POLICY && Date.parse(request.normalized?.forecastClosesAt) > Date.parse(clock())
         const budgetSummary = boundedForecast && run.error?.code === 'COURSE_BUDGET' && !run.state.summaryResumeCount
-        if (request.purpose !== 'research' && !boundedForecast || request.status === 'stopped' || run.status !== 'failed' || run.phase !== 'review' || (run.error?.code !== 'MODEL_INCOMPLETE' && !unsent && !budgetSummary) || run.usage.unknownUsage || !run.state.main || run.usage.totalTokens >= tokenLimit(run)) throw courseFailure('RESEARCH_RESUME_UNAVAILABLE', '此运行不能只续写汇总，请查看其失败原因。', 409)
+        if (request.purpose !== 'research' && !boundedForecast || request.status === 'stopped' || run.status !== 'failed' || run.phase !== 'review' || (run.error?.code !== 'MODEL_INCOMPLETE' && !unsent && !budgetSummary) || run.usage.unknownUsage || !run.state.main || totalTokenLimitReached(run.budget, run.usage.totalTokens)) throw courseFailure('RESEARCH_RESUME_UNAVAILABLE', '此运行不能只续写汇总，请查看其失败原因。', 409)
         if (db.prepare('SELECT 1 FROM course_research_reports WHERE run_id=?').get(runId)) throw courseFailure('RESEARCH_CONFLICT', '研报已经封存。', 409)
         if (db.prepare('SELECT 1 FROM course_forecasts WHERE run_id=?').get(runId)) throw courseFailure('FORECAST_CONFLICT', '预测已经封存。', 409)
         if (new Set(workers.filter((item) => item.status === 'completed' && item.report?.evidenceIds?.length).map((item) => item.roleId)).size < 2) throw courseFailure('RESEARCH_RESUME_UNAVAILABLE', '已有有效报告不足，不能只续写汇总。', 409)
@@ -226,7 +240,7 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
     reserve(runId, kind, limit) {
       return tx(() => {
         const run = active(runId)
-        if (kind === 'modelRequests' && run.usage.totalTokens >= tokenLimit(run)) throw courseFailure('COURSE_BUDGET', '本轮已达到总 token 预算。', 409)
+        if (kind === 'modelRequests' && totalTokenLimitReached(run.budget, run.usage.totalTokens)) throw courseFailure('COURSE_BUDGET', '本轮已达到总 token 预算。', 409)
         if ((run.usage[kind] || 0) >= limit) throw courseFailure('COURSE_BUDGET', '本轮调查已达到调用预算。', 409)
         run.usage[kind] = (run.usage[kind] || 0) + 1
         writeRun(run); return run.usage
@@ -246,7 +260,7 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
         writeRun(run)
         return run.usage
       })
-      if (usage.totalTokens > tokenLimit(requireRun(runId))) throw courseFailure('COURSE_BUDGET', '本轮已达到总 token 预算。', 409)
+      if (totalTokenLimitExceeded(requireRun(runId).budget, usage.totalTokens)) throw courseFailure('COURSE_BUDGET', '本轮已达到总 token 预算。', 409)
       return usage
     },
     getReceipt(runId, callKey, input) {
@@ -330,7 +344,7 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
         if (old) { if (old.input_hash !== hash) throw courseFailure('RESEARCH_CONFLICT', '本轮研报已封存。', 409); return decode(old) }
         const run = recovery || active(runId), request = requireRequest(run.requestId), at = clock()
         if (request.purpose !== 'research') throw courseFailure('RESEARCH_PURPOSE', '此任务不是研报任务。', 409)
-        if (run.usage.totalTokens > tokenLimit(run)) throw courseFailure('COURSE_BUDGET', '超出预算不能封存研报。', 409)
+        if (totalTokenLimitExceeded(run.budget, run.usage.totalTokens)) throw courseFailure('COURSE_BUDGET', '超出预算不能封存研报。', 409)
         const available = evidenceFor(runId).filter((item) => item.text?.trim() && item.readBy.some((reader) => reader !== 'main') && Date.parse(item.obtainedAt) <= Date.parse(at) && (!item.publishedAt || Date.parse(item.publishedAt) <= Date.parse(at)))
         const ids = new Set(available.map((item) => item.evidenceId))
         if (!candidate.summary?.trim() || !candidate.findings?.length || candidate.findings.some((finding) => !finding.claim?.trim() || !finding.evidenceIds?.length || finding.evidenceIds.some((id) => !ids.has(id)))) throw courseFailure('RESEARCH_EVIDENCE', '研报须引用本轮研究员实际读取且时间有效的原文。', 409)
@@ -372,7 +386,7 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
         }
         if (request.purpose === 'research') throw courseFailure('RESEARCH_PURPOSE', '研报任务不能发布预测概率。', 409)
         const at = clock()
-        if (run.usage.totalTokens > tokenLimit(run)) throw courseFailure('COURSE_BUDGET', '超出本轮预算后不能发布预测。', 409)
+        if (totalTokenLimitExceeded(run.budget, run.usage.totalTokens)) throw courseFailure('COURSE_BUDGET', '超出本轮预算后不能发布预测。', 409)
         if (currentPrediction?.predictionId !== run.predictionId || currentPrediction.version !== run.predictionVersion || currentPrediction.type !== 'binary') throw courseFailure('FORECAST_VERSION', '题目版本已经改变，不能发布旧契约判断。', 409)
         if (currentPrediction.status !== 'ready' || !currentPrediction.validation?.ready || !(Date.parse(currentPrediction.forecastClosesAt) > Date.parse(at))) throw courseFailure('FORECAST_CLOSED', '题目未就绪或已过停止发布时间。', 409)
         if (db.prepare('SELECT 1 FROM course_results WHERE request_id=?').get(run.requestId)) throw courseFailure('RESULT_KNOWN', '已登记结果，停止发布预测。', 409)

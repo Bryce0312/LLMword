@@ -1,0 +1,37 @@
+{
+  "scope": "V4.0 persistent fullscreen research room, independent workspace panels, real prediction history and async owner isolation",
+  "command": "node --test --test-reporter=tap",
+  "startedAt": "2026-11-22T06:19:27.844Z",
+  "finishedAt": "2026-11-22T06:19:36.939Z",
+  "node": "v24.22.3",
+  "exitCode": 0,
+  "tests": 437,
+  "pass": 437,
+  "fail": 0,
+  "cancelled": 0,
+  "skipped": 0,
+  "durationMs": 9042.0387,
+  "liveModelCalls": 0,
+  "userMutations": "None; fixtures and local fake responses only",
+  "browserReview": "Attempted isolated preview; computer-use reported ongoing user input. No further browser actions taken.",
+  "liveStaticReview": {
+    "port": 4174,
+    "menuOrder": [
+      "开始预测",
+      "预测历史记录",
+      "研究室设置",
+      "模型连接"
+    ],
+    "staticResourcesVerified": true,
+    "historyEndpointVerified": true,
+    "historicalRequests": 1,
+    "noBackendRestart": true,
+    "noWrites": true
+  },
+  "navigationBackground": {
+    "color": "#392b39",
+    "opacity": 0.5,
+    "blurPx": 2,
+    "liveCssVerified": true
+  }
+}

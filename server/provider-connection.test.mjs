@@ -96,3 +96,77 @@ test('connection HTTP contract is bounded, JSON only, and never echoes credentia
   assert(!JSON.stringify(result).includes(key))
   assert.equal((await request(connection, 'GET')).body.configured, true)
 })
+
+
+test('editable connection settings default to official Flash and preserve the selected endpoint and model', async () => {
+  let applied
+  const connection = createProviderConnection({ getActiveCount: () => 0, applyKey: (value, settings) => { applied = { value, settings }; return { connection: 'connected' } } })
+  assert.equal(connection.status().url, 'https://api.deepseek.com/chat/completions')
+  assert.equal(connection.status().model, 'deepseek-flash')
+  const url = 'https://genai.comp.polyu.edu.hk/api/v1//chat/completions', model = 'DeepSeek-V4-Flash'
+  const saved = await connection.update({ apiKey: key, url, model })
+  assert.equal(applied.value, key)
+  assert.deepEqual(applied.settings, { url, model, protocol: 'openai' })
+  assert.equal(saved.url, url); assert.equal(saved.model, model)
+  assert(!JSON.stringify(saved).includes(key))
+  await connection.update({ apiKey: key, url: 'http://localhost:12345/custom/invoke', model: 'Custom/model-v1' })
+  assert.equal(connection.status().model, 'Custom/model-v1')
+})
+
+test('invalid or failed configuration changes leave the previous connection unchanged', async () => {
+  let fail = false, calls = 0
+  const connection = createProviderConnection({ getActiveCount: () => 0, applyKey: () => { calls++; if (fail) throw new Error(key); return { connection: 'connected' } } })
+  await connection.update({ apiKey: key })
+  const original = connection.status()
+  for (const change of [ { url: 'javascript:alert(1)' }, { url: 'https://user:secret@example.com/chat/completions' }, { url: 'https://example.com/chat/completions?key=hidden' }, { model: '' }, { model: 'bad\nmodel' } ]) {
+    await assert.rejects(connection.update({ apiKey: key, ...change }), error => error.code === 'INVALID_MODEL_CONFIG')
+    assert.deepEqual(connection.status(), original)
+  }
+  assert.equal(calls, 1)
+  fail = true
+  await assert.rejects(connection.update({ apiKey: key, url: 'https://example.com/chat/completions', model: 'Custom' }), error => error.code === 'PROVIDER_UPDATE_FAILED' && !error.message.includes(key))
+  assert.deepEqual(connection.status(), original)
+})
+
+test('busy work rejects changes to the whole connection without partial URL or model updates', async () => {
+  let active = 0
+  const connection = createProviderConnection({ getActiveCount: () => active, applyKey: () => ({ connection: 'connected' }) })
+  await connection.update({ apiKey: key })
+  active = 1
+  await assert.rejects(connection.update({ apiKey: key, url: 'https://example.com/chat/completions', model: 'Other' }), error => error.code === 'PROVIDER_UPDATE_BUSY')
+  assert.equal(connection.status().url, 'https://api.deepseek.com/chat/completions')
+  assert.equal(connection.status().model, 'deepseek-flash')
+})
+
+
+test('each model connection refreshes public pricing with no credential and never returns the previous model price', async () => {
+  const loads = []
+  const connection = createProviderConnection({ getActiveCount: () => 0, applyKey: () => ({ connection: 'connected' }), loadPricing: async settings => {
+    loads.push(settings)
+    return { status: 'available', model: settings.model, currency: 'USD', unitTokens: 1000000, inputCacheHit: 0.01, inputCacheMiss: 0.1, output: 1, sourceUrl: 'https://example.com/pricing', checkedAt: '2026-11-22T00:00:00Z' }
+  } })
+  assert.equal(connection.status().pricing.status, 'unavailable')
+  const first = await connection.update({ apiKey: key })
+  assert.equal(first.pricing.model, 'deepseek-flash')
+  const second = await connection.update({ apiKey: key, url: 'https://genai.comp.polyu.edu.hk/api/v1//chat/completions', model: 'DeepSeek-V4-Flash' })
+  assert.equal(second.pricing.model, 'DeepSeek-V4-Flash')
+  assert.deepEqual(loads, [ { url: 'https://api.deepseek.com/chat/completions', model: 'deepseek-flash' }, { url: 'https://genai.comp.polyu.edu.hk/api/v1//chat/completions', model: 'DeepSeek-V4-Flash' } ])
+  assert(!JSON.stringify(second).includes(key))
+})
+
+test('pricing lookup failure cannot reject a saved connection or retain an unrelated old price', async () => {
+  let fail = false
+  const connection = createProviderConnection({ getActiveCount: () => 0, applyKey: () => ({ connection: 'connected' }), loadPricing: async settings => {
+    if (fail) throw new Error('not exposed')
+    return { status: 'available', model: settings.model, currency: 'USD', unitTokens: 1000000, output: 1, checkedAt: '2026-11-22T00:00:00Z' }
+  } })
+  await connection.update({ apiKey: key })
+  fail = true
+  const saved = await connection.update({ apiKey: key, url: 'https://proxy.example/chat/completions', model: 'Other' })
+  assert.equal(saved.configured, true)
+  assert.equal(saved.connection, 'connected')
+  assert.equal(saved.pricing.status, 'unavailable')
+  assert.equal(saved.pricing.model, 'Other')
+  assert.equal(saved.pricing.output, null)
+  assert(!JSON.stringify(saved).includes('not exposed'))
+})

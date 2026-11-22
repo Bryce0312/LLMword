@@ -7,6 +7,10 @@ import { courseBoard, courseStartForm, mountCourseRequest } from './workbench-co
 import { probeCourseCapability, unavailableCourseCapability, isMissingCourseApi, environmentPresentation } from './course-capability.mjs'
 import { providerConnectionView } from './workbench-provider.js'
 import { courseExamples } from './course-examples.js'
+import { createWorkbenchRoomShell } from './workbench-room-shell.js'
+import { initLocaleUI } from './locale.mjs'
+
+initLocaleUI()
 
 const cache = { topics: [], predictions: [], agents: [], tools: [], config: {}, courseRequests: [], courseAvailable: false, courseCapability: null, courseHistoryError: null, runs: new Map(), events: new Map() }
 let projection = createProjectionState()
@@ -21,8 +25,16 @@ const ctx = {
   render: () => renderRoute(), reload: () => initialize(), error: (error) => showError(error),
   refreshSidebar: () => renderSidebar(), scrollOnRun: null,
   courseFreshRequests: new Set(), courseRetryInput: null, courseCleanup: null,
-  checkCourseCapability, setCourseCapability,
+  checkCourseCapability, setCourseCapability, onDataConnected: markDataConnected,
   onFilter(value) { ctx.filterTopic = value; renderSidebar(); if (location.hash === '#/predictions') void renderRoute(); else goto('/predictions') },
+}
+let roomShell = null
+let liveCtx = ctx
+Object.defineProperties(ctx, { activeCourseRequestId: { get: () => roomShell?.activeCourseRequestId ?? null }, activePredictionId: { get: () => null } })
+
+function markDataConnected() {
+  const node = $('wb-connection'); if (!node) return
+  node.textContent = '数据已连接'; delete node.dataset.state
 }
 function renderEnvironmentBadge(config = cache.config, connection = cache.courseConnection) {
   const el = $('wb-environment')
@@ -44,18 +56,13 @@ async function refreshEnvironmentBadge() {
 function setCourseCapability(capability) {
   cache.courseCapability = capability; cache.courseAvailable = capability.available
   if (capability.config) { cache.config = capability.config; renderEnvironmentBadge(capability.config); void refreshEnvironmentBadge() }
-  const { parts } = route()
-  if (parts[0] === 'course' || (parts[0] === 'predictions' && (!parts[1] || parts[1] === 'new'))) {
-    const notice = document.querySelector('.wb-stage-note > span:not(.wb-tag)')
-    if (notice) notice.textContent = capability.available ? '一句问题，系统核对来源、分工调查；结果以实际运行记录为准。' : capability.message
-  }
   return capability
 }
 function checkCourseCapability() {
   if (!capabilityCheck) capabilityCheck = probeCourseCapability().then(setCourseCapability).finally(() => { capabilityCheck = null })
   return capabilityCheck
 }
-function renderSidebar() { $('wb-sidebar').replaceChildren(...sidebar(ctx)) }
+function renderSidebar() { const container = $('wb-sidebar'); if (container) container.replaceChildren(...sidebar(ctx)) }
 function showError(error) {
   $('wb-global-error').hidden = false
   $('wb-global-error').replaceChildren(h('span', '', error.message + ' '), button('重新读取', initialize, 'wb-text-button'))
@@ -64,23 +71,24 @@ function dispatch(effects) {
   for (const effect of effects) {
     if (effect.type === 'resync.required') { connectEvents(); continue }
     if (effect.type === 'run.snapshot.required') continue
-    ctx.room?.apply(effect)
+    liveCtx.room?.apply(effect)
   }
 }
 function updateLive(run) {
+  const activeCtx = liveCtx
   const { parts } = route()
   const p = parts[0] === 'predictions' ? cache.predictions.find((p) => p.predictionId === parts[1]) : null
   if (!p || !run || p.predictionId !== run.predictionId) return
   const effective = projection.runs[run.runId]?.status ?? run.status
   const latest = $('wb-contract-latest')
-  const contract = ctx.content.querySelector('.wb-forecast-note')
+  const contract = activeCtx.content.querySelector('.wb-forecast-note')
   if (latest && run.predictionVersion === Number(contract?.dataset.predictionVersion) && (!latest.dataset.createdAt || Date.parse(run.createdAt) >= Date.parse(latest.dataset.createdAt))) {
     latest.textContent = (labels[effective] ?? effective) + ' · ' + fmt(run.updatedAt, p.timezone)
     latest.dataset.createdAt = run.createdAt
   }
   if (run.runId !== projection.selectedRunId) return
-  reportView(ctx, p, run)
-  const history = ctx.content.querySelector('[data-run-id="' + CSS.escape(run.runId) + '"]')
+  reportView(activeCtx, p, run)
+  const history = activeCtx.content.querySelector('[data-run-id="' + CSS.escape(run.runId) + '"]')
   if (history) history.textContent = '契约 v' + run.predictionVersion + ' · ' + fmt(run.createdAt) + ' · ' + (labels[effective] ?? effective)
   const start = $('wb-start-run')
   if (start) start.disabled = start.dataset.canStart !== 'true' || !terminal({ status: projection.runs[run.runId]?.status ?? run.status })
@@ -89,7 +97,7 @@ function connectEvents() {
   stream?.close()
   if (typeof EventSource === 'undefined') { $('wb-connection').textContent = '浏览器不支持实时事件'; return }
   const source = new EventSource('/api/v1/events'); stream = source
-  source.onopen = () => { if (stream !== source) return; $('wb-connection').textContent = '数据已连接'; delete $('wb-connection').dataset.state }
+  source.onopen = () => { if (stream !== source) return; markDataConnected() }
   source.onerror = () => { if (stream !== source) return; $('wb-connection').textContent = '消息流重连中'; $('wb-connection').dataset.state = 'reconnecting' }
   source.onmessage = ({ data }) => {
     if (stream !== source) return
@@ -109,7 +117,8 @@ function connectEvents() {
   }
 }
 
-async function renderRoute() {
+async function renderLegacyRoute() {
+  liveCtx = ctx
   const token = ++serial; const { parts, query } = route()
   const courseRoute = parts[0] === 'course' || parts[0] === 'course-examples' || (parts[0] === 'predictions' && (!parts[1] || parts[1] === 'new'))
   document.body.classList.toggle('wb-course-route', courseRoute)
@@ -121,9 +130,6 @@ async function renderRoute() {
   $('wb-global-error').hidden = true; renderSidebar()
   for (const a of document.querySelectorAll('[data-nav]')) a.classList.toggle('is-selected', a.dataset.nav === parts[0] || (a.dataset.nav === 'predictions' && courseRoute))
   ctx.content.replaceChildren(h('p', 'wb-loading', '正在读取工作区…'))
-  const stage = document.querySelector('.wb-stage-note')
-  stage.replaceChildren(h('span', 'wb-tag', parts[0] === 'advanced' ? '高级材料研读' : '事件跟踪'), h('span', '', parts[0] === 'advanced' ? '手动定义题目、选择材料与单研究员研读。' : cache.courseAvailable ? '一句问题，系统核对来源、分工调查；结果以实际运行记录为准。' : cache.courseCapability?.message ?? '正在检查当前服务的自动跟踪能力。'), h('a', '', '旧历史案例'))
-  stage.querySelector('a').href = '/legacy.html'
   try {
     let nodes
     if (parts[0] === 'course-examples') nodes = await courseExamples({ finance: query.get('set') === 'finance' })
@@ -152,6 +158,53 @@ async function renderRoute() {
     if (ctx.isCurrent(token)) ctx.content.replaceChildren(header('这个工作区暂时未能打开'), empty(error.message, '已保存的数据不会因此清除。', button('重新读取', renderRoute)))
   }
 }
+async function renderShellWorkspace(owner, target, token) {
+  const { parts, query } = target
+  if (parts[0] === 'course-examples') return courseExamples({ finance: query.get('set') === 'finance' })
+  if (parts[0] === 'course' || (parts[0] === 'predictions' && (!parts[1] || parts[1] === 'new'))) return courseStartForm(owner, { standalone: true })
+  if (parts[0] === 'model-connection') return providerConnectionView(owner)
+  if (parts[0] === 'agents') {
+    const historical = parts[1] && query.has('specVersion') ? await api('/agents/' + encodeURIComponent(parts[1]) + '?specVersion=' + encodeURIComponent(query.get('specVersion'))) : null
+    if (!owner.isActive()) return null
+    return agents(owner, parts[1], historical)
+  }
+  if (parts[0] === 'learning') return learning()
+  if (parts[0] === 'tools') return [header('工具台', '只有已注册且获授权的能力才能实际执行。'), h('div', 'wb-paper', cache.tools.map(tool => h('article', 'wb-evidence-item', h('h3', '', tool.name ?? tool.toolId ?? tool.id), h('p', '', tool.description))))]
+  if (parts[0] === 'topics' && parts[1] === 'new') { topicForm(owner.content, cache); return null }
+  if (parts[0] === 'topics' && parts[2] === 'inbox') return inbox(owner, parts[1], query.get('predictionId'))
+  if (parts[0] === 'topics' && parts[1]) return topicView(cache, parts[1])
+  if (parts[0] === 'advanced' && parts[1] === 'new') { predictionForm(owner.content, cache); return null }
+  if (parts[0] === 'advanced') return board(owner)
+  if (parts[0] === 'predictions' && parts[1]) {
+    const prediction = cache.predictions.find(value => value.predictionId === parts[1])
+    if (!prediction) throw new Error('找不到这个预测题，请重新读取历史记录。')
+    if (prediction.type !== 'binary') return [header('此题型暂未开放'), empty('当前版本只支持是／否预测', '历史记录继续保留。')]
+    if (parts[2] === 'edit') predictionForm(owner.content, cache, prediction)
+    else await detail(owner, prediction, parts[2] === 'runs' ? parts[3] : null, parts[2], token)
+    return null
+  }
+  return [header('找不到这个工作区'), empty('请使用顶部菜单选择操作', '当前研究室和历史记录保持不变。')]
+}
+
+async function renderRoute(options = {}) {
+  if (document.body.dataset.roomShell !== 'true') return renderLegacyRoute()
+  if (!roomShell) {
+    ctx.courseCleanup?.(); ctx.courseCleanup = null; ctx.room?.destroy(); ctx.room = null
+    stream?.close(); stream = null
+    roomShell = createWorkbenchRoomShell({ baseCtx: ctx, mountScene: mountCourseRequest, renderWorkspace: renderShellWorkspace, renderSidebar,
+      onWorkspaceContext(owner, target) {
+        liveCtx = owner
+        const legacyRun = target.parts[0] === 'predictions' && target.parts[1] && target.parts[1] !== 'new'
+        if (legacyRun) connectEvents()
+      },
+      onWorkspaceDispose() { stream?.close(); stream = null; liveCtx = ctx; ctx.accept(selectRun(projection, null)) },
+    })
+  }
+  $('wb-global-error').hidden = true
+  renderSidebar()
+  return roomShell.render(location.hash || '#/room', options)
+}
+
 async function initialize() {
   try {
     const [topics, predictions, agents, tools, config] = await Promise.all([api('/topics'), api('/predictions'), api('/agents'), api('/tools'), api('/config')])
@@ -170,13 +223,13 @@ async function initialize() {
         else cache.courseHistoryError = '自动跟踪能力已连接，但历史任务暂时未能读取：' + error.message
       }
     }
-    $('wb-global-error').hidden = true; $('wb-connection').textContent = '数据已连接'; await renderRoute()
+    $('wb-global-error').hidden = true; markDataConnected(); await renderRoute()
   } catch (error) {
     $('wb-connection').textContent = '服务未连接'; showError(error)
     ctx.content.replaceChildren(header('研究室等待连接'), empty('暂时无法读取真实数据', '请启动本地服务后重试。这里不会用模拟任务冒充已保存的数据。', button('重新连接', initialize)))
   }
 }
-addEventListener('hashchange', () => { void renderRoute() })
+addEventListener('hashchange', event => { let previousHash; try { previousHash = new URL(event.oldURL).hash } catch {} void renderRoute({ previousHash }) })
 addEventListener('workbench:datachanged', renderSidebar)
-document.querySelector('.wb-skip').addEventListener('click', (event) => { event.preventDefault(); ctx.content.focus({ preventScroll: false }) })
+document.querySelector('.wb-skip')?.addEventListener('click', event => { event.preventDefault(); if (roomShell) roomShell.focusCurrent(); else ctx.content.focus({ preventScroll: false }) })
 void initialize()

@@ -1,0 +1,23 @@
+{
+  "finishedAt": "2026-11-22T04:23:34.172Z",
+  "nodeVersion": "v24.22.3",
+  "command": "node --test --test-reporter=tap",
+  "scope": "full",
+  "tests": 392,
+  "passed": 392,
+  "failed": 0,
+  "skipped": 0,
+  "cancelled": 0,
+  "durationMs": 7966.3997,
+  "noRealModelCalls": true,
+  "noUserAgentsDeleted": true,
+  "verified": [
+    "cancelled confirmation sends no request",
+    "version-checked and idempotent unregister",
+    "history retained and tombstones survive restart",
+    "busy roles cannot be deleted",
+    "new tasks and watches use active catalogue before model calls",
+    "existing runs keep immutable role versions",
+    "compact four-column public pricing table"
+  ]
+}

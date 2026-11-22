@@ -52,6 +52,7 @@ export async function handleWorkbenchApi(workbench, req, res) {
     else if (path === '/api/v1/agents' && method === 'GET') send(res, 200, { agents: workbench.listAgents() })
     else if (path === '/api/v1/agents' && method === 'POST') send(res, 201, workbench.saveAgent(await body(req), options))
     else if ((match = path.match(/^\/api\/v1\/agents\/([a-zA-Z0-9_-]{1,120})$/)) && method === 'GET') send(res, 200, workbench.getAgent(match[1], { specVersion: version(url.searchParams.get('specVersion'), 'specVersion') }))
+    else if ((match = path.match(/^\/api\/v1\/agents\/([a-zA-Z0-9_-]{1,120})$/)) && method === 'DELETE') send(res, 200, workbench.deleteAgent(match[1], await body(req), options))
     else if (path === '/api/v1/tools' && method === 'GET') send(res, 200, workbench.tools())
     else if (path === '/api/v1/learning' && method === 'GET') send(res, 200, { entries: workbench.listLearning() })
     else if (path === '/api/v1/imports/legacy' && method === 'POST') {

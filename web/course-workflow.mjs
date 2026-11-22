@@ -68,12 +68,12 @@ export function courseWorkflowView(run = {}) {
     cycle: o && positive(o.cycle), maxCycles: o && positive(o.maxCycles), followUpsUsed: o && count(o.followUpsUsed), maxFollowUps: o && count(o.maxFollowUps),
     investigationSteps: o && positive(o.investigationSteps), reportStep: o && positive(o.reportStep), rows,
     usage: { modelRequests: count(run.usage?.modelRequests), toolCalls: count(run.usage?.toolCalls), totalTokens: count(run.usage?.totalTokens), unknownUsage: Boolean(run.usage?.unknownUsage) },
-    budget: { maxModelRequests: positive(run.budget?.maxModelRequests), maxToolCalls: positive(run.budget?.maxToolCalls), maxTotalTokens: positive(run.budget?.maxTotalTokens) },
+    budget: { maxModelRequests: positive(run.budget?.maxModelRequests), maxToolCalls: positive(run.budget?.maxToolCalls), maxTotalTokens: positive(run.budget?.maxTotalTokens), unlimitedTotalTokens: run.budget?.maxTotalTokens === null },
     flow: v3 ? '整理与派工 → 独立调查 → 核定题目 → 汇报与质询 → 按争议补查 → 总结' : '原流程先由主 Agent 核对来源，再派工调查；本轮不会回写为新流程。' }
 }
 
-export function courseUsageText(used, limit, unit = '') {
-  return used === null ? '未记录' : used.toLocaleString('zh-CN') + (limit === null ? '' : ' / ' + limit.toLocaleString('zh-CN')) + unit
+export function courseUsageText(used, limit, unit = '', { unlimited = false } = {}) {
+  return used === null ? '未记录' : used.toLocaleString('zh-CN') + (unlimited ? ' / 无限' : limit === null ? '' : ' / ' + limit.toLocaleString('zh-CN')) + unit
 }
 
 export function courseModelStatusView(activity = {}) {

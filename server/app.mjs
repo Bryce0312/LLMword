@@ -10,6 +10,8 @@ import { createMonitor } from './monitor.mjs';
 import { createProvider, paceMock } from './provider.mjs';
 import { createProviderConnection, handleProviderConnection } from './provider-connection.mjs';
 import { assertEnvironmentRuns } from './environment.mjs';
+import { DEFAULT_MODEL_NAME, resolveModelEndpoints } from './runtime/model-endpoint.mjs';
+import { fetchModelPricing } from './runtime/model-pricing.mjs';
 
 const environment = process.env.WORLD_ENV || 'auto';
 if (!['auto', 'mock', 'live'].includes(environment)) throw new Error('WORLD_ENV must be auto, mock, or live');
@@ -95,7 +97,8 @@ if (useRuntime) {
 }
 if (workbenchMode === 'on') {
   const { createWorkbenchService } = await import('./domain/workbench-service.mjs');
-  workbench = createWorkbenchService({ path: process.env.WORLD_DOMAIN_PATH || `${statePath}.domain.sqlite`, runtime, world });
+  workbench = createWorkbenchService({ path: process.env.WORLD_DOMAIN_PATH || `${statePath}.domain.sqlite`, runtime, world,
+    isAgentInUse: () => Boolean(providerConnection?.changing || course?.listRuns().some(run => !['completed', 'insufficient', 'failed', 'cancelled'].includes(run.status))) });
 }
 const courseMode = process.env.WORLD_COURSE ?? (workbench ? 'on' : 'off');
 if (!['on', 'off'].includes(courseMode)) throw new Error('WORLD_COURSE must be on or off');
@@ -115,18 +118,23 @@ if (courseMode === 'on') {
     provider: courseProvider, modelMode: live ? 'live' : 'mock', sourceTools, watchIntervalMs, evidencePolicy: 'quoted-claims-v1' });
   assertEnvironmentRuns(environment, course.listRuns())
   providerConnection = createProviderConnection({ locked: environment === 'mock', configured: live && Boolean(process.env.WORLD_API_KEY),
+    url: resolveModelEndpoints(process.env).chatCompletionsUrl, model: process.env.WORLD_MODEL_NAME || DEFAULT_MODEL_NAME,
+    loadPricing: fetchModelPricing,
     getActiveCount: () => course.listRuns().filter(run => !['completed', 'insufficient', 'failed', 'cancelled'].includes(run.status)).length,
     getActiveWatchCount: () => course.listRequests().filter(item => course.getRequest(item.requestId).watch?.status === 'active' && item.watch !== false).length,
     getMode: () => course.capabilities.modelMode,
-    async applyKey(apiKey) {
+    async applyKey(apiKey, settings) {
       // Credentials stay in the new provider/gateway closures, never .env,
       // checkpoints, process logs, public configuration or the browser cache.
-      const nextEnv = { ...process.env, WORLD_MODEL: 'openai', WORLD_API_KEY: apiKey, WORLD_SEARCH_API_KEY: apiKey,
-        WORLD_BASE_URL: process.env.WORLD_BASE_URL || 'https://api.deepseek.com', WORLD_MODEL_PROTOCOL: 'deepseek', WORLD_SEARCH_PROVIDER: 'deepseek',
-        WORLD_MODEL_NAME: /^deepseek[-/]/i.test(process.env.WORLD_MODEL_NAME || '') ? process.env.WORLD_MODEL_NAME : 'deepseek-v4-pro',
-        WORLD_MODEL_THINKING: process.env.WORLD_MODEL_THINKING || 'enabled',
+      const official = new URL(settings.url).hostname === 'api.deepseek.com'
+      const nextEnv = { ...process.env, WORLD_MODEL: 'openai', WORLD_API_KEY: apiKey,
+        WORLD_CHAT_COMPLETIONS_URL: settings.url, WORLD_MODEL_PROTOCOL: settings.protocol, WORLD_SEARCH_PROVIDER: 'deepseek',
+        WORLD_SEARCH_API_KEY: process.env.WORLD_SEARCH_API_KEY || (official ? apiKey : ''),
+        WORLD_MODEL_NAME: settings.model,
+        WORLD_MODEL_THINKING: settings.protocol === 'deepseek' ? process.env.WORLD_MODEL_THINKING || 'enabled' : 'disabled',
         WORLD_MODEL_MAX_OUTPUT_TOKENS: process.env.WORLD_MODEL_MAX_OUTPUT_TOKENS || '32768',
         WORLD_MODEL_TIMEOUT_MS: process.env.WORLD_MODEL_TIMEOUT_MS || '180000' }
+      if (settings.protocol !== 'deepseek' || nextEnv.WORLD_MODEL_THINKING === 'disabled') delete nextEnv.WORLD_MODEL_REASONING_EFFORT
       const modelModule = await import('./runtime/model-provider.mjs')
       const nextProvider = modelModule.createModelProvider(nextEnv)
       const nextSources = createWebResearchGateway({ env: nextEnv })

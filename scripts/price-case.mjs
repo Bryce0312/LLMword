@@ -32,7 +32,7 @@ export async function runPriceCase({value=101,incompleteVerification=false,lateS
     assert.deepEqual(before.run.assignments.map(a=>a.roleId).sort(),['market','statistics','verification'])
     assert(before.run.assignments.every(a=>a.status==='completed'&&a.report.status==='complete'))
     assert.equal(before.forecast.baseline.value,100);assert.equal(before.forecast.baseline.pair,'BTC-USDT')
-    assert.equal(before.budget.maxTotalTokens,300000)
+    assert.equal(before.budget.maxTotalTokens,service.getSettings().predictionBudget.maxTotalTokens)
     assert(before.run.evidence.some(source=>source.marketQuote&&source.readBy.includes('main')))
     assert(before.run.evidence.some(source=>source.marketHistory&&source.readBy.includes('main')))
     if(lateSummary){assert.equal(before.forecast.currentReference.observedAt,at);assert.equal(before.forecast.baseline.observedAt,'2026-11-21T00:00:00.000Z')}

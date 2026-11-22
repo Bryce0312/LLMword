@@ -107,7 +107,10 @@ async function readJson(response) {
 
 export function createWebResearchGateway({ env = process.env, request = fetch, now = () => new Date().toISOString(), fixturePages = FIXTURE_PAGES, fixtureWarnings } = {}) {
   const provider = String(env.WORLD_SEARCH_PROVIDER || 'deepseek').trim().toLowerCase()
-  const key = String(env.WORLD_SEARCH_API_KEY || env.WORLD_API_KEY || '').trim()
+  let officialModel = false
+  try { officialModel = new URL(env.WORLD_CHAT_COMPLETIONS_URL || env.WORLD_BASE_URL || apiOrigin).hostname === 'api.deepseek.com' } catch {}
+  // A campus/proxy credential belongs to that endpoint, not the official tools service.
+  const key = String(env.WORLD_SEARCH_API_KEY || (officialModel ? env.WORLD_API_KEY : '') || '').trim()
   const configured = provider === 'fixture' || provider === 'deepseek' && Boolean(key) && !/[\r\n]/.test(key) && typeof request === 'function'
   const mode = provider === 'fixture' ? 'mock' : configured ? 'live' : 'unavailable'
   const timeoutValue = Number(env.WORLD_SEARCH_TIMEOUT_MS)
@@ -323,7 +326,7 @@ export function createWebResearchGateway({ env = process.env, request = fetch, n
     if (marketResolution && ['main','market','statistics','verification'].includes(roleId)) registered.push(createPriceQuoteTool({ request, now, mode: provider === 'fixture' ? 'mock' : 'live', onEvidence }), createMarketHistoryTool({ request, now, mode: provider === 'fixture' ? 'mock' : 'live', onEvidence }))
     return registered
   }
-  return { capabilities: Object.freeze({ provider, mode, sourceMode: provider === 'fixture' ? 'replay' : configured ? 'live' : null, available: configured,
+  return { capabilities: Object.freeze({ provider, mode, sourceMode: provider === 'fixture' ? 'replay' : provider === 'deepseek' ? 'live' : null, available: configured,
     multilingualQueries: true, optionalBing: env.WORLD_BING_SEARCH === 'enabled', browserRequired: false,
     toolIds: [...COURSE_WEB_TOOL_IDS], reason: configured ? null : unavailable().code,
     marketQuote: { provider: provider === 'fixture' ? 'synthetic-course-quote' : 'coinbase', roles: [...quoteRoles], pairs: ['BTC-USD', 'ETH-USD'], synthetic: provider === 'fixture' },

@@ -1,0 +1,180 @@
+{
+  "version": "official-equity-calendars-2026-11-22-v1",
+  "verifiedOn": "2026-11-22",
+  "weekends": "Saturdays and Sundays are excluded by the calendar algorithm; they are not repeated in closedDates.",
+  "scope": "Published exchange-wide cash-equity sessions only. Instrument suspensions and later exceptional exchange notices are not inferred from this schedule.",
+  "markets": {
+    "CN": {
+      "label": "A股（沪深普通股票日历）",
+      "timezone": "Asia/Shanghai",
+      "close": "15:00",
+      "scope": "沪深证券交易所2026年度公开休市安排及股票收盘集合竞价结束时间；政府调休周末仍不开市。未核验2027年度安排，不向2027外推。",
+      "years": {
+        "2026": {
+          "coverage": {
+            "from": "2026-01-01",
+            "to": "2026-12-31",
+            "kind": "published-annual-schedule"
+          },
+          "closedDates": [
+            "2026-01-01",
+            "2026-01-02",
+            "2026-02-16",
+            "2026-02-17",
+            "2026-02-18",
+            "2026-02-19",
+            "2026-02-20",
+            "2026-02-23",
+            "2026-04-06",
+            "2026-05-01",
+            "2026-05-04",
+            "2026-05-05",
+            "2026-06-19",
+            "2026-09-25",
+            "2026-10-01",
+            "2026-10-02",
+            "2026-10-05",
+            "2026-10-06",
+            "2026-10-07"
+          ],
+          "earlyCloses": {},
+          "sources": [
+            "https://www.sse.com.cn/disclosure/announcement/general/c/c_20251222_10802507.shtml",
+            "https://www.szse.cn/disclosure/notice/general/t20251222_618087.html",
+            "https://www.sse.com.cn/lawandrules/sselawsrules2025/stocks/exchange/c/c_20260424_10816482.shtml"
+          ]
+        }
+      }
+    },
+    "HK": {
+      "label": "港股（联交所证券市场日历）",
+      "timezone": "Asia/Hong_Kong",
+      "close": "16:10",
+      "scope": "联交所证券市场年度休市及半日市；使用收市竞价最晚结束时间16:10／12:10作为研究截止标记，不声称每只证券恰在该秒成交或收市。半日市计一个交易日，不能混用结算日、互联互通或衍生品假期日历。",
+      "years": {
+        "2026": {
+          "coverage": {
+            "from": "2026-01-01",
+            "to": "2026-12-31",
+            "kind": "published-annual-schedule"
+          },
+          "closedDates": [
+            "2026-01-01",
+            "2026-02-17",
+            "2026-02-18",
+            "2026-02-19",
+            "2026-04-03",
+            "2026-04-06",
+            "2026-04-07",
+            "2026-05-01",
+            "2026-05-25",
+            "2026-06-19",
+            "2026-07-01",
+            "2026-10-01",
+            "2026-10-19",
+            "2026-12-25"
+          ],
+          "earlyCloses": {
+            "2026-02-16": "12:10",
+            "2026-12-24": "12:10",
+            "2026-12-31": "12:10"
+          },
+          "sources": [
+            "https://www.hkex.com.hk/-/media/HKEX-Market/Services/Circulars-and-Notices/Participant-and-Members-Circulars/SEHK/2025/ce_SEHK_CT_075_2025.pdf",
+            "https://www.hkex.com.hk/Global/Exchange/FAQ/Securities-Market/Trading/CAS?sc_lang=en"
+          ]
+        },
+        "2027": {
+          "coverage": {
+            "from": "2027-01-01",
+            "to": "2027-12-31",
+            "kind": "published-annual-schedule"
+          },
+          "closedDates": [
+            "2027-01-01",
+            "2027-02-08",
+            "2027-02-09",
+            "2027-03-26",
+            "2027-03-29",
+            "2027-04-05",
+            "2027-05-13",
+            "2027-06-09",
+            "2027-07-01",
+            "2027-09-16",
+            "2027-10-01",
+            "2027-10-08",
+            "2027-12-27"
+          ],
+          "earlyCloses": {
+            "2027-02-05": "12:10",
+            "2027-12-24": "12:10",
+            "2027-12-31": "12:10"
+          },
+          "sources": [
+            "https://www.hkex.com.hk/-/media/HKEX-Market/Services/Circulars-and-Notices/Participant-and-Members-Circulars/SEHK/2026/ce_SEHK_CT_077_2026.pdf",
+            "https://www.hkex.com.hk/Global/Exchange/FAQ/Securities-Market/Trading/CAS?sc_lang=en"
+          ]
+        }
+      }
+    },
+    "US": {
+      "label": "美股（采用NYSE现金股票日历）",
+      "timezone": "America/New_York",
+      "close": "16:00",
+      "scope": "仅核验NYSE公布的2026／2027现金股票常规交易时段及13:00提前收市；若用于其他美股交易所，采用NYSE日历属于明确的适用假设，不能称所有美国交易所均已逐一核验。盘前、盘后和期权时段不在范围。纽约夏令时由IANA时区处理。",
+      "years": {
+        "2026": {
+          "coverage": {
+            "from": "2026-01-01",
+            "to": "2026-12-31",
+            "kind": "published-annual-schedule"
+          },
+          "closedDates": [
+            "2026-01-01",
+            "2026-01-19",
+            "2026-02-16",
+            "2026-04-03",
+            "2026-05-25",
+            "2026-06-19",
+            "2026-07-03",
+            "2026-09-07",
+            "2026-11-26",
+            "2026-12-25"
+          ],
+          "earlyCloses": {
+            "2026-11-27": "13:00",
+            "2026-12-24": "13:00"
+          },
+          "sources": [
+            "https://www.nyse.com/trade/hours-calendars"
+          ]
+        },
+        "2027": {
+          "coverage": {
+            "from": "2027-01-01",
+            "to": "2027-12-31",
+            "kind": "published-annual-schedule"
+          },
+          "closedDates": [
+            "2027-01-01",
+            "2027-01-18",
+            "2027-02-15",
+            "2027-03-26",
+            "2027-05-31",
+            "2027-06-18",
+            "2027-07-05",
+            "2027-09-06",
+            "2027-11-25",
+            "2027-12-24"
+          ],
+          "earlyCloses": {
+            "2027-11-26": "13:00"
+          },
+          "sources": [
+            "https://www.nyse.com/trade/hours-calendars"
+          ]
+        }
+      }
+    }
+  }
+}

@@ -212,3 +212,33 @@ test('truncated output preserves only numeric usage and worker failure accounts 
   assert.equal(checkpoint.usage.unknownUsage, false)
   assert.equal(checkpoint.report, null)
 })
+
+test('full school completion URL is called once without path duplication or DeepSeek-only fields', async () => {
+  const url = 'https://genai.comp.polyu.edu.hk/api/v1//chat/completions'
+  let seen
+  const provider = createModelProvider({ ...environment, WORLD_CHAT_COMPLETIONS_URL: url, WORLD_MODEL_NAME: 'DeepSeek-V4-Flash' }, async (endpoint, options) => {
+    seen = { endpoint, body: JSON.parse(options.body) }
+    return Response.json({ choices: [{ message, finish_reason: 'tool_calls' }] })
+  })
+  await provider.complete({ messages: [], tools: [], maxTokens: 100 })
+  assert.equal(seen.endpoint, url)
+  assert.equal(seen.body.model, 'DeepSeek-V4-Flash')
+  assert.equal(provider.settings.protocol, 'openai')
+  assert.equal(seen.body.tool_choice, 'auto')
+  assert(!Object.hasOwn(seen.body, 'thinking'))
+  assert(!Object.hasOwn(seen.body, 'reasoning_effort'))
+})
+
+test('full official endpoint takes precedence and endpoint edits change the durable provider identity', async () => {
+  let called
+  const env = { ...environment, WORLD_CHAT_COMPLETIONS_URL: 'https://api.deepseek.com/chat/completions', WORLD_MODEL_NAME: 'deepseek-flash' }
+  const transport = async (endpoint, options) => { called = { endpoint, body: JSON.parse(options.body) }; return Response.json({ choices: [{ message, finish_reason: 'tool_calls' }] }) }
+  const provider = createModelProvider(env, transport)
+  await provider.complete({ messages: [], tools: [] })
+  assert.equal(called.endpoint, env.WORLD_CHAT_COMPLETIONS_URL)
+  assert.equal(called.body.model, 'deepseek-flash')
+  assert.deepEqual(called.body.thinking, { type: 'disabled' })
+  assert.notEqual(createModelProvider({ ...env, WORLD_CHAT_COMPLETIONS_URL: 'https://gateway.example/custom/completion' }, transport).configurationId, provider.configurationId)
+  assert.equal(createModelProvider({ ...env, WORLD_BASE_URL: 'https://ignored.example' }, transport).configurationId, provider.configurationId)
+  for (const url of ['file:///invalid', 'https://user:pass@host.example/chat/completions', 'https://host.example/chat/completions?key=secret']) assert.throws(() => createModelProvider({ ...env, WORLD_CHAT_COMPLETIONS_URL: url }, transport), { code: 'MODEL_CONFIG' })
+})

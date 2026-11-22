@@ -4,12 +4,12 @@ import { INVESTIGATION_METHODS } from './investigation-profiles.mjs'
 
 export const COURSE_ROLE_IDS = Object.freeze(getAgentCatalog().map((role) => role.agentSpecId))
 export const requiresWeatherObservation = (request) => request.mode !== 'strict' && /下雨|降雨|降水|\brain(?:fall)?\b/i.test(request.question || '')
-export const roleCatalogue = () => getAgentCatalog().map(({ agentSpecId, name, instructions }) => ({ roleId: agentSpecId, name, focus: instructions,
+export const roleCatalogue = (specs = getAgentCatalog()) => specs.map(({ agentSpecId, name, instructions }) => ({ roleId: agentSpecId, name, focus: instructions,
   availability: 'web-materials', financeFocus: FINANCE_METHODS[agentSpecId] || null,
-  investigationFocus: INVESTIGATION_METHODS[agentSpecId],
+  investigationFocus: INVESTIGATION_METHODS[agentSpecId] || null,
   specializedToolsAvailable: ['timeline', 'verification', 'statistics'].includes(agentSpecId),
   specializedTools: agentSpecId === 'statistics' ? ['compare_financial_metrics'] : ['timeline', 'verification'].includes(agentSpecId) ? ['search_news'] : [] }))
-export function suggestedRoles(question) {
+function preferredRoles(question) {
   if (/关系图|关系链|关联网络|知识图|graph|relationship network/i.test(question)) return ['graph', 'industry', 'verification']
   if (/历史类比|类似事件|历史基准率|analogy|historical precedent/i.test(question)) return ['analogy', 'statistics', 'verification']
   if (/舆情|社群|社区|reddit|social sentiment/i.test(question)) return ['social', 'people', 'verification']
@@ -20,6 +20,15 @@ export function suggestedRoles(question) {
   if (/CEO|担任|任职|管理层|辞职/i.test(question)) return ['people', 'official', 'verification']
   if (/政策|关税|许可|制裁|policy|tariff/i.test(question)) return ['official', 'industry', 'verification']
   return ['official', 'timeline', 'verification']
+}
+/** With an explicit catalogue, only its active IDs may be suggested. */
+export function suggestedRoles(question, catalogue) {
+  const preferred = preferredRoles(question)
+  if (catalogue === undefined) return preferred
+  const available = [...new Set(catalogue.map(role => typeof role === 'string' ? role : role.roleId || role.agentSpecId))]
+  const selected = preferred.filter(id => id !== 'verification' && available.includes(id)).slice(0, 2)
+  for (const id of available) if (id !== 'verification' && selected.length < 2 && !selected.includes(id)) selected.push(id)
+  return available.includes('verification') ? [...selected, 'verification'] : selected
 }
 const iso = (value) => new Date(value).toISOString()
 export function hasTodayCalendarDeadline(question = '') {
@@ -48,6 +57,7 @@ function zonedDayEnd(createdAt, timezone) {
 export function resolveRequestDeadline(request, { preserveContract = true } = {}) {
   if (request.strict?.targetAt) return iso(request.strict.targetAt)
   if (preserveContract && request.normalized?.targetAt) return iso(request.normalized.targetAt)
+  if (request.tradingHorizon?.targetAt) return iso(request.tradingHorizon.targetAt)
   if (hasTodayCalendarDeadline(request.question)) return zonedDayEnd(request.createdAt, request.strict?.timezone || request.timezone || 'Asia/Shanghai')
   return new Date(Date.parse(request.createdAt) + request.horizonHours * 3_600_000).toISOString()
 }
@@ -58,21 +68,22 @@ function localTime(value, timezone) {
   const offset = fields.timeZoneName.replace('GMT', 'UTC')
   return { offset, label: `${fields.year}-${fields.month}-${fields.day} ${fields.hour}:${fields.minute}:${fields.second} (${timezone}, ${offset})` }
 }
-export function makeTimeContext({ now, createdAt, targetAt, forecastClosesAt = targetAt, timezone = 'Asia/Shanghai' }) {
+export function makeTimeContext({ now, createdAt, targetAt, forecastClosesAt = targetAt, timezone = 'Asia/Shanghai', tradingHorizon }) {
   const local = localTime(targetAt, timezone)
   return { nowUtc: iso(now), nowLocalLabel: localTime(now, timezone).label, windowStartsAtUtc: iso(createdAt),
     windowStartsAtLocalLabel: localTime(createdAt, timezone).label, targetAtUtc: iso(targetAt), targetAtLocalLabel: local.label,
     forecastClosesAtUtc: iso(forecastClosesAt), forecastClosesAtLocalLabel: localTime(forecastClosesAt, timezone).label,
+    ...(tradingHorizon ? { tradingHorizon: Object.fromEntries(['tradingDays', 'market', 'marketLabel', 'timezone', 'targetSessionDate', 'targetAt', 'countingRule', 'countingRuleLabel', 'calendarVersion', 'calendarSources', 'calendarScope', 'assumptions'].map(key => [key, tradingHorizon[key]])) } : {}),
     timezone, utcOffset: local.offset, authority: 'UTC instant is authoritative; local labels are server-generated and display-only.' }
 }
 export function requestTime(request, now) {
   const targetAt = resolveRequestDeadline(request)
   return makeTimeContext({ now, createdAt: request.createdAt, targetAt, forecastClosesAt: request.normalized?.forecastClosesAt || targetAt,
-    timezone: request.normalized?.timezone || request.strict?.timezone || request.timezone })
+    timezone: request.normalized?.timezone || request.strict?.timezone || request.timezone, tradingHorizon: request.tradingHorizon })
 }
 export const timedQuestion = (question, context, temporalPolicy) => `${question}（${temporalPolicy === 'at_target' ? '判定时点' : '观察至'}：${context.targetAtLocalLabel}）`
 export function presetAssumptions(question, context) {
-  const assumptions = [`默认观察窗口从本次创建 ${context.windowStartsAtLocalLabel} 至 ${context.targetAtLocalLabel}；用户明确指定的条件优先。`]
+  const assumptions = [`默认观察窗口从本次创建 ${context.windowStartsAtLocalLabel} 至 ${context.targetAtLocalLabel}；用户明确指定的条件优先。`, ...(context.tradingHorizon ? [context.tradingHorizon.countingRuleLabel, ...context.tradingHorizon.assumptions] : [])]
   if (/马斯克|elon\s*musk|elonmusk/i.test(question) && /推特|发帖|tweet|post/i.test(question)) assumptions.push('“马斯克发推特”默认指 Elon Musk 的 X 公开账号 @elonmusk；包括原创、回复、引用及转发，私信不计。身份和实际动态仍需联网核验。')
   if (/比特币|BTC|bitcoin/i.test(question) && /回升|上涨|涨|rise|recover|up/i.test(question)) assumptions.push('“回升”默认指目标时点 BTC-USD 价格高于本轮实际取得的最近可验证现价，不另设任意涨幅阈值；拿不到数值基准时只作有资料依据的条件性方向估计，不计分。')
   return assumptions

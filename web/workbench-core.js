@@ -7,6 +7,8 @@ export function h(tag, cls, ...children) {
   el.append(...children.flat(Infinity).filter((child) => child !== null && child !== undefined))
   return el
 }
+export function dataContent(tag, cls, ...children) { const node = h(tag, cls, ...children); node.setAttribute('data-i18n-skip', 'true'); return node }
+export function dataLink(text, url, cls = '') { const node = link(text, url, cls); node.setAttribute('data-i18n-skip', 'true'); return node }
 export function link(text, url, cls = '') { const a = h('a', cls, text); a.href = url; return a }
 export function button(text, action, cls = 'wb-button') { const b = h('button', cls, text); b.type = 'button'; b.addEventListener('click', action); return b }
 export const badge = (status) => h('span', 'wb-badge wb-' + status, labels[status] ?? status)
@@ -36,14 +38,13 @@ export const write = (method, body) => ({ method, body })
 let timer
 export function toast(message) {
   clearTimeout(timer); $('wb-toast').textContent = message; $('wb-toast').hidden = false
-  $('wb-save-status').textContent = message
   timer = setTimeout(() => { $('wb-toast').hidden = true }, 5000)
 }
 export function input(value = '', type = 'text') { const el = document.createElement('input'); el.type = type; el.value = value ?? ''; return el }
 export function textarea(value = '', rows = 4) { const el = document.createElement('textarea'); el.value = value ?? ''; el.rows = rows; return el }
 export function select(options, value) {
   const el = document.createElement('select')
-  for (const [id, text] of options) { const option = h('option', '', text); option.value = id; el.append(option) }
+  for (const [id, text] of options) { const option = dataContent('option', '', text); option.value = id; el.append(option) }
   if (value !== undefined && value !== null && value !== '') el.value = value
   return el
 }
@@ -68,5 +69,5 @@ export function sourceLink(item) {
   const a = link('查看来源原文', item.url, 'wb-source-link'); a.target = '_blank'; a.rel = 'noopener noreferrer'; return a
 }
 export function evidenceCard(e) {
-  return h('article', 'wb-evidence-item', h('div', 'wb-card-top', h('h3', '', e.title), h('span', 'wb-badge', e.sourceMode === 'replay' ? '历史资料' : '提供的材料')), h('p', 'wb-prewrap', e.text), h('div', 'wb-evidence-meta', h('span', '', '取得：' + fmt(e.firstSeenAt)), e.publishedAt ? h('span', '', '原发布：' + fmt(e.publishedAt)) : null, sourceLink(e)), h('small', 'wb-muted', e.evidenceId))
+  return h('article', 'wb-evidence-item', h('div', 'wb-card-top', dataContent('h3', '', e.title), h('span', 'wb-badge', e.sourceMode === 'replay' ? '历史资料' : '提供的材料')), dataContent('p', 'wb-prewrap', e.text), h('div', 'wb-evidence-meta', h('span', '', '取得：' + fmt(e.firstSeenAt)), e.publishedAt ? h('span', '', '原发布：' + fmt(e.publishedAt)) : null, sourceLink(e)), dataContent('small', 'wb-muted', e.evidenceId))
 }

@@ -1,4 +1,4 @@
-import { h, link, button, header, empty, select, badge, api, write, toast, goto, fmt, sourceLink, terminal, labels, fieldLabel } from './workbench-core.js'
+import { h, dataContent, link, button, header, empty, select, badge, api, write, toast, goto, fmt, sourceLink, terminal, labels, fieldLabel } from './workbench-core.js'
 import { selectRun, hydrateRun } from './run-projection.mjs'
 import { createWorkbenchRoom } from './workbench-room.js'
 
@@ -46,7 +46,7 @@ export async function detail(ctx, p, requestedRun, mode, token) {
   if (run) { ctx.selectedRuns.set(p.predictionId, runId); ctx.accept(hydrateRun(ctx.projection, run)) }
   const roomNode = h('div', 'wb-room')
   const latest = h('dd', '', run ? labels[run.status] ?? run.status : '尚无研读报告'); latest.id = 'wb-latest-status'
-  const note = h('aside', 'wb-forecast-note', h('span', 'wb-tag', '当前预测目标'), h('h2', '', p.question || '尚未填写问题'), h('div', 'wb-yes-no', h('div', '', h('small', '', '是 Yes'), h('strong', '', '—')), h('div', '', h('small', '', '否 No'), h('strong', '', '—'))), h('p', 'wb-probability-empty', '尚未发布预测概率'), h('dl', 'wb-facts', h('dt', '', '目标日期'), h('dd', '', fmt(p.targetAt, p.timezone)), h('dt', '', '停止发布'), h('dd', '', fmt(p.forecastClosesAt, p.timezone)), h('dt', '', '材料截点'), h('dd', '', run?.cutoff ? fmt(run.cutoff, p.timezone) : '创建研读时固定材料快照'), h('dt', '', '结算来源'), h('dd', '', sourceLink(p.resolutionSource ?? {}) ?? '尚未设置'), h('dt', '', '最新报告'), latest), h('p', 'wb-forecast-explain', '本阶段只研读材料，不生成或封存正式概率。'))
+  const note = h('aside', 'wb-forecast-note', h('span', 'wb-tag', '当前预测目标'), dataContent('h2', '', p.question || '尚未填写问题'), h('div', 'wb-yes-no', h('div', '', h('small', '', '是 Yes'), h('strong', '', '—')), h('div', '', h('small', '', '否 No'), h('strong', '', '—'))), h('p', 'wb-probability-empty', '尚未发布预测概率'), h('dl', 'wb-facts', h('dt', '', '目标日期'), h('dd', '', fmt(p.targetAt, p.timezone)), h('dt', '', '停止发布'), h('dd', '', fmt(p.forecastClosesAt, p.timezone)), h('dt', '', '材料截点'), h('dd', '', run?.cutoff ? fmt(run.cutoff, p.timezone) : '创建研读时固定材料快照'), h('dt', '', '结算来源'), h('dd', '', sourceLink(p.resolutionSource ?? {}) ?? '尚未设置'), h('dt', '', '最新报告'), latest), h('p', 'wb-forecast-explain', '本阶段只研读材料，不生成或封存正式概率。'))
   const cut = note.querySelectorAll('dd')[2]
   cut.textContent = run?.inputSnapshotAt ? fmt(run.inputSnapshotAt, p.timezone) : '创建研读时固定材料快照'
   note.querySelector('dl').append(h('dt', '', '最近更新'), h('dd', '', fmt(run?.updatedAt ?? p.updatedAt, p.timezone)))
@@ -64,7 +64,7 @@ export async function detail(ctx, p, requestedRun, mode, token) {
   const choices = h('div', 'wb-checks')
   for (const [index, evidence] of materials.evidence.entries()) {
     const box = document.createElement('input'); box.type = 'checkbox'; box.checked = index < 12; box.value = evidence.evidenceId
-    choices.append(h('label', '', box, evidence.title))
+    choices.append(h('label', '', box, dataContent('span', '', evidence.title)))
   }
   materialChoices.append(choices)
   const start = button('派研究员读材料', async () => {

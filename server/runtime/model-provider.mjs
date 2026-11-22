@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto'
+import { resolveModelEndpoints } from './model-endpoint.mjs'
 
 function safeTokenUsage(value) {
   if (!value || !Number.isSafeInteger(value.total_tokens) || value.total_tokens < 0) return undefined
@@ -45,14 +46,9 @@ export async function abortable(operation, signal) {
 export async function verifyModelCredentials(env = process.env, request = fetch, timeoutMs = 8000) {
   const key = env.WORLD_API_KEY
   if (!key) throw new RuntimeError('MODEL_CONFIG', '需要配置服务端凭据。')
-  let base
-  try { base = new URL(env.WORLD_BASE_URL || 'https://api.deepseek.com') } catch {
-    throw new RuntimeError('MODEL_CONFIG', '模型基础地址无效。')
-  }
-  if (!['http:', 'https:'].includes(base.protocol) || base.username || base.password || base.search || base.hash) {
-    throw new RuntimeError('MODEL_CONFIG', '模型基础地址必须是有效的 HTTP(S) 地址。')
-  }
-  const response = await request(`${base.href.replace(/\/+$/, '')}/models`, {
+  let endpoints
+  try { endpoints = resolveModelEndpoints(env) } catch (error) { throw new RuntimeError('MODEL_CONFIG', error.message) }
+  const response = await request(endpoints.modelsUrl, {
     method: 'GET',
     headers: { Authorization: `Bearer ${key}` },
     signal: AbortSignal.timeout(timeoutMs),
@@ -67,19 +63,12 @@ export function createModelProvider(env = process.env, request = fetch) {
   const key = env.WORLD_API_KEY
   const model = env.WORLD_MODEL_NAME
   if (!key || !model) throw new RuntimeError('MODEL_CONFIG', '需要配置模型名称和服务端凭据。')
-  let base
-  try {
-    base = new URL(env.WORLD_BASE_URL || 'https://api.deepseek.com')
-  } catch {
-    throw new RuntimeError('MODEL_CONFIG', '模型基础地址无效。')
-  }
-  if (!['http:', 'https:'].includes(base.protocol) || base.username || base.password || base.search || base.hash) {
-    throw new RuntimeError('MODEL_CONFIG', '模型基础地址必须是有效的 HTTP(S) 地址。')
-  }
+  let endpoints
+  try { endpoints = resolveModelEndpoints(env) } catch (error) { throw new RuntimeError('MODEL_CONFIG', error.message) }
   const timeoutMs = Number(env.WORLD_MODEL_TIMEOUT_MS ?? 60000)
   if (!Number.isInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > 2147483647) throw new RuntimeError('MODEL_CONFIG', '模型超时须为有效正整数毫秒。')
-  const endpoint = `${base.href.replace(/\/+$/, '')}/chat/completions`
-  const protocol = env.WORLD_MODEL_PROTOCOL || (base.hostname === 'api.deepseek.com' ? 'deepseek' : 'openai')
+  const endpoint = endpoints.chatCompletionsUrl
+  const protocol = endpoints.protocol
   if (!['deepseek', 'openai'].includes(protocol)) throw new RuntimeError('MODEL_CONFIG', '模型协议须为 deepseek 或 openai。')
   const thinking = env.WORLD_MODEL_THINKING ?? 'disabled'
   if (!['enabled', 'disabled'].includes(thinking)) throw new RuntimeError('MODEL_CONFIG', '思考开关须为 enabled 或 disabled。')

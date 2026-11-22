@@ -14,10 +14,10 @@ const validateRun = new Ajv({ strict: true, allErrors: true }).compile({
 })
 
 /** M1 topic/contracts/role versions plus one-worker research. No forecast publisher. */
-export function createWorkbenchService({ path, runtime, world, now = () => new Date().toISOString() } = {}) {
+export function createWorkbenchService({ path, runtime, world, now = () => new Date().toISOString(), isAgentInUse = () => false } = {}) {
   const store = createDomainStore({ path, registeredToolIds: PROVIDED_TOOL_IDS, now })
   for (const agent of getAgentCatalog()) {
-    if (!store.getAgentSpec(agent.agentSpecId)) store.saveAgentSpec(agent, { idempotencyKey: `builtin-${agent.agentSpecId}-v1` })
+    if (!store.getAgentSpec(agent.agentSpecId, { specVersion: 1 })) store.saveAgentSpec(agent, { idempotencyKey: `builtin-${agent.agentSpecId}-v1` })
   }
   const requirePrediction = (id, options) => {
     const value = store.getPrediction(id, options)
@@ -59,7 +59,9 @@ export function createWorkbenchService({ path, runtime, world, now = () => new D
     if (Date.parse(prediction.forecastClosesAt) <= Date.parse(now())) {
       throw domainFailure('FORECAST_CLOSED', '该预测题已过停止发布时间，只能查看已有记录。', 409)
     }
-    const agent = store.getAgentSpec(input.agentSpecId || 'official', { specVersion: input.specVersion })
+    const agentSpecId = input.agentSpecId || 'official'
+    if (store.getAgentDeletion(agentSpecId)) throw domainFailure('AGENT_DELETED', '此研究员已经删除，不能建立新的调查；旧运行和版本仍可查看。', 409)
+    const agent = store.getAgentSpec(agentSpecId, { specVersion: input.specVersion })
     if (!agent) throw domainFailure('AGENT_NOT_FOUND', '找不到此研究员版本。', 404)
     let evidence = store.listEvidence({ topicId: topic.topicId, predictionId })
     if (input.evidenceIds) {
@@ -101,6 +103,14 @@ export function createWorkbenchService({ path, runtime, world, now = () => new D
       return agent
     },
     saveAgent: (...args) => store.saveAgentSpec(...args),
+    deleteAgent(agentSpecId, input) {
+      identifier(agentSpecId, 'agentSpecId')
+      // Return a committed tombstone before consulting mutable busy state so retries remain idempotent.
+      if (store.getAgentDeletion(agentSpecId)) return store.deleteAgentSpec(agentSpecId, input)
+      const activeRuntime = (runtime?.listRuns() || []).some(run => !['completed', 'failed', 'cancelled'].includes(run.status) && run.agent?.agentSpecId === agentSpecId)
+      if (activeRuntime || isAgentInUse(agentSpecId)) throw domainFailure('AGENT_IN_USE', '研究员正在被调查任务使用，请等待任务结束或停止后再删除。', 409)
+      return store.deleteAgentSpec(agentSpecId, input)
+    },
     tools: () => ({ tools: getToolCatalog(), plannedTools: getPlannedToolCatalog(), skills: getSkillCatalog() }),
     addEvidence: (...args) => store.addEvidence(...args), listEvidence: (options) => store.listEvidence(options),
     listLearning: () => store.listLearningEntries(),

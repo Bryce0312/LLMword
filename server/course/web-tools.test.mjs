@@ -350,3 +350,17 @@ test('fixture pages are explicit replay material, injectable for polling tests a
   const unknown = await scoped()[1].execute({ url: 'https://example.com/not-a-fixture' })
   assert.equal(unknown.error.code, 'SOURCE_CONTENT_MISSING'); assert.deepEqual(unknown.evidenceIds, [])
 })
+
+
+test('campus and custom model keys are not forwarded to the official search service', async () => {
+  let requests = 0
+  for (const url of ['https://genai.comp.polyu.edu.hk/api/v1//chat/completions', 'https://proxy.example/custom/invoke']) {
+    const gateway = createWebResearchGateway({ env: { WORLD_SEARCH_PROVIDER: 'deepseek', WORLD_CHAT_COMPLETIONS_URL: url, WORLD_API_KEY: 'CAMPUS_MODEL_KEY_NOT_OFFICIAL' }, request: async () => { requests++; throw new Error('unexpected official request') } })
+    assert.equal(gateway.capabilities.available, false)
+    assert.equal(gateway.capabilities.reason, 'SEARCH_NOT_CONFIGURED')
+    assert.equal(gateway.capabilities.sourceMode, 'live', 'public live tools are not replay when official search is unconfigured')
+  }
+  assert.equal(requests, 0)
+  const gateway = createWebResearchGateway({ env: { WORLD_SEARCH_PROVIDER: 'deepseek', WORLD_CHAT_COMPLETIONS_URL: 'https://genai.comp.polyu.edu.hk/api/v1//chat/completions', WORLD_API_KEY: 'CAMPUS_MODEL_KEY_NOT_OFFICIAL', WORLD_SEARCH_API_KEY: 'SEPARATE_OFFICIAL_KEY' }, request: async () => {} })
+  assert.equal(gateway.capabilities.available, true)
+})

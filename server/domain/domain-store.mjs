@@ -57,6 +57,12 @@ export function createDomainStore({ path, registeredToolIds = [], now = () => ne
           record_json TEXT NOT NULL,
           PRIMARY KEY (agent_spec_id, spec_version)
         ) STRICT;
+        CREATE TABLE IF NOT EXISTS domain_agent_deletions (
+          agent_spec_id TEXT PRIMARY KEY,
+          spec_version INTEGER NOT NULL,
+          record_json TEXT NOT NULL,
+          FOREIGN KEY (agent_spec_id, spec_version) REFERENCES domain_agent_versions(agent_spec_id, spec_version)
+        ) STRICT;
         CREATE TABLE IF NOT EXISTS domain_evidence (
           evidence_id TEXT PRIMARY KEY,
           topic_id TEXT NOT NULL REFERENCES domain_topics(topic_id),
@@ -219,9 +225,16 @@ export function createDomainStore({ path, registeredToolIds = [], now = () => ne
     return evidence
   }
 
+  function getAgentDeletion(agentSpecId) {
+    identifier(agentSpecId, 'agentSpecId')
+    const row = db.prepare('SELECT record_json FROM domain_agent_deletions WHERE agent_spec_id = ?').get(agentSpecId)
+    return row ? parse(row.record_json) : null
+  }
+
   function getAgentSpec(agentSpecId, { specVersion } = {}) {
     identifier(agentSpecId, 'agentSpecId')
     if (specVersion !== undefined && (!Number.isInteger(specVersion) || specVersion < 1)) throw domainFailure('INVALID_VERSION', '角色版本必须是正整数。')
+    if (specVersion === undefined && getAgentDeletion(agentSpecId)) return null
     const row = specVersion === undefined
       ? db.prepare('SELECT record_json FROM domain_agent_versions WHERE agent_spec_id = ? ORDER BY spec_version DESC LIMIT 1').get(agentSpecId)
       : db.prepare('SELECT record_json FROM domain_agent_versions WHERE agent_spec_id = ? AND spec_version = ?').get(agentSpecId, specVersion)
@@ -316,21 +329,42 @@ export function createDomainStore({ path, registeredToolIds = [], now = () => ne
       }))
     },
     saveAgentSpec(input, options = {}) {
-      return transact(() => once('agent:save', options.idempotencyKey ?? input?.idempotencyKey, input, () => {
+      return transact(() => {
         requestRecord(input)
-        const agentSpecId = input.agentSpecId ?? generated('agent')
-        const previous = getAgentSpec(agentSpecId)
-        if (previous) expectedVersion(input.expectedVersion, previous.specVersion)
-        const spec = { ...normalizeAgentSpec({ ...input, agentSpecId }, { previous, registeredToolIds }), createdAt: time() }
-        db.prepare('INSERT INTO domain_agent_versions VALUES (?, ?, ?)').run(spec.agentSpecId, spec.specVersion, json(spec))
-        return spec
-      }))
+        if (input.agentSpecId && getAgentDeletion(input.agentSpecId)) throw domainFailure('AGENT_DELETED', '此研究员已经删除；如需重建，请使用新的角色编号。', 409)
+        const result = once('agent:save', options.idempotencyKey ?? input.idempotencyKey, input, () => {
+          const agentSpecId = input.agentSpecId ?? generated('agent')
+          const previous = getAgentSpec(agentSpecId)
+          if (previous) expectedVersion(input.expectedVersion, previous.specVersion)
+          const spec = { ...normalizeAgentSpec({ ...input, agentSpecId }, { previous, registeredToolIds }), createdAt: time() }
+          db.prepare('INSERT INTO domain_agent_versions VALUES (?, ?, ?)').run(spec.agentSpecId, spec.specVersion, json(spec))
+          return spec
+        })
+        // An idempotent create with a generated ID must not report a deleted role as active.
+        if (getAgentDeletion(result.agentSpecId)) throw domainFailure('AGENT_DELETED', '此研究员已经删除；如需重建，请使用新的角色编号。', 409)
+        return result
+      })
     },
-    getAgentSpec,
+    deleteAgentSpec(agentSpecId, input = {}) {
+      return transact(() => {
+        identifier(agentSpecId, 'agentSpecId'); requestRecord(input)
+        if (Object.keys(input).some(key => key !== 'expectedVersion')) throw domainFailure('INVALID_AGENT_DELETE', '删除研究员只接受当前 expectedVersion。')
+        const deleted = db.prepare('SELECT spec_version, record_json FROM domain_agent_deletions WHERE agent_spec_id = ?').get(agentSpecId)
+        if (deleted) { expectedVersion(input.expectedVersion, deleted.spec_version); return parse(deleted.record_json) }
+        const latest = getAgentSpec(agentSpecId)
+        if (!latest) throw domainFailure('AGENT_NOT_FOUND', '找不到此研究员。', 404)
+        expectedVersion(input.expectedVersion, latest.specVersion)
+        const receipt = { agentSpecId, deleted: true, deletedAt: time() }
+        db.prepare('INSERT INTO domain_agent_deletions VALUES (?, ?, ?)').run(agentSpecId, latest.specVersion, json(receipt))
+        return receipt
+      })
+    },
+    getAgentSpec, getAgentDeletion,
     listAgentSpecs() {
       return db.prepare(`SELECT v.record_json FROM domain_agent_versions v JOIN (
         SELECT agent_spec_id, MAX(spec_version) AS latest FROM domain_agent_versions GROUP BY agent_spec_id
       ) current ON current.agent_spec_id = v.agent_spec_id AND current.latest = v.spec_version
+      WHERE NOT EXISTS (SELECT 1 FROM domain_agent_deletions deleted WHERE deleted.agent_spec_id = v.agent_spec_id)
       ORDER BY v.agent_spec_id`).all().map((row) => parse(row.record_json))
     },
     addEvidence(topicId, input, options = {}) {

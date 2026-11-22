@@ -95,3 +95,25 @@ test('disabled course routes report their own capability error without falling t
   const runtime=await fetch(app.address+'/api/v1/runtime')
   assert.equal(runtime.status,200,'the runtime router remains independently available')
 })
+
+test('prediction settings work without a model key, persist across restart and reject invalid writes atomically', {timeout:15000}, async t => {
+  const launch = await fixture(t)
+  const app = await launch({ WORLD_ENV: 'live', WORLD_MODEL: 'openai', WORLD_API_KEY: '', WORLD_SEARCH_PROVIDER: 'deepseek' })
+  assert.deepEqual(await app.request('/settings'), { predictionBudget: { mode: 'limited', maxTotalTokens: 1000000 } })
+  const unlimited = { predictionBudget: { mode: 'unlimited', maxTotalTokens: null } }
+  assert.deepEqual(await app.request('/settings', { method: 'PUT', data: unlimited }), unlimited)
+  for (const data of [{predictionBudget:{mode:'limited',maxTotalTokens:0}}, {predictionBudget:{mode:'limited',maxTotalTokens:1.5}}, {...unlimited,apiKey:'must-not-persist'}]) {
+    const failure = await app.request('/settings', { method: 'PUT', data, expected: 400 })
+    assert.equal(failure.error.code, 'INVALID_PREDICTION_BUDGET')
+    assert.deepEqual(await app.request('/settings'), unlimited)
+  }
+  await app.request('/settings', { method: 'PUT', data: {predictionBudget:{mode:'limited',maxTotalTokens:500000}}, headers:{Origin:'https://example.org'}, expected:403 })
+  assert.deepEqual(await app.request('/settings'), unlimited)
+  await app.request('/requests', {method:'POST', data:{question:'No configured key'}, expected:409})
+  await app.stop()
+  const reopened = await launch({ WORLD_ENV: 'live', WORLD_MODEL: 'openai', WORLD_API_KEY: '', WORLD_SEARCH_PROVIDER: 'deepseek' })
+  assert.deepEqual(await reopened.request('/settings'), unlimited)
+  const limited = {predictionBudget:{mode:'limited',maxTotalTokens:300000}}
+  assert.deepEqual(await reopened.request('/settings', {method:'PUT',data:limited}), limited)
+  assert.equal((await reopened.request('/config')).limits.totalTokensPerRun, 300000)
+})

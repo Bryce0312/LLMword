@@ -1,3 +1,21 @@
+export const COURSE_PROVIDER_PRESETS = Object.freeze([
+  Object.freeze({ url: 'https://genai.comp.polyu.edu.hk/api/v1//chat/completions', model: 'DeepSeek-V4-Flash' }),
+  Object.freeze({ url: 'https://api.deepseek.com/chat/completions', model: 'deepseek-flash' }),
+])
+export const COURSE_PROVIDER_DEFAULTS = COURSE_PROVIDER_PRESETS[1]
+
+/** Public connection settings only; never copy arbitrary provider status fields. */
+export function courseProviderSettings(value = {}) {
+  return {
+    url: typeof value.url === 'string' && value.url.trim() ? value.url.trim() : COURSE_PROVIDER_DEFAULTS.url,
+    model: typeof value.model === 'string' && value.model.trim() ? value.model.trim() : COURSE_PROVIDER_DEFAULTS.model,
+  }
+}
+
+export function courseProviderModelForUrl(url) {
+  return COURSE_PROVIDER_PRESETS.find(item => item.url === String(url ?? '').trim())?.model ?? null
+}
+
 /** These fields are status only; the API key never belongs in a view model. */
 export function courseProviderPresentation(value = {}) {
   const configured = value.configured === true
@@ -21,17 +39,61 @@ export function courseProviderError(error = {}) {
   if (error.code === 'MODE_LOCKED') return '模拟环境配置失败：当前进程不会接收或保存真实 API Key。请改用 npm run start:live。'
   if (error.code === 'PROVIDER_UPDATE_BUSY') return '保存已拒绝：仍有正在运行、排队或持续监听的任务，原 API Key 保持不变。请先停止这些任务，刷新状态后重新输入并保存。'
   if (error.status === 409) return '仍有正在运行、排队或持续监听的旧任务，原连接继续使用。请先停止这些旧任务的跟踪，刷新状态后重新输入并保存。'
-  if (error.status === 400) return 'Key 格式未通过检查，请核对后重新输入。'
+  if (error.status === 400) return 'Key、URL 或 model 格式未通过检查，请核对后重新输入。'
   if (error.status === 401) return '当前请求没有更新模型连接的权限。'
   if (error.status === 404) return '当前后台版本尚未提供模型连接设置，请更新后台后重新读取。'
   return '模型连接未能保存，原连接保留。请稍后重新读取状态再试。'
 }
 
-/** Clear the DOM before transmission, including both success and failure paths. */
-export async function saveCourseProviderKey(input, request) {
-  let apiKey = input.value.trim()
-  input.value = ''
+// Current browser-document memory only; this is never serialized or returned in public state.
+let verifiedCredential = null
+let credentialGeneration = 0
+const ownerActive = (options = {}) => {
+  try { return typeof options.isActive !== 'function' || options.isActive() === true } catch { return false }
+}
+function verifiedCredentialIdentity(value) {
+  if (value?.configured !== true || value.connection !== 'connected' || value.locked === true) return null
+  if (typeof value.verifiedAt !== 'string' || !Number.isFinite(Date.parse(value.verifiedAt)) || !['session', 'environment'].includes(value.keySource)) return null
+  if (typeof value.url !== 'string' || !value.url || typeof value.model !== 'string' || !value.model) return null
+  return JSON.stringify([value.verifiedAt, value.url, value.model, value.keySource])
+}
+
+/** Restore only the locally verified value for the same public connection generation. */
+export function syncCourseProviderCredential(input, status, options = {}) {
+  if (!ownerActive(options)) return false
+  const { edited = false } = options
+  const identity = verifiedCredentialIdentity(status)
+  if (!verifiedCredential || verifiedCredential.identity !== identity) {
+    verifiedCredential = null
+    if (!edited) input.value = ''
+    return false
+  }
+  if (!edited) input.value = verifiedCredential.value
+  return true
+}
+
+/** Clear while transmitting; retain a masked editable value only after verified success. */
+export async function saveCourseProviderKey(input, request, settings, options = {}) {
+  if (!ownerActive(options)) throw Object.assign(new Error('模型连接菜单已关闭，本次没有提交保存。'), { code: 'PROVIDER_VIEW_INACTIVE' })
+  const generation = ++credentialGeneration
+  const canApply = () => generation === credentialGeneration && ownerActive(options)
+  let enteredValue = input.value
+  let apiKey = enteredValue.trim()
+  let connected = false
+  input.value = ''; verifiedCredential = null
   if (!apiKey) throw Object.assign(new Error('请先输入 DeepSeek API Key。'), { code: 'EMPTY_API_KEY' })
-  try { return await request({ apiKey }) }
-  finally { apiKey = ''; input.value = '' }
+  const connection = settings === undefined ? {} : { url: String(settings.url ?? '').trim(), model: String(settings.model ?? '').trim() }
+  try {
+    const result = await request({ apiKey, ...connection })
+    connected = result?.configured === true && result.connection === 'connected'
+    if (connected && canApply()) {
+      input.value = enteredValue
+      const identity = verifiedCredentialIdentity(result)
+      if (identity) verifiedCredential = { identity, value: enteredValue }
+    }
+    return result
+  } finally {
+    if (!connected && canApply()) input.value = ''
+    apiKey = ''; enteredValue = ''
+  }
 }

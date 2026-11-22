@@ -5,10 +5,11 @@
 .wb-shell { max-width: 1640px; margin: auto; border: 4px solid var(--edge); background: #302936; box-shadow: 0 0 0 2px #9d7355, 0 8px 0 #15121b; }
 .wb-header { display: flex; align-items: center; gap: 30px; padding: 16px 23px; background: #503746; border-bottom: 4px solid var(--edge); box-shadow: inset 0 3px #906358; }
 .wb-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: #ffdfa1 !important; font-size: clamp(25px, 2.3vw, 32px); white-space: nowrap; line-height: 1.1; }
-.wb-brand small { display: block; font-size: 12px; margin-top: 7px; color: #dbba96; }
+
 .wb-header nav { display: flex; align-items: center; gap: 6px; margin-left: auto; }
 .wb-header nav a { padding: 10px 13px; text-decoration: none; font-size: 16px; border-bottom: 3px solid transparent; }
 .wb-header nav a:hover, .wb-header nav a.is-selected { color: #ffe1a4; border-color: var(--amber); background: #362936; }
+.wb-environment, .wb-connection { cursor: help; }
 .wb-connection { font-size: 12px; color: #bfd2ad; white-space: nowrap; }
 .wb-connection[data-state] { color: #f1c989; }
 .wb-environment { font-size: 11px; padding: 3px 8px; border: 1px solid #8a6b52; color: #f1c989; background: #3a2b35; white-space: nowrap; }
@@ -16,8 +17,7 @@
 .wb-environment[data-dot="ready"]::before { background: #8fd37a; box-shadow: 0 0 0 2px #3d5734; }
 .wb-environment[data-dot="warning"]::before { background: #e6b85c; box-shadow: 0 0 0 2px #5a4526; }
 .wb-environment[data-mode="live"] { color: #cfe6b7; border-color: #6d8a5a; background: #2f3a2c; }
-.wb-stage-note { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; background: #382e3c; padding: 10px 22px; border-bottom: 2px solid #171721; font-size: 12px; line-height: 1.6; color: #d5c3af; }
-.wb-stage-note > a { margin-left: auto; color: #efc383; }
+.wb-environment[data-mode="live"][data-connected="false"] { color: #ffd6d0; border-color: #bc786c; background: #673b3b; }
 .wb-tag { display: inline-block; font-size: 12px; background: #684936; color: #ffe4ad; border: 2px solid #a57c50; padding: 3px 7px; white-space: nowrap; }
 .wb-layout { display: grid; grid-template-columns: 246px minmax(0,1fr); min-height: 680px; }
 .wb-sidebar { padding: 19px 15px; background: #4b3837; background-image: repeating-linear-gradient(0deg, #261d241b 0 2px, transparent 2px 10px); border-right: 4px solid var(--edge); min-width: 0; }
@@ -110,6 +110,13 @@
 .wb-evidence-meta { display: flex; flex-wrap: wrap; gap: 6px 12px; font-size: 11px; color: #7c6851; line-height: 1.8; }
 .wb-source-link { font-size: 12px; }
 .wb-agent-picker { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap: 12px; margin-bottom: 24px; }
+.wb-agent-seat { position: relative; display: flex; flex-direction: column; min-width: 0; }
+.wb-agent-seat .wb-agent-tile { flex: 1; padding-top: 39px; }
+.wb-agent-delete { position: absolute; top: 7px; right: 7px; min-height: 28px; padding: 3px 7px; border: 2px solid #ae7e63; background: #70443b; box-shadow: 1px 2px #241c26; color: #ffe0bf; font-size: 11px !important; line-height: 1.5; cursor: pointer; }
+.wb-agent-delete:hover { background: #8c5042; border-color: #e4ad83; }
+.wb-agent-delete:focus-visible { outline: 2px solid #f2c77b; outline-offset: 2px; }
+.wb-agent-delete:disabled { opacity: .55; cursor: not-allowed; }
+.wb-agent-delete-error { margin: 8px 0 0; padding: 8px; border: 2px solid #a7735a; background: #f3d2b6; color: #713d32; font-size: 11px; line-height: 1.7; overflow-wrap: anywhere; }
 .wb-agent-tile { display: grid; gap: 6px; padding: 13px 8px; text-align: center; text-decoration: none; background: #59423f; border: 2px solid #977154; box-shadow: 2px 3px #1c1822; min-width: 0; }
 .wb-agent-tile.is-selected, .wb-agent-tile:hover { background: #77593f; border-color: #f2c77b; }
 .wb-agent-symbol { font-size: 25px; color: #e3b46d; }
@@ -180,8 +187,6 @@
 .wb-topic-question { padding: 12px 0; border-bottom: 2px dashed #c3a677; }
 .wb-timeline { display: grid; gap: 18px; padding: 20px 20px 10px; font-size: 14px; line-height: 1.8; }
 .wb-loading { padding: 50px 15px; text-align: center; color: #c2ae99; }
-.wb-footer { display: flex; flex-wrap: wrap; gap: 10px 22px; padding: 13px 22px; border-top: 3px solid #17151f; background: #382e37; font-size: 11px; color: #bda18a; }
-.wb-footer a { margin-left: auto; }
 .wb-toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); width: max-content; max-width: calc(100vw - 30px); padding: 13px 19px; background: #f6dba5; color: #3b2d32; border: 3px solid #3e3035; box-shadow: 3px 4px #15121b; z-index: 99; font-size: 13px; line-height: 1.8; }
 .wb-skip { position: absolute; left: -9999px; }
 .wb-skip:focus { left: 20px; top: 8px; background: var(--paper); color: var(--ink); padding: 10px; z-index: 100; }
@@ -224,7 +229,6 @@
   .wb-header nav a { font-size: 13px; padding: 9px 5px; }
   .wb-connection { width: auto; margin: 0 0 0 auto; font-size: 10px; white-space: normal; max-width: 90px; line-height: 1.7; }
   .wb-environment { font-size: 10px; padding: 2px 5px; max-width: 120px; white-space: normal; line-height: 1.4; }
-  .wb-stage-note { padding: 10px 12px; font-size: 11px; }
   .wb-content { padding: 21px 12px 24px; }
   .wb-page-heading { flex-direction: column; gap: 12px; }
   .wb-page-heading h1 { font-size: 26px; }
@@ -245,11 +249,87 @@
   .wb-room-phase { font-size: 9px; padding: 3px 6px; top: 5px; left: 5px; }
   .wb-room-object { font-size: 8px !important; padding: 3px; }
   .wb-room-tools { font-size: 10px; padding: 8px; }
-  .wb-footer { padding: 13px; font-size: 10px; }
-  .wb-footer a { margin-left: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
   .wb-worker .wb-sprite { animation: none !important; }
   .wb-worker.is-working .wb-sprite { background-position: 62.5% 0; }
   .wb-worker.is-speaking .wb-sprite { background-position: 87.5% 0; }
 }
+
+/* Prediction budget and public model prices above the researcher seats. */
+.wb-research-settings { padding: 16px 18px; }
+.wb-research-settings-row { display: flex; align-items: center; flex-wrap: wrap; gap: 12px 14px; min-width: 0; }
+.wb-budget-modes { display: inline-flex; flex: 0 0 auto; gap: 3px; padding: 3px; border: 2px solid #93734e; background: #dbc392; }
+.wb-budget-mode { padding: 7px 10px; border: 0; color: #70543f; background: transparent; font-size: 12px !important; }
+.wb-budget-mode[aria-pressed=true] { color: #fff0c7; background: #5e784f; box-shadow: 2px 2px #9a875f; }
+.wb-budget-mode:disabled { opacity: .6; cursor: not-allowed; }
+.wb-budget-amount { position: relative; flex: 0 1 145px; min-width: 110px; }
+.wb-budget-amount input { padding-right: 36px !important; }
+.wb-budget-toggle { position: absolute; top: 2px; right: 2px; bottom: 2px; width: 31px; padding: 0; border: 0; border-left: 2px solid #b69a72; color: #70543f; background: #e8cea0; cursor: pointer; }
+.wb-budget-toggle:hover { background: #d6bb88; }
+.wb-budget-toggle:focus-visible { outline: 2px solid #916038; outline-offset: -3px; }
+.wb-budget-toggle:disabled { color: #898278; background: #d5d0c2; border-color: #aaa38f; cursor: not-allowed; }
+.wb-budget-options { position: absolute; z-index: 30; top: calc(100% + 4px); left: 0; right: 0; padding: 3px; border: 2px solid #93734e; background: #fff0c9; box-shadow: 3px 4px #332a3480; }
+.wb-budget-options[hidden] { display: none; }
+.wb-budget-option { padding: 8px 9px; color: #514030; font-size: 13px; cursor: pointer; }
+.wb-budget-option:hover, .wb-budget-option.is-active { color: #fff0c7; background: #5e784f; }
+.wb-budget-option[aria-selected=true] { font-weight: bold; box-shadow: inset 3px 0 #b98440; }
+.wb-research-settings input:disabled { opacity: 1; color: #898278; background: #d5d0c2; border-color: #aaa38f; box-shadow: inset 2px 2px #c1bcaf; cursor: not-allowed; }
+.wb-budget-save { flex: 0 0 auto; font-size: 12px; padding: 8px 10px; }
+.wb-budget-pricing { flex: 1 1 265px; min-width: 0; margin-left: auto; border-left: 2px dashed #b49a71; padding-left: 14px; font-size: 11px; line-height: 1.7; overflow-wrap: anywhere; }
+.wb-budget-pricing strong { display: block; font-size: 12px; }
+.wb-budget-pricing small { display: block; font-size: 10px; color: #79634c; }
+.wb-budget-pricing > p { margin: 5px 0; color: #705d47; }
+.wb-budget-price-table { width: auto; table-layout: auto; border-collapse: collapse; margin: 6px 0 0; color: #705d47; font-size: 10px; line-height: 1.7; }
+.wb-budget-price-table th, .wb-budget-price-table td { padding: 2px 10px 2px 0; border: 0; text-align: right; white-space: nowrap; font-weight: 400; font-variant-numeric: tabular-nums; }
+.wb-budget-price-table th:first-child { padding-right: 12px; text-align: left; }
+.wb-budget-price-table th:last-child, .wb-budget-price-table td:last-child { padding-right: 0; }
+.wb-budget-price-table thead { color: #79634c; }
+.wb-budget-price-meta { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; margin-top: 5px; }
+.wb-budget-price-meta a { font-size: 10px; }
+.wb-budget-price-schedule { margin-top: 5px; }
+.wb-budget-feedback { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-top: 12px; }
+.wb-budget-status, .wb-budget-note { font-size: 11px; line-height: 1.8; color: #79634c; }
+.wb-budget-status[data-state=error] { color: #893f35; }
+.wb-budget-feedback > button { flex: 0 0 auto; font-size: 11px !important; }
+.wb-budget-note { margin-top: 5px; }
+@media (max-width: 680px) {
+  .wb-budget-amount { flex-grow: 1; }
+  .wb-budget-pricing { flex-basis: 100%; margin-top: 3px; padding: 11px 0 0; border-left: 0; border-top: 2px dashed #b49a71; }
+  .wb-budget-feedback { align-items: start; }
+}
+
+/* Transient confirmation dialog for removing a researcher seat. */
+.wb-confirm-dialog { width: min(520px, calc(100vw - 32px)); max-height: calc(100dvh - 40px); margin: auto; padding: 0; border: 4px solid #392a34; background: #f1dcad; color: #423039; box-shadow: 0 0 0 2px #b58b5b, 7px 8px #16121dc9; font-family: var(--display); overflow: auto; }
+.wb-confirm-dialog:not([open]) { display: none; }
+.wb-confirm-dialog[open] { display: block; }
+.wb-confirm-dialog::backdrop { background: #17131fcc; }
+.wb-confirm-dialog-heading { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 12px 16px; border-bottom: 3px solid #392a34; background: #604238; box-shadow: inset 0 2px #a67457; }
+.wb-confirm-dialog-heading h2 { font-size: 23px; line-height: 1.5; color: #ffe1a8; }
+.wb-confirm-close { flex: 0 0 auto; width: 30px; height: 30px; padding: 0; border: 2px solid #b18a66; background: #47313a; color: #ffe1a8; font-size: 20px !important; line-height: 1; cursor: pointer; }
+.wb-confirm-close:hover { background: #765042; }
+.wb-confirm-dialog-body { padding: 19px 20px 6px; font-size: 14px; line-height: 1.9; overflow-wrap: anywhere; }
+.wb-confirm-dialog-body p { margin: 0 0 14px; }
+.wb-confirm-dialog-name { font-size: 17px; color: #57392f; }
+.wb-confirm-dialog-warning { border-left: 3px solid #a76348; padding: 9px 11px; background: #e8c395; color: #7b3d31; }
+.wb-confirm-dialog-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 12px; padding: 8px 20px 20px; }
+.wb-confirm-dialog-actions .wb-button { min-width: 95px; text-align: center; }
+.wb-confirm-dialog .wb-confirm-delete { border-color: #c18d67; background: #8b4b3e; box-shadow: inset 0 2px #bd7c60, 0 3px #3e2930; color: #ffe5bd !important; }
+.wb-confirm-dialog .wb-confirm-delete:hover { background: #a55b46; }
+.wb-confirm-dialog button:focus-visible { outline: 3px solid #bc7a36; outline-offset: 3px; }
+.wb-confirm-dialog-heading button:focus-visible { outline-color: #ffdfa4; }
+.wb-confirm-overlay { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 16px; background: #17131fcc; }
+.wb-confirm-dialog.is-fallback { position: relative; flex: 0 1 520px; margin: auto; }
+@media (max-width: 680px) {
+  .wb-confirm-dialog-heading { padding: 10px 13px; }
+  .wb-confirm-dialog-heading h2 { font-size: 21px; }
+  .wb-confirm-dialog-body { padding: 16px 14px 3px; font-size: 13px; }
+  .wb-confirm-dialog-actions { padding: 8px 14px 17px; }
+}
+
+/* Temporary navigation visibility only. Remove the body flag to restore these entries. */
+.wb-body[data-hide-secondary-navigation="true"] a[href="#/advanced"],
+.wb-body[data-hide-secondary-navigation="true"] a[href="#/tools"],
+.wb-body[data-hide-secondary-navigation="true"] a[href="/legacy.html"],
+.wb-body[data-hide-secondary-navigation="true"] a[href="#/learning"],
+.wb-body[data-hide-secondary-navigation="true"] .wb-header a[href^="#/course-examples"] { display: none !important; }

@@ -115,3 +115,18 @@ test('terminal restore clears every waiting badge and model text, even if a late
   assert.equal(courseModelStatusView({ status: 'returned', index: 1 }).badgeText, '')
   assert.equal(courseModelStatusView({ status: 'failed', index: 1 }).badgeText, '')
 })
+
+test('only an explicit null token ceiling is displayed as unlimited; old missing budgets stay unknown', () => {
+  const current = courseWorkflowView(run({ budget: { maxTotalTokens: null }, usage: { totalTokens: 12345 } }))
+  assert.equal(current.budget.unlimitedTotalTokens, true)
+  assert.equal(courseUsageText(current.usage.totalTokens, current.budget.maxTotalTokens, '', { unlimited: current.budget.unlimitedTotalTokens }), '12,345 / 无限')
+  for (const budget of [undefined, {}, { maxTotalTokens: 0 }]) {
+    const old = courseWorkflowView(run({ budget, usage: { totalTokens: 12345 } }))
+    assert.equal(old.budget.unlimitedTotalTokens, false)
+    assert.equal(courseUsageText(old.usage.totalTokens, old.budget.maxTotalTokens, '', { unlimited: old.budget.unlimitedTotalTokens }), '12,345')
+  }
+  const finite = courseWorkflowView(run({ budget: { maxTotalTokens: 1000000 }, usage: { totalTokens: 12345 } }))
+  assert.equal(finite.budget.unlimitedTotalTokens, false)
+  assert.equal(courseUsageText(finite.usage.totalTokens, finite.budget.maxTotalTokens, '', { unlimited: finite.budget.unlimitedTotalTokens }), '12,345 / 1,000,000')
+  assert.equal(courseUsageText(null, null, '', { unlimited: true }), '未记录')
+})

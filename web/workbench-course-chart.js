@@ -1,4 +1,4 @@
-import { h, fmt, empty } from './workbench-core.js'
+import { h, fmt, empty, dataContent } from './workbench-core.js'
 import { courseForecastPoints } from './course-projection.mjs'
 const ns = 'http://www.w3.org/2000/svg'
 function svgNode(name, attributes, text) { const el = document.createElementNS(ns, name); for (const [key, value] of Object.entries(attributes)) el.setAttribute(key, value); if (text) el.textContent = text; return el }
@@ -28,7 +28,7 @@ export function courseChart(records, contract = {}) {
   box.append(h('div', 'cc-chart-scroll', svg), h('p', 'wb-muted', '本图截至 ' + precise(now) + '；固定目标为 ' + fmt(contract.targetAt ?? points[0].targetAt)))
   const list = h('div', 'cc-chart-points')
   for (const point of points) {
-    const item = h('details', '', h('summary', '', precise(point.publishedAt) + ' · Yes ' + Math.round(point.probabilityYes * 100) + '%'), h('p', '', point.summary ?? point.rationale ?? '本次发布未提供公开摘要。'), h('small', '', '固定目标：' + fmt(point.targetAt ?? contract.targetAt)))
+    const item = h('details', '', h('summary', '', precise(point.publishedAt) + ' · Yes ' + Math.round(point.probabilityYes * 100) + '%'), dataContent('p', '', point.summary ?? point.rationale ?? '本次发布未提供公开摘要。'), h('small', '', '固定目标：' + fmt(point.targetAt ?? contract.targetAt)))
     item.dataset.forecastId = point.forecastId; list.append(item)
   }
   box.append(list); return box

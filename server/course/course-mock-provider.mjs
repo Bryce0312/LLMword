@@ -32,7 +32,7 @@ export function createCourseMockProvider({ pacingMs = 0 } = {}) {
       }] }, finishReason: 'tool_calls', usage: { ...FIXTURE_USAGE } })
       if (available.has('draft_and_delegate')) return action('draft_and_delegate', {
         question: context.question, object: '用户提出的事件（协议模拟草稿）', interpretation: '待研究员实际取证的题意草稿，不是预测。',
-        assignments: suggestedRoles(context.question).map((roleId) => ({ roleId, objective: `${context.question}。${roleCatalogue().find((role) => role.roleId === roleId)?.focus}`, reason: `协议模拟按题选择${roleId}。` })),
+        assignments: (context.defaultRoleIds || suggestedRoles(context.question, context.roleCatalogue)).map((roleId) => ({ roleId, objective: `${context.question}。${(context.roleCatalogue || roleCatalogue()).find((role) => role.roleId === roleId)?.focus}`, reason: `协议模拟按题选择${roleId}。` })),
       })
       if (available.has('normalize_prediction')) {
         if (context.draft && context.evidence?.length) {
@@ -59,8 +59,8 @@ export function createCourseMockProvider({ pacingMs = 0 } = {}) {
       if (available.has('triage_update')) return action('triage_update', { kind: context.changeHints?.major ? 'team' : 'local',
         roleIds: context.changeHints?.major ? context.previousTeam : [context.previousTeam.find((role) => role !== 'verification'), 'verification'],
         reason: context.changeHints?.major ? '协议模拟：新原文含重大变化或冲突，召回本题团队。' : '协议模拟：普通增量只安排相关研究员和核验席。' })
-      if (available.has('delegate_work')) return action('delegate_work', { assignments: (context.selectedRoleIds || suggestedRoles(context.question)).map((roleId) => ({ roleId,
-        objective: `${context.question}。${roleCatalogue().find((role) => role.roleId === roleId)?.focus}`,
+      if (available.has('delegate_work')) return action('delegate_work', { assignments: (context.selectedRoleIds || (context.defaultRoleIds || suggestedRoles(context.question, context.roleCatalogue))).map((roleId) => ({ roleId,
+        objective: `${context.question}。${(context.roleCatalogue || roleCatalogue()).find((role) => role.roleId === roleId)?.focus}`,
         reason: `协议演示按题选择${roleId}的调查方法，不把所有题目交给相同团队。` })) })
       if (available.has('submit_research_report')) {
         const reports = (context.reports || []).filter((item) => item.evidenceIds?.length)

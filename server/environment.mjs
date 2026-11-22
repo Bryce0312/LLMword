@@ -1,5 +1,6 @@
 import { fileURLToPath } from 'node:url'
 import { join, resolve, sep } from 'node:path'
+import { DEFAULT_MODEL_NAME, MODEL_CONNECTION_PRESETS, resolveModelEndpoints } from './runtime/model-endpoint.mjs'
 
 const dataRoot = fileURLToPath(new URL('../.data/', import.meta.url))
 
@@ -41,17 +42,18 @@ export function configureEnvironment(env, name) {
   next.WORLD_MODEL = 'openai'
   next.PORT = next.PORT || '4174'
   next.WORLD_SEARCH_PROVIDER = 'deepseek'
-  if (next.WORLD_API_KEY) next.WORLD_SEARCH_API_KEY = next.WORLD_API_KEY
-  else delete next.WORLD_SEARCH_API_KEY
+  const endpoint = resolveModelEndpoints(next)
+  // Keep only explicit search credentials here. The gateway can reuse the current
+  // official model key without freezing an automatically copied startup key.
   delete next.WORLD_DOMAIN_PATH
   delete next.WORLD_COURSE_PATH
   delete next.WORLD_RUNTIME_PATH
   delete next.WORLD_MONITOR_PATH
-  next.WORLD_MODEL_NAME = next.WORLD_MODEL_NAME || 'deepseek-v4-pro'
+  next.WORLD_MODEL_NAME = next.WORLD_MODEL_NAME || MODEL_CONNECTION_PRESETS.find(item => item.url === endpoint.chatCompletionsUrl)?.model || DEFAULT_MODEL_NAME
   next.WORLD_BASE_URL = next.WORLD_BASE_URL || 'https://api.deepseek.com'
-  next.WORLD_MODEL_PROTOCOL = next.WORLD_MODEL_PROTOCOL || 'deepseek'
-  next.WORLD_MODEL_THINKING = next.WORLD_MODEL_THINKING || 'enabled'
-  next.WORLD_MODEL_REASONING_EFFORT = next.WORLD_MODEL_REASONING_EFFORT || 'high'
+  next.WORLD_MODEL_PROTOCOL = next.WORLD_MODEL_PROTOCOL || endpoint.protocol
+  next.WORLD_MODEL_THINKING = next.WORLD_MODEL_THINKING || (next.WORLD_MODEL_PROTOCOL === 'deepseek' ? 'enabled' : 'disabled')
+  if (next.WORLD_MODEL_PROTOCOL === 'deepseek' && next.WORLD_MODEL_THINKING === 'enabled') next.WORLD_MODEL_REASONING_EFFORT = next.WORLD_MODEL_REASONING_EFFORT || 'high'
   next.WORLD_MODEL_MAX_OUTPUT_TOKENS = next.WORLD_MODEL_MAX_OUTPUT_TOKENS || '32768'
   next.WORLD_MODEL_TIMEOUT_MS = next.WORLD_MODEL_TIMEOUT_MS || '180000'
   return next

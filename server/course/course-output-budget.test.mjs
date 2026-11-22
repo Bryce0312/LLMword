@@ -46,7 +46,7 @@ test('thinking defaults to 16384, explicit output caps reach 32768, and non-thin
     try {
       const run = persisted.getRun(done.run.runId)
       assert.equal(run.budget.maxTokens, expected)
-      assert.equal(run.budget.maxTotalTokens, 300000)
+      assert.equal(run.budget.maxTotalTokens, 1000000)
       assert(persisted.listAssignments(run.runId).every((assignment) => assignment.config.budget.maxTokens === expected))
     } finally { persisted.close() }
   }

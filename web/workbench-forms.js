@@ -1,4 +1,4 @@
-import { h, link, header, empty, field, input, textarea, select, formError, api, write, toast, goto, route } from './workbench-core.js'
+import { h, dataContent, link, header, empty, field, input, textarea, select, formError, api, write, toast, goto, route } from './workbench-core.js'
 
 export function topicForm(container, cache) {
   const form = h('form', 'wb-paper wb-form')
@@ -61,7 +61,7 @@ export function materialForm(cache, topicId, predictionId, onSaved) {
   const associations = h('fieldset', 'wb-checks'); associations.append(h('legend', '', '关联预测题（不选则作为主题共同材料）'))
   for (const p of cache.predictions.filter((v) => v.topicId === topicId)) {
     const box = input('', 'checkbox'); box.value = p.predictionId; box.checked = p.predictionId === predictionId; box.name = 'predictionIds'
-    associations.append(h('label', '', box, p.question || '未命名草稿'))
+    associations.append(h('label', '', box, dataContent('span', '', p.question || '未命名草稿')))
   }
   form.append(associations)
   const save = h('button', 'wb-button wb-primary', '保存材料'); save.type = 'submit'; form.append(save)
@@ -77,32 +77,38 @@ export function materialForm(cache, topicId, predictionId, onSaved) {
   return form
 }
 
-export function agentForm(cache, a, onSaved) {
+export function agentForm(cache, a, onSaved, { isActive } = {}) {
+  const ownerActive = () => typeof isActive !== 'function' || isActive()
   const creating = !a.agentSpecId
   const form = h('form', 'wb-paper wb-form')
-  form.append(h('div', 'wb-card-top', h('h2', '', creating ? '定义一位新研究员' : a.name), h('span', 'wb-badge', creating ? '尚未保存' : '定义 v' + a.specVersion)))
+  form.append(h('div', 'wb-card-top', creating ? h('h2', '', '定义一位新研究员') : dataContent('h2', '', a.name), h('span', 'wb-badge', creating ? '尚未保存' : '定义 v' + a.specVersion)))
   field(form, 'name', '研究员名称', input(a.name))
   field(form, 'instructions', '职责与技能指令', textarea(a.instructions, 6), '说明调查方法、引用要求和资料不足时怎样报告。')
   const refs = field(form, 'skillRefs', '已登记的技能版本', input((a.skillRefs ?? []).map((ref) => typeof ref === 'string' ? ref : ref.skillId + '@' + ref.version).join(', ')), '保留已注册方法版本。上方可编辑本角色的调查指令；技能引用不能替代实际工具。'); refs.readOnly = true
-  if (a.description) form.append(h('p', 'wb-purpose', a.description))
+  if (a.description) form.append(dataContent('p', 'wb-purpose', a.description))
   if (a.plannedTools?.length) form.append(h('p', 'wb-muted', '专用能力尚未接入：' + a.plannedTools.join('、') + '。当前仅使用下方实际注册的工具。'))
   const tools = h('fieldset', 'wb-checks'); tools.append(h('legend', '', '允许使用的已注册工具'))
   for (const tool of cache.tools) {
     const box = input('', 'checkbox'); box.value = tool.toolId ?? tool.id; box.name = 'allowedTools'; box.checked = a.allowedTools.includes(box.value)
-    tools.append(h('label', '', box, h('span', '', tool.name ?? tool.description ?? box.value, h('small', '', box.value))))
+    tools.append(h('label', '', box, dataContent('span', '', tool.name ?? tool.description ?? box.value, h('small', '', box.value))))
   }
   form.append(tools)
   const slots = h('div', 'wb-form-grid'); form.append(slots)
-  for (let i = 0; i < 2; i++) field(slots, 'extension' + i, '扩展槽 ' + (i + 1), select([['', '空槽位'], ...cache.tools.map((t) => [t.toolId ?? t.id, t.name ?? t.toolId ?? t.id])], a.extensionSlots?.[i] ?? ''))
+  for (let i = 0; i < 2; i++) {
+    const slot = select([['', '空槽位'], ...cache.tools.map((t) => [t.toolId ?? t.id, t.name ?? t.toolId ?? t.id])], a.extensionSlots?.[i] ?? '')
+    const placeholder = slot.children[0]; placeholder.removeAttribute('data-i18n-skip'); placeholder.setAttribute('data-i18n-ui', 'true')
+    field(slots, 'extension' + i, '扩展槽 ' + (i + 1), slot)
+  }
   const save = h('button', 'wb-button wb-primary', creating ? '创建研究员' : '保存研究员新版本'); save.type = 'submit'; form.append(save)
   form.addEventListener('submit', async (event) => {
-    event.preventDefault(); save.disabled = true
+    event.preventDefault(); if (save.disabled || !ownerActive()) return; save.disabled = true
     try {
       const data = new FormData(form)
       const saved = await api('/agents', write('POST', { agentSpecId: a.agentSpecId, expectedVersion: a.specVersion, name: data.get('name'), instructions: data.get('instructions'), skillRefs: a.skillRefs ?? [], allowedTools: data.getAll('allowedTools'), extensionSlots: [data.get('extension0') || null, data.get('extension1') || null], modelRef: a.modelRef, limits: a.limits }))
       cache.agents = creating ? cache.agents.concat(saved) : cache.agents.map((v) => v.agentSpecId === saved.agentSpecId ? saved : v)
-      toast(creating ? '新研究员已创建，定义 v' + saved.specVersion : '研究员定义已保存为 v' + saved.specVersion); dispatchEvent(new Event('workbench:datachanged')); if (form.isConnected) onSaved(saved)
-    } catch (error) { formError(form, error) } finally { save.disabled = false }
+      if (!ownerActive() || !form.isConnected) return
+      toast(creating ? '新研究员已创建，定义 v' + saved.specVersion : '研究员定义已保存为 v' + saved.specVersion); dispatchEvent(new Event('workbench:datachanged')); if (form.isConnected && ownerActive()) onSaved(saved)
+    } catch (error) { if (ownerActive() && form.isConnected) formError(form, error) } finally { if (ownerActive() && form.isConnected) save.disabled = false }
   })
   return form
 }

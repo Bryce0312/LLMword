@@ -1,0 +1,22 @@
+{
+  "finishedAt": "2026-11-22T03:12:50.272Z",
+  "nodeVersion": "v24.22.3",
+  "command": "node --test --test-reporter=tap",
+  "scope": "full",
+  "tests": 349,
+  "passed": 349,
+  "failed": 0,
+  "skipped": 0,
+  "cancelled": 0,
+  "durationMs": 7092.7555,
+  "noRealModelCalls": true,
+  "verified": [
+    "official Flash defaults",
+    "editable URL/model submission",
+    "exact school gateway double slash and model",
+    "legacy base URL compatibility",
+    "failed/busy update preserves prior connection",
+    "session-only key and independent official search credentials",
+    "live public tools remain live when official search is unavailable"
+  ]
+}
