@@ -3,12 +3,17 @@ import { materialForm, agentForm } from './workbench-forms.js'
 import { researchSettingsPanel } from './research-settings.js'
 import { createAgentDeletionAction, agentDeletionError } from './agent-deletion.mjs'
 import { confirmationDialog } from './confirmation-dialog.js'
+import { recoverCourseBudgetRun } from './course-budget-summary.mjs'
+import { directionLabel, directionText, isPriceDirection } from './course-price-direction.mjs'
+import { courseAnswerOutlook } from './course-runs.mjs'
 
 function courseSlipState(record) {
   if (record.researchReport && record.status === 'completed') return '研报已保存'
   const retained = record.forecast ? '·保留判断' : ''
   if (record.status === 'stopped') return '已停止' + retained
   const status = record.latestRun?.status ?? record.run?.status ?? record.status
+  if (record.latestRun?.directionOutlook || record.run?.directionOutlook) return '已给出暂定走势'
+  if (recoverCourseBudgetRun(record.latestRun ?? record.run, record.purpose)?.budgetSummary) return '预算收尾' + retained
   if (status === 'failed') return '调查失败' + retained
   if (status === 'insufficient') return '资料不足' + retained
   if (status === 'cancelled') return '已取消' + retained
@@ -36,12 +41,15 @@ export function sidebar(ctx) {
   for (const record of [...courseRecords].sort((a, b) => (Date.parse(b.createdAt) || 0) - (Date.parse(a.createdAt) || 0))) {
     const id = record.requestId ?? record.id; const normalized = record.normalized ?? record.prediction ?? {}
     if (typeof id !== 'string' || !id) continue
-    const card = link('', '#/course/' + encodeURIComponent(id), 'wb-task-slip' + (currentRequest === id ? ' is-selected' : ''))
+    const card = link('', '#/course/' + encodeURIComponent(id) + (roomShell ? '?results=1' : ''), 'wb-task-slip' + (currentRequest === id ? ' is-selected' : ''))
     card.dataset.requestId = id
     if (currentRequest === id) card.setAttribute('aria-current', 'page')
     const question = dataContent('strong', '', record.question?.trim() || normalized.question || '正在整理题目')
     question.title = normalized.question ?? question.textContent
-    card.append(h('span', 'wb-slip-top', record.purpose === 'research' ? '财报核验' : '自动跟踪', h('span', 'wb-badge', courseSlipState(record))), question, h('small', '', record.purpose === 'research' ? record.researchReport ? '研报已封存' : '正在调查资料' : Number.isFinite(record.forecast?.probabilityYes) ? 'Yes ' + Math.round(record.forecast.probabilityYes * 100) + '%' : '暂未发布概率'))
+    const forecast = record.forecast
+    const outlook = courseAnswerOutlook(record)?.directionOutlook
+    const result = outlook ? '暂定走势：' + directionLabel(outlook.direction) : isPriceDirection(forecast) ? directionText(forecast) : Number.isFinite(forecast?.probabilityYes) ? 'Yes ' + Math.round(forecast.probabilityYes * 100) + '%' : '暂未发布概率'
+    card.append(h('span', 'wb-slip-top', record.purpose === 'research' ? '财报核验' : '自动跟踪', h('span', 'wb-badge', courseSlipState(record))), question, h('small', '', record.purpose === 'research' ? record.researchReport ? '研报已封存' : '正在调查资料' : result))
     if (roomShell) card.append(h('small', 'wb-history-created', record.createdAt ? '创建于 ' + fmt(record.createdAt, record.timezone) : '创建时间未提供'))
     list.append(card)
   }

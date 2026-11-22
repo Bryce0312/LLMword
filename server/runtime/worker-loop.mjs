@@ -17,6 +17,7 @@ export const reportSchema = {
     counterevidence: { type: 'array', items: claimSchema },
     missingEvidence: { type: 'array', items: { type: 'string' } },
     probability: { type: ['number', 'null'], minimum: 0, maximum: 1 },
+    priceDirection: { enum: ['up', 'flat', 'down'] },
     nextSuggestion: { type: 'string', maxLength: 1600 },
   },
   required: ['status', 'summary', 'evidenceIds', 'support', 'counterevidence', 'missingEvidence', 'probability', 'nextSuggestion'],
@@ -58,7 +59,7 @@ function sameContext(state, context) {
 }
 
 // onCheckpoint receives private messages. Public APIs should expose only report/usage.
-export async function runWorker({ provider, assignment, agentSpec, tools, enabledToolIds, signal, onEvent, onCheckpoint, resume, limits = {}, finishOnToolBudget = false, reportPolicy }) {
+export async function runWorker({ provider, assignment, agentSpec, tools, enabledToolIds, signal, onEvent, onCheckpoint, resume, limits = {}, finishOnToolBudget = false, shouldWrapUp, reportPolicy }) {
   requireIds(assignment)
   if (!agentSpec?.agentSpecId || !Number.isInteger(agentSpec.specVersion) || agentSpec.specVersion < 1 ||
     typeof agentSpec.instructions !== 'string' || !Array.isArray(agentSpec.allowedTools)) {
@@ -137,8 +138,9 @@ export async function runWorker({ provider, assignment, agentSpec, tools, enable
       active()
       if (state.usage.modelRequests >= budget.maxModelRequests || state.usage.totalTokens >= budget.maxTotalTokens) stopForBudget()
       state.usage.modelRequests += 1
-      const budgetState = workerBudgetState(budget, state.usage, { finishOnToolBudget })
-      state.messages[0] = { role: 'system', content: state.systemPromptBase + '\n\n' + workerBudgetInstruction(budget, state.usage, { finishOnToolBudget }) }
+      const options = { finishOnToolBudget, wrapUp: shouldWrapUp?.() }
+      const budgetState = workerBudgetState(budget, state.usage, options)
+      state.messages[0] = { role: 'system', content: state.systemPromptBase + '\n\n' + workerBudgetInstruction(budget, state.usage, options) }
       await save()
       const modelRequestId = `${context.assignmentId}_model_${state.usage.modelRequests}`
       const beganAt = Date.now()
@@ -190,6 +192,7 @@ export async function runWorker({ provider, assignment, agentSpec, tools, enable
     }
     if (call.function.name === 'submit_report') {
       if (!validateReport(args)) return { result: failure('INVALID_REPORT', '报告字段不符合约定格式。') }
+      if (args.priceDirection && (args.status === 'blocked' || !args.evidenceIds.length)) return { result: failure('INVALID_CITATION', '走势判断需要实际取得的引用。') }
       const cited = [...args.evidenceIds, ...args.support.flatMap((item) => item.evidenceIds), ...args.counterevidence.flatMap((item) => item.evidenceIds)]
       if (cited.some((id) => !state.evidenceIds.includes(id)) ||
         cited.some((id) => !args.evidenceIds.includes(id)) || (args.probability !== null && !cited.length)) {
@@ -267,12 +270,15 @@ export async function runWorker({ provider, assignment, agentSpec, tools, enable
       }
     }
     const call = state.pendingToolCalls[0]
-    if (finishOnToolBudget && call.function.name !== 'submit_report' && state.inFlightToolCallId !== call.id &&
-      (state.usage.toolCalls >= budget.maxToolCalls || state.usage.modelRequests >= budget.maxModelRequests)) {
+    const wrapUp = shouldWrapUp?.()
+    if (call.function.name !== 'submit_report' && state.inFlightToolCallId !== call.id &&
+      (wrapUp || finishOnToolBudget && (state.usage.toolCalls >= budget.maxToolCalls || state.usage.modelRequests >= budget.maxModelRequests))) {
       // Every advertised call still gets its matched protocol result. A denied
       // call executes no handler and grants no evidence; the next model turn
       // can only submit an honest report from what was actually acquired.
-      const result = state.usage.modelRequests >= budget.maxModelRequests
+      const result = wrapUp
+        ? failure('REPORT_STEP_REQUIRED', '整轮 token 预算接近上限，请用已取得的原文提交报告。')
+        : state.usage.modelRequests >= budget.maxModelRequests
         ? failure('REPORT_STEP_REQUIRED', '已到预留的报告轮，只能submit_report；不能再执行取证工具。')
         : failure('TOOL_BUDGET_REACHED', '本轮调查工具额度已用完。请根据已取得原文调用 submit_report；资料不足请明确缺口。')
       state.toolExecutions.push({ toolCallId: call.id, toolId: call.function.name, argsHash: createHash('sha256').update(call.function.arguments).digest('hex'), result: structuredClone(result) })

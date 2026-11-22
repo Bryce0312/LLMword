@@ -121,3 +121,37 @@ test('legacy callers without an owner predicate stay supported and loading does 
   assert.equal(reads,1)
   assert.equal(formOf(nodes).query(node=>node.type==='submit').disabled,false)
 }))
+
+test('restore defaults resets the form and leaves the saved connection and status intact', async () => withView(async ({setFetch}) => {
+  let reads = 0
+  const saved = { ...status(), url: 'https://example.test/chat/completions', model: 'custom-model', activeWatchers: 1, canUpdate: false }
+  setFetch(async (_url, options = {}) => {
+    assert.notEqual(options.method, 'POST')
+    reads++
+    return response(saved)
+  })
+  const nodes = await providerConnectionView(owner().ctx)
+  const form = formOf(nodes)
+  const actions = form.query(node => node.className === 'wb-actions').children
+  const [, refresh, restore] = actions
+  assert.equal(refresh.textContent, '刷新连接状态')
+  assert.equal(restore.textContent, '恢复原设置')
+  assert.equal(restore.type, 'button')
+  const endpoint = form.query(node => node.name === 'url')
+  const model = form.query(node => node.name === 'model')
+  const credential = credentialOf(nodes)
+  assert.equal(endpoint.value, saved.url)
+  assert.equal(model.value, saved.model)
+  credential.value = 'UNSAVED_TEST_KEY'
+  await restore.fire('click')
+  assert.equal(reads, 1)
+  assert.equal(endpoint.value, COURSE_PROVIDER_DEFAULTS.url)
+  assert.equal(model.value, COURSE_PROVIDER_DEFAULTS.model)
+  assert.equal(credential.value, '')
+  assert(nodes.at(-1).textContent.includes('持续监听：1'))
+  await refresh.fire('click')
+  assert.equal(reads, 2)
+  assert.equal(endpoint.value, COURSE_PROVIDER_DEFAULTS.url)
+  assert.equal(model.value, COURSE_PROVIDER_DEFAULTS.model)
+  assert.equal(credential.value, '')
+}))

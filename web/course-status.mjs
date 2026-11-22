@@ -15,9 +15,9 @@ export function courseRequestProgress(data = {}) {
   }
   const latest = current ?? [data.latestRun, data.run].find((run) => candidates.includes(run)) ?? candidates.at(-1)
   const status = latest?.status ?? data.status
-  const label = status === 'insufficient' ? '本轮资料不足，暂未判断' : status === 'failed' ? '本轮调查失败' : status === 'cancelled' ? '本轮已取消' : isCourseTerminal(latest) ? data.watch?.status === 'active' ? '本轮完成，等待新证据' : '本轮已结束' : courseStatusLabel(status)
+  const label = latest?.directionOutlook ? '已给出暂定走势' : latest?.budgetSummary?.recovered ? '预算用尽，已整理材料' : latest?.budgetSummary ? '本轮已提前收尾' : status === 'insufficient' ? '本轮资料不足，暂未判断' : status === 'failed' ? '本轮调查失败' : status === 'cancelled' ? '本轮已取消' : isCourseTerminal(latest) ? data.watch?.status === 'active' ? '本轮完成，等待新证据' : '本轮已结束' : courseStatusLabel(status)
   const message = text(latest?.summary) || (!latest ? text(data.message) : '')
-  const errorMessage = errorText(latest?.error) || (!latest ? errorText(data.error) : '') || (['failed', 'needs_clarification', 'blocked'].includes(status) ? message || '题目或来源还需要核对，可修改问题后重新跟踪。' : '')
+  const errorMessage = latest?.budgetSummary ? '' : errorText(latest?.error) || (!latest ? errorText(data.error) : '') || (['failed', 'needs_clarification', 'blocked'].includes(status) ? message || '题目或来源还需要核对，可修改问题后重新跟踪。' : '')
   return { label, message, errorMessage, active: false, runId: latest?.runId ?? null }
 }
 

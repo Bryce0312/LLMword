@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto'
 export const PRICE_POLICY = 'binance-btc-usdt-higher-v1'
 export const PRICE_URL = 'https://data-api.binance.vision/api/v3/ticker/price?symbol=BTCUSDT'
 export const PRICE_RULE = '以本轮市场研究员首次成功取得的Binance BTC-USDT现价为固定基准；目标时点后5分钟内首次成功取得同一接口的有效现价严格高于基准则Yes，等于或低于则No；未在观察窗口取得有效现价则不结算。取得时刻是系统观察时间，不声称精确成交时刻。USDT不等同于USD。'
+export const PRICE_DIRECTION_RULE = '以本轮市场研究员首次成功取得的Binance BTC-USDT现价为固定基准；目标时点后5分钟内首次成功取得同一接口的有效现价，高于、等于、低于基准分别记为上涨、持平、下跌；未取得有效现价则不结算。取得时刻是系统观察时间，计价单位为USDT。'
 const historyOrigin = 'https://data-api.binance.vision/api/v3/klines'
 const fail = code => Object.assign(new Error(code), { priceCode: code })
 

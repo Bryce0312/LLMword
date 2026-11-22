@@ -1,5 +1,6 @@
 import { courseAssignments, courseTeam, courseTeamSignature, normalizeCourseRole } from './course-team.mjs'
 import { courseModelActivity, coursePhaseLabel } from './course-workflow.mjs'
+import { PRICE_DIRECTION, isPriceDirection, validDirectionProbabilities } from './course-price-direction.mjs'
 const ended = (status) => ['completed', 'finished', 'insufficient', 'failed', 'cancelled'].includes(status)
 const clone = (value) => structuredClone(value)
 export function createCourseProjection({ requestId = null } = {}) { return { requestId, runId: null, generation: 0, highWater: -1, seen: [], presented: [], status: null, assignments: [], teamSignature: null } }
@@ -86,12 +87,14 @@ export function courseRoomOutcome({ status, triage, hasForecast = false, assignm
 }
 
 /** Only actual immutable publications for one fixed target are eligible chart points. */
-export function courseForecastPoints(records, { predictionId, predictionVersion, targetAt, now = Date.now() } = {}) {
+export function courseForecastPoints(records, { predictionId, predictionVersion, targetAt, type, now = Date.now() } = {}) {
   const seen = new Set()
   return [...(records ?? [])].map((f) => ({ ...f, publishedAt: f.publishedAt ?? f.issuedAt })).filter((f) => {
     if (!f.forecastId || seen.has(f.forecastId)) return false
     if (!f.predictionId || !Number.isInteger(f.predictionVersion) || f.predictionVersion < 1 || !Number.isFinite(Date.parse(f.targetAt))) return false
-    if (!Number.isFinite(f.probabilityYes) || f.probabilityYes < 0 || f.probabilityYes > 1) return false
+    const directional = isPriceDirection(f)
+    if (type && directional !== (type === PRICE_DIRECTION)) return false
+    if (directional ? !validDirectionProbabilities(f) : !Number.isFinite(f.probabilityYes) || f.probabilityYes < 0 || f.probabilityYes > 1) return false
     const at = Date.parse(f.publishedAt)
     if (!Number.isFinite(at) || at > now) return false
     if (predictionId && f.predictionId !== predictionId) return false

@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { coursePhaseLabel, courseWorkflowView, courseModelActivity, courseUsageText, courseModelStatusView } from './course-workflow.mjs'
+import { coursePhaseLabel, courseWorkflowView, courseModelActivity, courseUsageText, courseModelStatusView, courseProgressPercent, courseBoardStep } from './course-workflow.mjs'
 import { courseRequestProgress } from './course-status.mjs'
 import { createCourseProjection, projectCourseSnapshot } from './course-projection.mjs'
 
@@ -8,6 +8,28 @@ const assigned = (roleId, extra = {}) => ({ assignmentId: 'a-' + roleId, roleId,
 const event = (seq, type, payload = {}) => ({ seq, eventId: 'e' + seq, type, payload: { assignmentId: 'a-statistics', agentSpecId: 'statistics', ...payload } })
 const run = (extra = {}) => ({ runId: 'r', requestId: 'q', status: 'running', phase: 'workers', assignments: [assigned('statistics'), assigned('industry'), assigned('verification')], events: [], ...extra })
 const orchestration = { cycle: 2, maxCycles: 3, followUpsUsed: 1, maxFollowUps: 2, investigationSteps: 5, reportStep: 6 }
+
+test('blackboard progress follows persisted stages and disappears for every terminal outcome', () => {
+  assert.equal(courseProgressPercent(), null)
+  assert.equal(courseBoardStep(run({ status: 'queued' })), '等待派工')
+  assert.equal(courseBoardStep(run()), '研究员独立调查')
+  assert.equal(courseBoardStep(run({ phase: 'review' })), '汇总与核对')
+  const early = courseProgressPercent(run({ status: 'queued' }))
+  assert.equal(early, 0)
+  const intake = courseProgressPercent(run({ phase: 'intake', harnessVersion: 3 }))
+  const workers = courseProgressPercent(run())
+  const oneDone = courseProgressPercent(run({ assignments: [assigned('statistics', { status: 'completed' }), assigned('industry'), assigned('verification')] }))
+  const verified = courseProgressPercent(run({ phase: 'prepare', harnessVersion: 3 }))
+  const firstReview = courseProgressPercent(run({ phase: 'review', harnessVersion: 3 }))
+  const followUp = courseProgressPercent(run({ phase: 'followup', orchestration, assignments: [
+    assigned('verification', { followUp: true, cycle: 2, status: 'completed' }),
+    assigned('market', { followUp: true, cycle: 1, status: 'queued' }),
+  ] }))
+  const final = courseProgressPercent(run({ phase: 'review', orchestration: { cycle: 3 } }))
+  const checkpoints = [early, intake, workers, oneDone, verified, firstReview, followUp, final]
+  assert(checkpoints.every((percent, index) => percent < 100 && (!index || percent > checkpoints[index - 1])))
+  for (const status of ['completed', 'failed', 'insufficient', 'cancelled', 'stopped']) assert.equal(courseProgressPercent(run({ status })), null)
+})
 
 test('new workflow describes dispatch, contract verification and distinct investigation cycles; old run is not relabelled', () => {
   const old = courseWorkflowView(run({ harnessVersion: 2, phase: 'prepare' }))

@@ -71,6 +71,23 @@ test('same-task run navigation reselects the run without cleaning or remounting 
   assert.equal(nav.isSceneCurrent(token), false); assert.equal(calls.scenes.length, 2)
 })
 
+test('history link opens results even when a task is already mounted, without remounting or writing', async () => {
+  let opened = 0
+  const { nav, calls } = harness({ openResults: () => { opened++ } })
+  await nav.navigate('#/course/task?results=1')
+  const token = nav.sceneSerial
+  assert.equal(calls.scenes[0].target.query.get('results'), '1')
+  await nav.navigate('#/course/task?results=1')
+  assert.equal(opened, 1)
+  await nav.navigate('#/course/task')
+  assert.equal(opened, 1)
+  await nav.navigate('#/course/task?results=1')
+  assert.equal(opened, 2)
+  assert.equal(nav.sceneSerial, token)
+  assert.equal(calls.scenes.length, 1)
+  assert.deepEqual(calls.requests, [{ method: 'GET', path: '/course/requests/task' }])
+})
+
 test('a workspace owner is active while loading and becomes stale immediately on close or menu switch', async () => {
   let release; let loadingToken
   const { nav } = harness({ renderOverlay: async (_target, token) => { loadingToken = token; await new Promise(resolve => { release = resolve }) } })

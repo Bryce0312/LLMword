@@ -61,7 +61,7 @@ async function withEntry({ prior, financial = true, supported = true, board = fa
 
 test('financial entry submits supported trading-day choices and preserves recovery semantics', async t => {
   await t.test('one named security input submits the selected default without hidden purpose or strict fields', async () => withEntry({ board: true }, async ({ form, root, writes }) => {
-    assert.equal(root.querySelector('h1').textContent, '写下一个你关注的股票证券基金')
+    assert.equal(root.querySelector('h1').textContent, '写下一个你关注的股票')
     assert.equal(root.querySelector('.wb-page-heading').querySelector('p').textContent, '主 Agent 按题选择研究员，查来源、讨论并生成预测结果')
     assert.equal(form.querySelector('h2'), null)
     assert.equal(form.querySelectorAll('input').length, 1)
@@ -86,7 +86,7 @@ test('financial entry submits supported trading-day choices and preserves recove
     })
   })
   await t.test('unsupported running service blocks even programmatic submit without losing input', async () => withEntry({ supported: false }, async ({ form, ctx, writes }) => {
-    assert.equal(form.querySelector('h2').textContent, '写下一个你关注的股票证券基金')
+    assert.equal(form.querySelector('h2').textContent, '写下一个你关注的股票')
     assert.equal(form.querySelector('input').getAttribute('aria-labelledby'), form.querySelector('h2').id)
     form.querySelector('input').value = '阿里巴巴'
     assert.equal(form.querySelector('.cc-start').disabled, true)
@@ -125,7 +125,7 @@ test('room-shell popup keeps its accessible financial form without mounting anot
   assert.equal(root.querySelectorAll('img').length, 0)
   assert.equal(root.querySelector('.cc-entry-art'), null)
   assert(root.querySelector('.cc-entry-popup'))
-  assert.equal(form.querySelector('h2').textContent, '写下一个你关注的股票证券基金')
+  assert.equal(form.querySelector('h2').textContent, '写下一个你关注的股票')
   assert.equal(form.querySelector('input').getAttribute('aria-labelledby'), form.querySelector('h2').id)
   assert.equal(writes.length, 0, 'opening the popup never creates a prediction')
   form.querySelector('input').value = '00700.HK'
@@ -150,13 +150,13 @@ test('room-shell history renders actual forecast and research records plus undup
   const cards = container.querySelectorAll('.wb-task-slip')
   assert.equal(cards.length, 3)
   assert.equal(container.querySelector('select'), null, 'history no longer substitutes topic filtering for actual records')
-  assert.equal(cards[0].href, '#/course/forecast%2Fone')
+  assert.equal(cards[0].href, '#/course/forecast%2Fone?results=1')
   assert.equal(cards[0].getAttribute('aria-current'), 'page')
   assert.match(cards[0].textContent, /实际证券题目/u)
   assert.match(cards[0].textContent, /调查失败.*保留判断/u)
   assert.match(cards[0].textContent, /Yes 37%/u)
   assert.match(cards[0].textContent, /创建于.*2026/u)
-  assert.equal(cards[1].href, '#/course/research-two')
+  assert.equal(cards[1].href, '#/course/research-two?results=1')
   assert.match(cards[1].textContent, /财报核验.*实际已披露财报.*研报已封存/u)
   assert.equal(cards[2].href, '#/predictions/legacy-one')
   assert(!container.textContent.includes('不应重复显示的契约'))

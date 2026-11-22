@@ -1,11 +1,22 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { courseRuns, courseResearcherCount, selectCourseRoomRun, courseRunLabel, courseAnswerProvenance, courseRunBelongsToRequest } from './course-runs.mjs'
+import { courseAnswerOutlook, courseRuns, courseResearcherCount, selectCourseRoomRun, courseRunLabel, courseAnswerProvenance, courseRunBelongsToRequest } from './course-runs.mjs'
 
 const assignments = (roles) => roles.map((roleId, index) => ({ assignmentId: roleId + index, roleId, status: 'completed' }))
 const research = { requestId: 'q', predictionId: 'p', runId: 'research', status: 'completed', assignments: assignments(['social', 'people', 'verification']), triage: { kind: 'initial' } }
 const check = { requestId: 'q', predictionId: 'p', runId: 'check', status: 'completed', assignments: [], triage: { kind: 'no_change' }, trigger: 'watch' }
 const data = { requestId: 'q', predictionId: 'p', runs: [research, check], latestRun: check, latestRunId: 'check', forecast: { forecastId: 'f', runId: 'research', probabilityYes: .47 } }
+
+test('a provisional outlook stays current across idle checks until a newer forecast is published', () => {
+  const outlook = { ...research, runId: 'outlook', directionOutlook: { direction: 'down' } }
+  const record = { ...data, runs: [research, outlook, check] }
+  assert.equal(courseAnswerOutlook(record), outlook)
+  assert.equal(selectCourseRoomRun(record), 'outlook')
+  assert.match(courseAnswerProvenance(record).summary, /暂定走势/)
+  assert.match(courseRunLabel(outlook), /暂定走势/)
+  assert.equal(courseAnswerOutlook({ ...record, forecast: { runId: check.runId } }), null)
+  assert.equal(courseAnswerOutlook({ ...record, runs: [research, { ...outlook, requestId: 'foreign' }, check] }), null)
+})
 
 test('default room shows the actual forecast collaboration instead of latest zero-worker check', () => {
   assert.equal(selectCourseRoomRun(data), 'research')

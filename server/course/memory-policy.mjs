@@ -1,5 +1,8 @@
 /** Bounded historical retrieval. This module performs no IO and never updates archives. */
 import { deriveForecastStatus } from './forecast-facts.mjs'
+import { PRICE_DIRECTION, isPriceDirection, validDirectionProbabilities, directionFields } from '../../web/course-price-direction.mjs'
+
+const probabilities = item => isPriceDirection(item) ? { type: PRICE_DIRECTION, ...directionFields(item) } : { probabilityYes: item?.probabilityYes ?? null }
 
 export const MEMORY_POLICY_V2 = Object.freeze({
   version: '2.0', shortTermDays: 7, maxJudgments: 4, maxReports: 8,
@@ -44,7 +47,7 @@ export function buildMemorySnapshot({ requestId, predictionVersion = null, exclu
   const visibleReports = assignments.filter((item) => scopeRecord(item) && item.report && reportStatuses.has(item.report.status) &&
     text(item.report.summary).trim() && before(item.updatedAt) && (!item.createdAt || before(item.createdAt)))
   const visibleForecasts = latestFirst(forecasts.filter((item) => scopeRecord(item) && sameVersion(item) &&
-    probability(item.probabilityYes) !== null && before(item.issuedAt ?? item.publishedAt) &&
+    (isPriceDirection(item) ? validDirectionProbabilities(item) : probability(item.probabilityYes) !== null) && before(item.issuedAt ?? item.publishedAt) &&
     time(item.issuedAt ?? item.publishedAt) >= longFrom &&
     (!item.publishedAt || before(item.publishedAt))), (item) => item.issuedAt ?? item.publishedAt)
   const researched = (run) => visibleForecasts.some((item) => item.runId === run.runId) ||
@@ -83,7 +86,7 @@ export function buildMemorySnapshot({ requestId, predictionVersion = null, exclu
       ageMs: cutoff - time(item.obtainedAt), sourceMode: item.sourceMode || null, synthetic: Boolean(item.fixture || item.synthetic),
     }))
   const projectForecast = (item) => item && ({ forecastId: item.forecastId, sourceRunId: item.runId,
-    predictionVersion: item.predictionVersion ?? null, probabilityYes: item.probabilityYes,
+    predictionVersion: item.predictionVersion ?? null, ...probabilities(item),
     issuedAt: item.issuedAt ?? item.publishedAt, summary: text(item.summary),
     modelMode: item.modelMode || null, modelRef: item.modelRef || null, sourceMode: item.sourceMode || null,
     historical: true, ageMs: cutoff - time(item.issuedAt ?? item.publishedAt),
@@ -96,7 +99,7 @@ export function buildMemorySnapshot({ requestId, predictionVersion = null, exclu
     const factors = relationRecords.filter((item) => item.runId === run.runId).slice(0, 6).map(projectRelation)
     return { sourceRunId: run.runId, predictionVersion: run.predictionVersion ?? null,
       completedAt: run.updatedAt, historical: true, hasForecast: Boolean(forecast), forecastId: forecast?.forecastId ?? null,
-      probabilityYes: forecast ? forecast.probabilityYes : null, issuedAt: forecast?.issuedAt ?? forecast?.publishedAt ?? null,
+      ...probabilities(forecast), issuedAt: forecast?.issuedAt ?? forecast?.publishedAt ?? null,
       summary: forecast ? text(forecast.summary) : text(run.message || runReports.map((item) => item.report.summary).join('；')),
       ...(forecast ? deriveForecastStatus(forecast) : {}),
       factors, unresolvedFactors: strings(runReports.flatMap((item) => item.report.missingEvidence || []), 6, 300),
@@ -126,7 +129,7 @@ export function memoryForModel(memory, { roleId, maxCharacters = 16000 } = {}) {
   const cut = (value, size = 350) => typeof value === 'string' ? value.slice(0, size) : ''
   const forecast = (value) => value ? {
     forecastId: value.forecastId, sourceRunId: value.sourceRunId, predictionVersion: value.predictionVersion,
-    probabilityYes: value.probabilityYes, issuedAt: value.issuedAt, summary: cut(value.summary),
+    ...probabilities(value), issuedAt: value.issuedAt, summary: cut(value.summary),
     statusLabel: value.statusLabel, baselineVerified: value.baselineVerified, conditionalOnly: value.conditionalOnly,
     scoringEligible: value.scoringEligible, historical: true, modelMode: value.modelMode, sourceMode: value.sourceMode,
     statusFacts: (value.statusFacts || []).slice(0, 6).map(({ key, label, text }) => ({ key, label, text: cut(text, 200) })),

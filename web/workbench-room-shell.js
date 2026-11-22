@@ -18,6 +18,7 @@ export function createWorkbenchRoomShell({ baseCtx, mountScene, renderWorkspace,
       isActive: active, isCurrent: value => value === token && active(),
       render: () => active() ? navigation.navigate(location.hash, { forceOverlay: kind === 'overlay' }) : Promise.resolve(),
       reload: () => active() ? (kind === 'scene' ? navigation.navigate(navigation.sceneHash, { forceScene: true }) : baseCtx.reload()) : Promise.resolve(),
+      focusCourseHistory: () => historyMenu?.querySelector('summary')?.focus({ preventScroll: true }),
       error: error => { if (active()) baseCtx.error(error) }, onDataConnected: () => { if (active()) baseCtx.onDataConnected?.() },
     })
     Object.defineProperties(owner, {
@@ -38,11 +39,13 @@ export function createWorkbenchRoomShell({ baseCtx, mountScene, renderWorkspace,
     sceneChanged() { renderSidebar(); updateNav(null) },
     async mountScene(target, token) {
       sceneCtx = currentContext(token, 'scene'); scene.dataset.state = 'loading'
+      sceneCtx.openCourseResultsOnMount = target.query.get('results') === '1'
       main.replaceChildren(h('p', 'wb-loading', '正在读取已保存的预测记录…'))
       try { await mountScene(sceneCtx, target.id, token); if (navigation.isSceneCurrent(token)) { scene.dataset.state = 'task'; if (camera) camera.hidden = host.children.length > 0 } }
       catch (error) { if (navigation.isSceneCurrent(token)) main.replaceChildren(header('这份预测暂时未能读取'), empty(error.message, '历史数据保留，可重新读取。', button('重新读取', () => { void sceneCtx?.reload() }))) }
     },
     selectRun(runId) { if (runId) sceneCtx?.selectCourseRun?.(runId) },
+    openResults() { sceneCtx?.showCourseResults?.() },
     prepareOverlay(target) {
       clearWorkspace(); main.setAttribute('inert', ''); title.textContent = titles[target.parts[0]] ?? '操作面板'
       content.replaceChildren(h('p', 'wb-loading', '正在读取工作区…')); reveal(); updateNav(target)
@@ -88,6 +91,7 @@ export function createWorkbenchRoomShell({ baseCtx, mountScene, renderWorkspace,
     if (event.key !== 'Escape' || event.defaultPrevented || topModalOpen(event)) return
     if (historyMenu?.open) { event.preventDefault(); historyMenu.open = false; historyEpoch++; historyMenu.querySelector('summary')?.focus(); return }
     if (navigation.overlayOpen) { event.preventDefault(); navigation.closeOverlay() }
+    else if (sceneCtx?.closeCourseResults?.()) event.preventDefault()
   }
   const onClose = () => { if (navigation.overlayOpen) navigation.closeOverlay() }
   const onCloseClick = () => navigation.closeOverlay()

@@ -1,5 +1,5 @@
 import { h, button, header, api, write } from './workbench-core.js'
-import { COURSE_PROVIDER_PRESETS, courseProviderSettings, courseProviderModelForUrl, courseProviderPresentation, courseProviderError, saveCourseProviderKey, syncCourseProviderCredential } from './course-provider.mjs'
+import { COURSE_PROVIDER_DEFAULTS, COURSE_PROVIDER_PRESETS, courseProviderSettings, courseProviderModelForUrl, courseProviderPresentation, courseProviderError, saveCourseProviderKey, syncCourseProviderCredential } from './course-provider.mjs'
 import { probeCourseCapability } from './course-capability.mjs'
 
 export async function providerConnectionView(ctx) {
@@ -38,6 +38,16 @@ export async function providerConnectionView(ctx) {
   const form = h('form', 'cc-provider-form'); form.autocomplete = 'off'
   const save = h('button', 'wb-button wb-primary', '保存供后续任务使用'); save.type = 'submit'; save.disabled = true
   const refresh = button('刷新连接状态', load, 'wb-text-button')
+  const restore = button('恢复原设置', () => {
+    if (!isActive() || saving || reading) return
+    endpoint.value = COURSE_PROVIDER_DEFAULTS.url
+    model.value = COURSE_PROVIDER_DEFAULTS.model
+    credential.value = ''
+    settingsEdited = true
+    credentialEdited = true
+    message.textContent = '已恢复项目默认设置。输入对应的 API Key 并保存后生效。'
+    message.hidden = false
+  }, 'wb-text-button')
   function update() {
     if (!isActive()) return
     const view = courseProviderPresentation(current)
@@ -45,7 +55,7 @@ export async function providerConnectionView(ctx) {
     save.disabled = saving || reading
     credential.disabled = saving || reading
     endpoint.disabled = saving || reading; model.disabled = saving || reading
-    refresh.disabled = saving || reading
+    refresh.disabled = saving || reading; restore.disabled = saving || reading
     save.textContent = saving ? '正在保存…' : '保存供后续任务使用'
   }
   async function load() {
@@ -90,7 +100,7 @@ export async function providerConnectionView(ctx) {
     } catch (error) { if (isActive()) { credentialEdited = false; message.textContent = error.code === 'EMPTY_API_KEY' ? '请先输入 DeepSeek API Key。' : courseProviderError(error); message.hidden = false } }
     finally { saving = false; update() }
   })
-  form.append(h('label', 'wb-field', h('span', 'wb-field-label', 'DeepSeek API Key'), credential), h('label', 'wb-field', h('span', 'wb-field-label', 'DeepSeek URL'), endpoint), urls, h('label', 'wb-field', h('span', 'wb-field-label', 'DeepSeek model'), model), models, h('div', 'wb-actions', save, refresh))
+  form.append(h('label', 'wb-field', h('span', 'wb-field-label', 'DeepSeek API Key'), credential), h('label', 'wb-field', h('span', 'wb-field-label', 'DeepSeek URL'), endpoint), urls, h('label', 'wb-field', h('span', 'wb-field-label', 'DeepSeek model'), model), models, h('div', 'wb-actions', save, refresh, restore))
   panel.append(h('h2', '', '接入你自己的模型'), state, form, message,
     h('p', 'cc-provider-note', '官方 DeepSeek 接口的 Key 可用于模型与资料服务；校园或自定义 URL 只配置模型，未配置官方资料服务时，官方搜索与网页读取不可用。模型连接成功不代表资料服务可用。提交时暂时清空输入框；连接校验成功后以密码圆点保留，可直接编辑。同一网页内切换工作区仍可保留，刷新网页后不保留。Key 只缓存在当前文档内存，不写入浏览器本地或会话存储，后台状态接口不返回 Key；服务器会话与环境变量单独维护。'),
     h('p', 'cc-provider-note', '更换 Key 前，正在运行、排队或持续监听的旧任务需要先“停止跟踪”；否则点击保存会被拒绝，原 Key 保持不变，并在下方提示。因服务故障而暂停、且没有下次唤醒安排的任务不必停止；保存后仍需你手动重试。'),

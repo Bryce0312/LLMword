@@ -26,7 +26,8 @@ export function courseErrorPresentation(error = {}) {
 export function courseRequestFailure(data = {}) {
   const progress = courseRequestProgress(data)
   const run = courseRuns(data).find((item) => item.runId === progress.runId)
-  const error = run?.error ?? (!progress.active && data.watch?.status === 'paused_provider' ? data.watch.pauseReason : !progress.active && !run ? data.error : null)
+  const runError = run?.budgetSummary?.recovered ? null : run?.error
+  const error = runError ?? (!progress.active && data.watch?.status === 'paused_provider' ? data.watch.pauseReason : !progress.active && !run ? data.error : null)
   if (error) return courseErrorPresentation(error)
   return progress.errorMessage ? courseErrorPresentation({ message: progress.errorMessage }) : null
 }
@@ -44,6 +45,7 @@ export function courseRequestAction(data = {}, { now = Date.now() } = {}) {
   if (data.activeRunId || runs.some((run) => !isCourseTerminal(run))) return disabled('本题已有调查进行中。')
   const deadline = data.normalized?.forecastClosesAt ?? data.prediction?.forecastClosesAt ?? data.strict?.targetAt
   if (deadline && Number.isFinite(Date.parse(deadline)) && Date.parse(deadline) <= now) return disabled('固定目标已到期，不能继续发布预测。')
+  if (latest?.budgetSummary) return { enabled: true, kind: 'retry', label: '重新调查', reason: '开启新一轮调查，保留本轮阶段性结果。', automaticRetry: false }
   if (retry && data.resolutionPolicy && latest?.phase === 'review' && ['MODEL_INCOMPLETE', 'COURSE_BUDGET'].includes(latest.error?.code) && !latest.usage?.unknownUsage) return latest.summaryResumeCount ? disabled('此短窗口预测的汇总恢复已用完，原资料保留。') : { enabled: true, kind: 'resume-summary', label: '只恢复预测汇总', reason: '复用已有报告，仍受原期限和预算限制。', automaticRetry: false }
   if (retry && data.purpose === 'research' && latest?.phase === 'review' && (latest.error?.code === 'MODEL_INCOMPLETE' || latest.summaryRequestNotSent) && !latest.usage?.unknownUsage) return latest.summaryResumeCount >= 2 && !latest.summaryRequestNotSent
     ? { enabled: true, kind: 'assemble-report', label: '生成研究员资料整理版', reason: '程序整理已有报告，无需模型调用；主Agent裁决未完成。', automaticRetry: false }

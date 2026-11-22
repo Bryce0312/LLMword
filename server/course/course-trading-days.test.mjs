@@ -132,7 +132,7 @@ test('new request validation isolates trading horizons from research/hours, keep
 
 test('normalization repairs model changes to a sealed trading deadline and bare symbols remain unscored without a real baseline', async t => {
   const protocol = createCourseMockProvider(), observedErrors = [], workerContexts = []
-  let corrupted = false
+  let corrupted = false, invalidOutlook = false
   const provider = { ...protocol, async complete(input) {
     for (const message of input.messages.filter(item => item.role === 'tool')) { try { const value = JSON.parse(message.content); if (value.error?.code) observedErrors.push(value.error.code) } catch {} }
     let worker; try { worker = JSON.parse(input.messages.find(item => item.role === 'user')?.content || '{}') } catch {}
@@ -144,6 +144,11 @@ test('normalization repairs model changes to a sealed trading deadline and bare 
       args.targetAt = new Date(Date.parse(args.targetAt) + 86400000).toISOString(); args.forecastClosesAt = args.targetAt
       call.function.arguments = JSON.stringify(args); corrupted = true
     }
+    if (!invalidOutlook && call?.function.name === 'submit_direction_outlook') {
+      const args = JSON.parse(call.function.arguments)
+      call.function.arguments = JSON.stringify({ ...args, evidenceIds: ['other-run-evidence'] })
+      invalidOutlook = true
+    }
     return response
   } }
   const service = await fixture(t, provider)
@@ -152,11 +157,18 @@ test('normalization repairs model changes to a sealed trading deadline and bare 
   const done = service.getRequest(created.requestId)
   assert.equal(done.run.status,'completed',JSON.stringify(done.run.error))
   assert(observedErrors.includes('TRADING_TARGET_MISMATCH'))
+  assert(observedErrors.includes('DIRECTION_OUTLOOK_EVIDENCE'))
+  assert.equal(done.forecast, null)
+  assert.equal(done.forecasts.length, 0)
+  const outlook = done.run.directionOutlook
+  assert.equal(outlook.direction, 'up')
+  assert(outlook.evidenceIds.length && outlook.evidenceIds.every(id => done.run.evidence.some(source => source.evidenceId === id && source.readBy.length)))
+  assert(outlook.missingFields.length)
+  assert(!Object.keys(outlook).some(key => key.startsWith('probability')))
   assert.equal(done.normalized.targetAt, created.tradingHorizon.targetAt)
   assert.equal(done.normalized.forecastClosesAt, created.tradingHorizon.targetAt)
   assert.equal(done.normalized.temporalPolicy,'at_target')
   assert.equal(done.normalized.conditionalOnly,true)
-  assert.equal(done.forecast.scoringEligible,false)
   assert(done.normalized.defaultAssumptions.some(text=>text.includes('收盘')&&text.includes('基准')))
   assert.equal(done.normalized.timeContext.tradingHorizon.market,'US')
   const partial = service.createRequest({question:'AAPL',horizonTradingDays:5,watch:false,mode:'strict',strict:{timezone:'Asia/Shanghai'}})
@@ -165,6 +177,26 @@ test('normalization repairs model changes to a sealed trading deadline and bare 
   assert.equal(strictDone.run.status,'completed',JSON.stringify(strictDone.run.error))
   assert.equal(strictDone.normalized.timezone,'Asia/Shanghai')
   assert.equal(strictDone.normalized.targetAt, partial.tradingHorizon.targetAt)
+})
+
+test('stock research without evidence finishes without guessing a direction or publishing probabilities', async t => {
+  const mock = createCourseMockProvider()
+  const service = await fixture(t, { ...mock, async complete(input) {
+    if (input.tools.some(tool => tool.function.name === 'submit_report')) return {
+      message: { role: 'assistant', content: null, tool_calls: [{ id: 'no_evidence', type: 'function',
+        function: { name: 'submit_report', arguments: JSON.stringify({ status: 'insufficient', summary: '无可读资料。', evidenceIds: [],
+          support: [], counterevidence: [], missingEvidence: ['来源原文'], probability: null, nextSuggestion: '' }) } }] },
+      finishReason: 'tool_calls', usage: { total_tokens: 100 },
+    }
+    return mock.complete(input)
+  } })
+  const { requestId } = service.createRequest({ question: 'AAPL', horizonTradingDays: 5, watch: false })
+  await service.idle()
+  const result = service.getRequest(requestId)
+  assert.equal(result.run.status, 'insufficient', JSON.stringify(result.run.error))
+  assert.equal(result.run.directionOutlook, null)
+  assert.deepEqual(result.run.evidence, [])
+  assert.deepEqual(result.forecasts, [])
 })
 
 test('HTTP exposes the horizon capability and returns a durable 20-session snapshot without accepting a client deadline', async t => {
@@ -177,6 +209,7 @@ test('HTTP exposes the horizon capability and returns a durable 20-session snaps
   const response=await fetch(`${base}/requests`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({question:'腾讯控股',horizonTradingDays:20,watch:false})})
   assert.equal(response.status,202)
   const request=await response.json(); service.stop(request.requestId)
+  assert.equal(request.forecastType, 'price_direction')
   assert.equal(request.tradingHorizon.market,'HK')
   assert.equal(request.tradingHorizon.targetSessionDate,'2026-12-18')
   assert(request.tradingHorizon.assumptions.some(text=>text.includes('默认港股')))

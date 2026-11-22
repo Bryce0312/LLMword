@@ -1,5 +1,5 @@
 /** Public counters only; never model messages or private reasoning. */
-export function workerBudgetState(budget, usage, { finishOnToolBudget = false } = {}) {
+export function workerBudgetState(budget, usage, { finishOnToolBudget = false, wrapUp = false } = {}) {
   const remaining = {
     modelRequests: Math.max(0, budget.maxModelRequests - usage.modelRequests),
     toolCalls: Math.max(0, budget.maxToolCalls - usage.toolCalls),
@@ -12,7 +12,7 @@ export function workerBudgetState(budget, usage, { finishOnToolBudget = false } 
     reportStep: budget.maxModelRequests,
     outputTokens: Math.min(budget.maxTokens, remaining.totalTokens),
     remaining,
-    reportOnly: finishOnToolBudget && (remaining.modelRequests === 0 || remaining.toolCalls === 0 || remaining.totalTokens <= (budget.reserveReportTokens || 0)),
+    reportOnly: wrapUp || finishOnToolBudget && (remaining.modelRequests === 0 || remaining.toolCalls === 0 || remaining.totalTokens <= (budget.reserveReportTokens || 0)),
     unknownUsage: Boolean(usage.unknownUsage),
   }
 }

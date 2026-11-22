@@ -13,7 +13,8 @@ import { requiresWeatherObservation } from './course-context.mjs'
 import { buildMemorySnapshot } from './memory-policy.mjs'
 import { deriveForecastStatus } from './forecast-facts.mjs'
 import { WARNING_URL, WARNING_POLICY, WARNING_RULE, parseWarnings } from './weather-warning.mjs'
-import { PRICE_URL, PRICE_POLICY, PRICE_RULE, parsePriceSnapshot } from './market-resolution.mjs'
+import { PRICE_URL, PRICE_POLICY, PRICE_RULE, PRICE_DIRECTION_RULE, parsePriceSnapshot } from './market-resolution.mjs'
+import { PRICE_DIRECTION, isPriceDirection, directionFields, validDirectionProbabilities, directionLabel, priceDirections } from '../../web/course-price-direction.mjs'
 
 export const courseFailure = (code, message, status = 400) => Object.assign(domainFailure(code, message, status), { courseSafe: true })
 const terminal = new Set(['completed', 'insufficient', 'failed', 'cancelled'])
@@ -150,6 +151,7 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
         const at = clock()
         const snapshot = predictionBudget && (input.purpose || 'forecast') === 'forecast' ? validatePredictionBudget(predictionBudget) : null
         const request = { ...input, ...(snapshot ? { budget: { ...input.budget, maxTotalTokens: snapshot.maxTotalTokens } } : {}), requestId: id('course_request'), status: 'queued', createdAt: at, updatedAt: at, normalized: null }
+        if (input.horizonTradingDays !== undefined) request.forecastType = PRICE_DIRECTION
         if (input.horizonTradingDays !== undefined && !input.strict?.targetAt) request.tradingHorizon = buildTradingHorizon({ question: input.question, market: input.market, tradingDays: input.horizonTradingDays, createdAt: at })
         db.prepare('INSERT INTO course_requests VALUES (?,?)').run(request.requestId, json(request))
         const run = queue(request.requestId, 'manual')
@@ -240,7 +242,7 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
     reserve(runId, kind, limit) {
       return tx(() => {
         const run = active(runId)
-        if (kind === 'modelRequests' && totalTokenLimitReached(run.budget, run.usage.totalTokens)) throw courseFailure('COURSE_BUDGET', '本轮已达到总 token 预算。', 409)
+        if (kind === 'modelRequests' && totalTokenLimitReached(run.budget, run.usage.totalTokens)) throw Object.assign(courseFailure('COURSE_BUDGET', '本轮已达到总 token 预算。', 409), { totalTokenBudget: true, usage: { total_tokens: 0 } })
         if ((run.usage[kind] || 0) >= limit) throw courseFailure('COURSE_BUDGET', '本轮调查已达到调用预算。', 409)
         run.usage[kind] = (run.usage[kind] || 0) + 1
         writeRun(run); return run.usage
@@ -260,7 +262,7 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
         writeRun(run)
         return run.usage
       })
-      if (totalTokenLimitExceeded(requireRun(runId).budget, usage.totalTokens)) throw courseFailure('COURSE_BUDGET', '本轮已达到总 token 预算。', 409)
+      if (totalTokenLimitExceeded(requireRun(runId).budget, usage.totalTokens)) throw Object.assign(courseFailure('COURSE_BUDGET', '本轮已达到总 token 预算。', 409), { totalTokenBudget: true, usage: { total_tokens: totalTokens } })
       return usage
     },
     getReceipt(runId, callKey, input) {
@@ -387,10 +389,15 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
         if (request.purpose === 'research') throw courseFailure('RESEARCH_PURPOSE', '研报任务不能发布预测概率。', 409)
         const at = clock()
         if (totalTokenLimitExceeded(run.budget, run.usage.totalTokens)) throw courseFailure('COURSE_BUDGET', '超出本轮预算后不能发布预测。', 409)
-        if (currentPrediction?.predictionId !== run.predictionId || currentPrediction.version !== run.predictionVersion || currentPrediction.type !== 'binary') throw courseFailure('FORECAST_VERSION', '题目版本已经改变，不能发布旧契约判断。', 409)
+        const directional = isPriceDirection(request)
+        if (directional && request.normalized?.conditionalOnly) throw courseFailure('DIRECTION_OUTLOOK_REQUIRED', '缺少可核验基准，请提交暂定走势，留空概率。', 409)
+        if (currentPrediction?.predictionId !== run.predictionId || currentPrediction.version !== run.predictionVersion || currentPrediction.type !== (directional ? PRICE_DIRECTION : 'binary')) throw courseFailure('FORECAST_VERSION', '题目版本已经改变，不能发布旧契约判断。', 409)
         if (currentPrediction.status !== 'ready' || !currentPrediction.validation?.ready || !(Date.parse(currentPrediction.forecastClosesAt) > Date.parse(at))) throw courseFailure('FORECAST_CLOSED', '题目未就绪或已过停止发布时间。', 409)
         if (db.prepare('SELECT 1 FROM course_results WHERE request_id=?').get(run.requestId)) throw courseFailure('RESULT_KNOWN', '已登记结果，停止发布预测。', 409)
-        if (!Number.isFinite(candidate.probabilityYes) || candidate.probabilityYes < 0 || candidate.probabilityYes > 1 || !candidate.summary?.trim()) throw courseFailure('INVALID_FORECAST', '二元概率或解释无效。')
+        const valid = directional ? validDirectionProbabilities(candidate) :
+          Number.isFinite(candidate.probabilityYes) && candidate.probabilityYes >= 0 && candidate.probabilityYes <= 1
+        if (!valid || !candidate.summary?.trim()) throw courseFailure('INVALID_FORECAST', directional ?
+          '上涨、持平、下跌概率各须在0到1之间、合计为1，并提供判断依据。' : '二元概率或解释无效。')
         if (!Array.isArray(candidate.evidenceIds) || !candidate.evidenceIds.length || new Set(candidate.evidenceIds).size !== candidate.evidenceIds.length) throw courseFailure('FORECAST_EVIDENCE', '预测须引用本轮实际读取的原文。')
         const available = evidenceFor(runId)
         const cited = candidate.evidenceIds.map((evidenceId) => available.find((item) => item.evidenceId === evidenceId))
@@ -413,7 +420,8 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
           if (!decisionNotes || !team.every(worker => decisionNotes.some(note => note.assignmentId === worker.assignmentId))) throw courseFailure('DECISION_EVIDENCE', '价格验收须逐份交代三席报告的处理。', 409)
         }
         const value = { forecastId: id('course_forecast'), requestId: run.requestId, runId, predictionId: run.predictionId,
-          predictionVersion: run.predictionVersion, probabilityYes: candidate.probabilityYes, probabilityNo: 1 - candidate.probabilityYes,
+          predictionVersion: run.predictionVersion,
+          ...(directional ? { type: PRICE_DIRECTION, ...directionFields(candidate) } : { probabilityYes: candidate.probabilityYes, probabilityNo: 1 - candidate.probabilityYes }),
           summary: candidate.summary, decisionNotes, evidenceIds: candidate.evidenceIds, evidenceAdequacy: candidate.evidenceAdequacy || 'limited',
           dissent: candidate.dissent || [], issuedAt: at, publishedAt: at, knowledgeCutoff: at, targetAt: currentPrediction.targetAt,
           resolutionRuleVersion: currentPrediction.resolutionRuleVersion, modelMode: run.modelMode, modelRef: run.modelRef || null, sourceMode: run.sourceMode,
@@ -422,7 +430,7 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
           sourceLimitations: Array.isArray(candidate.sourceLimitations) ? candidate.sourceLimitations : (request.normalized?.sourceLimitations || []).map((item) => `准备阶段记录（可能已补齐）：${item}`), researchBasis: request.normalized?.researchBasis || null,
           timeContext: run.state?.timeContext || request.normalized?.timeContext || null,
           baseline: request.normalized?.baseline || request.normalized?.currentReference || null,
-          scoringEligible: currentPrediction.scoringEligible !== false && !request.normalized?.baseline?.synthetic && !request.normalized?.conditionalOnly && run.modelMode === 'live' && run.sourceMode === 'live' && cited.every((item) => item.sourceMode === 'live' && !item.fixture),
+          scoringEligible: (!directional || request.resolutionPolicy?.version === PRICE_POLICY) && currentPrediction.scoringEligible !== false && !request.normalized?.baseline?.synthetic && !request.normalized?.conditionalOnly && run.modelMode === 'live' && run.sourceMode === 'live' && cited.every((item) => item.sourceMode === 'live' && !item.fixture),
           label: run.modelMode === 'mock' || run.sourceMode !== 'live' ? '协议模拟或回放资料结果，不是真实预测' : '模型事件概率估计' }
         value.reasoningClaims = groundedReasoning; value.groundingPolicy = request.groundingPolicy || null
         if (recoverRecordedCandidate) value.publicationMode = 'revalidated-recorded-model-candidate'
@@ -472,7 +480,7 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
     recordResult(requestId, result) {
       return tx(() => {
         const request = requireRequest(requestId)
-        if (request.resolutionPolicy) throw courseFailure('STRUCTURED_RESULT_REQUIRED', '此固定契约只能通过结果核验入口读取来源，不能直接提交结果标签。', 409)
+        if (request.resolutionPolicy || isPriceDirection(request)) throw courseFailure('STRUCTURED_RESULT_REQUIRED', '此契约需要通过结果核验入口读取来源，不能直接提交结果标签。', 409)
         if (requiresWeatherObservation(request)) throw courseFailure('WEATHER_OBSERVATION_REQUIRED', '预设天气题需要人工或后续结构化实况验证；当前通用网页不能登记降雨YES或NO结果。', 409)
         if (request.normalized?.conditionalOnly) throw courseFailure('CONDITIONAL_RESULT', '条件性估计缺少固定可核验基准，不能冒充已结算结果。', 409)
         if (request.normalized?.temporalPolicy === 'at_target' && Date.parse(clock()) < Date.parse(request.normalized.targetAt)) throw courseFailure('RESULT_NOT_AVAILABLE', '这是目标时点状态题；目标尚未到达，当前状态不能登记为未来结果。', 409)
@@ -492,7 +500,9 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
         const old = decode(db.prepare('SELECT record_json FROM course_results WHERE request_id=?').get(requestId))
         if (old) return old
         const contract = request.normalized, target = Date.parse(contract?.targetAt), observed = Date.parse(source.obtainedAt), base = contract?.baseline
-        if (request.status === 'stopped' || request.activeRunId || policy?.version !== PRICE_POLICY || contract?.resolutionSource?.url !== PRICE_URL || contract.resolutionRule !== PRICE_RULE || contract.targetAt !== policy.targetAt || contract.temporalPolicy !== 'at_target') throw courseFailure('RESOLUTION_UNAVAILABLE', '此任务没有有效固定价格契约，或仍在调查/已经停止。', 409)
+        const directional = isPriceDirection(request)
+        const rule = directional ? PRICE_DIRECTION_RULE : PRICE_RULE
+        if (request.status === 'stopped' || request.activeRunId || policy?.version !== PRICE_POLICY || contract?.resolutionSource?.url !== PRICE_URL || contract.resolutionRule !== rule || contract.targetAt !== policy.targetAt || contract.temporalPolicy !== 'at_target') throw courseFailure('RESOLUTION_UNAVAILABLE', '此任务没有有效固定价格契约，或仍在调查/已经停止。', 409)
         if (!Number.isFinite(target) || Date.parse(at) < target) throw courseFailure('RESULT_NOT_AVAILABLE', '目标尚未到达，当前价格不能作为未来结果。', 409)
         if (!Number.isFinite(observed) || observed < target || observed > target + 300000 || Date.parse(at) > target + 300000 || observed > Date.parse(at) || Date.parse(at)-observed > 15000) throw courseFailure('RESOLUTION_WINDOW', '未在目标后5分钟观察窗口取得新报价，保持不可核验。', 409)
         if (source.sourceMode !== (request.modelMode === 'mock' ? 'replay' : 'live') || request.modelMode === 'live' && (source.fixture || base?.synthetic) || contract.conditionalOnly || base?.pair !== 'BTC-USDT' || !base.verified || !Number.isFinite(base.value) || base.value <= 0 || !Number.isFinite(Date.parse(base.observedAt)) || Date.parse(base.observedAt) < Date.parse(request.createdAt) || Date.parse(base.observedAt) >= target) throw courseFailure('RESULT_PROVENANCE', '报价、固定基准或来源模式不符，不能结算。', 409)
@@ -501,13 +511,19 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
           .filter(f => f.predictionVersion === request.predictionVersion && Date.parse(f.targetAt) === target && Date.parse(f.publishedAt) < target)
         if (!forecasts.length) throw courseFailure('FORECAST_REQUIRED', '没有目标前发布的预测，不能计算预测评分。', 409)
         if (forecasts.some(f => digest(f.baseline) !== digest(base))) throw courseFailure('PRICE_BASELINE_CONFLICT', '结果基准与封存预测不一致，不能重选基准。', 409)
-        const outcome = value > base.value ? 1 : 0, evidenceId = id('resolution_evidence')
+        if (directional && forecasts.some(f => !isPriceDirection(f) || !validDirectionProbabilities(f))) throw courseFailure('INVALID_FORECAST', '封存记录缺少有效三项概率。', 409)
+        const outcome = directional ? value > base.value ? 'up' : value < base.value ? 'down' : 'flat' : value > base.value ? 1 : 0
+        const evidenceId = id('resolution_evidence')
+        const outcomeLabel = directional ? directionLabel(outcome) : outcome ? '严格高于（Yes）' : '等于或低于（No）'
         const result = { requestId, predictionId: request.predictionId, predictionVersion: request.predictionVersion, outcome, knownAt: at, observedAt: source.obtainedAt,
-          status: 'known', resolutionPolicy: PRICE_POLICY, rule: PRICE_RULE, baseline: base, observedValue: value, change: value-base.value, changePct:(value/base.value-1)*100,
+          status: 'known', resolutionPolicy: PRICE_POLICY, rule, baseline: base, observedValue: value, change: value-base.value, changePct:(value/base.value-1)*100,
           evidenceIds:[evidenceId], evidence:[{...source,evidenceId,purpose:'resolution'}],
-          summary:`有界首次观察：BTC-USDT ${value} USDT，固定基准${base.value} USDT，${outcome ? '严格高于（Yes）' : '等于或低于（No）'}。`,
+          summary:`有界首次观察：BTC-USDT ${value} USDT，固定基准${base.value} USDT，${outcomeLabel}。`,
           scoringEligible: request.modelMode === 'live' && source.sourceMode === 'live' && forecasts.some(f=>f.scoringEligible),
-          scores:forecasts.map(f=>({forecastId:f.forecastId,probabilityYes:f.probabilityYes,brier:(f.probabilityYes-outcome)**2,
+          scores:forecasts.map(f=>({forecastId:f.forecastId, ...(directional ? {
+            type: PRICE_DIRECTION, ...directionFields(f),
+            brier: priceDirections.reduce((sum, item) => sum + (f[item.key] - Number(item.outcome === outcome)) ** 2, 0),
+          } : { probabilityYes: f.probabilityYes, brier: (f.probabilityYes-outcome)**2 }),
             scoringEligible:Boolean(f.scoringEligible && source.sourceMode === 'live' && !source.fixture),label:f.scoringEligible && !source.fixture ? '单题Brier，不代表总体准确率' : '模拟协议分数，不计真实成绩'})) }
         db.prepare('INSERT INTO course_results VALUES (?,?)').run(requestId,json(result))
         writeRequest({...request,status:'closed',activeRunId:null,updatedAt:at})

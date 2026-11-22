@@ -1,3 +1,5 @@
+import { PRICE_DIRECTION, isPriceDirection, directionFields } from '../../web/course-price-direction.mjs'
+
 /** Public receipts only; model messages and checkpoints never enter this projection. */
 export function validateDecisionNotes(notes, assignments, evidenceIds) {
   if (notes === undefined) return []
@@ -44,14 +46,15 @@ export function buildCollaboration(run) {
   })
   const previous = run.memory?.previousForecast
   const comparable = previous && forecast && (!previous.predictionId || previous.predictionId === forecast.predictionId) && previous.predictionVersion === forecast.predictionVersion
-  const delta = comparable && Number.isFinite(previous.probabilityYes) ? forecast.probabilityYes - previous.probabilityYes : null
+  const delta = comparable && Number.isFinite(previous.probabilityYes) && Number.isFinite(forecast.probabilityYes) ? forecast.probabilityYes - previous.probabilityYes : null
   return { version: 1, runId: run.runId, modelMode: run.modelMode, sourceMode: run.sourceMode,
     team: reports.filter((item) => !item.followUp), reviews, reports,
     sources: evidence.map((item) => ({ evidenceId: item.evidenceId, title: item.title || item.evidenceId, url: item.url, publishedAt: item.publishedAt, obtainedAt: item.obtainedAt, marketQuote: item.marketQuote || null })),
     triage: run.triage ? { kind: run.triage.kind, reason: run.triage.reason, newEvidenceIds: refs(run.triage.newEvidenceIds) } : null,
     decision: output ? { kind: output.kind, groundingPolicy: output.groundingPolicy || null, reasoningClaims: forecast?.reasoningClaims || research?.findings || [], assemblyMode: output.assemblyMode, forecastId: forecast?.forecastId, reportId: research?.reportId, probabilityYes: forecast?.probabilityYes ?? null, previousProbabilityYes: comparable ? previous.probabilityYes : null,
+      ...(isPriceDirection(forecast) ? { type: PRICE_DIRECTION, ...directionFields(forecast) } : {}),
       delta, summary: output.summary, evidenceIds: refs(output.evidenceIds), dissent: output.dissent || output.limitations || [], evidenceAdequacy: output.evidenceAdequacy,
       scoringEligible: output.scoringEligible, recordedNotes: notes.length, totalReports: reports.filter((item) => item.reportStatus).length } : null,
     conclusion: research ? research.assemblyMode === 'harness' ? '研究员资料整理版已保存；主Agent最终裁决未完成。' : '研报已封存；可逐项查看发现、补查与裁决。' : forecast ? reviews.length ? '已发布；可逐项查看补查答复与裁决。' : '已发布；本轮未进行定向补查。'
-      : run.triage?.kind === 'no_change' ? '本次检查未发布新判断，保留上一判断。' : ['failed', 'insufficient', 'cancelled'].includes(run.status) ? '本轮未发布新判断，缺口与失败记录保留。' : '协作进行中，尚未发布判断。' }
+      : run.directionOutlook ? '本轮暂定走势已保存，概率留空。' : run.triage?.kind === 'no_change' ? '本次检查未发布新判断，保留上一判断。' : ['failed', 'insufficient', 'cancelled'].includes(run.status) ? '本轮未发布新判断，缺口与失败记录保留。' : '协作进行中，尚未发布判断。' }
 }

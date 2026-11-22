@@ -27,6 +27,7 @@ body[data-hide-strict-mode="true"] .cc-strict-fields { display: none !important;
 .cc-capability-notice { border: 2px solid #a47c49; background: #ead2a1; color: #62452f; padding: 12px; margin: 15px 0; font-size: 12px; line-height: 1.9; }
 .cc-capability-notice p { margin-bottom: 10px; }
 .cc-capability-notice .wb-button { font-size: 12px; padding: 6px 9px; }
+.cc-request-question { min-width: 0; overflow-wrap: anywhere; }
 .cc-request-state { border: 2px solid #7c9478; background: #364139; padding: 12px 15px; color: #e1e8cb; font-size: 13px; line-height: 1.8; margin-bottom: 18px; }
 .cc-request-state[data-state=error] { border-color: #d08a70; background: #643e3d; color: #ffe4c8; }
 .cc-run-error.wb-error { margin: 0 0 18px; }

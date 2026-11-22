@@ -1,5 +1,5 @@
 import { createActorSprite } from './actors.js'
-import { h, dataContent } from './workbench-core.js'
+import { h, button, dataContent } from './workbench-core.js'
 import { courseObjective, normalizeCourseRole } from './course-team.mjs'
 import { courseRoomOutcome } from './course-projection.mjs'
 import { courseUsageText, courseModelStatusView } from './course-workflow.mjs'
@@ -8,7 +8,7 @@ const pixels = { supervisor: 'chair', official: 'policy', timeline: 'supply', in
 const shortNames = { supervisor: '主 Agent', official: '官方', timeline: '新闻', industry: '行业', people: '人物', statistics: '统计', market: '市场', social: '社群', analogy: '类比', graph: '关系', verification: '核验' }
 const terminal = (status) => ['completed', 'finished', 'insufficient', 'failed', 'cancelled'].includes(status)
 
-export function createCourseRoom(container) {
+export function createCourseRoom(container, { onShowResults } = {}) {
   let runId = null; let generation = -1; let timer
   const figures = new Map()
   const image = h('div', 'wb-room-image cc-room-image')
@@ -19,6 +19,24 @@ export function createCourseRoom(container) {
   const bubble = h('section', 'wb-room-bubble cc-room-bubble'); bubble.hidden = true; bubble.setAttribute('aria-live', 'polite')
   bubble.append(h('strong'), dataContent('p'), h('small'))
   image.append(art, phase, bubble)
+  let board, stepLabel, meter, fill, amount, resultButton
+  if (onShowResults) {
+    stepLabel = h('p', 'cc-board-step')
+    fill = h('span', 'cc-board-fill')
+    const track = h('span', 'cc-board-track', fill)
+    amount = h('span', 'cc-board-percent', '0%')
+    meter = h('div', 'cc-board-meter', track, amount)
+    meter.setAttribute('role', 'progressbar')
+    meter.setAttribute('aria-label', '预测整体进度')
+    meter.setAttribute('aria-valuemin', '0')
+    meter.setAttribute('aria-valuemax', '100')
+    resultButton = button('预测结果与进度', onShowResults, 'cc-board-results')
+    resultButton.setAttribute('aria-controls', 'cc-room-results')
+    resultButton.setAttribute('aria-expanded', 'false')
+    board = h('section', 'cc-board-progress', stepLabel, meter, resultButton)
+    board.hidden = true
+    image.append(board)
+  }
   const teamNote = h('p', 'cc-team-note', '研究员由主 Agent 按本题选择；名单将在实际派工后出现。')
   const cards = h('div', 'cc-work-cards')
   const tool = h('div', 'wb-room-tools', '实际工具执行后，会在这里显示调用与返回。')
@@ -154,5 +172,29 @@ export function createCourseRoom(container) {
       finish(effect)
     }
   }
-  return { apply, destroy: clear }
+  function setPredictionProgress(percent, step) {
+    if (!board) return
+    board.hidden = !Number.isFinite(percent)
+    if (board.hidden) return
+    if (stepLabel.dataset.step !== step) {
+      stepLabel.dataset.step = step
+      stepLabel.textContent = step
+      meter.setAttribute('aria-valuetext', percent + '%，' + step)
+    }
+    const value = String(percent)
+    if (meter.getAttribute('aria-valuenow') === value) return
+    meter.setAttribute('aria-valuenow', value)
+    meter.setAttribute('aria-valuetext', value + '%，' + step)
+    amount.textContent = value + '%'
+    fill.style.width = value + '%'
+  }
+  return {
+    apply, destroy: clear, setPredictionProgress,
+    setResultsOpen(open) { resultButton?.setAttribute('aria-expanded', String(open)) },
+    focusResultsButton() {
+      if (!resultButton || board.hidden) return false
+      resultButton.focus({ preventScroll: true })
+      return true
+    },
+  }
 }

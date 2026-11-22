@@ -157,6 +157,8 @@
 .wb-yes-no > div + div { border-left: 2px solid #d1b582; }
 .wb-yes-no small { font-size: 11px; color: #7b6348; }
 .wb-yes-no strong { font-size: 31px; }
+.wb-yes-no.cc-price-directions { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.cc-price-directions strong { font-size: clamp(16px, 3vw, 25px); }
 .wb-probability-empty { font-size: 11px; color: #896c4f; margin: 7px 0 14px; text-align: center; }
 .wb-facts { display: grid; grid-template-columns: 63px minmax(0,1fr); gap: 10px 9px; margin: 0; align-items: start; }
 .wb-facts dt { font-size: 10px; color: #8a704f; padding-top: 2px; line-height: 1.7; }

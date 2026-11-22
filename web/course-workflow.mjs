@@ -5,6 +5,37 @@ const count = (value) => Number.isSafeInteger(value) && value >= 0 ? value : nul
 const positive = (value) => Number.isSafeInteger(value) && value > 0 ? value : null
 const latestAssignments = (run) => [...new Map(courseAssignments(run).map((a) => [normalizeCourseRole(a.roleId ?? a.agentSpecId ?? a.role), a])).values()]
 
+/** Milestone progress for the active run, based on saved phases and assignment outcomes. */
+export function courseProgressPercent(run) {
+  if (!run || ended(run.status)) return null
+  if (run.status === 'queued') return 0
+  if (run.status !== 'running') return null
+  const cycle = positive(run.orchestration?.cycle) ?? 1
+  const completion = (followUp) => {
+    const seats = courseAssignments(run).filter(item => Boolean(item.followUp) === followUp &&
+      (!followUp || (item.cycle ?? cycle) === cycle))
+    const settled = seats.filter(item => ended(item.status) || item.status === 'complete').length
+    return seats.length ? settled / seats.length : 0
+  }
+  switch (run.phase) {
+    case 'intake': return 8
+    case 'watch_check': return 8
+    case 'triage': return 16
+    case 'plan': return 20
+    case 'workers': return 24 + Math.round(43 * completion(false))
+    case 'prepare': return run.harnessVersion >= 3 ? 70 : 14
+    case 'review': return Math.min(96, 78 + (cycle - 1) * 9)
+    case 'followup': return Math.min(95, 80 + Math.max(0, cycle - 2) * 9 + Math.round(6 * completion(true)))
+    default: return 4
+  }
+}
+
+export function courseBoardStep(run) {
+  if (!run || run.status === 'queued') return '等待派工'
+  return ({ intake: '整理题意与派工', workers: '研究员独立调查', prepare: '核定预测题目', plan: '选择研究员',
+    followup: '定向补查', review: '汇总与核对', watch_check: '检查新资料', triage: '评估新资料' })[run.phase] ?? '调查中'
+}
+
 export function coursePhaseLabel(run = {}) {
   const v3 = run.harnessVersion >= 3 && run.orchestration
   const cycle = v3 && positive(run.orchestration.cycle)

@@ -49,6 +49,7 @@ export function createRoomShellNavigation(hooks) {
       }
       if (sceneId === target.id && !forceScene) {
         if (oldHash !== target.hash) hooks.selectRun?.(target.query.get('runId'))
+        if (target.query.get('results') === '1') hooks.openResults?.()
         hooks.sceneChanged?.(); return
       }
       sceneId = target.id; idleMounted = false

@@ -18,7 +18,7 @@ export const definitions = {
     defaultAssumptions: { type: 'array', maxItems: 6, items: string(500) },
     assignments: { type: 'array', minItems: 3, maxItems: 3, items: object({ roleId: { enum: roles }, objective: string(2000), reason: string(500) }) },
   }, ['question', 'object', 'interpretation', 'assignments'])],
-  normalize_prediction: ['规范二元题。preset须联网补全常见含义并明示假设，不因未写账号/阈值等细项拒绝；已有可读公开替代来源可作有限研究依据。strict锁已填条件。', object({
+  normalize_prediction: ['规范预测题。preset须联网补全常见含义并明示假设，不因未写账号/阈值等细项拒绝；已有可读公开替代来源可作有限研究依据。strict锁已填条件。', object({
     question: string(), object: string(500), targetAt: string(80), forecastClosesAt: string(80), timezone: string(80),
     resolutionRule: string(4000), resolutionSourceUrl: string(2000), unresolvablePolicy: string(1000), watchQuery: string(128),
     interpretation: string(), defaultAssumptions: { type: 'array', maxItems: 8, items: string(1000) },
@@ -38,8 +38,19 @@ export const definitions = {
     outcomeKnown: { type: 'boolean' }, outcome: { type: ['integer', 'null'], enum: [0, 1, null] },
     sourceLimitations: { type: 'array', maxItems: 12, items: string(1000) },
   }, ['probabilityYes', 'summary', 'evidenceIds', 'evidenceAdequacy', 'dissent', 'outcomeKnown', 'outcome'])],
-  mark_insufficient: ['来源、题义或调查不足时停止，给可修改的缺口；不要编造 ready 或默认概率。', object({ message: string(2000), missingFields: { type: 'array', items: string(240), maxItems: 20 } })],
+  mark_insufficient: ['来源、题义或调查不足时停止，给可修改的缺口；不要编造 ready 或默认概率。价格方向题只有在没有支持任何单一方向的相关证据时，才设置 directionUnavailable。', object({
+    message: string(2000), missingFields: { type: 'array', items: string(240), maxItems: 20 }, directionUnavailable: { type: 'boolean' },
+  }, ['message', 'missingFields'])],
+  submit_direction_outlook: ['根据已读原文给出单一暂定走势，up=上涨、flat=持平、down=下跌。解释为何倾向这一方向以及缺少哪些信息。不得给概率或将缺报价当作持平。', object({
+    direction: { enum: ['up', 'flat', 'down'] }, summary: string(1600), evidenceIds: { ...ids, minItems: 1 },
+    missingFields: { type: 'array', minItems: 1, maxItems: 8, items: string(500) },
+  })],
 }
+
+const { probabilityYes, outcomeKnown, outcome, ...forecastFields } = definitions.propose_forecast[1].properties
+definitions.propose_price_direction = ['提交上涨、持平、下跌三个互斥概率，均在0至1之间，且相加等于1。三项使用同一标的、期限和基准。资料不足时提交明确的缺口。', object({
+  ...forecastFields, probabilityUp: probabilityYes, probabilityFlat: probabilityYes, probabilityDown: probabilityYes,
+}, ['probabilityUp', 'probabilityFlat', 'probabilityDown', 'summary', 'evidenceIds', 'evidenceAdequacy', 'dissent'])]
 
 const ajv = new Ajv({ allErrors: true, strict: true })
 export const validators = Object.fromEntries(Object.entries(definitions).map(([name, [, schema]]) => [name, ajv.compile(schema)]))
