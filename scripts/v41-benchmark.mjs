@@ -1,4 +1,4 @@
-import { pathToFileURL } from 'node:url'
+import { pathToFileURL, fileURLToPath } from 'node:url'
 import { resolve, join } from 'node:path'
 import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
@@ -27,4 +27,4 @@ export async function benchmark(root = process.cwd()) {
     return {mode:'mock',actualModelUsage:null,syntheticUsage:done.run.usage,serializedMessageBytes:bytes,serializedToolSchemaBytes:toolSchemaBytes,estimatedInputTokensByteDiv4:Math.ceil((bytes+toolSchemaBytes)/4),estimateCaveat:'bytes/4 comparison only; not tokenizer usage and not suitable for admission (especially CJK)',calls,status:done.run.status,forecasts:done.forecasts.length,sourceUrls:[...new Set(done.run.evidence.map(e=>e.url))].sort(),evidenceCount:done.run.evidence.length,quoteCount:quotes.length,exactQuoteCount:exact,workerStatuses:done.run.assignments.map(a=>a.report?.status),error:done.run.error}
   } finally {await service.close();workbench.close();await rm(folder,{recursive:true,force:true})}
 }
-if (process.argv[1] && resolve(process.argv[1]) === new URL(import.meta.url).pathname) console.log(JSON.stringify(await benchmark(resolve(process.argv[2]||'.')),null,2))
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) console.log(JSON.stringify(await benchmark(resolve(process.argv[2]||'.')),null,2))
