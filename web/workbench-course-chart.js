@@ -1,5 +1,6 @@
 import { h, fmt, empty, dataContent } from './workbench-core.js'
 import { courseForecastPoints } from './course-projection.mjs'
+import { formatCourseProbability } from './course-probability.mjs'
 const ns = 'http://www.w3.org/2000/svg'
 function svgNode(name, attributes, text) { const el = document.createElementNS(ns, name); for (const [key, value] of Object.entries(attributes)) el.setAttribute(key, value); if (text) el.textContent = text; return el }
 export function courseChart(records, contract = {}) {
@@ -21,14 +22,14 @@ export function courseChart(records, contract = {}) {
   if (points.length > 1) svg.append(svgNode('path', { d: path, stroke: '#557f72', 'stroke-width': 3, fill: 'none' }))
   for (const point of points) {
     const dot = svgNode('circle', { cx: x(Date.parse(point.publishedAt)), cy: y(point.probabilityYes), r: 5, fill: '#805936', stroke: '#f7e6ba', 'stroke-width': 2 })
-    dot.append(svgNode('title', {}, fmt(point.publishedAt) + '：' + Math.round(point.probabilityYes * 100) + '%')); svg.append(dot)
+    dot.append(svgNode('title', {}, fmt(point.publishedAt) + '：' + formatCourseProbability(point.probabilityYes))); svg.append(dot)
   }
   svg.append(svgNode('line', { x1: nowX, x2: nowX, y1: top, y2: bottom, stroke: '#947555', 'stroke-dasharray': '4 4' }), svgNode('text', { x: right - 48, y: 210 }, '本图截至'), svgNode('text', { x: 590, y: 59 }, '未来未绘制'), svgNode('text', { x: 590, y: 78 }, '不按比例'))
   const precise = (raw) => new Date(raw).toLocaleString('zh-CN', { hour12: false })
-  box.append(h('div', 'cc-chart-scroll', svg), h('p', 'wb-muted', '本图截至 ' + precise(now) + '；固定目标为 ' + fmt(contract.targetAt ?? points[0].targetAt)))
+  box.append(h('div', 'cc-chart-scroll', svg), h('p', 'wb-muted', '本图截至 ' + precise(now) + '；固定目标为 ' + fmt(contract.targetAt ?? points[0].targetAt, contract.timezone)))
   const list = h('div', 'cc-chart-points')
   for (const point of points) {
-    const item = h('details', '', h('summary', '', precise(point.publishedAt) + ' · Yes ' + Math.round(point.probabilityYes * 100) + '%'), dataContent('p', '', point.summary ?? point.rationale ?? '本次发布未提供公开摘要。'), h('small', '', '固定目标：' + fmt(point.targetAt ?? contract.targetAt)))
+    const item = h('details', '', h('summary', '', precise(point.publishedAt) + ' · Yes ' + formatCourseProbability(point.probabilityYes)), dataContent('p', '', point.summary ?? point.rationale ?? '本次发布未提供公开摘要。'), h('small', '', '固定目标：' + fmt(point.targetAt ?? contract.targetAt, contract.timezone)))
     item.dataset.forecastId = point.forecastId; list.append(item)
   }
   box.append(list); return box

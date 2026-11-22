@@ -364,3 +364,106 @@ test('campus and custom model keys are not forwarded to the official search serv
   const gateway = createWebResearchGateway({ env: { WORLD_SEARCH_PROVIDER: 'deepseek', WORLD_CHAT_COMPLETIONS_URL: 'https://genai.comp.polyu.edu.hk/api/v1//chat/completions', WORLD_API_KEY: 'CAMPUS_MODEL_KEY_NOT_OFFICIAL', WORLD_SEARCH_API_KEY: 'SEPARATE_OFFICIAL_KEY' }, request: async () => {} })
   assert.equal(gateway.capabilities.available, true)
 })
+
+test('missing focus degrades to real saved text and later focus reuses the body without fetching again', async () => {
+  let requests = 0; const records = []
+  const content = 'Source introduction\n' + 'A'.repeat(5000) + '\nNet revenue\nRevenue was $12 billion for the current quarter.'
+  const gateway = createWebResearchGateway({ env, request: async () => { requests++; return json({ title: 'Quarterly report', content }) } })
+  const fetcher = tool(gateway, 'fetch_page', { onEvidence: (record) => { records.push(record); return 'excerpt_' + records.length } })
+  const partial = await fetcher.execute({ url: 'https://example.org/report', focus: 'nonexistent phrase' })
+  assert.equal(partial.status, 'partial'); assert.equal(partial.error, null)
+  assert.equal(partial.data.focusMatched, false); assert.equal(partial.data.focusMatch, 'not-found')
+  assert(content.includes(partial.data.text)); assert(!partial.data.text.includes('nonexistent phrase'))
+  assert(partial.data.citationHints.every(quote => partial.data.text.includes(quote)))
+  const found = await fetcher.execute({ url: 'https://example.org/report', focus: 'Net revenue' })
+  assert.equal(found.data.focusMatched, true); assert.equal(found.data.rawCached, true)
+  assert(found.data.text.includes('$12 billion')); assert(content.includes(found.data.text))
+  assert.equal(found.usage.providerRequests, 0); assert.equal(requests, 1); assert.equal(records.length, 2)
+  assert.notEqual(partial.data.evidenceId, found.data.evidenceId)
+})
+
+test('focus tolerates original line breaks but the saved evidence is never normalized or fabricated', async () => {
+  const content = 'Quarterly figures\nNet\n  revenue was $12 billion.\nKeep this original spacing.'
+  const gateway = createWebResearchGateway({ env, request: async () => json({ title: 'Financial statement', content }) })
+  const output = await tool(gateway, 'fetch_page', { onEvidence: () => 'original_spacing' }).execute({ url: 'https://example.org/report', focus: 'Net revenue' })
+  assert.equal(output.status, 'ok'); assert.equal(output.data.focusMatched, true)
+  assert.equal(output.data.focusMatch, 'whitespace'); assert.equal(output.data.text, content)
+  assert(output.data.citationHints.every(quote => content.includes(quote)))
+})
+
+test('a run-scoped body cache coalesces readers but still persists evidence separately and never crosses runs or source permissions', async () => {
+  let requests = 0; const readers = []
+  const gateway = createWebResearchGateway({ env, request: async () => { requests++; await new Promise(resolve => setTimeout(resolve, 5)); return json({ content: `Body version ${requests}. Revenue was $12 billion.`, title: 'Original report' }) } })
+  const scoped = (roleId, scope) => tool(gateway, 'fetch_page', { roleId, cacheScope: scope,
+    onEvidence: (record, context) => { readers.push({ roleId, text: record.text, reader: context.assignmentId }); return 'reader_' + context.assignmentId } })
+  const first = scoped('statistics', 'run_1'), second = scoped('verification', 'run_1')
+  const [a, b] = await Promise.all([
+    first.execute({ url: 'https://example.org/source' }, { assignmentId: 'stat_1' }),
+    second.execute({ url: 'https://example.org/source', focus: 'missing term' }, { assignmentId: 'verify_1' }),
+  ])
+  assert.equal(requests, 1); assert.equal(readers.length, 2)
+  assert.deepEqual(a.evidenceIds, ['reader_stat_1']); assert.deepEqual(b.evidenceIds, ['reader_verify_1'])
+  assert.equal(a.usage.providerRequests + b.usage.providerRequests, 1)
+  assert.equal(b.data.rawCached, true); assert.equal(b.data.focusMatched, false)
+  const forbidden = tool(gateway, 'fetch_page', { roleId: 'official', sourceDomains: ['other.example.org'], cacheScope: 'run_1', onEvidence: () => assert.fail('No cross-scope saved evidence') })
+  assert.equal((await forbidden.execute({ url: 'https://example.org/source' })).error.code, 'SOURCE_SCOPE_MISMATCH')
+  const later = await scoped('statistics', 'run_2').execute({ url: 'https://example.org/source' }, { assignmentId: 'stat_2' })
+  assert.equal(requests, 2); assert.notEqual(a.data.contentHash, later.data.contentHash)
+})
+
+test('access barriers never become cited evidence and repeating focus does not re-fetch the blocked page', async () => {
+  for (const page of [
+    { title: 'Your browser is unsupported', content: 'Your browser is unsupported. Please download a supported browser to view this page.' },
+    { title: 'Just a moment...', content: 'Checking your browser. Please verify you are human.' },
+    { title: 'Site', content: 'Please enable JavaScript and cookies to continue.' },
+  ]) {
+    let requests = 0
+    const gateway = createWebResearchGateway({ env, request: async () => { requests++; return json(page) } })
+    const fetcher = tool(gateway, 'fetch_page', { onEvidence: () => assert.fail('Do not save challenge text') })
+    const first = await fetcher.execute({ url: 'https://example.org/blocked', focus: 'price' })
+    const second = await fetcher.execute({ url: 'https://example.org/blocked', focus: 'revenue' })
+    assert.equal(first.error.code, 'SOURCE_CONTENT_MISSING'); assert.deepEqual(first.evidenceIds, [])
+    assert.equal(first.data.referenceable, false); assert.equal(second.usage.providerRequests, 0)
+    assert.equal(requests, 1)
+  }
+})
+
+test('spot quote is omitted for unsupported assets and its schema only advertises the supported asset in the question', () => {
+  const gateway = createWebResearchGateway({ env: { WORLD_SEARCH_PROVIDER: 'fixture' } })
+  for (const question of ['英伟达股票走势', '黄金未来会涨吗', { question: 'NVIDIA forecast', object: 'NASDAQ NVDA stock' }]) {
+    for (const roleId of ['main', 'statistics', 'market']) {
+      assert(!gateway.toolsFor({ roleId, question }).some(tool => tool.toolId === 'get_market_quote'))
+    }
+  }
+  const btc = gateway.toolsFor({ roleId: 'market', question: '比特币接下来会涨吗' }).find(tool => tool.toolId === 'get_market_quote')
+  assert.deepEqual(btc.inputSchema.properties.pair.enum, ['BTC-USD'])
+  const eth = gateway.toolsFor({ roleId: 'statistics', question: { question: 'Will ETH fall?' } }).find(tool => tool.toolId === 'get_market_quote')
+  assert.deepEqual(eth.inputSchema.properties.pair.enum, ['ETH-USD'])
+})
+
+test('coalesced fetch failures count the external request once and do not leak a provider body', async () => {
+  let requests = 0
+  const gateway = createWebResearchGateway({ env: { ...env, WORLD_SEARCH_MAX_RETRIES: '0' }, request: async () => {
+    requests++; await new Promise(resolve => setTimeout(resolve, 5)); return json({ error: `private account ${key}` }, 503)
+  } })
+  const scoped = () => tool(gateway, 'fetch_page', { cacheScope: 'run_error', onEvidence: () => assert.fail('No response text') })
+  const [first, second] = await Promise.all([scoped().execute({ url: 'https://example.org/failure' }), scoped().execute({ url: 'https://example.org/failure' })])
+  assert.equal(requests, 1); assert.equal(first.usage.providerRequests + second.usage.providerRequests, 1)
+  for (const value of [first, second]) {
+    assert.equal(value.error.code, 'SOURCE_HTTP_ERROR'); assert.deepEqual(value.evidenceIds, [])
+    assert(!JSON.stringify(value).includes(key))
+  }
+})
+
+test('cancelling one joined reader does not save its evidence or cancel the other reader', async () => {
+  let finish; const started = new Promise(resolve => { finish = resolve }); const cancelled = new AbortController(); const saved = []
+  const gateway = createWebResearchGateway({ env, request: async () => { await started; return json({ content: 'An actual source body with report data.' }) } })
+  const scoped = name => tool(gateway, 'fetch_page', { cacheScope: 'run_cancel', onEvidence: () => { saved.push(name); return 'source_' + name } })
+  const owner = scoped('owner').execute({ url: 'https://example.org/source' })
+  const reader = scoped('cancelled').execute({ url: 'https://example.org/source' }, { signal: cancelled.signal })
+  cancelled.abort()
+  const aborted = await reader
+  assert.equal(aborted.error.code, 'TOOL_CANCELLED'); assert.deepEqual(aborted.evidenceIds, [])
+  finish(); const completed = await owner
+  assert.equal(completed.status, 'ok'); assert.deepEqual(saved, ['owner'])
+})

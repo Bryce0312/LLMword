@@ -114,11 +114,15 @@ export function createCourseMockProvider({ pacingMs = 0 } = {}) {
       if (source && !read) return action('fetch_page', { url: source.url })
       const evidenceIds = [...new Set([...(['ok', 'partial'].includes(read?.status) ? read.evidenceIds : []), ...(workerResult('get_market_quote')?.evidenceIds || [])])]
       const citations = read?.evidenceIds?.length ? [{ evidenceId: read.evidenceIds[0], quote: read.data.text.slice(0, 180) }] : []
+      // Fixed, explicitly synthetic values exercise the bounded scoring protocol.
+      // They are not calibrated probabilities or evidence of prediction accuracy.
+      const boundedScore = workerTask.forecastPolicy === 'bounded-forecast-v1' && evidenceIds.length
+        ? ({ official: .5, timeline: .55, verification: .6 })[workerContext.agentSpecId] ?? .55 : null
       return action('submit_report', { status: evidenceIds.length ? 'complete' : 'insufficient',
-        summary: evidenceIds.length ? `协议模拟${workerContext.agentSpecId}报告：已读取「${read.data.title}」，保留来源证明范围。` : '协议模拟未取得正文。',
+        summary: evidenceIds.length ? `协议模拟${workerContext.agentSpecId}报告：已读取「${read.data.title}」，保留来源证明范围。${boundedScore !== null ? '固定示例概率仅验证协议，不是现实预测或准确率。' : ''}` : '协议模拟未取得正文。',
         evidenceIds, support: citations.length ? [{ claim: '该演示原文可用于核对本次子问题。', evidenceIds: [read.evidenceIds[0]], ...(workerTask.groundingPolicy ? { basis: 'inference', citations } : {}) }] : [],
         counterevidence: workerContext.agentSpecId === 'verification' && citations.length ? [{ claim: '演示线索不能自动证明事件已发生。', evidenceIds: [read.evidenceIds[0]], ...(workerTask.groundingPolicy ? { basis: 'inference', citations } : {}) }] : [],
-        missingEvidence: ['现实前瞻结果尚未在此协议示例中验证。'], probability: null, nextSuggestion: '按指定来源后续变化继续核查。' })
+        missingEvidence: ['现实前瞻结果尚未在此协议示例中验证。'], probability: boundedScore, nextSuggestion: '按指定来源后续变化继续核查。' })
     },
   }
 }

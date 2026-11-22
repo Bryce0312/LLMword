@@ -41,17 +41,17 @@ test('IANA day-end conversion respects a 23-hour spring day and a 25-hour autumn
   assert.equal(resolveRequestDeadline({ ...request('today rain?', 'America/New_York'), createdAt: '2026-11-01T04:30:00.000Z' }), '2026-11-02T04:59:59.999Z')
 })
 
-async function fixture(t, provider, { pages } = {}) {
+async function fixture(t, provider, { pages, harnessVersion = 3 } = {}) {
   const folder = await mkdtemp(join(tmpdir(), 'llmword-today-'))
   let at = CREATED
   const workbench = createWorkbenchService({ path: join(folder, 'domain.sqlite'), now: () => at })
   const gateway = createWebResearchGateway({ env: { WORLD_SEARCH_PROVIDER: 'fixture' }, now: () => at, fixturePages: pages })
-  const service = createCourseService({ path: join(folder, 'course.sqlite'), workbench, sourceTools: gateway, provider, modelMode: 'mock', now: () => at })
+  const service = createCourseService({ path: join(folder, 'course.sqlite'), workbench, sourceTools: gateway, provider, modelMode: 'mock', harnessVersion, now: () => at })
   t.after(async () => { await service.close(); workbench.close(); await rm(folder, { recursive: true, force: true }) })
   return { service, advance(value) { at = value } }
 }
 
-test('main target, normalization, worker time context and new rain rules use today while final limitations replace preparation gaps', async (t) => {
+test('legacy V2 model normalization repairs today targets and weather rules while final limitations replace preparation gaps', async (t) => {
   const protocol = createCourseMockProvider()
   const contexts = []
   let corrupted = false
@@ -69,11 +69,13 @@ test('main target, normalization, worker time context and new rain rules use tod
     if (call.function.name === 'propose_forecast') { args.sourceLimitations = []; call.function.arguments = JSON.stringify(args) }
     return response
   } }
-  const { service } = await fixture(t, provider)
+  const { service } = await fixture(t, provider, { harnessVersion: 2 })
   const created = service.createRequest({ question: '【协议模拟】香港红磡会下雨吗今天', timezone: 'Asia/Hong_Kong', horizonHours: 24 })
   await service.idle()
   const done = service.getRequest(created.requestId)
   assert.equal(done.run.status, 'completed', JSON.stringify(done.run.error))
+  assert.equal(done.run.harnessVersion, 2)
+  assert(corrupted, 'the legacy model-normalization repair path must actually be exercised')
   assert.equal(done.normalized.targetAt, END)
   assert.equal(done.normalized.forecastClosesAt, END)
   assert.match(done.normalized.question, /2026-11-19 23:59:59/)
@@ -87,64 +89,113 @@ test('main target, normalization, worker time context and new rain rules use tod
   assert(contexts.some((messages) => messages.some((message) => message.role === 'user' && message.content.includes('agentSpecId') && message.content.includes(END))))
 })
 
-test('retrying an unprepared today task the next local day ends without spending a new model request', async (t) => {
-  const protocol = createCourseMockProvider()
-  let blocked = true; let calls = 0
+test('bounded V3 compiles today and weather rules from read sources with no prepare model request or shifted deadline', async t => {
+  const protocol = createCourseMockProvider(), contexts = []
+  let prepared
   const provider = { ...protocol, async complete(input) {
-    calls++
-    if (blocked) throw new RuntimeError('MODEL_BALANCE_REQUIRED', 'fixture', { status: 402, actionRequired: true })
-    return protocol.complete(input)
-  } }
-  const { service, advance } = await fixture(t, provider)
-  const created = service.createRequest({ question: '香港红磡会下雨吗今天', timezone: 'Asia/Hong_Kong' })
-  await service.idle()
-  const old = structuredClone(service.getRequest(created.requestId).run)
-  assert.equal(old.status, 'failed')
-  blocked = false; advance('2026-11-19T16:00:00.000Z')
-  service.check(created.requestId); await service.idle()
-  const expired = service.getRequest(created.requestId)
-  assert.equal(expired.run.status, 'insufficient')
-  assert.equal(expired.run.usage.modelRequests, 0)
-  assert.equal(calls, 1)
-  assert.equal(expired.watch.status, 'completed')
-  assert.equal(expired.watch.nextDueAt, null)
-  assert.equal(expired.forecasts.length, 0)
-  assert.deepEqual(expired.runs.find((run) => run.runId === old.runId), old)
-})
-
-test('forecast-only webpages cannot register either weather outcome; model can repair to a probability with no recorded result', async (t) => {
-  const protocol = createCourseMockProvider()
-  let knownAttempts = 0
-  const rejections = []
-  const provider = { ...protocol, async complete(input) {
-    for (const message of input.messages.filter((item) => item.role === 'tool')) {
-      const result = JSON.parse(message.content)
-      if (result.error?.code === 'WEATHER_OBSERVATION_REQUIRED') rejections.push(result.error)
-    }
+    const context = JSON.parse(input.messages.find(message => message.role === 'user').content)
+    contexts.push(context)
     const response = await protocol.complete(input)
     const call = response.message.tool_calls[0]
-    if (call.function.name === 'propose_forecast' && knownAttempts < 2) {
+    if (call.function.name === 'propose_forecast') {
+      prepared = structuredClone(service.getRequest(created.requestId).normalized)
       const args = JSON.parse(call.function.arguments)
-      args.outcomeKnown = true; args.outcome = knownAttempts++
-      args.summary = '错误协议提案：试图仅根据含雨字的预报页面提前登记结果。'
+      args.sourceLimitations = []
       call.function.arguments = JSON.stringify(args)
     }
     return response
   } }
-  const pages = ['official', 'news', 'verification'].map((role) => ({ url: `https://example.com/course-lab/${role}`, title: `【模拟预报】${role}`,
-    text: '【协议模拟】页面只有未来降雨预报和概率，没有实况观测；即使有“雨”字也不是已发生结果。' }))
-  const { service } = await fixture(t, provider, { pages })
-  const created = service.createRequest({ question: '【协议模拟】香港红磡会下雨吗今天', timezone: 'Asia/Hong_Kong', watch: false })
+  const { service } = await fixture(t, provider)
+  const created = service.createRequest({ question: '【协议模拟】香港红磡会下雨吗今天', timezone: 'Asia/Hong_Kong', horizonHours: 24 })
   await service.idle()
   const done = service.getRequest(created.requestId)
   assert.equal(done.run.status, 'completed', JSON.stringify(done.run.error))
-  assert.equal(knownAttempts, 2)
-  assert(rejections.length >= 2)
-  assert(rejections.every((error) => error.message.includes('outcomeKnown')))
-  assert.equal(done.result, null)
-  assert.equal(done.forecasts.length, 1)
-  assert(Number.isFinite(done.forecast.probabilityYes))
-  assert(!done.run.events.some((event) => event.type === 'run.finished' && event.payload.summary?.includes('已登记事实')))
+  assert.equal(done.run.harnessVersion, 3)
+  assert.equal(done.normalized.targetAt, END)
+  assert.equal(done.normalized.forecastClosesAt, END)
+  assert.equal(done.normalized.timezone, 'Asia/Hong_Kong')
+  assert.match(done.normalized.question, /2026-11-19 23:59:59/)
+  assert.match(done.normalized.resolutionRule, /实况观测/)
+  assert.match(done.normalized.resolutionRule, /不能单独作为YES/)
+  assert.deepEqual(done.normalized, prepared, 'a final candidate cannot rewrite its already compiled contract or preparation limitations')
+  assert(done.normalized.sourceLimitations.some(text => text.includes('未来的结构化结算记录')))
+  assert.deepEqual(done.forecast.sourceLimitations, [], 'a final candidate may explicitly clear resolved limitations without rewriting preparation')
+  const main = contexts.filter(context => context.kind === 'course-main')
+  assert(!main.some(context => context.phase === 'prepare'))
+  assert(main.every(context => context.targetAt === END && context.timeContext.targetAtUtc === END))
+  assert(done.run.events.some(event => event.type === 'contract.compiled'))
+  const workers = contexts.filter(context => context.agentSpecId)
+  assert(workers.length >= 3)
+  assert(workers.every(context => context.objective.includes(END)))
+})
+
+test('retrying an unprepared today task the next local day ends without spending a new model request', async (t) => {
+  for (const watch of [false, true]) await t.test(watch ? 'explicit monitoring completes' : 'default one-shot stays off', async t => {
+    const protocol = createCourseMockProvider()
+    let blocked = true; let calls = 0
+    const provider = { ...protocol, async complete(input) {
+      calls++
+      if (blocked) throw new RuntimeError('MODEL_BALANCE_REQUIRED', 'fixture', { status: 402, actionRequired: true })
+      return protocol.complete(input)
+    } }
+    const { service, advance } = await fixture(t, provider)
+    const created = service.createRequest({ question: '香港红磡会下雨吗今天', timezone: 'Asia/Hong_Kong', ...(watch ? { watch: true } : {}) })
+    await service.idle()
+    const old = structuredClone(service.getRequest(created.requestId).run)
+    assert.equal(old.status, 'failed')
+    assert.equal(old.error.code, 'MODEL_BALANCE_REQUIRED')
+    blocked = false; advance('2026-11-19T16:00:00.000Z')
+    service.check(created.requestId); await service.idle()
+    const expired = service.getRequest(created.requestId)
+    assert.equal(expired.run.status, 'insufficient')
+    assert.match(expired.run.summary, /目标时间已到，停止准备和预测更新/)
+    assert.equal(resolveRequestDeadline(expired), END)
+    assert.equal(expired.normalized, null, 'expired preparation must not create a new contract')
+    assert.equal(expired.run.usage.modelRequests, 0)
+    assert.equal(calls, 1)
+    assert.equal(expired.watchEnabled, watch)
+    assert.equal(expired.watch.status, watch ? 'completed' : 'off')
+    assert.equal(expired.watch.nextDueAt, null)
+    assert.equal(expired.forecasts.length, 0)
+    assert.deepEqual(expired.runs.find((run) => run.runId === old.runId), old)
+  })
+})
+
+test('forecast-only webpages cannot register either weather outcome; model can repair to a probability with no recorded result', async (t) => {
+  for (const outcome of [0, 1]) await t.test('reject result ' + outcome + ' then repair within two review requests', async t => {
+    const protocol = createCourseMockProvider()
+    let knownAttempts = 0
+    const rejections = []
+    const provider = { ...protocol, async complete(input) {
+      for (const message of input.messages.filter((item) => item.role === 'tool')) {
+        const result = JSON.parse(message.content)
+        if (result.error?.code === 'WEATHER_OBSERVATION_REQUIRED') rejections.push(result.error)
+      }
+      const response = await protocol.complete({ ...input, tools: input.tools.filter(tool => tool.function.name !== 'request_followup') })
+      const call = response.message.tool_calls[0]
+      if (call.function.name === 'propose_forecast' && knownAttempts < 1) {
+        const args = JSON.parse(call.function.arguments)
+        args.outcomeKnown = true; args.outcome = outcome; knownAttempts++
+        args.summary = '错误协议提案：试图仅根据含雨字的预报页面提前登记结果。'
+        call.function.arguments = JSON.stringify(args)
+      }
+      return response
+    } }
+    const pages = ['official', 'news', 'verification'].map((role) => ({ url: `https://example.com/course-lab/${role}`, title: `【模拟预报】${role}`,
+      text: '【协议模拟】页面只有未来降雨预报和概率，没有实况观测；即使有“雨”字也不是已发生结果。' }))
+    const { service } = await fixture(t, provider, { pages })
+    const created = service.createRequest({ question: '【协议模拟】香港红磡会下雨吗今天', timezone: 'Asia/Hong_Kong', watch: false })
+    await service.idle()
+    const done = service.getRequest(created.requestId)
+    assert.equal(done.run.status, 'completed', JSON.stringify(done.run.error))
+    assert.equal(knownAttempts, 1)
+    assert(rejections.length >= 1)
+    assert(rejections.every((error) => error.message.includes('outcomeKnown')))
+    assert.equal(done.result, null)
+    assert.equal(done.forecasts.length, 1)
+    assert(Number.isFinite(done.forecast.probabilityYes))
+    assert(!done.run.events.some((event) => event.type === 'run.finished' && event.payload.summary?.includes('已登记事实')))
+  })
 })
 
 test('storage also rejects direct preset-weather result registration without modifying its known-result ledger', () => {

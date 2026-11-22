@@ -1,0 +1,437 @@
+{
+  "validatedAt": "2026-11-22T10:35:40.274Z",
+  "verification": "real-model-live-sources-no-injected-answers",
+  "originalUserFailure": {
+    "requestId": "course_request_f516dbaa-baf5-4725-8178-e5887c768931",
+    "question": "腾讯股价",
+    "modelRequests": 21,
+    "totalTokens": 182115,
+    "result": "insufficient"
+  },
+  "cases": [
+    {
+      "caseId": "tencent",
+      "question": "腾讯股价",
+      "requestId": "course_request_73e00216-c408-4c3c-ac1f-2a7e3570280e",
+      "runId": "course_run_5fe4f852-8eba-498e-acca-ddb681a8c6eb",
+      "preview": "http://127.0.0.1:4204/#/course/course_request_73e00216-c408-4c3c-ac1f-2a7e3570280e",
+      "status": "completed",
+      "modelRef": "deepseek-flash",
+      "modelMode": "live",
+      "sourceMode": "live",
+      "createdAt": "2026-11-22T10:25:24.507Z",
+      "executionStartedAt": "2026-11-22T10:25:24.520Z",
+      "finishedAt": "2026-11-22T10:28:10.007Z",
+      "executionSeconds": 165.487,
+      "usage": {
+        "modelRequests": 26,
+        "toolCalls": 23,
+        "totalTokens": 279030,
+        "promptTokens": 251855,
+        "completionTokens": 27175,
+        "cacheHitTokens": 14592,
+        "cacheMissTokens": 237263,
+        "unknownUsage": false
+      },
+      "main": {
+        "modelRequests": 3,
+        "tokens": 33437
+      },
+      "forecast": {
+        "probabilityYes": 0.46,
+        "probabilityNo": 0.54,
+        "targetAt": "2026-11-23T08:10:00.000Z",
+        "kind": "conditional_estimate",
+        "publicationMode": "model-provisional-estimate",
+        "reviewRequired": true,
+        "scoringEligible": false,
+        "reportAdequacy": {
+          "eligibleRoleCount": 3,
+          "completeRoleCount": 2,
+          "partialRoleCount": 1,
+          "acceptedAssignmentIds": [
+            "course_run_5fe4f852-8eba-498e-acca-ddb681a8c6eb_market_initial",
+            "course_run_5fe4f852-8eba-498e-acca-ddb681a8c6eb_statistics_initial",
+            "course_run_5fe4f852-8eba-498e-acca-ddb681a8c6eb_verification_followup_2"
+          ],
+          "preliminary": true
+        }
+      },
+      "assignments": [
+        {
+          "assignmentId": "course_run_5fe4f852-8eba-498e-acca-ddb681a8c6eb_market_initial",
+          "roleId": "market",
+          "followUp": false,
+          "status": "completed",
+          "reportStatus": "complete",
+          "reportProbability": 0.45,
+          "partialProbability": 0.45,
+          "usableProbability": 0.45,
+          "usage": {
+            "modelRequests": 4,
+            "toolCalls": 4,
+            "totalTokens": 35497,
+            "unknownUsage": false,
+            "investigationRequests": 2,
+            "reportRequests": 2
+          },
+          "evidenceCount": 3
+        },
+        {
+          "assignmentId": "course_run_5fe4f852-8eba-498e-acca-ddb681a8c6eb_statistics_initial",
+          "roleId": "statistics",
+          "followUp": false,
+          "status": "completed",
+          "reportStatus": "insufficient",
+          "reportProbability": null,
+          "partialProbability": 0.47,
+          "usableProbability": 0.47,
+          "usage": {
+            "modelRequests": 7,
+            "toolCalls": 7,
+            "totalTokens": 73906,
+            "unknownUsage": false,
+            "investigationRequests": 5,
+            "reportRequests": 2
+          },
+          "evidenceCount": 3
+        },
+        {
+          "assignmentId": "course_run_5fe4f852-8eba-498e-acca-ddb681a8c6eb_verification_initial",
+          "roleId": "verification",
+          "followUp": false,
+          "status": "completed",
+          "reportStatus": "insufficient",
+          "reportProbability": null,
+          "partialProbability": 0.42,
+          "usableProbability": null,
+          "usage": {
+            "modelRequests": 8,
+            "toolCalls": 7,
+            "totalTokens": 82337,
+            "unknownUsage": false,
+            "investigationRequests": 5,
+            "reportRequests": 3
+          },
+          "evidenceCount": 2
+        },
+        {
+          "assignmentId": "course_run_5fe4f852-8eba-498e-acca-ddb681a8c6eb_verification_followup_2",
+          "roleId": "verification",
+          "followUp": true,
+          "status": "completed",
+          "reportStatus": "complete",
+          "reportProbability": 0.47,
+          "partialProbability": null,
+          "usableProbability": 0.47,
+          "usage": {
+            "modelRequests": 4,
+            "toolCalls": 6,
+            "totalTokens": 53853,
+            "unknownUsage": false,
+            "investigationRequests": 3,
+            "reportRequests": 1
+          },
+          "evidenceCount": 4
+        }
+      ],
+      "evidenceCount": 11,
+      "groundedClaimCount": 8,
+      "decisionCount": 4,
+      "handoffReads": 1,
+      "actionRejections": [],
+      "watch": {
+        "enabled": false,
+        "status": "off",
+        "nextDueAt": null
+      }
+    },
+    {
+      "caseId": "nvidia",
+      "question": "英伟达股票走势",
+      "requestId": "course_request_992880a8-ab18-4c61-bd23-37b08e70b70b",
+      "runId": "course_run_4b5f6240-efcb-49dc-9018-feeafb710a79",
+      "preview": "http://127.0.0.1:4204/#/course/course_request_992880a8-ab18-4c61-bd23-37b08e70b70b",
+      "status": "completed",
+      "modelRef": "deepseek-flash",
+      "modelMode": "live",
+      "sourceMode": "live",
+      "createdAt": "2026-11-22T10:25:24.546Z",
+      "executionStartedAt": "2026-11-22T10:28:10.033Z",
+      "finishedAt": "2026-11-22T10:30:37.755Z",
+      "executionSeconds": 147.722,
+      "usage": {
+        "modelRequests": 28,
+        "toolCalls": 22,
+        "totalTokens": 310088,
+        "promptTokens": 280261,
+        "completionTokens": 29827,
+        "cacheHitTokens": 25984,
+        "cacheMissTokens": 254277,
+        "unknownUsage": false
+      },
+      "main": {
+        "modelRequests": 4,
+        "tokens": 45647
+      },
+      "forecast": {
+        "probabilityYes": 0.47,
+        "probabilityNo": 0.53,
+        "targetAt": "2026-11-25T21:00:00.000Z",
+        "kind": "conditional_estimate",
+        "publicationMode": "model-provisional-estimate",
+        "reviewRequired": true,
+        "scoringEligible": false,
+        "reportAdequacy": {
+          "eligibleRoleCount": 3,
+          "completeRoleCount": 0,
+          "partialRoleCount": 3,
+          "acceptedAssignmentIds": [
+            "course_run_4b5f6240-efcb-49dc-9018-feeafb710a79_statistics_initial",
+            "course_run_4b5f6240-efcb-49dc-9018-feeafb710a79_industry_initial",
+            "course_run_4b5f6240-efcb-49dc-9018-feeafb710a79_verification_followup_2"
+          ],
+          "preliminary": true
+        }
+      },
+      "assignments": [
+        {
+          "assignmentId": "course_run_4b5f6240-efcb-49dc-9018-feeafb710a79_statistics_initial",
+          "roleId": "statistics",
+          "followUp": false,
+          "status": "completed",
+          "reportStatus": "insufficient",
+          "reportProbability": null,
+          "partialProbability": 0.5,
+          "usableProbability": 0.5,
+          "usage": {
+            "modelRequests": 5,
+            "toolCalls": 4,
+            "totalTokens": 51026,
+            "unknownUsage": false,
+            "investigationRequests": 2,
+            "reportRequests": 3
+          },
+          "evidenceCount": 2
+        },
+        {
+          "assignmentId": "course_run_4b5f6240-efcb-49dc-9018-feeafb710a79_industry_initial",
+          "roleId": "industry",
+          "followUp": false,
+          "status": "completed",
+          "reportStatus": "insufficient",
+          "reportProbability": null,
+          "partialProbability": 0.45,
+          "usableProbability": 0.45,
+          "usage": {
+            "modelRequests": 7,
+            "toolCalls": 8,
+            "totalTokens": 77179,
+            "unknownUsage": false,
+            "investigationRequests": 4,
+            "reportRequests": 3
+          },
+          "evidenceCount": 4
+        },
+        {
+          "assignmentId": "course_run_4b5f6240-efcb-49dc-9018-feeafb710a79_verification_initial",
+          "roleId": "verification",
+          "followUp": false,
+          "status": "completed",
+          "reportStatus": "insufficient",
+          "reportProbability": null,
+          "partialProbability": 0.35,
+          "usableProbability": null,
+          "usage": {
+            "modelRequests": 7,
+            "toolCalls": 6,
+            "totalTokens": 75618,
+            "unknownUsage": false,
+            "investigationRequests": 4,
+            "reportRequests": 3
+          },
+          "evidenceCount": 2
+        },
+        {
+          "assignmentId": "course_run_4b5f6240-efcb-49dc-9018-feeafb710a79_verification_followup_2",
+          "roleId": "verification",
+          "followUp": true,
+          "status": "completed",
+          "reportStatus": "insufficient",
+          "reportProbability": null,
+          "partialProbability": 0.42,
+          "usableProbability": 0.42,
+          "usage": {
+            "modelRequests": 5,
+            "toolCalls": 4,
+            "totalTokens": 60618,
+            "unknownUsage": false,
+            "investigationRequests": 2,
+            "reportRequests": 3
+          },
+          "evidenceCount": 2
+        }
+      ],
+      "evidenceCount": 7,
+      "groundedClaimCount": 7,
+      "decisionCount": 4,
+      "handoffReads": 0,
+      "actionRejections": [],
+      "watch": {
+        "enabled": false,
+        "status": "off",
+        "nextDueAt": null
+      }
+    },
+    {
+      "caseId": "apple",
+      "question": "苹果 AAPL 股价",
+      "requestId": "course_request_55af3348-aac2-4809-9504-0d2b8a169d28",
+      "runId": "course_run_8740fcc3-9245-4489-a18a-0d5e5b1f0c34",
+      "preview": "http://127.0.0.1:4204/#/course/course_request_55af3348-aac2-4809-9504-0d2b8a169d28",
+      "status": "completed",
+      "modelRef": "deepseek-flash",
+      "modelMode": "live",
+      "sourceMode": "live",
+      "createdAt": "2026-11-22T10:25:24.560Z",
+      "executionStartedAt": "2026-11-22T10:30:37.774Z",
+      "finishedAt": "2026-11-22T10:32:35.955Z",
+      "executionSeconds": 118.181,
+      "usage": {
+        "modelRequests": 18,
+        "toolCalls": 16,
+        "totalTokens": 181964,
+        "promptTokens": 161894,
+        "completionTokens": 20070,
+        "cacheHitTokens": 19712,
+        "cacheMissTokens": 142182,
+        "unknownUsage": false
+      },
+      "main": {
+        "modelRequests": 2,
+        "tokens": 18688
+      },
+      "forecast": {
+        "probabilityYes": 0.49,
+        "probabilityNo": 0.51,
+        "targetAt": "2026-11-25T21:00:00.000Z",
+        "kind": "conditional_estimate",
+        "publicationMode": "model-decision",
+        "reviewRequired": false,
+        "scoringEligible": false,
+        "reportAdequacy": {
+          "eligibleRoleCount": 3,
+          "completeRoleCount": 3,
+          "partialRoleCount": 0,
+          "acceptedAssignmentIds": [
+            "course_run_8740fcc3-9245-4489-a18a-0d5e5b1f0c34_market_initial",
+            "course_run_8740fcc3-9245-4489-a18a-0d5e5b1f0c34_statistics_initial",
+            "course_run_8740fcc3-9245-4489-a18a-0d5e5b1f0c34_verification_initial"
+          ],
+          "preliminary": false
+        }
+      },
+      "assignments": [
+        {
+          "assignmentId": "course_run_8740fcc3-9245-4489-a18a-0d5e5b1f0c34_market_initial",
+          "roleId": "market",
+          "followUp": false,
+          "status": "completed",
+          "reportStatus": "complete",
+          "reportProbability": 0.51,
+          "partialProbability": null,
+          "usableProbability": 0.51,
+          "usage": {
+            "modelRequests": 3,
+            "toolCalls": 4,
+            "totalTokens": 26083,
+            "unknownUsage": false,
+            "investigationRequests": 2,
+            "reportRequests": 1
+          },
+          "evidenceCount": 2
+        },
+        {
+          "assignmentId": "course_run_8740fcc3-9245-4489-a18a-0d5e5b1f0c34_statistics_initial",
+          "roleId": "statistics",
+          "followUp": false,
+          "status": "completed",
+          "reportStatus": "complete",
+          "reportProbability": 0.47,
+          "partialProbability": 0.42,
+          "usableProbability": 0.47,
+          "usage": {
+            "modelRequests": 8,
+            "toolCalls": 6,
+            "totalTokens": 83203,
+            "unknownUsage": false,
+            "investigationRequests": 5,
+            "reportRequests": 3
+          },
+          "evidenceCount": 1
+        },
+        {
+          "assignmentId": "course_run_8740fcc3-9245-4489-a18a-0d5e5b1f0c34_verification_initial",
+          "roleId": "verification",
+          "followUp": false,
+          "status": "completed",
+          "reportStatus": "complete",
+          "reportProbability": 0.51,
+          "partialProbability": 0.51,
+          "usableProbability": 0.51,
+          "usage": {
+            "modelRequests": 5,
+            "toolCalls": 6,
+            "totalTokens": 53990,
+            "unknownUsage": false,
+            "investigationRequests": 3,
+            "reportRequests": 2
+          },
+          "evidenceCount": 4
+        }
+      ],
+      "evidenceCount": 8,
+      "groundedClaimCount": 8,
+      "decisionCount": 3,
+      "handoffReads": 0,
+      "actionRejections": [],
+      "watch": {
+        "enabled": false,
+        "status": "off",
+        "nextDueAt": null
+      }
+    }
+  ],
+  "totals": {
+    "modelRequests": 72,
+    "modelTokens": 771082
+  },
+  "limitations": [
+    "Small engineering validation set; no accuracy or calibration claim.",
+    "Reference prices are not structured verified baselines; these estimates are not scoreable.",
+    "Partial model claims preserve original probabilities and rejection records; do not represent full worker success.",
+    "Source failures and report corrections remain visible."
+  ],
+  "regression": {
+    "tests": 581,
+    "pass": 581,
+    "fail": 0,
+    "log": "work/forecast-reliability/final-complete.log"
+  },
+  "previewUpgrade": {
+    "ports": [
+      4203,
+      4204
+    ],
+    "oldRequestsPreserved": true,
+    "activeTasksBeforeRestart": 0,
+    "connectionRestored": true,
+    "prefilledQuestion": "腾讯股价",
+    "prefilledTradingDays": 1,
+    "prefilledTaskSubmitted": false
+  },
+  "additionalBoundaryChecks": [
+    "Same-run reader rejects saved text longer than its full-return limit before granting reader permission.",
+    "Exploratory verification requires actually adopted substantive complete verification evidence; raw footer-complete reports do not remove review or permit scoring."
+  ]
+}

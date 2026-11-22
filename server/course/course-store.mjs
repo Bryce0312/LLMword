@@ -14,6 +14,8 @@ import { buildMemorySnapshot } from './memory-policy.mjs'
 import { deriveForecastStatus } from './forecast-facts.mjs'
 import { WARNING_URL, WARNING_POLICY, WARNING_RULE, parseWarnings } from './weather-warning.mjs'
 import { PRICE_URL, PRICE_POLICY, PRICE_RULE, parsePriceSnapshot } from './market-resolution.mjs'
+import { boundedForecastBudget, isBoundedForecast, effectiveRoleReports } from './bounded-forecast.mjs'
+import { isExploratoryForecast, selectExploratoryReports } from './exploratory-reports.mjs'
 
 export const courseFailure = (code, message, status = 400) => Object.assign(domainFailure(code, message, status), { courseSafe: true })
 const terminal = new Set(['completed', 'insufficient', 'failed', 'cancelled'])
@@ -149,7 +151,7 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
         }
         const at = clock()
         const snapshot = predictionBudget && (input.purpose || 'forecast') === 'forecast' ? validatePredictionBudget(predictionBudget) : null
-        const request = { ...input, ...(snapshot ? { budget: { ...input.budget, maxTotalTokens: snapshot.maxTotalTokens } } : {}), requestId: id('course_request'), status: 'queued', createdAt: at, updatedAt: at, normalized: null }
+        const request = { ...input, ...(snapshot ? { budget: isBoundedForecast(input) ? boundedForecastBudget(input.budget, snapshot.maxTotalTokens) : { ...input.budget, maxTotalTokens: snapshot.maxTotalTokens } } : {}), requestId: id('course_request'), status: 'queued', createdAt: at, updatedAt: at, normalized: null }
         if (input.horizonTradingDays !== undefined && !input.strict?.targetAt) request.tradingHorizon = buildTradingHorizon({ question: input.question, market: input.market, tradingDays: input.horizonTradingDays, createdAt: at })
         db.prepare('INSERT INTO course_requests VALUES (?,?)').run(request.requestId, json(request))
         const run = queue(request.requestId, 'manual')
@@ -387,6 +389,7 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
         if (request.purpose === 'research') throw courseFailure('RESEARCH_PURPOSE', '研报任务不能发布预测概率。', 409)
         const at = clock()
         if (totalTokenLimitExceeded(run.budget, run.usage.totalTokens)) throw courseFailure('COURSE_BUDGET', '超出本轮预算后不能发布预测。', 409)
+        if (isBoundedForecast(run) && run.usage.unknownUsage) throw courseFailure('COURSE_USAGE_UNKNOWN', '部分模型请求用量未知，不能将本轮封存为完整预测。', 409)
         if (currentPrediction?.predictionId !== run.predictionId || currentPrediction.version !== run.predictionVersion || currentPrediction.type !== 'binary') throw courseFailure('FORECAST_VERSION', '题目版本已经改变，不能发布旧契约判断。', 409)
         if (currentPrediction.status !== 'ready' || !currentPrediction.validation?.ready || !(Date.parse(currentPrediction.forecastClosesAt) > Date.parse(at))) throw courseFailure('FORECAST_CLOSED', '题目未就绪或已过停止发布时间。', 409)
         if (db.prepare('SELECT 1 FROM course_results WHERE request_id=?').get(run.requestId)) throw courseFailure('RESULT_KNOWN', '已登记结果，停止发布预测。', 409)
@@ -398,11 +401,24 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
         if (!available.some((item) => item.url === currentPrediction.resolutionSource.url && item.readBy.length)) throw courseFailure('RESOLUTION_SOURCE_UNREAD', '指定结果来源尚未实际读取。', 409)
         let groundedReasoning = candidate.reasoningClaims || []
         if (request.groundingPolicy) try { groundedReasoning = validateGroundedClaims(candidate.reasoningClaims, cited, { asOf: at }) } catch (error) { throw courseFailure('CLAIM_GROUNDING', error.message, 409) }
-        const workers = db.prepare('SELECT record_json FROM course_assignments WHERE run_id=?').all(runId).map(decode)
+        const workers = db.prepare('SELECT record_json FROM course_assignments WHERE run_id=? ORDER BY rowid').all(runId).map(decode)
+        const exploratory = isExploratoryForecast(run, request)
+        const reportAdequacy = exploratory ? selectExploratoryReports(workers, available, { asOf: at, runId, unknownUsage: run.usage.unknownUsage }) : null
+        const decisionWorkers = exploratory ? workers.map(worker => {
+          const usable = reportAdequacy.usable.find(item => item.assignmentId === worker.assignmentId)
+          return usable ? { ...worker, report: usable.report } : worker
+        }) : workers
         let decisionNotes
-        try { decisionNotes = validateDecisionNotes(candidate.decisionNotes, workers, available.filter((item) => item.text?.trim() && item.readBy.length && item.predictionId === run.predictionId && Date.parse(item.obtainedAt) <= Date.parse(at) && (!item.publishedAt || Date.parse(item.publishedAt) <= Date.parse(at))).map((item) => item.evidenceId)) }
+        try { decisionNotes = validateDecisionNotes(candidate.decisionNotes, decisionWorkers, available.filter((item) => item.text?.trim() && item.readBy.length && item.predictionId === run.predictionId && Date.parse(item.obtainedAt) <= Date.parse(at) && (!item.publishedAt || Date.parse(item.publishedAt) <= Date.parse(at))).map((item) => item.evidenceId),
+          exploratory ? { partialAssignmentIds: reportAdequacy.usable.filter(item => item.quality === 'partial').map(item => item.assignmentId) } : {}) }
         catch (error) { throw courseFailure('DECISION_EVIDENCE', error.message, 409) }
-        if (workers.filter((worker) => !worker.followUp && worker.status === 'completed' && worker.report?.status === 'complete').length < 2 || !cited.some((item) => item.readBy.some((reader) => reader !== 'main'))) throw courseFailure('REPORTS_INSUFFICIENT', '独立调查或已读证据不足。', 409)
+        const boundedReports = isBoundedForecast(run) ? effectiveRoleReports(workers) : null
+        const reportCount = boundedReports ? boundedReports.length
+          : workers.filter((worker) => !worker.followUp && worker.status === 'completed' && worker.report?.status === 'complete').length
+        const acceptedReports = exploratory ? reportAdequacy.usable.filter(item => decisionNotes.some(note => note.assignmentId === item.assignmentId && ['adopted', 'qualified'].includes(note.disposition) && note.evidenceIds.some(id => item.evidenceIds.includes(id)))) : []
+        if ((!exploratory && reportCount < 2 || exploratory && !acceptedReports.length) || !cited.some((item) => item.readBy.some((reader) => reader !== 'main'))) throw courseFailure('REPORTS_INSUFFICIENT', exploratory ? '尚无被主Agent采用的、本人已读且有实质引用与模型概率的报告；来源限制本身不能充作事件证据。' : '独立调查或已读证据不足。', 409)
+        if (!exploratory && boundedReports && boundedReports.filter(worker => Number.isFinite(worker.report.probability) && worker.report.probability >= 0 && worker.report.probability <= 1).length < 2) throw courseFailure('REPORT_SCORES_INSUFFICIENT', '至少两种不同职责须提交有依据的0至1概率估计；主Agent不能用自己的概率替代缺失的研究员评分。', 409)
+        if (exploratory && !groundedReasoning.some(claim => acceptedReports.some(report => report.substantiveClaims.some(original => digest(original) === digest(claim))))) throw courseFailure('CLAIM_GROUNDING', '初步估计也须沿用至少一条已采用研究员的实质原文依据，不能只引用资料缺失或免责声明。', 409)
         if (request.resolutionPolicy?.version === PRICE_POLICY) {
           const fresh = run.state.priceFinalSnapshot, latest = run.state.latestReference
           if (!fresh || latest?.evidenceId !== fresh.quoteEvidenceId || !available.some(source => source.evidenceId === fresh.quoteEvidenceId && source.readBy.includes('main')) || !Number.isFinite(Date.parse(latest.observedAt)) || Date.parse(latest.observedAt) > Date.parse(at) || Date.parse(at) - Date.parse(latest.observedAt) > 120000) throw courseFailure('PRICE_REVIEW_STALE', '汇总前最新行情缺失或已超过两分钟，须重新取得后再发布；初始基准不变。', 409)
@@ -425,11 +441,34 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
           scoringEligible: currentPrediction.scoringEligible !== false && !request.normalized?.baseline?.synthetic && !request.normalized?.conditionalOnly && run.modelMode === 'live' && run.sourceMode === 'live' && cited.every((item) => item.sourceMode === 'live' && !item.fixture),
           label: run.modelMode === 'mock' || run.sourceMode !== 'live' ? '协议模拟或回放资料结果，不是真实预测' : '模型事件概率估计' }
         value.reasoningClaims = groundedReasoning; value.groundingPolicy = request.groundingPolicy || null
+        for (const key of ['publicationMode', 'scorecard', 'aggregationMethod']) if (candidate[key] !== undefined && candidate[key] !== null) value[key] = candidate[key]
+        if (value.publicationMode === 'bounded-report-aggregation') value.label = '程序汇集的研究员概率估计（主Agent未完成最终裁决）'
         if (recoverRecordedCandidate) value.publicationMode = 'revalidated-recorded-model-candidate'
-        if (request.groundingPolicy) {
-          const verified = workers.some(worker => worker.roleId === 'verification' && worker.status === 'completed' && worker.report?.status === 'complete')
+        if (request.groundingPolicy || exploratory) {
+          const verified = exploratory ? acceptedReports.some(item => item.roleId === 'verification' && item.quality === 'complete')
+            : workers.some(worker => worker.roleId === 'verification' && worker.status === 'completed' && worker.report?.status === 'complete')
           value.reviewRequired = !verified || recoverRecordedCandidate
-          value.reviewReasons = [!verified ? '核验席未完成有效报告，不能视为完整独立核验。' : null, recoverRecordedCandidate ? '原模型候选经过维护重验后封存，不能计为完整自动流程成功。' : null].filter(Boolean)
+          value.reviewReasons = [!verified ? exploratory ? '核验席未提交并被实际采纳的完整实质原文核验报告；原始complete状态或来源提示不能替代有效核验。' : '核验席未完成有效报告，不能视为完整独立核验。' : null, recoverRecordedCandidate ? '原模型候选经过维护重验后封存，不能计为完整自动流程成功。' : null].filter(Boolean)
+          if (exploratory && !verified) value.scoringEligible = false
+        }
+        if (value.publicationMode === 'bounded-report-aggregation') {
+          value.scoringEligible = false
+          value.reviewRequired = true
+          value.reviewReasons = [...(value.reviewReasons || []), '主Agent未完成有效最终裁决；当前为程序汇集的研究员估计，须复核，不计为完整自动预测成功。']
+        }
+        if (exploratory) {
+          const preliminary = acceptedReports.length < 2 || acceptedReports.some(item => item.quality !== 'complete')
+          value.deliveryPolicy = run.budget.deliveryPolicy
+          value.reportAdequacy = { eligibleRoleCount: reportAdequacy.roleCount, completeRoleCount: reportAdequacy.completeRoleCount,
+            partialRoleCount: reportAdequacy.partialRoleCount, acceptedAssignmentIds: acceptedReports.map(item => item.assignmentId), preliminary }
+          value.scorecard = reportAdequacy.usable.map(item => ({ assignmentId: item.assignmentId, roleId: item.roleId, probabilityYes: item.report.probability, quality: item.quality, reportOrigin: item.reportOrigin }))
+          if (preliminary) {
+            value.kind = 'conditional_estimate'; value.scoringEligible = false; value.reviewRequired = true
+            if (value.publicationMode !== 'bounded-report-aggregation') value.publicationMode = 'model-provisional-estimate'
+            value.label = '有公开依据的初步条件估计（资料有限，需复核）'
+            value.evidenceAdequacy = 'limited'
+            value.reviewReasons = [...(value.reviewReasons || []), '采用的研究报告数量或完整程度有限；保留模型估计，不能作为完整核验或可计分结果。']
+          }
         }
         Object.assign(value, deriveForecastStatus(value))
         db.prepare('INSERT INTO course_forecasts VALUES (?,?,?,?)').run(value.forecastId, runId, hash, json(value))

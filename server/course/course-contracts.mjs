@@ -15,6 +15,7 @@ export const definitions = {
   })],
   draft_and_delegate: ['第一步只整理题意和分工，不调查或预测。给待核验草稿及三位不同职责（含verification）的调查任务；来源、规则和基准交研究员实际取证。', object({
     question: string(1000), object: string(500), interpretation: string(1000),
+    targetAt: string(80),
     defaultAssumptions: { type: 'array', maxItems: 6, items: string(500) },
     assignments: { type: 'array', minItems: 3, maxItems: 3, items: object({ roleId: { enum: roles }, objective: string(2000), reason: string(500) }) },
   }, ['question', 'object', 'interpretation', 'assignments'])],

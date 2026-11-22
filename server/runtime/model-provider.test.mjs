@@ -17,6 +17,28 @@ test('versioned research calls can lower reasoning effort without changing the p
   assert.equal(provider.settings.reasoningEffort, 'high')
 })
 
+test('a DeepSeek report can disable thinking for one request without changing durable provider settings', async () => {
+  const bodies = []
+  const provider = createModelProvider({ ...environment, WORLD_MODEL_PROTOCOL: 'deepseek', WORLD_MODEL_THINKING: 'enabled', WORLD_MODEL_REASONING_EFFORT: 'high' }, async (_url, options) => {
+    bodies.push(JSON.parse(options.body)); return Response.json({ choices: [{ message, finish_reason: 'tool_calls' }], usage: { total_tokens: 10 } })
+  })
+  const identity = provider.configurationId
+  await provider.complete({ messages: [message], tools: [], maxTokens: 100, thinkingOverride: 'disabled', reasoningEffortOverride: 'low' })
+  await provider.complete({ messages: [], tools: [], maxTokens: 100 })
+  assert.deepEqual(bodies[0].thinking, { type: 'disabled' })
+  assert(!Object.hasOwn(bodies[0], 'reasoning_effort'))
+  assert.equal(bodies[0].tool_choice, 'auto')
+  assert.deepEqual(bodies[0].messages, [message], 'Private native protocol is not stripped when switching report mode')
+  assert.deepEqual(bodies[1].thinking, { type: 'enabled' })
+  assert.equal(bodies[1].reasoning_effort, 'high')
+  assert.equal(provider.settings.thinking, 'enabled')
+  assert.equal(provider.configurationId, identity)
+  for (const thinkingOverride of ['enabled', 'automatic', null]) await assert.rejects(provider.complete({ messages: [], tools: [], thinkingOverride }), { code: 'MODEL_CONFIG' })
+  const compatible = createModelProvider(environment, () => assert.fail('DeepSeek-only override must not reach a generic endpoint'))
+  await assert.rejects(compatible.complete({ messages: [], tools: [], thinkingOverride: 'disabled' }), { code: 'MODEL_CONFIG' })
+  assert.equal(bodies.length, 2)
+})
+
 test('native provider sends tool definitions and returns the full assistant message', async () => {
   const requests = []
   const provider = createModelProvider(environment, async (url, options) => {

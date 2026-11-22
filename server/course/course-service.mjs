@@ -7,6 +7,13 @@ import { digest, validDate, validUrl } from '../domain/contracts.mjs'
 import { createCourseStore, courseFailure } from './course-store.mjs'
 import { TRADING_DAY_OPTIONS, TRADING_DAY_CAPABILITIES, tradingMarketTimezone } from './trading-calendar.mjs'
 import { totalTokenLimit, remainingTotalTokens, boundedOutputTokens } from './prediction-budget.mjs'
+import { planModelCall, estimateModelInputTokens } from '../runtime/model-budget.mjs'
+import { boundedForecastBudget, isBoundedForecast, effectiveRoleReports, reportScorecard, boundedMainMessages, assembleForecastCandidate, partialForecastSummary } from './bounded-forecast.mjs'
+import { EXPLORATORY_DELIVERY_POLICY, isExploratoryForecast, selectExploratoryReports } from './exploratory-reports.mjs'
+import { createRunEvidenceReader } from './run-evidence-reader.mjs'
+import { officialSourceScope } from './official-source-scope.mjs'
+import { FINANCIAL_TARGET_POLICY, financialTargetIssue, isExplicitListingQuestion } from './financial-target-policy.mjs'
+import { FORECAST_WINDOW_POLICY, intakeWindowIssue, forecastWindowTextIssue } from './forecast-window-policy.mjs'
 import { marketPricePair, reviewMarketReport } from './market-report.mjs'
 import { buildCollaboration } from './collaboration.mjs'
 import { memoryForModel } from './memory-policy.mjs'
@@ -129,10 +136,35 @@ export function createCourseService({ path, workbench, provider = createCourseMo
   const modern = (run) => run.harnessVersion >= 3
   const cycleOf = (run) => run.state.cycle || 1
   const followUpsUsed = (run) => run.state.followUpsUsed || 0
-  const followUpLimit = (run) => { const request = store.requireRequest(run.requestId); return request.purpose === 'research' || request.resolutionPolicy ? 1 : modern(run) ? 2 : 1 }
-  const budgetView = (value) => Object.fromEntries(['maxModelRequests', 'maxToolCalls', 'maxTotalTokens', 'maxTokens', 'mainRequests'].filter((key) => value?.[key] !== undefined).map((key) => [key, value[key]]))
+  const followUpLimit = (run) => { const request = store.requireRequest(run.requestId); return run.budget?.maxFollowUps ?? (request.purpose === 'research' || request.resolutionPolicy ? 1 : modern(run) ? 2 : 1) }
+  const budgetView = (value) => Object.fromEntries(['strategy', 'deliveryPolicy', 'maxModelRequests', 'maxInvestigationRequests', 'maxToolCalls', 'maxTotalTokens', 'maxTokens', 'mainRequests', 'mainPhaseRequests', 'mainReserveTokens', 'maxFollowUps', 'reserveReportTokens', 'reportRepairRequests'].filter((key) => value?.[key] !== undefined).map((key) => [key, value[key]]))
+  const exploratory = run => isExploratoryForecast(run, store.requireRequest(run.requestId))
+  const reportView = runId => {
+    const run = store.requireRun(runId), items = store.listAssignments(runId)
+    return exploratory(run) ? selectExploratoryReports(items, store.evidenceFor(runId), { asOf: clock(), runId, unknownUsage: run.usage.unknownUsage }) : null
+  }
+  const modelReportItems = runId => {
+    const items = store.listAssignments(runId), view = reportView(runId)
+    if (!view) return items.filter(item => item.report).map(compactReport)
+    return items.filter(item => item.report || item.partialReport).map(item => {
+      const usable = view?.usable.find(candidate => candidate.assignmentId === item.assignmentId)
+      return usable ? { ...compactReport(usable), reportQuality: usable.quality, reportOrigin: usable.reportOrigin, recommendedDisposition: usable.quality === 'partial' ? 'qualified' : 'adopted' }
+        : { ...compactReport({ ...item, report: item.report || item.partialReport }), reportQuality: 'unusable', recommendedDisposition: 'rejected',
+          probability: null, support: [], counterevidence: [], evidenceIds: [],
+          missingEvidence: view.rejected.filter(rejected => rejected.assignmentId === item.assignmentId).flatMap(rejected => rejected.gaps).slice(0, 5),
+          summary: '该席没有通过本轮实质证据与模型概率检查；原报告已封存，此处不将访问失败、免责声明或程序回执作为预测依据。' }
+    })
+  }
+  const scoresFor = runId => {
+    const view = reportView(runId)
+    return view ? view.usable.map(item => ({ roleId: item.roleId, assignmentId: item.assignmentId, probabilityYes: item.report.probability,
+      reportQuality: item.quality, reportOrigin: item.reportOrigin, evidenceCount: item.evidenceIds.length, summary: item.report.summary.slice(0, 450), missingEvidence: item.gaps }))
+      : reportScorecard(store.listAssignments(runId))
+  }
   const orchestrationView = (run) => modern(run) ? { cycle: cycleOf(run), maxCycles: followUpLimit(run) + 1, followUpsUsed: followUpsUsed(run), maxFollowUps: followUpLimit(run),
-    investigationSteps: Math.min(5, (run.budget?.worker?.maxModelRequests || 6) - 1), reportStep: Math.min(6, run.budget?.worker?.maxModelRequests || 6), stage: run.phase } : null
+    investigationSteps: run.budget?.worker?.maxInvestigationRequests ?? Math.min(5, (run.budget?.worker?.maxModelRequests || 6) - 1),
+    reportStep: run.budget?.worker?.maxInvestigationRequests ? run.budget.worker.maxInvestigationRequests + 1 : Math.min(6, run.budget?.worker?.maxModelRequests || 6),
+    reportRepairRequests: run.budget?.worker?.reportRepairRequests || 0, stage: run.phase } : null
   let stopping = false
   let timer
   let lastEmitted = store.listEvents({ limit: 1000 }).at(-1)?.seq || 0
@@ -182,19 +214,20 @@ export function createCourseService({ path, workbench, provider = createCourseMo
     }
   }
   const researchReservations = new Map()
-  function providerFor(runId) {
+  function providerFor(runId, { worker = false } = {}) {
     return { ...provider, async complete(input) {
       ensure(runId, input.signal)
       const run = store.requireRun(runId)
       let reservation = 0
-      if (store.requireRequest(run.requestId).purpose === 'research' || store.requireRequest(run.requestId).resolutionPolicy) {
+      if (isBoundedForecast(run) || store.requireRequest(run.requestId).purpose === 'research' || store.requireRequest(run.requestId).resolutionPolicy) {
         if (run.usage.unknownUsage) throw courseFailure('COURSE_USAGE_UNKNOWN', '部分请求用量未知，已停止继续付费调用。', 409)
         // UTF-8 bytes plus protocol overhead conservatively reserve input and
         // capped output for concurrent calls. Never print these private messages.
         const tokenLimit = totalTokenLimit(runBudget(runId))
         if (tokenLimit !== null) {
-          reservation = Buffer.byteLength(JSON.stringify(input.messages || []), 'utf8') + Buffer.byteLength(JSON.stringify(input.tools || []), 'utf8') + (input.maxTokens || runBudget(runId).maxTokens) + 2048
-          if (run.usage.totalTokens + (researchReservations.get(runId) || 0) + reservation > tokenLimit) throw Object.assign(courseFailure('COURSE_BUDGET', '剩余预算不足以安全发起下一次模型请求，保留已取得资料。', 409), { usage: { total_tokens: 0 }, requestNotSent: true })
+          reservation = (isBoundedForecast(run) ? estimateModelInputTokens(input.messages || [], input.tools || []) : Buffer.byteLength(JSON.stringify(input.messages || []), 'utf8') + Buffer.byteLength(JSON.stringify(input.tools || []), 'utf8')) + (input.maxTokens || runBudget(runId).maxTokens) + 2048
+          const closeout = isBoundedForecast(run) && worker ? runBudget(runId).mainReserveTokens || 0 : 0
+          if (run.usage.totalTokens + (researchReservations.get(runId) || 0) + reservation + closeout > tokenLimit) throw Object.assign(courseFailure('COURSE_BUDGET', '剩余预算不足以安全发起下一次模型请求，保留已取得资料与最终答复额度。', 409), { usage: { total_tokens: 0 }, requestNotSent: true })
         }
       }
       store.reserve(runId, 'modelRequests', runBudget(runId).maxModelRequests)
@@ -218,16 +251,16 @@ export function createCourseService({ path, workbench, provider = createCourseMo
       }
     } }
   }
-  function toolsFor(runId, readerId, roleId, signal) {
+  function toolsFor(runId, readerId, roleId, signal, { shared = false } = {}) {
     const currentRun = store.requireRun(runId)
     const request = store.requireRequest(currentRun.requestId)
     const normalized = request.normalized
     const specifiedSource = normalized?.resolutionSource?.url || request.strict?.resolutionSourceUrl
     const tools = sourceTools.toolsFor({ roleId, question: normalized || { question: request.question },
-      sourceDomains: roleId === 'official' && specifiedSource ? [new URL(specifiedSource).hostname] : undefined,
+      ...(roleId === 'official' ? officialSourceScope(request, specifiedSource) : {}),
       allowSourceDiscovery: roleId === 'official' && modern(currentRun) && Boolean(currentRun.state.draft) && !normalized && !specifiedSource,
       legacySchemas: !request.groundingPolicy,
-      marketResolution: request.resolutionPolicy?.version === PRICE_POLICY,
+      marketResolution: request.resolutionPolicy?.version === PRICE_POLICY, cacheScope: runId,
       async onEvidence(record) {
         const run = ensure(runId, signal)
         if (!record.text?.trim() || !validUrl(record.url)) throw courseFailure('SOURCE_TEXT_REQUIRED', '仅有链接或摘要不能登记为已读原文。')
@@ -244,6 +277,10 @@ export function createCourseService({ path, workbench, provider = createCourseMo
       },
     })
     if (roleId === 'statistics') tools.push(createFinancialMetricsTool({ now: clock, getEvidence: (id) => store.evidenceFor(runId).find((item) => item.evidenceId === id && item.readBy.includes(readerId)) }))
+    if (exploratory(currentRun) && (shared || store.listAssignments(runId).some(item => item.assignmentId === readerId && item.followUp))) tools.push(createRunEvidenceReader({
+      runId, assignmentId: readerId, now: clock, getEvidence: id => store.evidenceFor(runId).find(item => item.evidenceId === id),
+      onRead(record) { ensure(runId, signal); return store.recordEvidence(runId, record, readerId) },
+    }))
     if (request.groundingPolicy && ['analogy', 'graph'].includes(roleId)) tools.push({ toolId: 'inspect_research_memory', version: 1, description: '读取本题在本轮开始时固定的公开历史摘要与支持/反证关系。旧证据须重读；此工具不写图、不生成本轮证据。', inputSchema: { type: 'object', properties: {}, additionalProperties: false },
       async execute() { return { status: 'ok', data: { memory: memoryForModel(currentRun.state.memory, { roleId }), referenceable: false, writesGraph: false }, evidenceIds: [], observedAt: clock(), summary: '已读取本轮固定历史摘要，没有写入关系或生成新证据。', error: null, usage: null } } })
     return tools.filter(tool => !request.resolutionPolicy || (request.resolutionPolicy.version === PRICE_POLICY ? ['get_market_quote','get_market_history'].includes(tool.toolId) : tool.toolId === 'get_weather_warning')).map((tool) => ({ ...tool, async execute(args, context) {
@@ -276,16 +313,21 @@ export function createCourseService({ path, workbench, provider = createCourseMo
   }
   function publicRun(value) {
     if (!value) return null
-    const assignments = store.listAssignments(value.runId).map(({ assignmentId, roleId, name, status, report, followUp, objective, reason, checkpoint, error, cycle, config, review, methodProfile, investigationProfile }) => ({
+    const adequacy = reportView(value.runId)
+    const assignments = store.listAssignments(value.runId).map(({ assignmentId, roleId, name, status, report, partialReport, followUp, objective, reason, checkpoint, error, cycle, config, review, methodProfile, investigationProfile }) => ({
       investigationProfile: investigationProfile ? { version: investigationProfile.version, roleId } : null, groundingPolicy: config?.groundingPolicy || null,
       review: review || null, methodProfile: methodProfile ? { version: methodProfile.version, roleId: methodProfile.roleId } : null,
-      assignmentId, agentSpecId: roleId, roleId, name, status, report, followUp, objective, reason, cycle: cycle || 1, budget: budgetView(config?.budget), usage: checkpoint?.usage || null, error: error || null,
+      assignmentId, agentSpecId: roleId, roleId, name, status, report, partialReport: partialReport || null,
+      usableReport: adequacy?.usable.find(item => item.assignmentId === assignmentId)?.report || null,
+      followUp, objective, reason, cycle: cycle || 1, budget: budgetView(config?.budget), usage: checkpoint?.usage || null, error: error || null,
     }))
     const result = { runId: value.runId, requestId: value.requestId, status: value.status, phase: value.phase, trigger: value.trigger,
       topicId: value.topicId, predictionId: value.predictionId, predictionVersion: value.predictionVersion, modelMode: value.modelMode,
       sourceMode: value.sourceMode, createdAt: value.createdAt, updatedAt: value.updatedAt, usage: value.usage, error: value.error,
       harnessVersion: value.harnessVersion || 2, budget: budgetView(value.budget), draft: value.state.draft || null, orchestration: orchestrationView(value),
-      summaryResumeCount: value.state.summaryResumeCount || 0,
+      summaryResumeCount: value.state.summaryResumeCount || 0, delivery: value.state.delivery || null, closeoutFailure: value.state.closeoutFailure || null,
+      roleScores: isBoundedForecast(value) ? scoresFor(value.runId) : [],
+      reportAdequacy: adequacy ? { roleCount: adequacy.roleCount, partialRoleCount: adequacy.partialRoleCount, completeRoleCount: adequacy.completeRoleCount, rejected: adequacy.rejected } : null,
       summaryRequestNotSent: unsentSummaryRequest(value, store.listAssignments(value.runId)),
       modelRef: value.modelRef || null, team: value.state.team || assignments.filter((item) => !item.followUp).map(({ roleId, name, objective, reason }) => ({ roleId, name, objective, reason })),
       triage: value.state.triage || null, memory: value.state.memory ? (({ historical, sourceRunIds, previousForecast, reportCount, relationCount, summary, policy, shortTerm, longTerm, recentJudgments }) => ({ historical, sourceRunIds, previousForecast, reportCount, relationCount, summary, policy, shortTerm, longTerm, recentJudgments }))(value.state.memory) : null,
@@ -300,7 +342,7 @@ export function createCourseService({ path, workbench, provider = createCourseMo
     const latestRun = runs.at(-1) || null
     const forecasts = store.listForecasts({ requestId: request.requestId })
     const { providerIdentity, ...safe } = request
-    return { ...safe, modelMode: latestRun?.modelMode || safe.modelMode, sourceMode: latestRun?.sourceMode || safe.sourceMode,
+    return { ...safe, watchEnabled: request.watch === true, modelMode: latestRun?.modelMode || safe.modelMode, sourceMode: latestRun?.sourceMode || safe.sourceMode,
       activeRunId: runs.find((run) => !terminal.has(run.status))?.runId || null,
       runs, run: latestRun, latestRun, forecast: forecasts.at(-1) || null, forecasts,
       researchReport: store.listResearchReports({ requestId: request.requestId }).at(-1) || null,
@@ -327,15 +369,41 @@ export function createCourseService({ path, workbench, provider = createCourseMo
     store.saveRun(runId, { status, phase: 'finished', message }, [{ eventId: `${runId}_finished`, type: 'run.finished', payload: { status, summary: message } }])
     notify()
   }
+  function targetIssueFor(runId) {
+    const run = store.requireRun(runId)
+    return financialTargetIssue(store.requireRequest(run.requestId), store.listAssignments(runId), store.evidenceFor(runId), { runId, asOf: clock() })
+  }
+  function finishTargetClarification(runId) {
+    const issue = targetIssueFor(runId)
+    if (!issue) return false
+    const run = store.requireRun(runId)
+    const delivery = { kind: 'partial_research', generatedBy: 'harness', probabilityYes: null,
+      summary: issue.message, reason: issue.code, evidenceIds: issue.evidenceIds, gaps: issue.nextActions,
+      notice: '保留已取得的调查事实；未发布股价、代理标的或上市事件概率。请按明确的新题目创建任务。' }
+    store.saveRun(runId, { state: { ...run.state, targetIssue: issue, delivery } })
+    store.updateRequest(run.requestId, { message: issue.message, missingFields: issue.nextActions })
+    // An unresolved security is not an automatic-monitoring plan. Keep the
+    // user's original request and evidence, but do not pay to repeat it hourly.
+    store.saveWatch(run.requestId, { status: 'off', nextDueAt: null, pauseReason: { code: issue.code, message: issue.message } })
+    event(runId, 'question.target_unavailable', { agentSpecId: 'main', name: '执行框架', error: { code: issue.code, message: issue.message }, evidenceIds: issue.evidenceIds, summary: issue.message })
+    store.saveRun(runId, { status: 'insufficient', phase: 'finished', message: issue.message }, [
+      { eventId: `${runId}_finished`, type: 'run.finished', payload: { status: 'insufficient', summary: issue.message } },
+    ])
+    notify()
+    return true
+  }
   function assignment(runId, roleId, objective, reason, followUp = false, cycle = 1, review = null) {
     const run = store.requireRun(runId)
     const request = store.requireRequest(run.requestId)
     const template = runRoleSpecs(runId).find(item => item.agentSpecId === roleId)
     if (!template) throw courseFailure('AGENT_TEAM_UNAVAILABLE', '该研究员不在本轮已封存的可用目录内，不能重新启用已删除席位。', 409)
-    const allowedTools = toolsFor(runId, 'main', roleId, jobs.get(runId)?.controller.signal).map((tool) => tool.toolId)
+    const allowedTools = toolsFor(runId, 'main', roleId, jobs.get(runId)?.controller.signal, { shared: followUp }).map((tool) => tool.toolId)
     const workerBudget = runBudget(runId).worker
-    const methodProfile = researchProfile(roleId, request.question)
+    if (isBoundedForecast(run)) objective += '\n执行边界：仅使用本次真实工具列表。NVDA等股票没有专用get_market_quote，读取公开行情页即可；工具不适用不是研究失败。网页价格只称候选参考，正式系统基准以contract.currentReference.verified为准。媒体转述保留出处，未获一手确认的重大消息不能写成已确认事实。'
+    if (isBoundedForecast(run) && followUp) objective += '\n本次定向补查也须在报告probability中说明对原Yes命题估计维持还是更新（0至1）；主任务中的“仅核事实/不输出概率”不取消此报告要求。无依据才null，不把事实答复误作新预测已完成。'
+    const methodProfile = isBoundedForecast(run) ? null : researchProfile(roleId, request.question)
     const methods = request.groundingPolicy && COURSE_ROLE_IDS.includes(roleId) ? investigationProfile(roleId) : null
+    if (isBoundedForecast(run) && methods) methods.instructions += ' 本轮是有界事件预测：围绕分配方向收集2至3条有用信息，通常一次搜索加两次原文读取即可，不追求全网或完整财报复原。每条主张一个事实/推断，直接复制工具给出的citationHints真实片段，不重排JSON。用probability给出你对同一Yes命题的0至1估计，说明支持/反证和局限；完全没有依据才留null。未来结果尚未发生是预测前提，不是报告不能完成的理由。不得要求现在取得目标之后的收盘价；缺专用报价时只作有依据的条件性估计。summary≤180字，支持最多2条、反证1条；预算接近收尾立即交报告。涉及目标时间、日期翻译（如Nov改11月）、数值比较或预测的主张必须用inference；fact只概括引文直接含有的事实数字，不在fact里补任何契约日期。例：引文Nov 20 ... 125.53，fact可写“该页面显示价格125.53”，目标日期只放summary或inference。全报告优先1条支持+1条反证，原文能支持有限估计即可完成；暂时无法量化准确率不等于不能提供未校准的主观概率。只调用当前真实工具清单，不需要调查不存在的工具、未来价格或重复核验系统已封存日历。'
     if (request.resolutionPolicy && methods) methods.instructions += request.resolutionPolicy.version === PRICE_POLICY
       ? ' 本题只研究目标前已经发生的BTC-USDT数据，USDT不是USD。三席先get_market_quote(pair=BTC-USDT)取得本人现价；statistics还须get_market_history(pair=BTC-USDT)读取已关闭分钟桶统计，其他席可选历史。目标后的数据由系统到期读取，不是你现在要查找的材料；不要因为未来未知就拒绝当前事实报告。完成当前观察即可status=complete，未来不确定写入missingEvidence。quote/history.data.citationHints均为可直接逐字复制的短片段，优先使用；不能自己给JSON子集添右括号。support至少一条引用本人现价。fact只写片段明确数值；涉及目标时间、比较或未来方向标inference。systemObservedAt是系统取得时刻，不是成交时刻。三席同一Binance来源，不称独立市场。历史工具返回样本统计，原始K线单独归档，不能声称逐根读过或概率已校准。不要在原子主张中重复目标时间。summary≤160字，支持最多2条、反证1条，每条一个主张，最后预留报告修正机会。'
       : ' 本题是固定官方数据核验，不进行开放新闻搜索；只需get_weather_warning一次取得完整JSON，再立即提交一条当前事实和一条未来不确定性。JSON引用优先选连续短片段，不重排字段或改写值；最后保留一个报告修正机会。'
@@ -344,17 +412,19 @@ export function createCourseService({ path, workbench, provider = createCourseMo
     const prior = store.listAssignments(runId).find((item) => item.assignmentId === assignmentId)
     if (prior) return prior
     const draft = run.state.draft
+    const followupContext = exploratory(run) ? '\n同轮材料通过read_run_evidence逐条复阅后才可引用。先复阅争议证据，搜索只为补实质缺口；不要反复提交未登记为本人读取的同伴编号。资料有限可交有依据的概率，把不足列入missingEvidence，不要求未来结果。'
+      : '\n定向补查上下文：' + JSON.stringify(store.listAssignments(runId).filter((item) => item.report).map(compactReport))
     return store.createAssignment(runId, { assignmentId, roleId, name: template.name, objective, reason, followUp, cycle,
       baseAgentSpec: structuredClone(template), methodProfile, investigationProfile: methods,
       review,
       agentSpec: { ...template, allowedTools, extensionSlots: [null, null], limits: workerBudget,
-        instructions: `${template.instructions}${methods ? '\n' + methods.instructions : ''}${request.groundingPolicy ? groundingInstruction : ''}${methodProfile ? '\n' + methodProfile.instructions : ''}${request.purpose === 'research' ? '\n这是已披露财报核验任务，只调查事实与表述，不需要未来价格或未来可结算契约。' : ''}\n本次最多${workerBudget.maxModelRequests}次模型请求、${workerBudget.maxToolCalls}次工具调用、累计${workerBudget.maxTotalTokens} tokens、单次输出最多${workerBudget.maxTokens} tokens。证据够可提前报告，最后一次或工具预算用尽只submit_report，不凑轮数。2至4个取证动作后尽快submit_report。summary≤300中文字；支持/反证各≤3条，每条≤120字；不足列缺口。网页失败尝试工具建议的替代公开来源，不把摘要当正文。只引用实际返回的evidenceId；旧资料须本轮重读。目标时间使用timeContext服务器标签，不将Z解释成本地；日期占位{{TARGET_LOCAL}}由服务器展示。当前事实不等于未来结果。${!request.normalized && request.purpose !== 'research' ? '\n当前是待核验草稿，主动找结果来源与规则，strict已填条件不能改写。' : ''}${followUp ? '\n定向补查上下文：' + JSON.stringify(store.listAssignments(runId).filter((item) => item.report).map(compactReport)) : '\n初始任务独立，不读取同伴新报告。'}` },
+        instructions: `${template.instructions}${methods ? '\n' + methods.instructions : ''}${request.groundingPolicy ? groundingInstruction : ''}${methodProfile ? '\n' + methodProfile.instructions : ''}${request.purpose === 'research' ? '\n这是已披露财报核验任务，只调查事实与表述，不需要未来价格或未来可结算契约。' : ''}\n本次最多${workerBudget.maxModelRequests}次模型请求、${workerBudget.maxToolCalls}次工具调用、累计${workerBudget.maxTotalTokens} tokens、单次输出最多${workerBudget.maxTokens} tokens。调查决策最多${workerBudget.maxInvestigationRequests || workerBudget.maxModelRequests - 1}次，报告阶段另留初报及${workerBudget.reportRepairRequests || 1}次修正；足够即可提前交，不必用满。summary≤300中文字；支持/反证各≤3条，每条一个有引文的主张；没有反证用空数组，不把“未找到资料”伪造为有出处的反证。不足列missingEvidence。网页失败换公开来源，不把摘要当正文。只引用实际返回的evidenceId；旧资料须本轮重读。目标时间使用timeContext服务器标签，不将Z解释成本地。当前事实不等于未来结果；不能因为未来未知、无准确率校准或专用股票报价而拒绝有据条件估计。${!request.normalized && request.purpose !== 'research' ? '\n当前是待核验草稿，主动找参考来源与规则，strict已填条件不能改写。' : ''}${followUp ? followupContext : '\n初始任务独立，不读取同伴新报告。'}${request.forecastWindowPolicy === FORECAST_WINDOW_POLICY ? '\n本轮概率的唯一截止是' + resolveRequestDeadline(request) + '；原问宽泛的“未来”不授权改成24个月或其他窗口。历史回看只作为证据，不能变成概率所属的预测期限。' : ''}` },
       config: { topicId: run.topicId, predictionId: run.predictionId || `prediction_${request.requestId}`, runId, assignmentId, agentInstanceId: `${assignmentId}_actor`,
         agentSpecId: roleId, specVersion: template.specVersion, objective: JSON.stringify({ task: objective,
-          purpose: request.purpose || 'forecast', groundingPolicy: request.groundingPolicy || null, methodProfile, contract: contractContext(request, run.state.timeContext || requestTime(request, clock()), run.state.latestReference), draft: !request.normalized ? draft : null, strict: request.strict || null, cycle, timeContext: run.state.timeContext || requestTime(request, clock()),
+          purpose: request.purpose || 'forecast', forecastPolicy: run.budget?.strategy || null, groundingPolicy: request.groundingPolicy || null, methodProfile, contract: contractContext(request, run.state.timeContext || requestTime(request, clock()), run.state.latestReference), draft: !request.normalized ? draft : null, strict: request.strict || null, cycle, timeContext: run.state.timeContext || requestTime(request, clock()),
           historicalMemory: memoryForModel(run.state.memory, { roleId }), newEvidenceIds: run.state.triage?.newEvidenceIds || [],
           review, disputedEvidence: review ? store.evidenceFor(runId).filter((item) => review.evidenceIds.includes(item.evidenceId)).map(({ evidenceId, title, url, text }) => ({ evidenceId, title, url, excerpt: text.slice(0, 600) })) : [] }),
-        ...((request.purpose === 'research' || request.resolutionPolicy) && provider.settings?.protocol === 'deepseek' && provider.settings.thinking === 'enabled' ? { modelProfile: { version: 'bounded-research-v2', reasoningEffort: 'low' } } : {}),
+        ...((isBoundedForecast(run) || request.purpose === 'research' || request.resolutionPolicy) && provider.settings?.protocol === 'deepseek' && provider.settings.thinking === 'enabled' ? { modelProfile: { version: 'bounded-research-v2', reasoningEffort: 'low', ...(isBoundedForecast(run) ? { reportThinking: 'disabled' } : {}) } } : {}),
         marketReportPolicy, groundingPolicy: request.groundingPolicy || null, allowedTools, inputEvidence: [], timePolicy: 'live',
         deadline: new Date(Date.now() + 30 * 60_000).toISOString(), budget: workerBudget } })
   }
@@ -364,21 +434,25 @@ export function createCourseService({ path, workbench, provider = createCourseMo
     const perform = async (item) => {
       if (item.status === 'completed') return item.report
       store.saveAssignment(item.assignmentId, { status: 'running' })
-      const value = await runWorker({ provider: providerFor(runId), assignment: item.config, agentSpec: item.agentSpec,
+      const value = await runWorker({ provider: providerFor(runId, { worker: true }), assignment: item.config, agentSpec: item.agentSpec,
         tools: toolsFor(runId, item.assignmentId, item.roleId, signal), enabledToolIds: item.config.allowedTools, signal,
         resume: item.checkpoint, finishOnToolBudget: true,
         reportPolicy: item.config.groundingPolicy || item.config.marketReportPolicy ? { version: [item.config.marketReportPolicy, item.config.groundingPolicy].filter(Boolean).join('+'),
-          check: item.config.groundingPolicy ? (report) => { try { const claims = [...report.support, ...report.counterevidence]; if (report.status === 'complete' || claims.length) validateGroundedClaims(claims, store.evidenceFor(runId), { readerId: item.assignmentId, asOf: clock() }); return null } catch (error) { return error.message } } : undefined,
+          check: item.config.groundingPolicy ? (report) => { try {
+            const timeIssue = forecastWindowTextIssue([{ path: 'report.summary', text: report.summary }], store.requireRequest(current.requestId), current.state.timeContext)
+            if (timeIssue) return timeIssue.message
+            const claims = [...report.support, ...report.counterevidence]; if (report.status === 'complete' || claims.length) validateGroundedClaims(claims, store.evidenceFor(runId), { readerId: item.assignmentId, asOf: clock() }); return null
+          } catch (error) { return error.message } } : undefined,
           review: (report) => item.config.marketReportPolicy ? reviewMarketReport({ question: store.requireRequest(current.requestId).question, report, evidence: store.evidenceFor(runId), readerId: item.assignmentId,
             ...(item.config.marketReportPolicy.endsWith('v2') ? { asOf: clock(), notBefore: current.createdAt } : {}) }) : report } : undefined,
-        onCheckpoint(checkpoint) { ensure(runId, signal); store.saveAssignment(item.assignmentId, { checkpoint, report: checkpoint.report, status: checkpoint.report ? 'completed' : 'running' }) },
+        onCheckpoint(checkpoint) { ensure(runId, signal); store.saveAssignment(item.assignmentId, { checkpoint, report: checkpoint.report, partialReport: checkpoint.partialReport || null, status: checkpoint.report ? 'completed' : 'running' }) },
         onEvent(value) {
           const payload = { ...value.payload, ...(value.type === 'assignment.started' ? { objective: item.objective, summary: item.objective } : {}),
             assignmentId: item.assignmentId, agentSpecId: item.roleId, name: item.name, followUp }
           event(runId, value.type, payload, `${item.assignmentId}_${value.type}_${payload.toolCallId || payload.resultId || payload.modelRequestId || 'start'}`)
         },
       })
-      store.saveAssignment(item.assignmentId, { status: 'completed', report: value.report })
+      store.saveAssignment(item.assignmentId, { status: 'completed', report: value.report, partialReport: value.partialReport || null })
       return value.report
     }
     const results = []
@@ -417,7 +491,10 @@ export function createCourseService({ path, workbench, provider = createCourseMo
           name: assignments[index].name, status: 'blocked', summary: errorValue(result.reason).message })
       }
     }
-    for (const item of store.listAssignments(runId)) if (item.report) store.addRelations(runId, item.assignmentId, item.report)
+    for (const item of store.listAssignments(runId)) {
+      if (item.report) store.addRelations(runId, item.assignmentId, item.report)
+      if (exploratory(store.requireRun(runId)) && item.partialReport) store.addRelations(runId, item.assignmentId, item.partialReport)
+    }
     const latest = store.requireRun(runId)
     const currentRequest = store.requireRequest(latest.requestId)
     if (currentRequest.purpose === 'research' && !store.evidenceFor(runId).length && totalTokenLimit(runBudget(runId)) !== null && latest.usage.totalTokens >= totalTokenLimit(runBudget(runId)) * .7) {
@@ -484,6 +561,8 @@ export function createCourseService({ path, workbench, provider = createCourseMo
   async function normalize(runId, args) {
     const run = store.requireRun(runId)
     const request = store.requireRequest(run.requestId)
+    const targetIssue = targetIssueFor(runId)
+    if (targetIssue) throw courseFailure(targetIssue.code, targetIssue.message, 409)
     const strict = request.mode === 'strict' ? request.strict : null
     if (strict && ((strict.targetAt && Date.parse(args.targetAt) !== Date.parse(strict.targetAt)) ||
       (strict.resolutionRule && args.resolutionRule !== strict.resolutionRule) ||
@@ -500,8 +579,9 @@ export function createCourseService({ path, workbench, provider = createCourseMo
     if (!source) throw courseFailure('UNVERIFIED_SOURCE', '指定来源未实际读取原文，不能把题目标为 ready。')
     const timeContext = makeTimeContext({ now: clock(), createdAt: request.createdAt, targetAt: args.targetAt, forecastClosesAt: args.forecastClosesAt, timezone: args.timezone, tradingHorizon: request.tradingHorizon })
     if (!strict && /20\d\d(?:年|[-/])\d{1,2}|\b\d{1,2}:\d{2}/.test(args.resolutionRule)) throw courseFailure('TIME_TEXT_FORMAT', '预设规则不要自行写绝对日期或钟面，请使用“目标时点”或{{TARGET_LOCAL}}，由服务器填入正确本地时间。')
-    const temporalPolicy = request.tradingHorizon || request.resolutionPolicy || /仍|还会是|还是|还在|继续(?:担任|任职)|是否担任|\bstill\b|\bremain\w*\b/i.test(request.question) ? 'at_target' : 'by_target'
-    const financial = Boolean(request.tradingHorizon) || /比特币|BTC|bitcoin|ETH|以太|股价|股票|价格|黄金|金价|白银|银价|\b(?:price|gold|silver)\b/i.test(request.question)
+    const listingEvent = request.financialTargetPolicy === FINANCIAL_TARGET_POLICY && isExplicitListingQuestion(request.question)
+    const temporalPolicy = !listingEvent && (request.tradingHorizon || request.resolutionPolicy || /仍|还会是|还是|还在|继续(?:担任|任职)|是否担任|\bstill\b|\bremain\w*\b/i.test(request.question)) ? 'at_target' : 'by_target'
+    const financial = !listingEvent && (Boolean(request.tradingHorizon) || /比特币|BTC|bitcoin|ETH|以太|股价|股票|价格|黄金|金价|白银|银价|\b(?:price|gold|silver)\b/i.test(request.question))
     const priceDown = /下跌|下滑|跌|回落|走低|下降|\b(?:fall\w*|drop\w*|declin\w*|decreas\w*|lower|down)\b/i.test(request.question)
     const priceDirection = Boolean(request.tradingHorizon) || priceDown || /回升|上涨|涨|走高|\b(?:rise\w*|risin\w*|recover\w*|up)\b/i.test(request.question)
     const expectedPair = request.resolutionPolicy?.version === PRICE_POLICY ? 'BTC-USDT' : marketPricePair(request.question)
@@ -515,12 +595,14 @@ export function createCourseService({ path, workbench, provider = createCourseMo
       : { kind: 'directional', value: null, unit: null, observedAt: null, url: source.url, evidenceId: source.evidenceId, verified: false }
     if (marketReader && currentReference?.verified) currentReference.observedAt = quoteProof.readObservations.find(item => item.readerId === marketReader)?.obtainedAt || currentReference.observedAt
     const conditionalOnly = Boolean(args.forceConditional || (financial && !currentReference?.verified))
-    const assumptions = [...new Set([...(request.mode === 'preset' ? presetAssumptions(request.question, timeContext) : []), ...(args.defaultAssumptions || [])])]
+    const assumptions = [...new Set([...(request.mode === 'preset' ? presetAssumptions(request.question, timeContext) : []), ...(args.defaultAssumptions || []),
+      ...(listingEvent ? ['本题是用户明确提出的上市事件，不预测现有股价或代理标的涨跌；上市传闻不等于已挂牌。'] : [])])]
     const sourceLimitations = [...(args.sourceLimitations || []), ...(conditionalOnly ? ['未取得可验证现价，数值基准缺失；仅作有公开资料依据的条件性方向估计，不计分。'] : []), ...(quoteProof ? ['报价时间为系统取得该公开价格的观察时间，不冒充交易所逐笔成交时间。'] : [])]
     let rule = args.resolutionRule.replaceAll('{{TARGET_LOCAL}}', timeContext.targetAtLocalLabel)
     if (!strict) {
       const window = `固定观察窗口为${timeContext.windowStartsAtLocalLabel}至${timeContext.targetAtLocalLabel}。`
-      if (financial && priceDirection) rule = currentReference?.verified
+      if (listingEvent) rule = `${window}本题只判断用户明确提出的上市事件：窗口内出现交易所正式上市或挂牌记录才可判为是；不能把私人股份转让、上市传闻、其他公司或指数上涨当作上市，也不能把未抓到资料判为否。结果无法核实时暂不结算。`
+      else if (financial && priceDirection) rule = currentReference?.verified
         ? `${window}目标时点${currentReference.pair}公开价格${priceDown ? '低于' : '高于'}固定基准${currentReference.value} ${currentReference.unit}记为是，否则为否；基准来自${currentReference.url}，系统观察于${currentReference.observedAt}。来源不可得时暂不结算。`
         : `${window}当前没有可核实的数值基准，仅输出条件性方向估计，不作为可计分的价格涨跌题；补齐基准需另建契约版本。`
       else if (/马斯克|elonmusk/i.test(request.question) && /推特|发帖|tweet/i.test(request.question)) rule = `${window}默认核验X公开账号@elonmusk在该窗口是否有公开原创、回复、引用或转发，任一条成立即是。假设须公开展示；来源访问失败不视为未发帖，待替代公开记录核验。`
@@ -542,11 +624,64 @@ export function createCourseService({ path, workbench, provider = createCourseMo
     store.saveRun(runId, { state: { ...store.requireRun(runId).state, timeContext, latestReference: currentReference } })
     return normalized
   }
+  async function compileBoundedPrediction(runId) {
+    const run = store.requireRun(runId), request = store.requireRequest(run.requestId)
+    if (request.normalized) return request.normalized
+    const available = store.evidenceFor(runId).filter(item => item.text?.trim() && (!item.publishedAt || Date.parse(item.publishedAt) <= Date.parse(clock())))
+    const strict = request.mode === 'strict' ? request.strict || {} : {}
+    const reportIds = new Set((reportView(runId)?.usable || effectiveRoleReports(store.listAssignments(runId))).flatMap(item => item.report.evidenceIds))
+    const source = strict.resolutionSourceUrl ? available.find(item => urlKey(item.url) === urlKey(strict.resolutionSourceUrl))
+      : available.find(item => reportIds.has(item.evidenceId) && !item.marketQuote) || available.find(item => reportIds.has(item.evidenceId)) || available[0]
+    if (!source) throw courseFailure('UNVERIFIED_SOURCE', '未取得可读取的题目来源，保留调查结果，不创建虚假的可核验契约。')
+    const time = run.state.timeContext || requestTime(request, clock())
+    const normalized = await normalize(runId, { question: request.question, object: run.state.draft?.object || request.question,
+      targetAt: strict.targetAt || time.targetAtUtc, forecastClosesAt: strict.targetAt || time.forecastClosesAtUtc,
+      timezone: strict.timezone || time.timezone, resolutionSourceUrl: source.url,
+      resolutionRule: strict.resolutionRule || '在目标时点按题目展示的默认口径与公开记录判断原命题是否成立；只有真实结果记录才能结算，不能以未查到资料判为否。',
+      unresolvablePolicy: '来源不可读、定义或结果无法核实时暂不结算，保留来源限制。',
+      watchQuery: request.question.slice(0, 120), interpretation: run.state.draft?.interpretation || '按用户原问、固定时间窗口和已读原文继续研究。',
+      sourceLimitations: ['结果参考链接来自本轮已读资料，不保证该网页能提供未来的结构化结算记录。'] })
+    event(runId, 'contract.compiled', { agentSpecId: 'main', name: '执行框架', summary: '已按固定时间窗口和子Agent实际读到的来源核定题目；此步骤由程序完成，没有新增模型调用。' })
+    return normalized
+  }
+  async function closeoutBounded(runId, cause) {
+    const run = store.requireRun(runId)
+    if (terminal.has(run.status)) return
+    if (finishTargetClarification(runId)) return
+    const error = typeof cause === 'string' ? { code: 'BOUNDED_CLOSEOUT', message: cause } : { code: cause.code, message: cause.message }
+    const reason = error.message
+    store.saveRun(runId, { state: { ...run.state, closeoutFailure: error } })
+    let failure = reason
+    try {
+      await compileBoundedPrediction(runId)
+      const candidate = assembleForecastCandidate(store.listAssignments(runId), store.evidenceFor(runId))
+      if (candidate && !run.usage.unknownUsage) {
+        store.publishForecast(runId, candidate, workbench.getPrediction(store.requireRun(runId).predictionId))
+        event(runId, 'budget.closeout', { agentSpecId: 'main', name: '执行框架', summary: '未追加模型调用，按有效研究员报告作明确标记的程序汇集；保留独立核验和引用守卫。', reason, error })
+        finish(runId, 'completed', '本轮已结束：已汇集研究员的有据估计；主Agent最终裁决未完成，结果标记为程序汇集、需复核。')
+        return
+      }
+    } catch (error) { failure = `${reason}；${errorValue(error).message}` }
+    const delivery = partialForecastSummary(store.listAssignments(runId), store.evidenceFor(runId), failure)
+    const message = `${delivery.summary} ${delivery.gaps.join('；')} ${delivery.notice}`
+    store.saveRun(runId, { state: { ...store.requireRun(runId).state, delivery } })
+    store.updateRequest(run.requestId, { message, missingFields: delivery.gaps })
+    event(runId, 'budget.closeout', { agentSpecId: 'main', name: '执行框架', summary: delivery.notice, reason: failure, error })
+    finish(runId, 'insufficient', message)
+  }
   async function executeMain(runId, signal) {
     let run = ensure(runId, signal)
     let state = structuredClone(run.state)
     const request = store.requireRequest(run.requestId)
     const phase = run.phase
+    if (finishTargetClarification(runId)) return
+    if (isBoundedForecast(run) && phase === 'prepare') {
+      try {
+        await compileBoundedPrediction(runId)
+        store.saveRun(runId, { phase: 'review' })
+      } catch (error) { await closeoutBounded(runId, errorValue(error)) }
+      return
+    }
     if (request.resolutionPolicy?.version === PRICE_POLICY && phase === 'review' && (!state.priceFinalSnapshot || Date.parse(clock()) - Date.parse(state.priceFinalSnapshot.refreshedAt) > 120000)) {
       const freshTools = toolsFor(runId, 'main', 'main', signal), results = {}
       for (const name of ['get_market_quote','get_market_history']) {
@@ -568,9 +703,22 @@ export function createCourseService({ path, workbench, provider = createCourseMo
     const allowedNames = request.resolutionPolicy?.version === PRICE_POLICY && phase === 'review' ? ['propose_forecast','mark_insufficient'] : (request.purpose === 'research' || request.resolutionPolicy) && state.summaryResumeCount ? [request.purpose === 'research' ? 'submit_research_report' : 'propose_forecast', 'mark_insufficient'] : phase === 'intake' ? ['draft_and_delegate'] : phase === 'prepare' ? ['normalize_prediction', 'mark_insufficient'] : phase === 'triage' ? ['triage_update', 'mark_insufficient'] : phase === 'plan' ? ['delegate_work', 'mark_insufficient'] : [
       ...(remainingFollowUps > 0 ? ['request_followup'] : []), request.purpose === 'research' ? 'submit_research_report' : 'propose_forecast', 'mark_insufficient',
     ]
+    if (exploratory(run) && phase === 'review' && reportView(runId).usable.length) {
+      const index = allowedNames.indexOf('mark_insufficient'); if (index >= 0) allowedNames.splice(index, 1)
+    }
     const mainResearchAllowed = phase === 'prepare' && !modern(run)
     const roleTools = roleToolsFor(runId)
-    const advertised = mainResearchAllowed ? gatewayTools.map((tool) => ({ type: 'function', function: { name: tool.toolId, description: tool.description, parameters: tool.inputSchema } })).concat(allowedNames.map(name => roleTools.native(name))) : allowedNames.map(name => roleTools.native(name))
+    // The native tool schemas are shared; per-request deadline constraints must
+    // never leak into another request or a restored legacy run.
+    const advertised = structuredClone(mainResearchAllowed ? gatewayTools.map((tool) => ({ type: 'function', function: { name: tool.toolId, description: tool.description, parameters: tool.inputSchema } })).concat(allowedNames.map(name => roleTools.native(name))) : allowedNames.map(name => roleTools.native(name)))
+    if (request.forecastWindowPolicy === FORECAST_WINDOW_POLICY) for (const tool of advertised) if (tool.function.name === 'draft_and_delegate') {
+      tool.function.parameters.required = [...new Set([...tool.function.parameters.required, 'targetAt'])]
+      tool.function.parameters.properties.targetAt = { type: 'string', const: resolveRequestDeadline(request) }
+      tool.function.description += ` 必须targetAt原样回显${resolveRequestDeadline(request)}；所有题意、解释、假设和任务只能研究此封存期限，不得自选24个月或其他未来窗口。`
+    }
+    if (isBoundedForecast(run)) for (const tool of advertised) if (tool.function.name === 'propose_forecast') {
+      tool.function.description += ' 本轮主Agent只提交概率、短总结和逐报告decisionNotes。请省略reasoningClaims；执行框架会从你采纳或保留条件的报告中，沿用已校验且在evidenceIds内的原始主张与引用，不需重新改写证据。outcomeKnown=false、outcome=null；evidenceAdequacy只能adequate或limited。资料有限的可用报告可以qualified，缺基准或校准说明限制，不等于没有预测。'
+    }
     state.main ||= { messages: [{ role: 'system', content: legacyMainSystem }], calls: 0 }
     const contextKey = `${phase}:${modern(run) ? cycleOf(run) : Boolean(state.followUpDone)}`
     if (state.main.phase !== contextKey && !state.main.pending) {
@@ -586,14 +734,15 @@ export function createCourseService({ path, workbench, provider = createCourseMo
       state.main.phaseCalls = 0
       state.main.messages.push({ role: 'user', content: JSON.stringify({ kind: 'course-main', phase, question: request.question,
         nowISO: clock(), purpose: request.purpose || 'forecast', groundingPolicy: request.groundingPolicy || null, timezone: request.strict?.timezone || request.timezone, targetAt: resolveRequestDeadline(request),
+        deliveryPolicy: run.budget.deliveryPolicy || null, reportAdequacy: exploratory(run) ? ((view) => ({ roleCount: view.roleCount, partialRoleCount: view.partialRoleCount, completeRoleCount: view.completeRoleCount, rejected: view.rejected }))(reportView(runId)) : null,
         mode: request.mode, strict: request.strict || null, timeContext: state.timeContext || requestTime(request, clock()),
         defaultAssumptions: request.mode === 'preset' ? presetAssumptions(request.question, state.timeContext || requestTime(request, clock())) : [],
         normalized: contractContext(request, state.timeContext || requestTime(request, clock()), state.latestReference), draft: state.draft || null, orchestration: orchestrationView(run), historicalMemory: memoryForModel(state.memory),
         roleCatalogue: ['intake', 'plan'].includes(phase) ? roleCatalogue(runRoleSpecs(runId)) : [], defaultRoleIds: defaultRoles(runId, request.question), selectedRoleIds: state.triage?.selectedRoleIds?.length ? state.triage.selectedRoleIds : undefined,
-        capabilityRequirements: request.resolutionPolicy?.version === PRICE_POLICY ? { requiredRoleIds: ['market','statistics','verification'], tools: ['get_market_quote','get_market_history'], instruction: '只分配目标前当前数据的研究：market取得本人现价基准，statistics取得本人现价及已关闭历史统计，verification核对本人现价字段、单位和当前时间。禁止要求研究员现在获取目标后的结果；未来未知不影响当前事实报告完整性。Binance BTC-USDT不是USD，未来概率未校准。汇总前系统再读最新行情，初始基准不变。' } : request.resolutionPolicy ? { requiredRoleIds: ['official', 'verification'], thirdRoleOptions: ['industry', 'statistics'], onlyTool: 'get_weather_warning', instruction: '固定官方完整JSON，无须全网调查；当前状态只支持未来推断，不能提前结算。' } : null,
+        capabilityRequirements: request.resolutionPolicy?.version === PRICE_POLICY ? { requiredRoleIds: ['market','statistics','verification'], tools: ['get_market_quote','get_market_history'], instruction: '只分配目标前当前数据的研究：market取得本人现价基准，statistics取得本人现价及已关闭历史统计，verification核对本人现价字段、单位和当前时间。禁止要求研究员现在获取目标后的结果；未来未知不影响当前事实报告完整性。Binance BTC-USDT不是USD，未来概率未校准。汇总前系统再读最新行情，初始基准不变。' } : request.resolutionPolicy ? { requiredRoleIds: ['official', 'verification'], thirdRoleOptions: ['industry', 'statistics'], onlyTool: 'get_weather_warning', instruction: '固定官方完整JSON，无须全网调查；当前状态只支持未来推断，不能提前结算。' } : isBoundedForecast(run) ? { spotQuotePairs: ['BTC-USD','ETH-USD'], instruction: '仅BTC/ETH匹配资产才有专用get_market_quote；NVDA等股票安排公开行情页/新闻取证，不要求不存在的工具。取证上限以本次派工预算为准，优先搜索后读原文，报告给同一Yes命题的未校准概率，不追求未来结果、全套财报或重复核验封存日历。网页价格只是参考候选，不得宣称系统基准已verified。重大传闻必须保留转述来源和未确认限制。' } : null,
         previousTeam: request.team?.map((item) => item.roleId) || defaultRoles(runId, request.question), changeHints: state.changeHints || null,
         newEvidence: phase === 'triage' ? store.evidenceFor(runId).filter((item) => state.triage?.newEvidenceIds?.includes(item.evidenceId)).map(({ evidenceId, title, text, url, marketQuote }) => ({ evidenceId, title, text: text.slice(0, 1000), url, marketQuote })) : [],
-        followUpDone: Boolean(state.followUpDone), followUpsRemaining: remainingFollowUps, reports: store.listAssignments(runId).filter((item) => item.report).map(compactReport),
+        followUpDone: Boolean(state.followUpDone), followUpsRemaining: remainingFollowUps, reports: modelReportItems(runId),
         assignmentStatus: store.listAssignments(runId).map(({ roleId, status, error, followUp }) => ({ roleId, status, followUp, error: error || null })),
         reviewFocus: store.listAssignments(runId).filter((item) => item.followUp).map(({ roleId, objective, reason }) => ({ roleId, objective, reason })),
         evidence: store.evidenceFor(runId).map(({ evidenceId, title, url, contentHash, sourceMode, text, marketQuote }) => ({ evidenceId, title, url, contentHash, sourceMode, ...(phase === 'prepare' ? { excerpt: text.slice(0, 1000), marketQuote: marketQuote || null } : {}) })),
@@ -616,23 +765,36 @@ export function createCourseService({ path, workbench, provider = createCourseMo
           if (remaining) await delay(remaining, undefined, { signal })
         }
         ensure(runId, signal)
+        if (isBoundedForecast(run) && (state.main.calls >= runBudget(runId).mainRequests || (state.main.phaseCalls || 0) >= (run.budget.mainPhaseRequests || 2))) {
+          await closeoutBounded(runId, { code: 'MAIN_BUDGET', message: '主Agent已达到本阶段的有界调用次数，停止追加研究。' }); return
+        }
         if (state.main.calls >= runBudget(runId).mainRequests) throw courseFailure('MAIN_BUDGET', '主 Agent 已达到本轮调用上限。')
         if (phase === 'intake' && (state.main.phaseCalls || 0) >= 2) throw courseFailure('INTAKE_LIMIT', '题意整理未在两次有效决策内完成，未伪造派工；可检查模型协议后手动重试。')
-        state.main.calls += 1
-        state.main.currentAttempt = (state.main.currentAttempt || 0) + 1
         const used = store.requireRun(runId).usage
         const limits = runBudget(runId)
         state.main.baseSystem ||= (modern(run) ? modernMainSystem : state.main.messages[0].content.replace('10角色目录', '本轮可用角色目录')) + '\n只使用本轮roleCatalogue和工具schema列出的精确角色ID，不得恢复已删除席位；自定义名称不能冒充verification。' + decisionInstruction + (request.groundingPolicy ? groundingInstruction : '') + (request.purpose === 'research' ? '\n当前purpose=research：核验已披露财报和表述，直接submit_research_report，不创建未来契约或概率。' : '')
         state.main.messages[0].content = state.main.baseSystem + `\n[本轮执行规则与预算]\n阶段=${phase}；第${cycleOf(run)}个协作周期。你只整理、派工、核验报告和总结；v3初始不得先联网研究。若timeContext带tradingHorizon，交易日、市场日历、目标收盘与计数规则均由服务器封存，禁止用自然日乘24换算；题意中的其他相对词不能改写所选窗口。交易日任务仅提供股票/证券/基金标的也可继续，默认研究目标收盘相对本轮可核验基准是否上涨；代码、上市地、类型和基准仍须核验，无基准只作不计分条件估计，不编造价格或净值。intake最多2次有效决策且只调用draft_and_delegate；临时服务故障每步最多3次传输尝试，均计入总预算。研究员前最多5次决策调查、第6次只报告；资料足够可提前报告。会后最多2次定向补查，当前剩余${remainingFollowUps}次，不能无限搜索或为了展示凑轮数。\n单次输出上限${limits.maxTokens} tokens（含供应商思考/输出计量），主Agent总请求上限${limits.mainRequests}，已预留${state.main.calls}次；全轮模型上限${limits.maxModelRequests}、工具${limits.maxToolCalls}、${totalTokenLimit(limits) === null ? '总 token 不设上限' : `累计${totalTokenLimit(limits)} tokens`}。当前已用模型${used.modelRequests}、工具${used.toolCalls}、tokens ${used.totalTokens}；剩余模型${Math.max(0, limits.maxModelRequests - used.modelRequests)}、工具${Math.max(0, limits.maxToolCalls - used.toolCalls)}、tokens ${remainingTotalTokens(limits, used.totalTokens) ?? '不限'}。重试也计费，达到上限停止。\n公开文字简洁：题意/解释≤200中文字；每人任务≤300字、理由≤100字；总结≤400字，分歧和限制每条≤120字、各≤5条。字数是写作目标、token是实际执行上限，两者不能等同。不要输出隐藏推理或把无来源内容充作证据。`
+        if (isBoundedForecast(run)) state.main.messages[0].content = state.main.baseSystem + `\n[有界预测执行规则]\n当前${phase}，每阶段最多${limits.mainPhaseRequests || 2}次模型决策（含修正），全轮主Agent最多${limits.mainRequests}次。intake只做短rewrite并派3种差异职责，不得联网。研究员各自收集2至3条信息并给同一Yes命题的probability。prepare由程序核定，不需模型重复整理。review只比较报告、概率及支持/反证，给出propose_forecast；最多${remainingFollowUps}次定向补查。不能把未来尚未知晓作为现在不能预测的理由，也不能编造基准或结算。sourceLimitations允许有，有限真实资料可以作明确限制的条件估计。概率不是证据充分度或投票正确率。最终必须逐份处理报告的assignmentId；无有效证据则说明缺口。\n单次输出上限${limits.maxTokens} tokens，含供应商计量的思考和答复；${totalTokenLimit(limits) === null ? '总 token 不设上限' : `总额度${totalTokenLimit(limits)} tokens`}，剩余模型${Math.max(0, limits.maxModelRequests - used.modelRequests)}次。题意≤200字，每人任务≤200字，汇总≤400字。按工具schema提交，无需展开隐藏推理或重抄长段来源。`
+        if (isBoundedForecast(run)) state.main.messages[0].content += '\n最终汇总不要重新编写reasoningClaims，请省略该可选字段；harness沿用你decisionNotes采纳/保留的报告中已经验证的原文依据，你只决定概率、解释影响和分歧。不得把尚未核定的报价升格为系统固定基准，条件估计明确写“条件估计”。'
+        if (exploratory(run)) state.main.messages[0].content += `\n[本题探索估计标准]\n预算更新：每阶段最多${limits.mainPhaseRequests}次有效决策；全轮主Agent最多${limits.mainRequests}次，补查剩余${remainingFollowUps}次。子Agent调查上限6次，报告及2次修正另计，仍受10次总调用和实际token约束。\n本题要输出有依据的未来方向和概率，不是现在证明未来结果。reportQuality=partial/status=insufficient表示材料有限，不表示所有发现无效；scorecard已过滤无关页脚、空引用和程序回执。只要至少一席有本人已读的实质原文和真实模型概率，就综合可用报告propose_forecast，给初步条件估计、evidenceAdequacy=limited、公开缺口；资料越少体现为不确定与需复核，不强求全部席完整或统计校准。只有访问失败、免责声明或没有实质原文才是不能估计的不足。\n逐份列decisionNotes，仅引用该报告实际evidenceIds。完整报告可adopted，部分报告优先qualified，纯来源失败/程序回执rejected且evidenceIds可空；不要把别席编号挂在它名下。已封存的交易日不需重复查日历，股票无专用报价也可作网页依据的条件估计。补查先用read_run_evidence实际复阅指定材料，不能因收到编号就直接声称本人读取。`
+        if (request.forecastWindowPolicy === FORECAST_WINDOW_POLICY) state.main.messages[0].content += `\n[唯一预测期限]\n本题窗口和targetAt已由用户选择及服务器规则封存为${resolveRequestDeadline(request)}（${(state.timeContext || requestTime(request, clock())).targetAtLocalLabel}）。draft_and_delegate必须包含精确targetAt回显。question、interpretation、defaultAssumptions、每个研究员任务以及最后probabilityYes/summary必须针对同一截止；“未来”不能另选24个月。历史回看可用于取证，不是预测窗口。发现报告用了其他期限应拒绝或要求重做，不能静默缩期限沿用原概率。`
+        const messages = isBoundedForecast(run) ? boundedMainMessages(state.main.messages, scoresFor(runId))
+          : request.resolutionPolicy && phase === 'review' || request.purpose === 'research' && state.summaryResumeCount
+            ? researchSummaryMessages(request.question, store.listAssignments(runId), store.evidenceFor(runId), request.resolutionPolicy ? { ...request.normalized, groundingPolicy: request.groundingPolicy || null, priceResolution: request.resolutionPolicy.version === PRICE_POLICY, latestReference: state.latestReference, priceFinalSnapshot: state.priceFinalSnapshot } : null) : structuredClone(state.main.messages)
+        const admission = isBoundedForecast(run) ? planModelCall({ messages, tools: advertised, maxTotalTokens: totalTokenLimit(limits), usedTotalTokens: used.totalTokens,
+          maxOutputTokens: limits.maxTokens, reserveTokens: 2048, minOutputTokens: 1024 }) : null
+        if (admission && (!admission.canCall || used.modelRequests >= limits.maxModelRequests || used.unknownUsage)) {
+          await closeoutBounded(runId, { code: used.unknownUsage ? 'COURSE_USAGE_UNKNOWN' : 'COURSE_BUDGET', message: used.unknownUsage ? '部分模型请求用量未知，停止追加付费调用，保留已有资料。' : '剩余输入与输出预算不足，使用已有真实报告收尾。' }); return
+        }
+        state.main.calls += 1
+        state.main.currentAttempt = (state.main.currentAttempt || 0) + 1
         store.saveRun(runId, { state })
         const timeout = AbortSignal.timeout(runBudget(runId).timeoutMs)
         const combined = AbortSignal.any([signal, timeout])
         try {
-          const messages = request.resolutionPolicy && phase === 'review' || request.purpose === 'research' && state.summaryResumeCount
-            ? researchSummaryMessages(request.question, store.listAssignments(runId), store.evidenceFor(runId), request.resolutionPolicy ? { ...request.normalized, groundingPolicy: request.groundingPolicy || null, priceResolution: request.resolutionPolicy.version === PRICE_POLICY, latestReference: state.latestReference, priceFinalSnapshot: state.priceFinalSnapshot } : null) : structuredClone(state.main.messages)
           response = await abortable(() => providerFor(runId).complete({ messages, tools: advertised, signal: combined,
-            maxTokens: boundedOutputTokens(runBudget(runId), store.requireRun(runId).usage.totalTokens),
-            ...((request.purpose === 'research' || request.resolutionPolicy) && provider.settings?.protocol === 'deepseek' && provider.settings.thinking === 'enabled' ? { reasoningEffortOverride: 'low' } : {}) }), combined)
+            maxTokens: admission ? admission.maxTokens : boundedOutputTokens(runBudget(runId), store.requireRun(runId).usage.totalTokens),
+            ...((isBoundedForecast(run) || request.purpose === 'research' || request.resolutionPolicy) && provider.settings?.protocol === 'deepseek' && provider.settings.thinking === 'enabled' ? { reasoningEffortOverride: 'low' } : {}) }), combined)
           state.main.phaseCalls = (state.main.phaseCalls || 0) + 1
           state.main.currentAttempt = 0; state.main.retryNotBefore = null; state.main.lastRetry = null
           break
@@ -679,15 +841,18 @@ export function createCourseService({ path, workbench, provider = createCourseMo
         result = await tool.execute(args, { runId, assignmentId: 'main', agentInstanceId: `${runId}_main`, toolCallId: call.id, signal })
         event(runId, result.status === 'error' ? 'tool.failed' : 'tool.completed', { agentSpecId: 'main', name: '主 Agent', toolCallId: call.id, toolId: tool.toolId, status: result.status, summary: result.summary, evidenceIds: result.evidenceIds }, `${runId}_main_${call.id}_done`)
       } else {
-        if (!roleTools.validate(call.function.name, args)) throw courseFailure('MAIN_ARGUMENTS', '主 Agent 的动作未通过格式校验。')
+        if (!roleTools.validate(call.function.name, args)) throw courseFailure('MAIN_ARGUMENTS', '主 Agent 的动作未通过格式校验。' + JSON.stringify(roleTools.validationErrors?.(call.function.name) || []))
         if (call.function.name === 'draft_and_delegate') {
           if (phase !== 'intake' || !modern(run)) throw courseFailure('DRAFT_STAGE', '只能在新轮题意整理阶段生成草稿并派工。')
+          const timeIssue = intakeWindowIssue(args, request, state.timeContext || requestTime(request, clock()))
+          if (timeIssue) throw courseFailure(timeIssue.code, timeIssue.message, 409)
           const selected = args.assignments.map((item) => item.roleId)
           if (new Set(selected).size !== 3 || !selected.includes('verification')) throw courseFailure('DELEGATION_ROLES', '首次需三种不同职责且包含核验席。')
           if (request.resolutionPolicy?.version === PRICE_POLICY ? !['market','statistics','verification'].every(role => selected.includes(role)) : request.resolutionPolicy && (!selected.includes('official') || !selected.some(role => ['industry', 'statistics'].includes(role)))) throw courseFailure('DELEGATION_CAPABILITY', request.resolutionPolicy?.version === PRICE_POLICY ? '固定价格题需要market、statistics、verification三席。' : '本题使用固定官方警告工具：需official与verification，第三席从industry/statistics选择。新闻搜索不能替代完整官方快照。')
           state.draft = { status: 'draft', question: args.question, originalQuestion: request.question, object: args.object,
             interpretation: args.interpretation, defaultAssumptions: args.defaultAssumptions || [],
-            targetAt: resolveRequestDeadline(request), timezone: request.strict?.timezone || request.timezone, sourceVerified: false,
+            targetAt: request.forecastWindowPolicy === FORECAST_WINDOW_POLICY ? args.targetAt : resolveRequestDeadline(request), timezone: request.strict?.timezone || request.timezone, sourceVerified: false,
+            ...(request.forecastWindowPolicy === FORECAST_WINDOW_POLICY ? { forecastWindowPolicy: FORECAST_WINDOW_POLICY, modelDeclaredTargetAt: args.targetAt } : {}),
             notice: '待核验题意草稿；来源、规则和数值基准由子Agent调查后核定，不是正式预测。' }
           state.cycle = 1; state.followUpsUsed = 0
           store.saveRun(runId, { state })
@@ -754,6 +919,7 @@ export function createCourseService({ path, workbench, provider = createCourseMo
             event(runId, 'meeting.message', { agentSpecId: 'main', name: '主 Agent', summary: '已用默认窗口和明确展示的假设补全常见细项，继续调查；资料限制已保留。' })
           } else {
             store.updateRequest(run.requestId, { missingFields: args.missingFields, message: args.message })
+            if (isBoundedForecast(run)) store.saveRun(runId, { state: { ...store.requireRun(runId).state, delivery: partialForecastSummary(store.listAssignments(runId), available, args.message) } })
             finish(runId, 'insufficient', args.message); finished = true; result = { status: 'insufficient', data: args }
           }
         } else if (call.function.name === 'submit_research_report') {
@@ -761,6 +927,26 @@ export function createCourseService({ path, workbench, provider = createCourseMo
           finish(runId, 'completed', '研报已封存，可查看财报发现、引用、限制与协作裁决。')
           finished = true; result = { status: 'ok' }
         } else if (call.function.name === 'propose_forecast') {
+          const targetIssue = targetIssueFor(runId)
+          if (targetIssue) throw courseFailure(targetIssue.code, targetIssue.message, 409)
+          const timeIssue = forecastWindowTextIssue([{ path: 'forecast.summary', text: args.summary }], request, state.timeContext || requestTime(request, clock()))
+          if (timeIssue) throw courseFailure(timeIssue.code, timeIssue.message, 409)
+          if (isBoundedForecast(run)) {
+            const view = reportView(runId)
+            const reports = view?.usable || effectiveRoleReports(store.listAssignments(runId)), notes = args.decisionNotes || []
+            const cited = new Set(args.evidenceIds), accepted = new Set(notes.filter(note => ['adopted', 'qualified'].includes(note.disposition)).map(note => note.assignmentId))
+            if (reports.some(item => !notes.some(note => note.assignmentId === item.assignmentId))) throw courseFailure('DECISION_EVIDENCE', '请逐份处理有效报告的assignmentId，说明采纳、保留条件或拒绝；不能用空裁决代替汇总。')
+            const claims = reports.filter(item => accepted.has(item.assignmentId))
+              .flatMap(item => [...item.report.support, ...item.report.counterevidence].filter(claim => claim.evidenceIds.every(id => cited.has(id)))).slice(0, 8)
+            if (args.reasoningClaims?.length) {
+              const available = store.evidenceFor(runId)
+              let original, supplied
+              try { original = validateGroundedClaims(claims, available, { asOf: clock() }); supplied = validateGroundedClaims(args.reasoningClaims, available, { asOf: clock() }) }
+              catch (error) { throw courseFailure('CLAIM_GROUNDING', error.message) }
+              if (supplied.some(claim => !original.some(item => digest(item) === digest(claim)))) throw courseFailure('CLAIM_GROUNDING', '本轮汇总依据须沿用已采纳报告的原始主张；请省略reasoningClaims，由框架传递引用。新推断可在summary中明确说明。')
+            }
+            args.reasoningClaims = claims
+          }
           if (args.outcomeKnown) {
             if (requiresWeatherObservation(request)) throw courseFailure('WEATHER_OBSERVATION_REQUIRED', '当前仅可发布天气概率，请将outcomeKnown设为false；降雨实况需人工或后续结构化观测验证，通用网页不能证明YES或NO结果。')
             const source = store.requireRequest(run.requestId).normalized.resolutionSource.url
@@ -778,6 +964,7 @@ export function createCourseService({ path, workbench, provider = createCourseMo
     } catch (error) {
       ensure(runId, signal)
       result = { status: 'error', error: errorValue(error), summary: errorValue(error).message, data: null, evidenceIds: [] }
+      if (isBoundedForecast(run)) event(runId, 'action.rejected', { agentSpecId: 'main', name: '主 Agent', toolId: call.function.name, error: result.error, summary: result.summary })
     }
     if (!finished) {
       state.main.messages.push({ role: 'tool', tool_call_id: call.id, content: JSON.stringify(result) })
@@ -815,6 +1002,9 @@ export function createCourseService({ path, workbench, provider = createCourseMo
       }
     } catch (error) {
       if (stopping || controller.signal.aborted || terminal.has(store.requireRun(runId).status)) return
+      if (isBoundedForecast(store.requireRun(runId)) && ['COURSE_BUDGET', 'BUDGET_EXHAUSTED', 'MAIN_BUDGET', 'MAIN_PROTOCOL', 'INTAKE_LIMIT', 'MODEL_INCOMPLETE'].includes(error.code)) {
+        await closeoutBounded(runId, errorValue(error)); return
+      }
       const saved = errorValue(error)
       const resumeSuffix = store.requireRun(runId).state.summaryResumeCount ? '_' + store.requireRun(runId).state.summaryResumeCount : ''
       store.saveRun(runId, { status: 'failed', error: saved, message: saved.message }, [{ eventId: `${runId}_failed${resumeSuffix}`, type: 'run.finished', payload: { status: 'failed', summary: saved.message, error: saved } }])
@@ -872,7 +1062,7 @@ export function createCourseService({ path, workbench, provider = createCourseMo
       if (input.purpose !== undefined && !['forecast', 'research'].includes(input.purpose)) throw courseFailure('INVALID_PURPOSE', '任务目的须为forecast或research。')
       if (input.purpose === 'research' && (input.strict || input.mode === 'strict' || input.watch === true)) throw courseFailure('INVALID_RESEARCH_INPUT', '研报不使用预测契约或自动监听。')
       const data = { purpose: input.purpose || 'forecast', question: input.question.trim(), ...(trading ? { horizonTradingDays: input.horizonTradingDays, ...(input.market !== undefined ? { market: input.market } : {}) } : { horizonHours: durationHours(input.question) ?? input.horizonHours ?? 48 }), timezone: input.timezone || tradingTimezone || 'Asia/Shanghai',
-        mode: input.mode || 'preset', watch: input.watch !== false, modelMode, sourceMode, providerIdentity: identity, modelRef: provider.model || null, budget, harnessVersion }
+        mode: input.mode || 'preset', watch: input.watch === true, modelMode, sourceMode, providerIdentity: identity, modelRef: provider.model || null, budget, harnessVersion }
       if (evidencePolicy) data.groundingPolicy = evidencePolicy
       if (data.purpose === 'research') { data.watch = false; data.budget = { ...budget, maxModelRequests: 24, maxToolCalls: 36, maxTotalTokens: 160000, mainRequests: 8, maxTokens: Math.min(maxOutput, 16384), worker: { ...budget.worker, maxModelRequests: 5, maxTotalTokens: 40000, maxTokens: Math.min(maxOutput, 8192), reserveReportTokens: 12000 } } }
       if ((!trading && (!Number.isInteger(data.horizonHours) || data.horizonHours < 1 || data.horizonHours > 168)) || !['preset', 'strict'].includes(data.mode)) throw courseFailure('INVALID_PRESET', '窗口应为一至一百六十八小时，模式为preset或strict。')
@@ -898,6 +1088,15 @@ export function createCourseService({ path, workbench, provider = createCourseMo
           if (typeof strict.timezone !== 'string' || !strict.timezone.trim()) throw courseFailure('INVALID_TIMEZONE', '严格模式时区无效。')
           try { new Intl.DateTimeFormat('en', { timeZone: strict.timezone }).format() } catch { throw courseFailure('INVALID_TIMEZONE', '严格模式时区无效。') }
         }
+      }
+      // Stable creation input keeps idempotent retries independent of later UI
+      // settings. The store allocates the actual bounded budget at first snapshot.
+      if (data.purpose === 'forecast' && !data.resolutionPolicy && harnessVersion >= 3) data.budget = boundedForecastBudget({ ...budget,
+        ...(data.mode === 'preset' ? { deliveryPolicy: EXPLORATORY_DELIVERY_POLICY } : {}) }, budget.maxTotalTokens)
+      if (data.budget.deliveryPolicy === EXPLORATORY_DELIVERY_POLICY) {
+        data.groundingPolicy ||= groundingPolicy
+        data.financialTargetPolicy = FINANCIAL_TARGET_POLICY
+        data.forecastWindowPolicy = FORECAST_WINDOW_POLICY
       }
       const specs = requireTeam(activeRoleSpecs(), data)
       const result = store.createRequest(data, { ...options, ...(data.purpose === 'forecast' ? { predictionBudget: store.getSettings().predictionBudget } : {}) })

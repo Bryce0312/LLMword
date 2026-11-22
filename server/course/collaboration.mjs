@@ -1,5 +1,5 @@
 /** Public receipts only; model messages and checkpoints never enter this projection. */
-export function validateDecisionNotes(notes, assignments, evidenceIds) {
+export function validateDecisionNotes(notes, assignments, evidenceIds, { partialAssignmentIds = [] } = {}) {
   if (notes === undefined) return []
   if (!Array.isArray(notes) || notes.length > 12) throw new Error('裁决说明格式无效。')
   const seen = new Set()
@@ -9,9 +9,10 @@ export function validateDecisionNotes(notes, assignments, evidenceIds) {
       typeof note.reason !== 'string' || !note.reason.trim() || note.reason.length > 1000 ||
       !Array.isArray(note.evidenceIds) || new Set(note.evidenceIds).size !== note.evidenceIds.length ||
       note.evidenceIds.some((id) => !assignment.report.evidenceIds.includes(id) || !evidenceIds.includes(id)) ||
-      (note.disposition === 'adopted' && (!note.evidenceIds.length || assignment.report.status !== 'complete'))) throw new Error('裁决须指向本轮报告及其已读证据；采纳须引用完整报告的证据。')
+      (note.disposition === 'adopted' && (!note.evidenceIds.length || assignment.report.status !== 'complete' && !partialAssignmentIds.includes(assignment.assignmentId)))) throw new Error('裁决须指向本轮报告及其已读证据；采纳须引用完整报告的证据，资料有限的报告应保留条件。')
     seen.add(note.assignmentId)
-    return { assignmentId: note.assignmentId, disposition: note.disposition, reason: note.reason.trim(), evidenceIds: [...note.evidenceIds] }
+    return { assignmentId: note.assignmentId, disposition: note.disposition, reason: note.reason.trim(), evidenceIds: [...note.evidenceIds],
+      ...(partialAssignmentIds.includes(note.assignmentId) ? { reportQuality: 'partial' } : {}) }
   })
 }
 
@@ -25,11 +26,12 @@ export function buildCollaboration(run) {
   const output = forecast || research
   const notes = output?.decisionNotes || []
   const reports = assignments.map((item) => {
-    const report = item.report
+    const report = item.usableReport || item.report
     const decision = notes.find((note) => note.assignmentId === item.assignmentId)
     const claims = (items = []) => items.map((claim) => ({ claim: claim.claim, basis: claim.basis || null, citations: (claim.citations || []).filter(q => refs(claim.evidenceIds).includes(q.evidenceId)), evidenceIds: refs(claim.evidenceIds) })).filter((claim) => claim.evidenceIds.length)
     return { assignmentId: item.assignmentId, roleId: item.roleId, name: item.name, objective: item.objective, reason: item.reason,
       followUp: Boolean(item.followUp), cycle: item.cycle || 1, status: item.status, reportStatus: report?.status || null,
+      reportQuality: item.usableReport ? report?.status === 'complete' && report?.delivery?.mode !== 'validated-partial-model-report' ? 'complete' : 'partial' : null,
       summary: report?.summary || item.error?.message || '', probability: Number.isFinite(report?.probability) ? report.probability : null,
       evidenceIds: refs(report?.evidenceIds), support: claims(report?.support), counterevidence: claims(report?.counterevidence),
       missingEvidence: report?.missingEvidence || [], decision: decision ? { ...decision, evidenceIds: refs(decision.evidenceIds) } : null,

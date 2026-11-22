@@ -16,11 +16,11 @@ import { handleCourseApi } from '../course-http.mjs'
 
 const NOW = '2026-11-22T08:00:00.000Z'
 const horizon = (question, tradingDays = 1, createdAt = NOW, market) => buildTradingHorizon({ question, tradingDays, createdAt, market })
-async function fixture(t, provider = createCourseMockProvider()) {
+async function fixture(t, provider = createCourseMockProvider(), { harnessVersion = 3 } = {}) {
   const folder = await mkdtemp(join(tmpdir(), 'llmword-trading-days-'))
   const workbench = createWorkbenchService({ path: join(folder, 'domain.sqlite'), now: () => NOW })
   const sourceTools = createWebResearchGateway({ env: { WORLD_SEARCH_PROVIDER: 'fixture' }, now: () => NOW })
-  const service = createCourseService({ path: join(folder, 'course.sqlite'), workbench, sourceTools, provider, now: () => NOW })
+  const service = createCourseService({ path: join(folder, 'course.sqlite'), workbench, sourceTools, provider, harnessVersion, now: () => NOW })
   t.after(async () => { await service.close(); workbench.close(); await rm(folder, { recursive: true, force: true }) })
   return service
 }
@@ -130,7 +130,7 @@ test('new request validation isolates trading horizons from research/hours, keep
   assert.equal(old.tradingHorizon, undefined)
 })
 
-test('normalization repairs model changes to a sealed trading deadline and bare symbols remain unscored without a real baseline', async t => {
+test('legacy V2 normalization repairs model changes to a sealed trading deadline and bare symbols remain unscored without a real baseline', async t => {
   const protocol = createCourseMockProvider(), observedErrors = [], workerContexts = []
   let corrupted = false
   const provider = { ...protocol, async complete(input) {
@@ -146,11 +146,13 @@ test('normalization repairs model changes to a sealed trading deadline and bare 
     }
     return response
   } }
-  const service = await fixture(t, provider)
+  const service = await fixture(t, provider, { harnessVersion: 2 })
   const created = service.createRequest({question:'AAPL',horizonTradingDays:5,watch:false})
   await service.idle()
   const done = service.getRequest(created.requestId)
   assert.equal(done.run.status,'completed',JSON.stringify(done.run.error))
+  assert.equal(done.run.harnessVersion,2)
+  assert(corrupted, 'the legacy model-normalization repair path must actually be exercised')
   assert(observedErrors.includes('TRADING_TARGET_MISMATCH'))
   assert.equal(done.normalized.targetAt, created.tradingHorizon.targetAt)
   assert.equal(done.normalized.forecastClosesAt, created.tradingHorizon.targetAt)
@@ -165,6 +167,41 @@ test('normalization repairs model changes to a sealed trading deadline and bare 
   assert.equal(strictDone.run.status,'completed',JSON.stringify(strictDone.run.error))
   assert.equal(strictDone.normalized.timezone,'Asia/Shanghai')
   assert.equal(strictDone.normalized.targetAt, partial.tradingHorizon.targetAt)
+})
+
+test('bounded V3 compiles the sealed trading horizon without a prepare model request and preserves strict display timezone', async t => {
+  const protocol = createCourseMockProvider(), contexts = [], calledTools = []
+  const provider = { ...protocol, async complete(input) {
+    contexts.push(JSON.parse(input.messages.find(message => message.role === 'user').content))
+    const response = await protocol.complete(input)
+    calledTools.push(...(response.message.tool_calls || []).map(call => call.function.name))
+    return response
+  } }
+  const service = await fixture(t, provider)
+  for (const strict of [null, { timezone: 'Asia/Shanghai' }]) {
+    const start = contexts.length
+    const created = service.createRequest({ question: 'AAPL', horizonTradingDays: 5, watch: false, ...(strict ? { mode: 'strict', strict } : {}) })
+    await service.idle()
+    const done = service.getRequest(created.requestId)
+    assert.equal(done.run.status, 'completed', JSON.stringify(done.run.error))
+    assert.equal(done.normalized.targetAt, created.tradingHorizon.targetAt)
+    assert.equal(done.normalized.forecastClosesAt, created.tradingHorizon.targetAt)
+    assert.equal(done.normalized.timezone, strict?.timezone || 'America/New_York')
+    assert.equal(done.normalized.temporalPolicy, 'at_target')
+    assert.equal(done.normalized.conditionalOnly, true)
+    assert.equal(done.forecast.scoringEligible, false)
+    if (!strict) assert(done.normalized.defaultAssumptions.some(text => text.includes('收盘') && text.includes('基准')))
+    assert.deepEqual(done.tradingHorizon, created.tradingHorizon)
+    assert.equal(done.normalized.timeContext.tradingHorizon.market, 'US')
+    assert(done.run.events.some(event => event.type === 'contract.compiled'))
+    const main = contexts.slice(start).filter(context => context.kind === 'course-main')
+    assert(!main.some(context => context.phase === 'prepare'))
+    assert(main.every(context => context.targetAt === created.tradingHorizon.targetAt && context.timeContext.targetAtUtc === created.tradingHorizon.targetAt))
+    const workers = contexts.slice(start).filter(context => context.assignmentId)
+    assert(workers.length >= 3)
+    assert(workers.every(context => context.objective.includes(created.tradingHorizon.targetAt)))
+  }
+  assert(!calledTools.includes('normalize_prediction'))
 })
 
 test('HTTP exposes the horizon capability and returns a durable 20-session snapshot without accepting a client deadline', async t => {

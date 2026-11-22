@@ -54,8 +54,11 @@ export const uiTranslations = Object.freeze({
   '例如：腾讯控股、00700.HK、沪深300ETF（A股）、NVDA（美股）': 'For example: Tencent, 00700.HK, CSI 300 ETF (China), NVDA (US)',
   '请先输入你关注的股票、证券或基金。': 'Enter a stock, security or fund first.',
   '关注多久': 'Forecast horizon',
+  '持续关注': 'Keep monitoring',
+  '本席 Yes 估计：未给估计。': 'This researcher’s Yes estimate: not provided.',
+  '默认只研究一次；勾选后，服务器会定时检查新信息并可能继续调用模型。': 'Research once by default. If selected, the server checks for new information periodically and may call the model again.',
   '预测窗口（交易日）': 'Forecast horizon (trading days)',
-  '可填名称或代码并注明市场；未注明市场默认港股。按对应市场休市日计算，从创建日期后的下一交易日起计数，第 N 个交易日收盘截止。': 'Enter a name or ticker and, optionally, its market. Hong Kong is the default. Holidays are excluded; counting starts on the next trading date and ends at the close of the selected trading day.',
+  '代码和市场优先；英伟达、苹果等已识别美股名称采用美股日历线索，其余未注明默认港股，身份仍须核验。按对应市场休市日计算，从创建日期后的下一交易日起计数，第 N 个交易日收盘截止。': 'Tickers and explicit markets take priority. Recognized US issuer names such as NVIDIA and Apple suggest the US calendar; otherwise Hong Kong is the default. Security identity still needs verification. Holidays are excluded; counting starts on the next trading date and ends at the close of the selected trading day.',
   '正在检查当前服务…': 'Checking the service…',
   '正在创建预测…': 'Creating prediction…',
   '开始财报核验': 'Review financial report',
@@ -76,6 +79,9 @@ export const uiTranslations = Object.freeze({
   '财报核验': 'Financial report review',
   '调查失败': 'Research failed',
   '资料不足': 'Insufficient evidence',
+  '已有依据，资料有限': 'Evidence available, with limitations',
+  '资料有限': 'Limited evidence',
+  '未完整，部分依据已保留': 'Incomplete; some supported findings retained',
   '排队中': 'Queued',
   '调查中': 'Researching',
   '准备中': 'Preparing',
@@ -278,6 +284,8 @@ export const uiTranslations = Object.freeze({
 })
 
 export const dynamicRules = Object.freeze([
+  { pattern: /^每位研究员最多 (\d+) 次调查决策；资料足够可提前提交报告，最迟第 (\d+) 次进入报告阶段，另留 (\d+) 次报告修正。调查与报告分开计数，仍受本席总调用与 token 上限约束。$/, replace: (_all, research, report, repairs) => `Each researcher may make up to ${research} research decisions and report early when ready. Reporting starts no later than request ${report}, with ${repairs} report corrections reserved. Research and reporting are counted separately within the same overall request and token limits.` },
+  { pattern: /^本席 Yes 估计 (\d+(?:\.\d)?)%（未校准）$/, replace: (_all, n) => `This researcher’s Yes estimate: ${n}% (uncalibrated)` },
   { pattern: /^扩展槽 (\d+)$/, replace: (_all, n) => `Extension slot ${n}` },
   { pattern: /^新研究员已创建，定义 v(\d+)$/, replace: (_all, n) => `Researcher created · definition v${n}` },
   { pattern: /^研究员定义已保存为 v(\d+)$/, replace: (_all, n) => `Definition saved as v${n}` },

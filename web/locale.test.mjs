@@ -101,6 +101,8 @@ function fixture(storage = null) {
 test('exact UI translation preserves whitespace and leaves arbitrary source text untouched', () => {
   assert.equal(translateUiText('  开始预测\n', 'en'), '  Start prediction\n')
   assert.equal(translateUiText('模型连接', 'en'), 'Model connection')
+  assert.equal(translateUiText('持续关注', 'en'), 'Keep monitoring')
+  assert.equal(translateUiText('默认只研究一次；勾选后，服务器会定时检查新信息并可能继续调用模型。', 'en'), 'Research once by default. If selected, the server checks for new information periodically and may call the model again.')
   assert.equal(translateUiText('用户关于保存预算的观点与模型报告', 'en'), '用户关于保存预算的观点与模型报告')
   assert.equal(translateUiText('开始预测', 'zh-CN'), '开始预测')
 })

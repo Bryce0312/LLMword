@@ -116,7 +116,7 @@ test('UTC midnight crossing has a server-generated local label and strict user r
 
 test('ordinary news wakes a smaller team and actually supplies historical memory without changing the fixed baseline',async t=>{
   const {service,change,messages}=await setup(t)
-  const first=await run(service,'比特币回升')
+  const first=await run(service,'比特币回升',{watch:true})
   const baseline=structuredClone(first.normalized.baseline)
   const after=messages.length;change()
   service.check(first.requestId);await service.idle()
@@ -137,7 +137,7 @@ test('ordinary news wakes a smaller team and actually supplies historical memory
 
 test('material conflict convenes the saved team; a duplicate check cannot add a fake probability point',async t=>{
   const {service,change}=await setup(t)
-  const first=await run(service,'马斯克会不会发推特')
+  const first=await run(service,'马斯克会不会发推特',{watch:true})
   change(true);service.check(first.requestId);await service.idle()
   const major=service.getRequest(first.requestId)
   assert.equal(major.run.status,'completed',JSON.stringify(major.run.error))
