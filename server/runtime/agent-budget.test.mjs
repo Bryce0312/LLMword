@@ -22,3 +22,27 @@ test('remaining token cap never exceeds the task remainder and unknown usage is 
   assert.equal(workerBudgetState(budget, state).outputTokens, 536)
   assert(workerBudgetInstruction(budget, state).includes('不是精确余量'))
 })
+
+test('new input-aware assignments reserve a correction request without reinterpreting legacy reserved budgets', () => {
+  const legacy = { ...budget, reserveReportTokens: 14000 }
+  const current = { ...legacy, inputAwareCloseout: true, reportRepairRequests: 1 }
+  assert.equal(workerBudgetState(legacy, { ...usage, modelRequests: 5 }, { finishOnToolBudget: true }).reportOnly, false)
+  const state = workerBudgetState(current, { ...usage, modelRequests: 5 }, { finishOnToolBudget: true })
+  assert.equal(state.reportOnly, true)
+  assert.equal(state.reportStep, 5)
+  assert.equal(state.investigationSteps, 4)
+  assert(workerBudgetInstruction(current, { ...usage, modelRequests: 5 }, { finishOnToolBudget: true }).includes('1次报告修正'))
+})
+
+test('explicit investigation decisions and report repairs are distinct while total requests remain capped', () => {
+  const current = { ...budget, maxModelRequests: 10, maxToolCalls: 8, maxInvestigationRequests: 6, inputAwareCloseout: true, reportRepairRequests: 2 }
+  const before = workerBudgetState(current, { ...usage, modelRequests: 6, investigationRequests: 5, reportRequests: 0 }, { finishOnToolBudget: true })
+  assert.equal(before.reportOnly, false)
+  assert.equal(before.reportStep, 7)
+  assert.equal(before.investigationSteps, 6)
+  const report = workerBudgetState(current, { ...usage, modelRequests: 7, investigationRequests: 6, reportRequests: 0 }, { finishOnToolBudget: true })
+  assert.equal(report.reportOnly, true)
+  assert.equal(report.reportRepairRequests, 2)
+  assert(workerBudgetInstruction(current, { ...usage, modelRequests: 7, investigationRequests: 6 }, { finishOnToolBudget: true }).includes('调查与报告分别计数'))
+  assert.equal(workerBudgetState({ ...current, inputAwareCloseout: false }, { ...usage, modelRequests: 7 }, { finishOnToolBudget: true }).reportOnly, false)
+})

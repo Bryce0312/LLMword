@@ -1,0 +1,128 @@
+{
+  "validatedAt": "2026-11-22T09:53:53.286Z",
+  "mode": "real-model-and-live-sources",
+  "modelRef": "deepseek-flash",
+  "question": "英伟达股票走势",
+  "requestId": "course_request_64fb119f-520b-489f-8dfe-2a129ca134e3",
+  "runId": "course_run_bbf9939d-a178-4b61-a1a3-a1e232840ce3",
+  "server": "http://127.0.0.1:4203",
+  "createdAt": "2026-11-22T09:50:04.473Z",
+  "finishedAt": "2026-11-22T09:51:30.620Z",
+  "elapsedSeconds": 86.147,
+  "strategy": "bounded-forecast-v1",
+  "usage": {
+    "modelRequests": 21,
+    "toolCalls": 13,
+    "totalTokens": 193068,
+    "promptTokens": 171644,
+    "completionTokens": 21424,
+    "cacheHitTokens": 19968,
+    "cacheMissTokens": 151676,
+    "unknownUsage": false
+  },
+  "main": {
+    "requests": 3,
+    "tokens": 27566,
+    "share": 0.14277871009178114
+  },
+  "assignments": [
+    {
+      "roleId": "market",
+      "followUp": false,
+      "status": "completed",
+      "reportStatus": "insufficient",
+      "probability": null,
+      "evidenceCount": 2,
+      "usage": {
+        "modelRequests": 5,
+        "toolCalls": 3,
+        "totalTokens": 44686,
+        "unknownUsage": false
+      }
+    },
+    {
+      "roleId": "statistics",
+      "followUp": false,
+      "status": "completed",
+      "reportStatus": "insufficient",
+      "probability": 0.35,
+      "evidenceCount": 2,
+      "usage": {
+        "modelRequests": 5,
+        "toolCalls": 4,
+        "totalTokens": 43216,
+        "unknownUsage": false
+      }
+    },
+    {
+      "roleId": "verification",
+      "followUp": false,
+      "status": "completed",
+      "reportStatus": "complete",
+      "probability": 0.45,
+      "evidenceCount": 2,
+      "usage": {
+        "modelRequests": 4,
+        "toolCalls": 3,
+        "totalTokens": 31973,
+        "unknownUsage": false
+      }
+    },
+    {
+      "roleId": "market",
+      "followUp": true,
+      "status": "completed",
+      "reportStatus": "complete",
+      "probability": 0.42,
+      "evidenceCount": 2,
+      "usage": {
+        "modelRequests": 4,
+        "toolCalls": 3,
+        "totalTokens": 45627,
+        "unknownUsage": false
+      }
+    }
+  ],
+  "forecast": {
+    "probabilityYes": 0.43,
+    "probabilityNo": 0.5700000000000001,
+    "kind": "conditional_estimate",
+    "scoringEligible": false,
+    "baselineVerified": false,
+    "mainCompletedVerdict": true,
+    "programAggregation": false,
+    "targetAt": "2026-11-25T21:00:00.000Z",
+    "decisionCount": 4,
+    "reasoningClaimCount": 6,
+    "summaryConflict": {
+      "detected": true,
+      "reasons": [
+        "基准未核验，但摘要出现具体价格断言"
+      ]
+    }
+  },
+  "watch": {
+    "enabled": false,
+    "status": "off",
+    "nextDueAt": null
+  },
+  "counts": {
+    "evidence": 8,
+    "relations": 12,
+    "toolRejections": 7,
+    "reportSerializationCalls": 9
+  },
+  "regression": {
+    "tests": 535,
+    "pass": 535,
+    "fail": 0,
+    "log": "work/bounded-acceptance-tests.log"
+  },
+  "limitations": [
+    "One successful live execution does not establish repeatability or forecasting accuracy.",
+    "Unverified structured price baseline; conditional estimate is not scoreable.",
+    "Initial market report required a successful follow-up; statistics report remained insufficient.",
+    "Conservative summary conflict detector flags an explicit reference price; stored warning retained.",
+    "Tool and report rejection events remain visible; not zero-error execution."
+  ]
+}

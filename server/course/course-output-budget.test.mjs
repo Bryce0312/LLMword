@@ -24,7 +24,7 @@ async function fixture(t) {
   } }
 }
 
-test('thinking defaults to 16384, explicit output caps reach 32768, and non-thinking remains at 4800', async (t) => {
+test('provider output ceilings remain available while ordinary bounded runs cap output at 8192', async (t) => {
   for (const [thinking, configured, requested, expected] of [
     ['enabled', false, 2048, 16384], ['enabled', true, 32768, 32768], ['enabled', true, 65536, 32768],
     ['disabled', true, 32768, 4800], ['disabled', true, 2048, 2048],
@@ -39,15 +39,15 @@ test('thinking defaults to 16384, explicit output caps reach 32768, and non-thin
     await service.idle()
     const done = service.getRequest(request.requestId)
     assert.equal(done.run.status, 'completed', JSON.stringify(done.run.error))
-    assert(limits.length > 3 && limits.every((limit) => limit === expected))
+    assert(limits.length > 3 && limits.every((limit) => Number.isInteger(limit) && limit > 0 && limit <= Math.min(expected, 8192)))
     assert.equal(service.capabilities.limits.maxOutputTokens, expected)
     await service.close()
     const persisted = createCourseStore({ path: setup.path, now: () => NOW })
     try {
       const run = persisted.getRun(done.run.runId)
-      assert.equal(run.budget.maxTokens, expected)
+      assert.equal(run.budget.maxTokens, Math.min(expected, 8192))
       assert.equal(run.budget.maxTotalTokens, 1000000)
-      assert(persisted.listAssignments(run.runId).every((assignment) => assignment.config.budget.maxTokens === expected))
+      assert(persisted.listAssignments(run.runId).every((assignment) => assignment.config.budget.maxTokens === Math.min(expected, 8192)))
     } finally { persisted.close() }
   }
 })
@@ -64,8 +64,9 @@ test('course main failure records known truncated tokens and never exposes a par
   const request = service.createRequest({ question: '【模拟】课程科技展会开幕吗？', watch: false })
   await service.idle()
   const done = service.getRequest(request.requestId)
-  assert.equal(done.run.status, 'failed')
-  assert.equal(done.run.error.code, 'MODEL_INCOMPLETE')
+  assert.equal(done.run.status, 'insufficient')
+  assert.equal(done.run.delivery.probabilityYes, null)
+  assert.equal(done.run.delivery.kind, 'partial_research')
   assert.equal(done.run.usage.modelRequests, 1)
   assert.equal(done.run.usage.totalTokens, 2345)
   assert.equal(done.run.usage.unknownUsage, false)

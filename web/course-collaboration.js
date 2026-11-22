@@ -1,9 +1,10 @@
 import { h, dataContent, button, sourceLink } from './workbench-core.js'
 import { courseRoleName } from './course-team.mjs'
+import { formatCourseProbability } from './course-probability.mjs'
 import { directionText, isPriceDirection } from './course-price-direction.mjs'
 
 const dispositions = { adopted: '采纳', qualified: '保留条件', rejected: '未采纳' }
-const percent = (p) => Number.isFinite(p) ? Math.round(p * 100) + '%' : '未给概率'
+const percent = p => formatCourseProbability(p, '未给概率')
 export function renderCollaboration(node, trace) {
   const openReports = new Set([...node.querySelectorAll('details[open][data-assignment-id]')].map((item) => item.dataset.assignmentId))
   node.hidden = !trace
@@ -13,9 +14,12 @@ export function renderCollaboration(node, trace) {
     return source ? h('span', '', dataContent('span', '', source.title), ' ', sourceLink(source)) : null
   }))
   const reportCard = (item) => {
-    const box = h('details', 'cc-collab-report', h('summary', '', dataContent('span', '', courseRoleName(item.roleId, item.name)), ' · ', item.followUp ? `第${item.cycle}轮补查` : '独立调查', ' · ', ({ complete: '报告完成', insufficient: '资料不足', blocked: '受阻' })[item.reportStatus] || '等待报告'))
+    const partial = item.reportQuality === 'partial' && Number.isFinite(item.probability) && item.probability >= 0 && item.probability <= 1 && Array.isArray(item.evidenceIds) && item.evidenceIds.length
+    const label = partial ? item.status === 'failed' ? '未完整，部分依据已保留' : '资料有限' : ({ complete: '报告完成', insufficient: '资料不足', blocked: '受阻' })[item.reportStatus] || '等待报告'
+    const box = h('details', 'cc-collab-report', h('summary', '', dataContent('span', '', courseRoleName(item.roleId, item.name)), ' · ', item.followUp ? `第${item.cycle}轮补查` : '独立调查', ' · ', label))
     box.dataset.assignmentId = item.assignmentId; box.open = openReports.has(item.assignmentId)
     box.append(h('p', '', '调查任务：', dataContent('span', '', item.objective)), h('p', 'wb-muted', '选择理由：', dataContent('span', '', item.reason)), dataContent('p', 'wb-prewrap', item.summary || '报告尚未提交。'))
+    box.append(h('p', 'wb-muted', Number.isFinite(item.probability) && item.probability >= 0 && item.probability <= 1 ? '本席 Yes 估计 ' + percent(item.probability) + '（未校准）' : '本席 Yes 估计：未给估计。'))
     for (const [label, claims] of [['支持', item.support], ['反证', item.counterevidence]]) for (const claim of claims) box.append(h('p', '', label + (claim.basis === 'inference' ? '（推断）' : claim.basis === 'fact' ? '（直接事实）' : '') + '：', dataContent('span', '', claim.claim)), refs(claim.evidenceIds), ...(claim.citations || []).map(q => dataContent('blockquote', 'wb-prewrap', q.quote)))
     if (item.missingEvidence.length) box.append(h('p', 'cc-collab-gap', '未解决：', dataContent('span', '', item.missingEvidence.join('；'))))
     box.append(item.decision ? h('p', 'cc-collab-decision', dispositions[item.decision.disposition] + '：', dataContent('span', '', item.decision.reason)) : h('p', 'wb-muted', trace.decision ? '本次发布未记录这份报告的逐项采纳理由。' : '尚未裁决。'))
@@ -45,8 +49,7 @@ export function renderCollaboration(node, trace) {
   if (trace.decision) {
     const decision = trace.decision
     if (decision.groundingPolicy) node.append(h('p', 'wb-muted', '逐条片段已检查出处与基本数字覆盖；片段匹配不等于语义判断全部正确。'), ...decision.reasoningClaims.map(claim => h('details', '', h('summary', '', claim.basis === 'inference' ? '推断：' : '直接事实：', dataContent('span', '', claim.claim)), ...(claim.citations || []).map(q => dataContent('blockquote', 'wb-prewrap', q.quote)), refs(claim.evidenceIds))))
-    const judgment = decision.kind === 'research_report' ? '本轮为财报核验研报' : isPriceDirection(decision) ? directionText(decision) : '本轮 Yes ' + percent(decision.probabilityYes)
-    node.append(h('p', '', judgment + (decision.delta !== null ? `；相较上次${decision.delta >= 0 ? '+' : ''}${Math.round(decision.delta * 100)}个百分点` : '') + `；已记录 ${decision.recordedNotes}/${decision.totalReports} 份报告的裁决。`))
+    node.append(h('p', '', (decision.kind === 'research_report' ? '本轮为财报核验研报' : isPriceDirection(decision) ? '本轮 ' + directionText(decision) : '本轮 Yes ' + percent(decision.probabilityYes)) + (decision.delta !== null ? `；相较上次${decision.delta >= 0 ? '+' : ''}${Math.round(decision.delta * 1000) / 10}个百分点` : '') + `；已记录 ${decision.recordedNotes}/${decision.totalReports} 份报告的裁决。`))
     for (const item of trace.reports.filter((item) => item.decision)) node.append(h('p', '', dataContent('span', '', courseRoleName(item.roleId, item.name)), ' · ' + dispositions[item.decision.disposition] + '：', dataContent('span', '', item.decision.reason)), refs(item.decision.evidenceIds))
     for (const dissent of decision.dissent) node.append(h('p', 'cc-collab-gap', '保留异议：', dataContent('span', '', dissent)))
     node.append(h('p', 'wb-muted', '补查答复已提交不代表争议已解决；概率变化不代表预测准确率提高。'))

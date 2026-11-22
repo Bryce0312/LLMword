@@ -8,12 +8,12 @@ import { createCourseMockProvider } from '../server/course/course-mock-provider.
 import { createWorkbenchService } from '../server/domain/workbench-service.mjs'
 import { createWebResearchGateway } from '../server/course/web-tools.mjs'
 import { groundingPolicy } from '../server/domain/claim-grounding.mjs'
-import { PRICE_URL,PRICE_RULE,PRICE_DIRECTION_RULE,readPriceSnapshot } from '../server/course/market-resolution.mjs'
+import { PRICE_URL,PRICE_RULE,readPriceSnapshot } from '../server/course/market-resolution.mjs'
 
 export function priceQuestion(targetAt) {return {question:'在固定目标时点后的首次有界观察中，Binance BTC-USDT现价是否高于本轮固定基准？',mode:'strict',watch:false,
   strict:{targetAt,resolutionSourceUrl:PRICE_URL,resolutionRule:PRICE_RULE,timezone:'Asia/Shanghai'}}}
 
-export async function runPriceCase({value=101,incompleteVerification=false,lateSummary=false,directional=false}={}) {
+export async function runPriceCase({value=101,incompleteVerification=false,lateSummary=false}={}) {
   const folder=await mkdtemp(join(tmpdir(),'price-acceptance-')),now=()=>at
   let at='2026-11-21T00:00:00.000Z',reads=0,sourceMode='failure'
   const workbench=createWorkbenchService({path:join(folder,'domain.sqlite'),now}),fixture=createCourseMockProvider()
@@ -25,9 +25,7 @@ export async function runPriceCase({value=101,incompleteVerification=false,lateS
       if(sourceMode==='wrong-pair')source.marketQuote.pair='ETH-USD';if(sourceMode==='wrong-url')source.url='https://example.com/other';if(sourceMode==='mode-wash')source.sourceMode='live';if(sourceMode==='invalid')source.text='{}';return source}})
   let service=open()
   try{
-    const input = priceQuestion('2026-11-21T00:30:00.000Z')
-    if (directional) { input.forecastType = 'price_direction'; input.strict.resolutionRule = PRICE_DIRECTION_RULE }
-    const request=service.createRequest(input);await service.idle();const before=service.getRequest(request.requestId)
+    const request=service.createRequest(priceQuestion('2026-11-21T00:30:00.000Z'));await service.idle();const before=service.getRequest(request.requestId)
     if(incompleteVerification){assert.equal(before.forecast,null);return {rejected:true,error:before.run.error}}
     assert.equal(before.run.status,'completed',JSON.stringify({error:before.run.error,roles:before.run.assignments.map(a=>({role:a.roleId,status:a.status,error:a.error}))}))
     assert.equal(before.normalized.temporalPolicy,'at_target');assert.equal(before.forecast.reviewRequired,false);assert(!before.forecast.publicationMode)
@@ -45,8 +43,7 @@ export async function runPriceCase({value=101,incompleteVerification=false,lateS
     await assert.rejects(service.resolve(request.requestId),{code:'RESULT_SOURCE_UNAVAILABLE'});assert.equal(service.getRequest(request.requestId).result,null)
     for(const kind of ['wrong-pair','wrong-url','mode-wash','invalid']){sourceMode=kind;await assert.rejects(service.resolve(request.requestId));assert.equal(service.getRequest(request.requestId).result,null)}
     sourceMode='valid';const result=await service.resolve(request.requestId),after=service.getRequest(request.requestId)
-    const expectedOutcome = directional ? value > 100 ? 'up' : value < 100 ? 'down' : 'flat' : value > 100 ? 1 : 0
-    assert.equal(result.outcome, expectedOutcome);assert.equal(result.observedValue,value);assert.equal(result.scoringEligible,false)
+    assert.equal(result.outcome,value>100?1:0);assert.equal(result.observedValue,value);assert.equal(result.scoringEligible,false)
     assert(result.scores.every(s=>!s.scoringEligible));assert.equal(sealed,JSON.stringify([after.forecast,after.run.evidence,after.run.usage]))
     const count=reads;assert.deepEqual(await service.resolve(request.requestId),result);assert.equal(reads,count)
     assert.throws(()=>service.check(request.requestId),{code:'REQUEST_CLOSED'})

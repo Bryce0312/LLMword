@@ -426,3 +426,19 @@ flowchart TD
 在review前，三席已完成后，由程序读取固定价格来源最新quote/history，有tool.started/completed、预算、回执及main读者证据。state.priceFinalSnapshot及latestReference独立保存，normalized.baseline不变。研究汇总只重传公开报告/证据摘要及新观察。发布时新现价超过两分钟则拒绝，下一次review重新刷新；模拟慢响应回归检查基准不移动。
 
 价格结果独立事务封存，使用目标后5分钟首次成功新报价，验证固定契约、版本、原基准、时间/来源模式与原文值一致；Brier属于单题，不训练或校准模型。闭环无需额外模型请求。通用recordResult拒绝固定契约，API不接客户端结果标签；模拟结果与真实资格分开。第一次失败及新正常发布记录并存，实际结果和限制见FINANCIAL_PREDICTION_REPORT.md。
+
+
+## 新普通预测的有界策略（2026-11-22，D048）
+
+bounded-forecast-v1 只影响新建普通 forecast，不迁移旧检查点或固定规则验收。执行顺序为 intake 短整理/三席派工、独立 workers、程序编译既有来源/期限、review 汇总及至多一次 followup。全局设置在创建事务中封存；预算预检包含输入、工具定义、输出与并发预留，实际 usage 单独累计。研究员预留报告与修正，压缩工作上下文不改私有原始协议或制造工具配对。
+
+监听默认关闭。开启后的新 Run 保留同题同版本契约与预算，重载历史判断、报告及关系索引，正文按本轮 readBy 重新取得；no_change 不产生概率点。普通发布按不同 role 的最新有效完整报告计席，失败补查不抹去旧完整报告；严格 BTC 三初始席等专用守卫保持。
+
+程序汇集仍经过既有版本、时间、来源、本人读取及引用校验，且须至少两种职责的有据候选。其 publicationMode=bounded-report-aggregation，明确保留各席评分及实际聚合方式，强制 reviewRequired=true、scoringEligible=false；不能当作主 Agent 的完整模型裁决。候选不足保留 null 概率的阶段性资料。新策略未知用量拒绝正式发布，原失败与实际用量不应以兜底成功覆盖。本轮真实验证另记。
+
+
+### 有限资料的交付与显式证据交接（D049）
+
+新preset的exploratory-estimate-v1在原课程harness中执行。Worker的调查计数与报告修正独立；无效候选原样拒绝，另存经逐条原验证器检查的partialReport与原模型概率，不覆盖正式report。exploratory-reports纯模块按模型身份、同轮本人读取、实质片段、时间与有限概率挑选可用报告，不计算最终概率。Main读取可用报告及拒绝原因，进行模型裁决；Store对单席/部分依据强制初步条件估计、需复核和不计分。旧正式/严格守卫独立。
+
+只有补查才授read_run_evidence：当前run与assignment绑定，实际复阅保存正文并登记reader，保留原evidenceId和观察时间，不提高新鲜度或独立来源数。超过完整返回上限的正文在登记前拒绝，避免借整页readBy引用未显示片段。实际采用的完整实质核验报告才计作核验完成。公开像素投影仍只消费真实事件和安全报告，未新增产品页面。

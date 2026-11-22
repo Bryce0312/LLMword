@@ -7,6 +7,7 @@ import { createNewsSearchTool, textLanguage } from './news-search.mjs'
 import { searchBing } from './bing-search.mjs'
 import { WARNING_URL, createWeatherWarningTool, readWarnings } from './weather-warning.mjs'
 import { createMarketHistoryTool, createPriceQuoteTool } from './market-resolution.mjs'
+import { selectPageExcerpt, unreadablePageReason } from './page-excerpt.mjs'
 
 export const COURSE_WEB_TOOL_IDS = Object.freeze(['search_web', 'fetch_page', 'get_market_quote', 'search_news', 'get_weather_warning', 'get_market_history'])
 const quoteRoles = Object.freeze(['main', 'statistics', 'market'])
@@ -116,6 +117,18 @@ export function createWebResearchGateway({ env = process.env, request = fetch, n
   const timeoutValue = Number(env.WORLD_SEARCH_TIMEOUT_MS)
   const timeoutMs = Number.isInteger(timeoutValue) && timeoutValue >= 10 && timeoutValue <= 60000 ? timeoutValue : 20000
   const retries = env.WORLD_SEARCH_MAX_RETRIES === '0' ? 0 : 1
+  // Explicit run scopes share fetched bodies, not reader permissions or saved
+  // evidence IDs. A later Run must actually fetch again; unscoped callers retain
+  // the old independent-toolsFor lifetime. Bound scopes and pages in memory.
+  const runPages = new Map()
+  function pageScope(scope) {
+    if (typeof scope !== 'string' || !scope.trim()) return { pages: new Map(), pending: new Map() }
+    if (!runPages.has(scope)) {
+      if (runPages.size >= 24) runPages.delete(runPages.keys().next().value)
+      runPages.set(scope, { pages: new Map(), pending: new Map() })
+    }
+    return runPages.get(scope)
+  }
   const stamp = () => {
     const value = now(); const parsed = value instanceof Date ? value : new Date(value)
     if (!Number.isFinite(parsed.valueOf())) throw new TypeError('Gateway clock must return a valid date.')
@@ -185,14 +198,19 @@ export function createWebResearchGateway({ env = process.env, request = fetch, n
     }
   }
 
-  function toolsFor({ roleId, question, sourceDomains, onEvidence, allowSourceDiscovery = false, legacySchemas = false, marketResolution = false } = {}) {
-    let domains = []; let scopeError = null
+  function toolsFor({ roleId, question, sourceDomains, searchDomains, onEvidence, allowSourceDiscovery = false, legacySchemas = false, marketResolution = false, cacheScope } = {}) {
+    let domains = [], searchScope = []; let scopeError = null
     try {
       domains = domainSet(sourceDomains)
       if (roleId === 'official' && !domains.length && question?.resolutionSource?.url) domains = [publicUrl(question.resolutionSource.url).hostname.toLowerCase()]
+      searchScope = searchDomains === undefined ? domains : domainSet(searchDomains)
+      if (searchDomains !== undefined && (!domains.length || !searchScope.length || searchScope.some(host => !within(new URL(`https://${host}`), domains)))) {
+        throw failure('INVALID_SOURCE_SCOPE', '搜索限定必须是本轮已授权来源域名的非空子集。')
+      }
       if (roleId === 'official' && !domains.length && !allowSourceDiscovery) throw failure('SOURCE_SCOPE_REQUIRED', '官方资料研究员尚未获得指定来源域名。')
     } catch (error) { scopeError = error && safeErrors.has(error) ? error : failure('INVALID_SOURCE_SCOPE', '来源范围无效。') }
     const known = new Map(); const fetched = new Map(); let lastQuery = ''
+    const bodyCache = pageScope(cacheScope)
 
     const wrap = (toolId, description, execute) => ({ toolId, version: 1, description,
       inputSchema: structuredClone(inputSchemas[toolId]), resultSchema: structuredClone(resultSchema), timeoutMs: (retries + 1) * timeoutMs + 2500,
@@ -228,7 +246,7 @@ export function createWebResearchGateway({ env = process.env, request = fetch, n
     const search = wrap('search_web', '使用任意语言搜索公开候选；language/market记录查询意图，不保证地理覆盖。默认DeepSeek；可选Bing须服务器启用，否则回退并说明。摘要不是正文。', async ({ query, maxResults = 2, language, market, engine = 'deepseek' }, context, metrics) => {
       const terms = query.trim()
       lastQuery = terms
-      const suffix = domains.length ? ` ${domains.map((host) => `site:${host}`).join(' OR ')}` : ''
+      const suffix = searchScope.length ? ` ${searchScope.map((host) => `site:${host}`).join(' OR ')}` : ''
       if (characters(terms + suffix).length > MAX_QUERY_CHARACTERS) throw failure('SOURCE_QUERY_TOO_LONG', '搜索词与来源限定合计过长，请缩短关键词。')
       const payload = { query: terms + suffix, count: maxResults, need_content: false }
       let response, provenance = { requestedEngine: engine, requestedLanguage: language || null, requestedMarket: market || null, actualProvider: provider, independentIndexVerified: false }, publicRequests = 0
@@ -264,7 +282,7 @@ export function createWebResearchGateway({ env = process.env, request = fetch, n
       return { ...result(omitted ? 'partial' : 'ok', { query: terms, results, provider, mode, cached: false, provenance }, [],
         provider === 'fixture' ? `静态演示搜索返回 ${results.length} 条虚构材料候选；并非真实联网。` : `搜索返回 ${results.length} 条来源候选，尚未读取正文。${provenance.fallbackReason ? ' 可选搜索渠道不可用，已回退现有服务。' : ''}`), usage: { providerRequests: response.providerRequests, publicSearchActions: publicRequests } }
     })
-    const fetchPage = wrap('fetch_page', '读取公开来源原文并保存证据快照；可用focus定位财报表格或关键词附近片段。只有保存的正文获得evidenceId，不越过私网或来源权限。', async ({ url: value, focus }, context, metrics) => {
+    const fetchPage = wrap('fetch_page', '读取公开来源并保存可引用原文。focus只填原文短词（≤80字），不是搜索问题；未命中返回partial降级正文与citationHints，不要为换focus反复抓同页。引用直接复制text或citationHints的连续片段；摘要和定位提示不能补造原文。登录/验证码/浏览器不支持页不作证据。', async ({ url: value, focus }, context, metrics) => {
       const url = publicUrl(value)
       const cacheKey = focus ? url.href + '#focus=' + focus : url.href
       if (!within(url, domains)) throw failure('SOURCE_SCOPE_MISMATCH', '该链接不属于本次授权来源域名。')
@@ -282,20 +300,41 @@ export function createWebResearchGateway({ env = process.env, request = fetch, n
         const saved = { ...result('ok', { ...record, evidenceId, provider: 'hko-public-json', mode, cached: false }, [evidenceId], '已保存官方完整JSON；当前警告不等于未来结果。'), usage: { providerRequests: 0 } }
         fetched.set(cacheKey, structuredClone(saved)); return saved
       }
-      const response = provider === 'fixture' ? { payload: (typeof fixturePages === 'function' ? fixturePages() : fixturePages).find((page) => page.url === url.href), providerRequests: 0 } : await call('fetch', { url: url.href }, context.signal)
-      metrics.providerRequests = response.providerRequests
-      const raw = response.payload
+      const rawCached = bodyCache.pages.has(url.href) || bodyCache.pending.has(url.href)
+      let raw = bodyCache.pages.get(url.href)
+      if (!bodyCache.pages.has(url.href)) {
+        const joined = bodyCache.pending.has(url.href)
+        if (!joined) {
+          const loading = (async () => {
+            const response = provider === 'fixture' ? { payload: (typeof fixturePages === 'function' ? fixturePages() : fixturePages).find((page) => page.url === url.href), providerRequests: 0 } : await call('fetch', { url: url.href }, context.signal)
+            metrics.providerRequests = response.providerRequests
+            if (bodyCache.pages.size >= 32) bodyCache.pages.delete(bodyCache.pages.keys().next().value)
+            bodyCache.pages.set(url.href, response.payload)
+            return response.payload
+          })()
+          bodyCache.pending.set(url.href, loading)
+        }
+        const loading = bodyCache.pending.get(url.href)
+        try { raw = joined ? await bounded(() => loading, context.signal) : await loading }
+        catch (error) {
+          if (joined && safeErrors.has(error)) {
+            const own = failure(error.code, error.message, error.retryable)
+            own.httpStatus = error.httpStatus; own.actionRequired = error.actionRequired; own.providerRequests = 0
+            throw own
+          }
+          throw error
+        } finally { if (!joined) bodyCache.pending.delete(url.href) }
+      }
+      if (context.signal?.aborted) throw failure('TOOL_CANCELLED', '本次来源读取已取消。')
       if (!raw || typeof (raw.content ?? raw.text) !== 'string' || !(raw.content ?? raw.text).trim()) throw failure('SOURCE_CONTENT_MISSING', '此来源没有取得可读正文。')
       const completeText = (raw.content ?? raw.text).trim()
-      const originalCharacters = characters(completeText).length
-      const matchAt = focus ? completeText.toLowerCase().indexOf(focus.toLowerCase()) : 0
-      if (focus && matchAt < 0) throw failure('SOURCE_CONTENT_MISSING', '正文中未找到定位词，请换关键词或读取正文开头。')
-      const excerptStart = Math.max(0, matchAt - 300)
-      const text = clipped(completeText.slice(excerptStart), MAX_TEXT_CHARACTERS)
+      if (unreadablePageReason(completeText, raw.title || '')) throw failure('SOURCE_CONTENT_MISSING', '取得的是浏览器不支持、访问验证或不可读页面，不作为正文证据；请选择其他公开来源，不重试同页定位。')
+      const excerpt = selectPageExcerpt(completeText, focus, MAX_TEXT_CHARACTERS)
+      const { text } = excerpt
       const record = { title: textValue(raw.title, 300) || known.get(url.href)?.title || url.hostname,
-        url: url.href, text, publishedAt: dateOrNull(raw.publishedAt || raw.date) || known.get(url.href)?.publishedAt || null,
+        url: url.href, ...excerpt, publishedAt: dateOrNull(raw.publishedAt || raw.date) || known.get(url.href)?.publishedAt || null,
         contentHash: sha(text), sourceMode: provider === 'fixture' ? 'replay' : 'live',
-        truncated: originalCharacters > MAX_TEXT_CHARACTERS, originalCharacters, excerptStart, focus: focus || null, language: textLanguage(text), evidenceKind: 'page_content', referenceable: true,
+        language: textLanguage(text), evidenceKind: 'page_content', referenceable: true,
         ...(provider === 'fixture' ? { fixture: true, scoringEligible: false } : {}),
       }
       if (context.signal?.aborted) throw failure('TOOL_CANCELLED', '本次来源读取已取消。')
@@ -305,12 +344,15 @@ export function createWebResearchGateway({ env = process.env, request = fetch, n
       const evidenceId = typeof receipt === 'string' ? receipt : receipt?.evidenceId
       if (typeof evidenceId !== 'string' || !evidenceId.trim() || evidenceId.length > 160) throw failure('EVIDENCE_SAVE_FAILED', '证据保存服务没有返回有效编号；本次不产生可引用证据。')
       const observedAt = stamp()
-      const saved = result(record.truncated ? 'partial' : 'ok', { ...record, evidenceId, provider, mode, cached: false }, [evidenceId],
-        provider === 'fixture' ? '已保存静态虚构演示正文；这不是真实新闻或预测证据。' : record.truncated ? '已读取并保存正文片段，内容超过本轮上限，已明确截断。' : '已读取并保存来源正文。', observedAt)
-      saved.usage = { providerRequests: response.providerRequests }
+      const focusNote = record.focusMatched ? '' : ' 未找到完整定位词；已返回真实降级片段，focusMatched=false。可直接引用text/citationHints，不要把未取得部分写成事实。'
+      const saved = result(record.truncated || !record.focusMatched ? 'partial' : 'ok', { ...record, evidenceId, provider, mode, cached: false, rawCached }, [evidenceId],
+        (provider === 'fixture' ? '已保存静态虚构演示正文；这不是真实新闻或预测证据。' : record.truncated ? '已读取并保存正文片段，未包含部分不可引用。' : '已读取并保存来源正文。') + focusNote, observedAt)
+      saved.usage = { providerRequests: metrics.providerRequests }
       fetched.set(cacheKey, structuredClone(saved))
       return saved
     })
+    if (domains.length) fetchPage.description += ` 本次允许读取的来源域：${domains.join('、')}。`
+    if (searchScope.length) search.description += ` 本次检索优先限定：${searchScope.join('、')}；其他授权一手域可按确切URL读取。`
     const registered = [search, fetchPage]
     if (!legacySchemas && ['official', 'industry', 'statistics', 'verification'].includes(roleId) && /火灾危险警告|雷暴警告|weather warning|fire danger/i.test(typeof question === 'string' ? question : question?.question || '')) registered.push(createWeatherWarningTool({ request, now, mode: provider === 'fixture' ? 'mock' : 'live', fixtureWarnings,
       onEvidence: async (record, context) => { if (scopeError) throw scopeError; if (!within(new URL(record.url), domains)) throw failure('SOURCE_SCOPE_MISMATCH', '警告不属于授权来源。'); return onEvidence(record, context) } }))
@@ -320,9 +362,18 @@ export function createWebResearchGateway({ env = process.env, request = fetch, n
       if (legacySchemas) { news.version = 1; news.description = '分别用中文和英文查询公开新闻候选；结果只是线索，必须读取正文后才能引用。'; news.inputSchema = { type: 'object', additionalProperties: false, properties: { queryZh: { type: 'string', minLength: 1, maxLength: 100 }, queryEn: { type: 'string', minLength: 1, maxLength: 100 }, maxResults: { type: 'integer', minimum: 1, maximum: 3 } }, required: ['queryZh', 'queryEn'] } }
       registered.push(news)
     }
-    if (!marketResolution && quoteRoles.includes(roleId)) registered.push(createMarketQuoteTool({ request, now,
+    const questionText = typeof question === 'string' ? question : [question?.question, question?.originalQuestion, question?.object].filter(Boolean).join(' ')
+    const quotePairs = question === undefined ? ['BTC-USD', 'ETH-USD'] : [
+      /比特币|\bBTC\b|bitcoin/i.test(questionText) ? 'BTC-USD' : null,
+      /以太|\bETH\b|ethereum/i.test(questionText) ? 'ETH-USD' : null,
+    ].filter(Boolean)
+    if (!marketResolution && quoteRoles.includes(roleId) && quotePairs.length) {
+      const quote = createMarketQuoteTool({ request, now,
       onEvidence: typeof onEvidence === 'function' ? (record, context) => onEvidence({ ...record, evidenceKind: 'market_quote', referenceable: true }, context) : undefined,
-      mode: provider === 'fixture' ? 'mock' : 'live', timeoutMs: Math.min(timeoutMs, 30000) }))
+      mode: provider === 'fixture' ? 'mock' : 'live', timeoutMs: Math.min(timeoutMs, 30000) })
+      quote.inputSchema.properties.pair.enum = quotePairs
+      registered.push(quote)
+    }
     if (marketResolution && ['main','market','statistics','verification'].includes(roleId)) registered.push(createPriceQuoteTool({ request, now, mode: provider === 'fixture' ? 'mock' : 'live', onEvidence }), createMarketHistoryTool({ request, now, mode: provider === 'fixture' ? 'mock' : 'live', onEvidence }))
     return registered
   }

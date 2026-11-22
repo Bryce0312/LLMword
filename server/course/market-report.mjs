@@ -1,6 +1,6 @@
 const btc = /比特币|\bBTC\b|bitcoin/i
 const eth = /以太|\bETH\b|ethereum/i
-const direction = /价格方向|走势|持平|回升|上涨|涨|走高|高于|下跌|下滑|跌|回落|走低|下降|低于|\b(?:rise|rises|rising|recover|up|fall|falls|falling|drop|drops|decline|decrease|increase|increases|higher|lower|above|below|down|flat|price direction)\b/i
+const direction = /回升|上涨|涨|走高|高于|下跌|下滑|跌|回落|走低|下降|低于|\b(?:rise|rises|rising|recover|up|fall|falls|falling|drop|drops|decline|decrease|increase|increases|higher|lower|above|below|down)\b/i
 
 export function marketPricePair(question = '') {
   if (!direction.test(question)) return null

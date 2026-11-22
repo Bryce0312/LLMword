@@ -33,16 +33,6 @@ test('bounded price mock closes for rise, equality and fall while retaining seal
   for(const value of [101,100,99]){const result=await runPriceCase({value});assert.equal(result.result.outcome,value>100?1:0);assert.equal(result.checks.length,8)}
 })
 
-test('three-way price scoring distinguishes flat from down and retains the original distribution', async () => {
-  for (const [value, outcome] of [[101, 'up'], [100, 'flat'], [99, 'down']]) {
-    const { forecast, result } = await runPriceCase({ value, directional: true })
-    assert.equal(result.outcome, outcome)
-    const expected = ['up', 'flat', 'down'].reduce((sum, key, index) =>
-      sum + ([forecast.probabilityUp, forecast.probabilityFlat, forecast.probabilityDown][index] - Number(key === outcome)) ** 2, 0)
-    assert.equal(result.scores[0].brier, expected)
-  }
-})
-
 test('a failed verification report cannot be replaced by two successful price researchers',async()=>{
   const result=await runPriceCase({incompleteVerification:true});assert.equal(result.rejected,true);assert(result.error)
 })

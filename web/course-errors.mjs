@@ -1,3 +1,4 @@
+import { isPriceDirection } from './course-price-direction.mjs'
 import { courseRuns } from './course-runs.mjs'
 import { courseRequestProgress, isCourseTerminal } from './course-status.mjs'
 
@@ -40,6 +41,7 @@ export function courseRequestAction(data = {}, { now = Date.now() } = {}) {
   const kind = retry ? 'retry' : 'check'
   const label = retry ? '重试本次调查' : '检查一次新资料'
   const disabled = (reason) => ({ enabled: false, kind, label, reason, automaticRetry: false })
+  if (isPriceDirection(data)) return disabled('此三分类任务保留供回看。若需重新调查，请创建新的二元预测。')
   if (['stopped', 'closed'].includes(data.status)) return disabled('本题已停止或到期。')
   if (data.result) return disabled('本题已有结果记录。')
   if (data.activeRunId || runs.some((run) => !isCourseTerminal(run))) return disabled('本题已有调查进行中。')

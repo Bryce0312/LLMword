@@ -122,7 +122,7 @@ test('a created run keeps its role versions for initial work and followup even a
 
 test('later manual and scheduled checks cannot revive a removed original team or spend model calls', async t => {
   const fixture = await setup(t)
-  const created = fixture.service.createRequest({ question })
+  const created = fixture.service.createRequest({ question, watch: true })
   await fixture.service.idle()
   const before = fixture.service.getRequest(created.requestId)
   const callCount = fixture.calls.length

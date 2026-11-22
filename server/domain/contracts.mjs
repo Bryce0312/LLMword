@@ -11,7 +11,7 @@ const sourceSchema = {
   properties: { kind: { type: 'string', maxLength: 80 }, url: { type: 'string', maxLength: 2000 } },
 }
 const predictionFields = {
-  type: { enum: ['binary', 'price_direction', 'categorical', 'numeric', 'ranked_list'] },
+  type: { enum: ['binary', 'categorical', 'numeric', 'ranked_list'] },
   question: { type: 'string', maxLength: 2000 },
   object: { type: 'string', maxLength: 1000 },
   options: {
@@ -125,8 +125,8 @@ export function normalizeTopic(input, { previous } = {}) {
 
 export function normalizePrediction(input, { previous } = {}) {
   input = parsedRecord(input)
-  if (input.type !== undefined && !['binary', 'price_direction'].includes(input.type)) {
-    throw domainFailure('UNSUPPORTED_PREDICTION_TYPE', '当前支持是否发生和价格方向两类预测。', 400, ['type'])
+  if (input.type !== undefined && input.type !== 'binary') {
+    throw domainFailure('UNSUPPORTED_PREDICTION_TYPE', '当前版本仅支持是否发生的二元预测题。', 400, ['type'])
   }
   if (input.status !== undefined && !['draft', 'ready'].includes(input.status)) {
     throw domainFailure('UNSUPPORTED_PREDICTION_STATUS', '当前编辑入口只能保存草稿或就绪题目，运行与结算状态须由专用动作产生。', 400, ['status'])
@@ -138,8 +138,8 @@ export function normalizePrediction(input, { previous } = {}) {
     resolutionRule: '', resolutionSource: null, unresolvablePolicy: '', status: 'draft',
     ...pick(predictionFields, previous || {}), ...pick(predictionFields, input),
   }
-  if (!['binary', 'price_direction'].includes(prediction.type)) {
-    throw domainFailure('UNSUPPORTED_PREDICTION_TYPE', '当前支持是否发生和价格方向两类预测。', 400, ['type'])
+  if (prediction.type !== 'binary') {
+    throw domainFailure('UNSUPPORTED_PREDICTION_TYPE', '修改预测题时须使用当前支持的二元题型。', 400, ['type'])
   }
   if (!['draft', 'ready'].includes(prediction.status)) {
     throw domainFailure('UNSUPPORTED_PREDICTION_STATUS', '当前编辑入口只能保存草稿或就绪题目。', 400, ['status'])
@@ -160,8 +160,8 @@ export function normalizePrediction(input, { previous } = {}) {
     prediction.options.some((option) => !option.label.trim())) {
     throw domainFailure('INVALID_OPTIONS', '候选编号须唯一，名称不能为空。', 400, ['options'])
   }
-  if (prediction.options.length) {
-    throw domainFailure('INVALID_OPTIONS', '此题型使用固定结果选项。', 400, ['options'])
+  if (prediction.type === 'binary' && prediction.options.length) {
+    throw domainFailure('INVALID_OPTIONS', '是否发生题使用是与否结果。', 400, ['options'])
   }
   const missingFields = []
   for (const field of ['question', 'timezone', 'forecastClosesAt', 'targetAt', 'resolutionRule', 'unresolvablePolicy']) {

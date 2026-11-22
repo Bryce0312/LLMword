@@ -85,9 +85,11 @@ export function createModelProvider(env = process.env, request = fetch) {
     model,
     settings,
     configurationId: createHash('sha256').update(JSON.stringify({ model, endpoint, ...settings })).digest('hex'),
-    async complete({ messages, tools, signal, maxTokens = settings.maxOutputTokens, reasoningEffortOverride }) {
+    async complete({ messages, tools, signal, maxTokens = settings.maxOutputTokens, reasoningEffortOverride, thinkingOverride }) {
+      if (thinkingOverride !== undefined && (protocol !== 'deepseek' || thinkingOverride !== 'disabled')) throw new RuntimeError('MODEL_CONFIG', '本次思考覆盖仅允许 DeepSeek 禁用思考。')
       if (reasoningEffortOverride !== undefined && (protocol !== 'deepseek' || thinking !== 'enabled' || !['low', 'high', 'max'].includes(reasoningEffortOverride))) throw new RuntimeError('MODEL_CONFIG', '本次思考配置无效。')
-      const effort = reasoningEffortOverride ?? reasoningEffort
+      const callThinking = thinkingOverride ?? thinking
+      const effort = callThinking === 'enabled' ? reasoningEffortOverride ?? reasoningEffort : null
       if (!Number.isInteger(maxTokens) || maxTokens < 1 || maxTokens > 393216) throw new RuntimeError('MODEL_CONFIG', '输出 token 上限无效。')
       const outputTokens = configuredOutput === null ? maxTokens : Math.min(maxTokens, configuredOutput)
       const timeout = AbortSignal.timeout(timeoutMs)
@@ -102,8 +104,8 @@ export function createModelProvider(env = process.env, request = fetch) {
               // Entire assistant protocol messages, including reasoning_content,
               // are replayed verbatim. They remain private checkpoints, not UI data.
               model, messages: structuredClone(messages), tools,
-              ...(protocol === 'deepseek' && thinking === 'enabled' ? {} : { tool_choice: 'auto' }),
-              ...(protocol === 'deepseek' ? { thinking: { type: thinking }, ...(effort ? { reasoning_effort: effort } : {}) } : {}),
+              ...(protocol === 'deepseek' && callThinking === 'enabled' ? {} : { tool_choice: 'auto' }),
+              ...(protocol === 'deepseek' ? { thinking: { type: callThinking }, ...(effort ? { reasoning_effort: effort } : {}) } : {}),
               max_tokens: outputTokens, stream: false,
             }),
           })

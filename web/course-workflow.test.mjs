@@ -63,6 +63,29 @@ test('active worker count replaces a stale main-only impression and budgets come
   assert.equal(courseUsageText(measured.rows[0].usage.modelRequests, measured.rows[0].budget.maxModelRequests, ' 次'), '3 / 6 次')
 })
 
+test('only an explicitly usable scored partial report is labelled as limited evidence', () => {
+  const partial = { status: 'insufficient', probability: .48, evidenceIds: ['owned-source'] }
+  const activity = (extra) => courseWorkflowView(run({ status: 'completed', assignments: [assigned('statistics', {
+    status: 'completed', report: { status: 'insufficient', probability: .48 }, ...extra })] })).rows[0].activityText
+  assert.equal(activity({ usableReport: partial }), '已有依据，资料有限')
+  assert.equal(activity({ status: 'failed', usableReport: partial }), '未完整，部分依据已保留')
+  for (const probability of [0, 1]) assert.equal(activity({ usableReport: { ...partial, probability } }), '已有依据，资料有限')
+  for (const usableReport of [undefined, null, { ...partial, probability: null }, { ...partial, probability: NaN },
+    { ...partial, probability: 1.2 }, { ...partial, evidenceIds: [] }, { ...partial, evidenceIds: undefined }]) {
+    assert.equal(activity({ usableReport }), '资料不足', 'Missing, invalid or unevidenced estimates retain the original insufficient label')
+  }
+  assert.equal(activity({ report: { status: 'complete' } }), '报告已提交')
+  assert.equal(activity({ status: 'failed', report: null }), '执行失败')
+})
+
+test('report correction allowance comes from this saved run, while older workflows remain unknown', () => {
+  const current = courseWorkflowView(run({ harnessVersion: 3, orchestration: { ...orchestration, investigationSteps: 6, reportStep: 7, reportRepairRequests: 2 } }))
+  assert.equal(current.investigationSteps, 6); assert.equal(current.reportStep, 7)
+  assert.equal(current.reportRepairRequests, 2)
+  assert.equal(courseWorkflowView(run({ harnessVersion: 3, orchestration })).reportRepairRequests, null)
+  assert.equal(courseWorkflowView(run({ harnessVersion: 2, orchestration: { ...orchestration, reportRepairRequests: 2 } })).reportRepairRequests, null)
+})
+
 test('inflight model activity survives refresh as state, not replayed speech or invented reasoning', () => {
   const snapshot = run({ events: [event(1, 'model.requested', { modelRequestId: 'm3', index: 3, summary: 'PRIVATE REASONING MUST NOT BE DISPLAYED' })] })
   const view = courseWorkflowView(snapshot)

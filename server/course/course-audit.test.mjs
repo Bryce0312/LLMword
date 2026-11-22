@@ -211,7 +211,7 @@ test('independent course service review executes all three roles and preserves a
 
 test('independent course service watch review does not republish duplicates, adds one point for changed text and stops at target', async (t) => {
   const fx = await serviceFixture(t)
-  const created = fx.service.createRequest({ question: '【演示】虚构展览未来两天是否开幕？', horizonHours: 48 })
+  const created = fx.service.createRequest({ question: '【演示】虚构展览未来两天是否开幕？', horizonHours: 48, watch: true })
   await fx.service.idle()
   const first = fx.service.getRequest(created.requestId)
   assert.equal(first.run.status, 'completed', JSON.stringify(first.run.error))

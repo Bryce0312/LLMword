@@ -41,7 +41,7 @@ export async function runCase(spec) {
   const open = () => createCourseService({ path: join(folder, 'course.sqlite'), workbench, provider, sourceTools, modelMode: 'mock', now: () => NOW })
   let service = open()
   try {
-    const created = service.createRequest({ question: spec.question, horizonHours: 24, watch: false })
+    const created = service.createRequest({ question: spec.question, horizonHours: 24, watch: spec.id === 'update' })
     await service.idle()
     let record = service.getRequest(created.requestId)
     const checks = []

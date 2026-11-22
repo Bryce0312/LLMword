@@ -3,7 +3,7 @@ import { materialForm, agentForm } from './workbench-forms.js'
 import { researchSettingsPanel } from './research-settings.js'
 import { createAgentDeletionAction, agentDeletionError } from './agent-deletion.mjs'
 import { confirmationDialog } from './confirmation-dialog.js'
-import { recoverCourseBudgetRun } from './course-budget-summary.mjs'
+import { formatCourseProbability } from './course-probability.mjs'
 import { directionLabel, directionText, isPriceDirection } from './course-price-direction.mjs'
 import { courseAnswerOutlook } from './course-runs.mjs'
 
@@ -12,8 +12,6 @@ function courseSlipState(record) {
   const retained = record.forecast ? '·保留判断' : ''
   if (record.status === 'stopped') return '已停止' + retained
   const status = record.latestRun?.status ?? record.run?.status ?? record.status
-  if (record.latestRun?.directionOutlook || record.run?.directionOutlook) return '已给出暂定走势'
-  if (recoverCourseBudgetRun(record.latestRun ?? record.run, record.purpose)?.budgetSummary) return '预算收尾' + retained
   if (status === 'failed') return '调查失败' + retained
   if (status === 'insufficient') return '资料不足' + retained
   if (status === 'cancelled') return '已取消' + retained
@@ -46,9 +44,9 @@ export function sidebar(ctx) {
     if (currentRequest === id) card.setAttribute('aria-current', 'page')
     const question = dataContent('strong', '', record.question?.trim() || normalized.question || '正在整理题目')
     question.title = normalized.question ?? question.textContent
-    const forecast = record.forecast
     const outlook = courseAnswerOutlook(record)?.directionOutlook
-    const result = outlook ? '暂定走势：' + directionLabel(outlook.direction) : isPriceDirection(forecast) ? directionText(forecast) : Number.isFinite(forecast?.probabilityYes) ? 'Yes ' + Math.round(forecast.probabilityYes * 100) + '%' : '暂未发布概率'
+    const forecast = record.forecast
+    const result = outlook ? '暂定走势：' + directionLabel(outlook.direction) : isPriceDirection(forecast) ? directionText(forecast) : Number.isFinite(forecast?.probabilityYes) ? 'Yes ' + formatCourseProbability(forecast.probabilityYes) : '暂未发布概率'
     card.append(h('span', 'wb-slip-top', record.purpose === 'research' ? '财报核验' : '自动跟踪', h('span', 'wb-badge', courseSlipState(record))), question, h('small', '', record.purpose === 'research' ? record.researchReport ? '研报已封存' : '正在调查资料' : result))
     if (roomShell) card.append(h('small', 'wb-history-created', record.createdAt ? '创建于 ' + fmt(record.createdAt, record.timezone) : '创建时间未提供'))
     list.append(card)
@@ -109,7 +107,7 @@ export async function learning() {
   for (const e of data.entries) list.append(h('article', 'wb-evidence-item', dataContent('h3', '', e.target ?? e.question ?? '历史结算记录'), dataContent('p', '', e.summary ?? '历史记录，实际口径以保存的原始结果为准。'), h('small', '', 'Brier：' + (e.brier ?? '未记录') + ' · ' + fmt(e.resolvedAt))))
   for (const [index, e] of data.entries.entries()) {
     const card = list.children[index]
-    card.append(h('p', '', '历史预测 Yes：' + (Number.isFinite(e.probability) ? Math.round(e.probability * 100) + '%' : '未记录') + ' · 实际结果：' + (e.outcome === 1 || e.outcome === true ? '发生' : e.outcome === 0 || e.outcome === false ? '未发生' : '待核对')), h('span', 'wb-badge', e.scoringEligible === false ? '历史归档 · 不计入新评估' : '已结算记录'))
+    card.append(h('p', '', '历史预测 Yes：' + formatCourseProbability(e.probability, '未记录') + ' · 实际结果：' + (e.outcome === 1 || e.outcome === true ? '发生' : e.outcome === 0 || e.outcome === false ? '未发生' : '待核对')), h('span', 'wb-badge', e.scoringEligible === false ? '历史归档 · 不计入新评估' : '已结算记录'))
   }
   return [header('学习档案柜', '只看已结算预测、真实结果、误差与经验版本。'), h('p', 'wb-purpose', '收报台保存“研究前知道什么”，学习档案保存“结果出来后学到什么”。本阶段不将材料或研读报告冒充结算记录。'), list]
 }

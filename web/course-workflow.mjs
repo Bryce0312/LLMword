@@ -79,7 +79,12 @@ export function courseModelActivity(run = {}) {
   return [...activity.values()]
 }
 
-const statusText = (assignment) => ({ queued: '等待执行', pending: '等待执行', running: '调查中', completed: '报告已提交', complete: '报告已提交', failed: '执行失败', cancelled: '已取消', insufficient: '资料不足', blocked: '存在缺口' })[assignment.report?.status ?? assignment.status] ?? '等待执行状态'
+const statusText = (assignment) => {
+  const usable = assignment.usableReport
+  if (usable?.status === 'insufficient' && Number.isFinite(usable.probability) && usable.probability >= 0 && usable.probability <= 1 &&
+    Array.isArray(usable.evidenceIds) && usable.evidenceIds.length) return assignment.status === 'failed' ? '未完整，部分依据已保留' : '已有依据，资料有限'
+  return ({ queued: '等待执行', pending: '等待执行', running: '调查中', completed: '报告已提交', complete: '报告已提交', failed: '执行失败', cancelled: '已取消', insufficient: '资料不足', blocked: '存在缺口' })[assignment.report?.status ?? assignment.status] ?? '等待执行状态'
+}
 export function courseWorkflowView(run = {}) {
   const v3 = run.harnessVersion >= 3 && run.orchestration
   const o = v3 ? run.orchestration : null
@@ -97,7 +102,7 @@ export function courseWorkflowView(run = {}) {
   const status = ended(run.status) ? ({ completed: '本轮已完成', finished: '本轮已结束', failed: '本轮未完成', insufficient: '本轮资料不足', cancelled: '本轮已取消' })[run.status] : run.status === 'queued' ? '排队中，尚未调用本轮模型' : coursePhaseLabel(run)
   return { version: v3 ? 3 : positive(run.harnessVersion), versionLabel: v3 ? '新版协作 · 先分工再取证' : run.harnessVersion === 2 ? '本轮使用旧版流程' : '执行版本未记录', status,
     cycle: o && positive(o.cycle), maxCycles: o && positive(o.maxCycles), followUpsUsed: o && count(o.followUpsUsed), maxFollowUps: o && count(o.maxFollowUps),
-    investigationSteps: o && positive(o.investigationSteps), reportStep: o && positive(o.reportStep), rows,
+    investigationSteps: o && positive(o.investigationSteps), reportStep: o && positive(o.reportStep), reportRepairRequests: o && count(o.reportRepairRequests), rows,
     usage: { modelRequests: count(run.usage?.modelRequests), toolCalls: count(run.usage?.toolCalls), totalTokens: count(run.usage?.totalTokens), unknownUsage: Boolean(run.usage?.unknownUsage) },
     budget: { maxModelRequests: positive(run.budget?.maxModelRequests), maxToolCalls: positive(run.budget?.maxToolCalls), maxTotalTokens: positive(run.budget?.maxTotalTokens), unlimitedTotalTokens: run.budget?.maxTotalTokens === null },
     flow: v3 ? '整理与派工 → 独立调查 → 核定题目 → 汇报与质询 → 按争议补查 → 总结' : '原流程先由主 Agent 核对来源，再派工调查；本轮不会回写为新流程。' }

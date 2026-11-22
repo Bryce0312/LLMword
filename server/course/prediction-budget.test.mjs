@@ -12,8 +12,6 @@ import { WARNING_URL, WARNING_POLICY, WARNING_RULE } from './weather-warning.mjs
 import { PRICE_URL, PRICE_RULE } from './market-resolution.mjs'
 import { groundingPolicy } from '../domain/claim-grounding.mjs'
 import { DEFAULT_PREDICTION_BUDGET, validatePredictionSettings, totalTokenLimit, remainingTotalTokens, boundedOutputTokens } from './prediction-budget.mjs'
-import { courseRequestProgress } from '../../web/course-status.mjs'
-import { courseRequestFailure } from '../../web/course-errors.mjs'
 
 const NOW = '2026-11-22T00:00:00.000Z'
 const TARGET = '2026-11-22T01:00:00.000Z'
@@ -100,10 +98,17 @@ test('forecast setting snapshots include strict price/warning while research ret
   const capture = (input, options) => { const request = service.createRequest(input, options); service.stop(request.requestId); return request }
   const initial = capture({ question: '默认预算问题' }, { idempotencyKey: 'budget-replay' })
   assert.equal(initial.budget.maxTotalTokens, 1000000)
+  assert.equal(initial.budget.deliveryPolicy, 'exploratory-estimate-v1')
+  assert.equal(initial.budget.worker.maxTotalTokens, 90000)
+  assert.equal(initial.budget.worker.maxInvestigationRequests, 6)
+  assert.equal(initial.budget.worker.reportRepairRequests, 2)
   service.updateSettings(limited(500000))
   const replayed = capture({ question: '默认预算问题' }, { idempotencyKey: 'budget-replay' })
   assert.equal(replayed.requestId, initial.requestId)
   assert.equal(replayed.budget.maxTotalTokens, 1000000)
+  const proportional = capture({ question: '新设置下的普通预算问题' })
+  assert.equal(proportional.budget.maxTotalTokens, 500000)
+  assert.equal(proportional.budget.worker.maxTotalTokens, 83520, 'new preset workers use the committed global snapshot, not the historical fixed cap')
   const price = capture({ question: '比特币BTC价格会高于本轮固定基准吗？', mode: 'strict', strict: { targetAt: TARGET, resolutionSourceUrl: PRICE_URL, resolutionRule: PRICE_RULE } })
   assert.equal(price.budget.maxTotalTokens, 500000)
   assert.equal(price.budget.worker.maxTotalTokens, 80000)
@@ -123,7 +128,11 @@ test('forecast setting snapshots include strict price/warning while research ret
   assert.equal(service.capabilities.limits.totalTokensPerRun, null)
   const next = capture({ question: '连接替换后新预测' })
   assert.equal(next.budget.maxTotalTokens, null)
-  assert.equal(next.budget.worker.maxTotalTokens, 65536)
+  assert.equal(next.budget.worker.maxTotalTokens, 90000)
+  const strict = capture({ question: '部分严格题仍使用独立的普通有界策略', mode: 'strict' })
+  assert.equal(strict.budget.deliveryPolicy, undefined)
+  assert.equal(strict.budget.worker.maxTotalTokens, 60000)
+  assert.equal(strict.budget.worker.maxModelRequests, 6)
 })
 
 test('unlimited supervisor can complete beyond the historical total cap without NaN outputs or losing worker limits', async t => {
@@ -154,11 +163,9 @@ test('unlimited supervisor can complete beyond the historical total cap without 
   service.updateSettings(limited(100000))
   const finite = service.createRequest({ question: '【模拟】另一个虚构科技展48小时会开幕吗？', watch: false })
   await service.idle()
-  const closed = service.getRequest(finite.requestId)
-  assert.equal(closed.run.error, null)
-  assert.equal(closed.run.usage.totalTokens, 1100000, 'actual returned usage is retained even if it exceeds the configured budget')
-  assert(closed.run.budgetSummary)
-  assert.equal(closed.forecasts.length, 0)
+  assert.equal(service.getRequest(finite.requestId).run.status, 'insufficient')
+  assert.equal(service.getRequest(finite.requestId).run.delivery.probabilityYes, null)
+  assert.equal(service.getRequest(finite.requestId).forecasts.length, 0)
 })
 
 test('unlimited fixed-rule summary recovery is not rejected by the old fallback total cap', () => {
@@ -193,13 +200,10 @@ test('fixed-rule preflight enforces a finite global budget but bypasses only tha
   const service = fixtureValue.open(provider, { evidencePolicy: groundingPolicy })
   const input = { question: '香港天文台红色火灾危险警告会持续吗？', mode: 'strict', strict: { targetAt: TARGET, resolutionSourceUrl: WARNING_URL, resolutionRule: WARNING_RULE } }
   service.updateSettings(limited(1))
-  const limitedRun = service.createRequest(input)
+  const rejected = service.createRequest(input)
   await service.idle()
-  const closed = service.getRequest(limitedRun.requestId)
-  assert.equal(closed.run.status, 'insufficient')
-  assert.equal(closed.run.error, null)
-  assert.deepEqual(closed.run.budgetSummary.evidenceIds, [])
-  assert.equal(calls, 0, 'bounded preflight wraps up before sending a paid model request')
+  assert.equal(service.getRequest(rejected.requestId).run.error.code, 'COURSE_BUDGET')
+  assert.equal(calls, 0, 'bounded preflight rejects before sending a paid model request')
   service.updateSettings(unlimited)
   const created = service.createRequest(input)
   await service.idle()
@@ -209,71 +213,4 @@ test('fixed-rule preflight enforces a finite global budget but bypasses only tha
   assert(done.run.usage.totalTokens > 1000000)
   assert.equal(done.run.budget.maxTotalTokens, null)
   assert(done.run.assignments.every(item => item.budget.maxTotalTokens === 18000))
-})
-
-for (const [remaining, shouldSummarize] of [[120000, true], [500, false]]) {
-  test(`three-way stock forecast wraps up with ${remaining} tokens remaining`, async t => {
-    const setup = await fixture(t)
-    const mock = createCourseMockProvider()
-    let used = 0, reviewCalls = 0
-    const provider = { ...mock, async complete(input) {
-      const tools = input.tools.map(tool => tool.function.name)
-      if (tools.includes('submit_direction_outlook') && !tools.includes('normalize_prediction')) {
-        reviewCalls++
-        assert(!tools.includes('request_followup'))
-        assert(!tools.includes('propose_price_direction'))
-      }
-      const result = await mock.complete(input)
-      if (tools.includes('normalize_prediction')) result.usage = { total_tokens: 1000000 - remaining - used }
-      used += result.usage.total_tokens
-      return result
-    } }
-    const service = setup.open(provider)
-    const { requestId } = service.createRequest({ question: 'AAPL', horizonTradingDays: 5, watch: false })
-    await service.idle()
-    const record = service.getRequest(requestId)
-    assert.equal(reviewCalls, Number(shouldSummarize))
-    assert.equal(record.forecasts.length, 0)
-    assert.equal(record.run.status, 'completed')
-    assert.equal(record.run.directionOutlook?.direction, 'up')
-    if (shouldSummarize) {
-      assert.equal(record.run.budgetSummary, null)
-      return
-    }
-    assert.equal(record.run.error, null)
-    assert.equal(courseRequestProgress(record).label, '已给出暂定走势')
-    assert.equal(courseRequestFailure(record), null)
-    assert.equal(record.run.usage.totalTokens, 999500)
-    const summary = record.run.budgetSummary
-    assert.equal(summary.reports.length, 3)
-    assert(summary.evidenceIds.length > 0)
-    assert(summary.reports.every(report => report.evidenceIds.every(id =>
-      record.run.evidence.find(source => source.evidenceId === id)?.readBy.includes(report.assignmentId))))
-    await service.close()
-    const restored = setup.open(provider).getRun(record.run.runId)
-    assert.deepEqual(restored.budgetSummary, summary)
-    assert.deepEqual(restored.directionOutlook, record.run.directionOutlook)
-  })
-}
-
-test('near the finite cap, researchers report with existing material instead of searching again', async t => {
-  const setup = await fixture(t)
-  const mock = createCourseMockProvider()
-  const workerTools = []
-  const provider = { ...mock, async complete(input) {
-    const names = input.tools.map(tool => tool.function.name)
-    const result = await mock.complete(input)
-    if (names.includes('draft_and_delegate')) result.usage = { total_tokens: 860000 }
-    else if (names.includes('submit_report')) workerTools.push(names)
-    return result
-  } }
-  const service = setup.open(provider)
-  const { requestId } = service.createRequest({ question: '模拟科技展会开幕吗？', watch: false })
-  await service.idle()
-  const record = service.getRequest(requestId)
-  assert(workerTools.length > 0)
-  assert(workerTools.every(names => names.length === 1 && names[0] === 'submit_report'))
-  assert.equal(record.run.status, 'insufficient')
-  assert.equal(record.forecast, null)
-  assert.deepEqual(record.run.budgetSummary.evidenceIds, [])
 })

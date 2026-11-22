@@ -44,17 +44,20 @@ test('new routing delegates without research, workers fetch before a verified co
   assert.deepEqual(tools[0][1], ['draft_and_delegate'])
   assert(draftWorkers >= 3)
   assert.equal(done.run.assignments.filter(a => !a.followUp && a.report?.status === 'complete').length, 3)
-  assert(stages.indexOf('prepare') > stages.indexOf('intake'))
+  assert(!stages.includes('prepare'), 'Contract compilation is deterministic under the bounded policy')
+  assert(done.run.events.some(e => e.type === 'contract.compiled'))
   assert(!stages.includes('plan'), 'Initial delegation must not be repeated after contract compilation')
   assert(!done.run.events.some(e => e.payload.agentSpecId === 'main' && e.type === 'tool.started'))
-  assert(system.every(s => s.includes('单次输出上限') && s.includes('剩余模型') && s.includes('≤400字')))
+  assert(system.every(s => s.includes('单次输出上限') && s.includes('全轮主Agent最多') && s.includes('≤400字')))
   assert.equal(done.run.harnessVersion, 3)
+  assert.equal(done.run.budget.deliveryPolicy, 'exploratory-estimate-v1')
+  assert.equal(done.run.budget.mainPhaseRequests, 3)
   assert.equal(done.run.draft.sourceVerified, false)
   assert(done.run.evidence.every(e => e.predictionId === done.predictionId && e.predictionVersion === done.normalized.version))
   assert(done.relations.every(r => r.predictionId === done.predictionId && r.predictionVersion === done.normalized.version))
 })
 
-test('two evidence-led follow-up cycles can revisit the same role with unique assignments and then must summarize', async (t) => {
+test('two bounded evidence-led follow-ups can revisit a role with unique assignments before summary', async (t) => {
   let followUps = 0
   const service = await setup(t, async (input, protocol) => {
     const context = parseContext(input.messages)

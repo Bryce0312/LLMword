@@ -10,13 +10,26 @@ const fail = (code, message) => domainFailure(code, message, 400)
 const labels = { CN: 'A股', HK: '港股', US: '美股（NYSE日历）' }
 const genericSymbols = new Set(['ETF','LOF','FOF','QDII','QFII','REIT','REITS','USD','CNY','RMB','HKD','CN','HK','US','USA','NYSE','NASDAQ','AMEX','SSE','SZSE','HKEX','SH','SZ','SS','SEHK','XSHG','XSHE','XHKG','XNYS','XNAS','BTC','ETH','A','B','C','D','E','I','R','EPS','NAV','PE','PB','ROE','ROA','ROI','CAGR','EBIT','EBITDA','GDP','CPI','PPI','IPO','AI'])
 
+// A deliberately narrow calendar hint, not a general entity resolver. Unknown
+// names and multi-company comparisons keep the existing ambiguity/default rules.
+function issuerCalendarHint(question) {
+  const name = /英伟达|苹果(?:公司)?|\bNVIDIA(?:\s+Corporation)?\b|\bApple(?:\s+Inc\.?)?\b/giu
+  if (!name.test(question)) return null
+  const remainder = question.replace(name, '')
+    .replace(/请|帮我|预测|分析|研究|看看|看一下|公司|普通股|股票|股价|走势|趋势|未来|交易日|上涨|下跌|涨跌|会不会|是否|能否|会|涨|跌|的|吗|如何|怎么样/gu, '')
+    .replace(/\b(?:will|the|stock|price|trend|forecast|outlook|rise|fall|up|down|next|trading|days?|weeks?)\b/giu, '')
+    .replace(/[\p{N}\p{P}\p{Z}\s一二三四五六七八九十个天日周月]+/gu, '')
+  return remainder ? null : 'US'
+}
+
 /** The symbol selects a calendar only; it does not verify a security's identity or listing. */
 export function identifyTradingMarket(question = '', market) {
   if (market !== undefined && !Object.hasOwn(labels, market)) throw fail('INVALID_TRADING_MARKET', '市场上下文须为CN、HK或US。')
   const explicit = new Set()
-  if (/A\s*股|沪深|上交所|深交所|上海证券|深圳证券|\b(?:SSE|SZSE|XSHG|XSHE)\b|\b(?:CN|SH|SZ)\s*[:：]\s*\d{6}\b|\b(?:SH|SZ)\d{6}\b|\b\d{6}\.(?:SH|SZ|SS)\b/iu.test(question)) explicit.add('CN')
+  if (/(?<![A-Za-z])A\s*股|沪深|上交所|深交所|上海证券|深圳证券|\b(?:SSE|SZSE|XSHG|XSHE)\b|\b(?:CN|SH|SZ)\s*[:：]\s*\d{6}\b|\b(?:SH|SZ)\d{6}\b|\b\d{6}\.(?:SH|SZ|SS)\b/iu.test(question)) explicit.add('CN')
   if (/港股|香港|港交所|联交所|\b(?:HKEX|SEHK|XHKG)\b|\bHK\s*[:：]?\s*\d{1,5}\b|\b\d{1,5}\.HK\b/iu.test(question)) explicit.add('HK')
   if (/美股|美国(?:市场|股票|证券)|纽交所|纳斯达克|\b(?:NYSE|NASDAQ|NYSEARCA|AMEX|XNYS|XNAS)\b|\bUS\s*[:：]\s*[A-Z]|\b[A-Z][A-Z0-9.-]{0,9}\.US\b/iu.test(question)) explicit.add('US')
+  if (/(?<![A-Za-z0-9_])(?:AAPL|NVDA)(?![A-Za-z0-9_])/iu.test(question)) explicit.add('US')
   // Codes remain signals even beside a market name, so conflicting listings cannot silently win.
   if (/(?<!\d)\d{6}(?!\d)/u.test(question)) explicit.add('CN')
   if (/^\d{4,5}$/u.test(question.trim())) explicit.add('HK')
@@ -25,11 +38,15 @@ export function identifyTradingMarket(question = '', market) {
   if (explicit.size > 1) throw fail('TRADING_MARKET_CONFLICT', '标的包含多个市场，请只保留一个上市市场或明确单一证券代码。')
   const detected = [...explicit][0]
   if (detected && market && detected !== market) throw fail('TRADING_MARKET_CONFLICT', '标的明确市场与重试市场上下文不一致，请按目标市场新建任务。')
-  const selected = detected || market || DEFAULT_TRADING_MARKET
+  // Explicit market context outranks a name-only hint. In particular, a user
+  // selecting HK must not be silently rewritten because the name says NVIDIA.
+  const nameHint = !detected && !market ? issuerCalendarHint(question) : null
+  const selected = detected || market || nameHint || DEFAULT_TRADING_MARKET
   const assumptions = [detected ? `按标的中明确的市场或代码选择${labels[selected]}交易日历；证券身份和上市地仍需核验。`
     : market ? `标的未明确交易所，沿用${labels[selected]}市场上下文；这不是上市地已经核验的结论。`
+      : nameHint ? '按苹果／Apple或英伟达／NVIDIA名称线索选择美股交易日历；这只是日历线索，证券代码、身份和上市地仍需研究员核验。'
       : '标的未明确市场，按用户选择的默认港股日历计算；跨市场上市名称不据此视为已确认具体证券。']
-  return { market: selected, selection: detected ? 'identified' : market ? 'retry-context' : 'default', assumptions }
+  return { market: selected, selection: detected ? 'identified' : market ? 'retry-context' : nameHint ? 'name-hint' : 'default', assumptions }
 }
 export function tradingMarketTimezone(question, market, data = calendars()) {
   const selected = identifyTradingMarket(question, market)

@@ -316,7 +316,7 @@ export function createDomainStore({ path, registeredToolIds = [], now = () => ne
         const previous = requirePrediction(predictionId)
         expectedVersion(patch.expectedVersion, previous.version)
         const normalized = normalizePrediction(patch, { previous })
-        if (['binary', 'price_direction'].includes(previous.type) && ['draft', 'ready'].includes(previous.status) &&
+        if (previous.type === 'binary' && ['draft', 'ready'].includes(previous.status) &&
           digest(normalized) === digest(normalizePrediction(previous))) return previous
         const topic = requireTopic(previous.topicId)
         const prediction = {

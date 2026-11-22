@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { courseBoard, courseStartForm } from './workbench-course.js'
+import { courseBoard, courseStartForm, courseWatchEnabled } from './workbench-course.js'
 import { sidebar } from './workbench-views.js'
 import { agentForm } from './workbench-forms.js'
 
@@ -64,7 +64,7 @@ test('financial entry submits supported trading-day choices and preserves recove
     assert.equal(root.querySelector('h1').textContent, '写下一个你关注的股票')
     assert.equal(root.querySelector('.wb-page-heading').querySelector('p').textContent, '主 Agent 按题选择研究员，查来源、讨论并生成预测结果')
     assert.equal(form.querySelector('h2'), null)
-    assert.equal(form.querySelectorAll('input').length, 1)
+    assert.equal(form.querySelectorAll('input').filter(control => control.type !== 'checkbox').length, 1)
     assert.equal(form.querySelectorAll('select').length, 0)
     assert.equal(form.querySelectorAll('textarea').length, 0)
     const security = form.querySelector('input')
@@ -74,7 +74,7 @@ test('financial entry submits supported trading-day choices and preserves recove
     assert.equal(chips[2].getAttribute('aria-pressed'), 'true')
     security.value = '  00700.HK  '
     await form.fire('submit')
-    assert.deepEqual(writes, [{ url: '/api/v1/course/requests', body: { purpose: 'forecast', question: '00700.HK', mode: 'preset', horizonTradingDays: 5 } }])
+    assert.deepEqual(writes, [{ url: '/api/v1/course/requests', body: { purpose: 'forecast', question: '00700.HK', mode: 'preset', watch: false, horizonTradingDays: 5 } }])
   }))
   await t.test('all four buttons send trading days rather than hours', async () => {
     for (const days of [1, 3, 5, 20]) await withEntry({}, async ({ form, writes }) => {
@@ -99,7 +99,7 @@ test('financial entry submits supported trading-day choices and preserves recove
   await t.test('a historical research retry stays research without acquiring a forecast window', async () => withEntry({ prior: { purpose: 'research', question: '核验腾讯财报', mode: 'preset' }, supported: false }, async ({ form, writes }) => {
     assert.equal(form.querySelector('.cc-duration').hidden, true)
     await form.fire('submit')
-    assert.deepEqual(writes[0].body, { purpose: 'research', question: '核验腾讯财报', mode: 'preset' })
+    assert.deepEqual(writes[0].body, { purpose: 'research', question: '核验腾讯财报', mode: 'preset', watch: false })
   }))
   await t.test('trading retry restores its window and unchanged market, changing security triggers recognition again', async () => {
     const prior = { question: '00700.HK', purpose: 'forecast', horizonTradingDays: 3, tradingHorizon: { market: 'HK' }, mode: 'strict', strict: { resolutionRule: 'old hidden rule' } }
@@ -119,6 +119,58 @@ test('financial entry submits supported trading-day choices and preserves recove
     assert.equal(writes[0].body.horizonHours, 48)
     assert.equal('horizonTradingDays' in writes[0].body, false)
   }))
+})
+
+test('monitoring is optional and explicitly opted into for forecasts only', async t => {
+  await t.test('new predictions start unchecked and send watch false', async () => withEntry({}, async ({ form, writes }) => {
+    const watch = form.querySelector('#field-watch')
+    assert.equal(watch.checked, false)
+    assert.equal(watch.disabled, false)
+    form.querySelector('input').value = 'NVDA（美股）'
+    await form.fire('submit')
+    assert.equal(writes[0].body.watch, false)
+  }))
+  await t.test('checking the option is the only new-form opt in', async () => withEntry({}, async ({ form, writes }) => {
+    const watch = form.querySelector('#field-watch'); watch.checked = true; await watch.fire('change')
+    form.querySelector('input').value = '00700.HK'
+    await form.fire('submit')
+    assert.equal(writes[0].body.watch, true)
+  }))
+  await t.test('research hides monitoring and submits false, then restores the forecast choice on switching back', async () => withEntry({ financial: false }, async ({ form, writes }) => {
+    const watch = form.querySelector('#field-watch'), purpose = form.querySelector('select')
+    watch.checked = true; await watch.fire('change')
+    purpose.value = 'research'; await purpose.fire('change')
+    assert.equal(form.querySelector('.cc-watch-choice').hidden, true)
+    assert.equal(watch.disabled, true)
+    assert.equal(watch.checked, false)
+    purpose.value = 'forecast'; await purpose.fire('change')
+    assert.equal(watch.disabled, false); assert.equal(watch.checked, true)
+    purpose.value = 'research'; await purpose.fire('change')
+    // Even changing a hidden control programmatically cannot enable research monitoring.
+    watch.checked = true
+    form.querySelector('textarea').value = '核验财报'
+    await form.fire('submit')
+    assert.equal(writes[0].body.purpose, 'research')
+    assert.equal(writes[0].body.watch, false)
+  }))
+  await t.test('copied tasks preserve an explicit monitoring choice', async () => {
+    for (const selected of [false, true]) await withEntry({ prior: { purpose: 'forecast', question: '00700.HK', watch: selected } }, async ({ form, writes }) => {
+      assert.equal(form.querySelector('#field-watch').checked, selected)
+      await form.fire('submit')
+      assert.equal(writes[0].body.watch, selected)
+    })
+  })
+})
+
+test('monitoring intent from current and historical public records is not confused with a watch-plan object', () => {
+  assert.equal(courseWatchEnabled(), false)
+  assert.equal(courseWatchEnabled({ watch: false }), false)
+  assert.equal(courseWatchEnabled({ watch: { status: 'off' } }), false)
+  assert.equal(courseWatchEnabled({ watch: { status: 'stopped' } }), false)
+  assert.equal(courseWatchEnabled({ watch: { status: 'active' } }), true)
+  assert.equal(courseWatchEnabled({ watch: { status: 'paused_provider' } }), true)
+  assert.equal(courseWatchEnabled({ watchEnabled: false, watch: { status: 'active' } }), false)
+  assert.equal(courseWatchEnabled({ purpose: 'research', watchEnabled: true }), false)
 })
 
 test('room-shell popup keeps its accessible financial form without mounting another decorative research room', async () => withEntry({ roomShell: true }, async ({ form, root, writes }) => {

@@ -1,7 +1,6 @@
-import { PRICE_DIRECTION, isPriceDirection, directionFields } from '../../web/course-price-direction.mjs'
-
+import { directionFields, isPriceDirection, PRICE_DIRECTION } from '../../web/course-price-direction.mjs'
 /** Public receipts only; model messages and checkpoints never enter this projection. */
-export function validateDecisionNotes(notes, assignments, evidenceIds) {
+export function validateDecisionNotes(notes, assignments, evidenceIds, { partialAssignmentIds = [] } = {}) {
   if (notes === undefined) return []
   if (!Array.isArray(notes) || notes.length > 12) throw new Error('裁决说明格式无效。')
   const seen = new Set()
@@ -11,9 +10,10 @@ export function validateDecisionNotes(notes, assignments, evidenceIds) {
       typeof note.reason !== 'string' || !note.reason.trim() || note.reason.length > 1000 ||
       !Array.isArray(note.evidenceIds) || new Set(note.evidenceIds).size !== note.evidenceIds.length ||
       note.evidenceIds.some((id) => !assignment.report.evidenceIds.includes(id) || !evidenceIds.includes(id)) ||
-      (note.disposition === 'adopted' && (!note.evidenceIds.length || assignment.report.status !== 'complete'))) throw new Error('裁决须指向本轮报告及其已读证据；采纳须引用完整报告的证据。')
+      (note.disposition === 'adopted' && (!note.evidenceIds.length || assignment.report.status !== 'complete' && !partialAssignmentIds.includes(assignment.assignmentId)))) throw new Error('裁决须指向本轮报告及其已读证据；采纳须引用完整报告的证据，资料有限的报告应保留条件。')
     seen.add(note.assignmentId)
-    return { assignmentId: note.assignmentId, disposition: note.disposition, reason: note.reason.trim(), evidenceIds: [...note.evidenceIds] }
+    return { assignmentId: note.assignmentId, disposition: note.disposition, reason: note.reason.trim(), evidenceIds: [...note.evidenceIds],
+      ...(partialAssignmentIds.includes(note.assignmentId) ? { reportQuality: 'partial' } : {}) }
   })
 }
 
@@ -27,11 +27,12 @@ export function buildCollaboration(run) {
   const output = forecast || research
   const notes = output?.decisionNotes || []
   const reports = assignments.map((item) => {
-    const report = item.report
+    const report = item.usableReport || item.report
     const decision = notes.find((note) => note.assignmentId === item.assignmentId)
     const claims = (items = []) => items.map((claim) => ({ claim: claim.claim, basis: claim.basis || null, citations: (claim.citations || []).filter(q => refs(claim.evidenceIds).includes(q.evidenceId)), evidenceIds: refs(claim.evidenceIds) })).filter((claim) => claim.evidenceIds.length)
     return { assignmentId: item.assignmentId, roleId: item.roleId, name: item.name, objective: item.objective, reason: item.reason,
       followUp: Boolean(item.followUp), cycle: item.cycle || 1, status: item.status, reportStatus: report?.status || null,
+      reportQuality: item.usableReport ? report?.status === 'complete' && report?.delivery?.mode !== 'validated-partial-model-report' ? 'complete' : 'partial' : null,
       summary: report?.summary || item.error?.message || '', probability: Number.isFinite(report?.probability) ? report.probability : null,
       evidenceIds: refs(report?.evidenceIds), support: claims(report?.support), counterevidence: claims(report?.counterevidence),
       missingEvidence: report?.missingEvidence || [], decision: decision ? { ...decision, evidenceIds: refs(decision.evidenceIds) } : null,
@@ -46,7 +47,7 @@ export function buildCollaboration(run) {
   })
   const previous = run.memory?.previousForecast
   const comparable = previous && forecast && (!previous.predictionId || previous.predictionId === forecast.predictionId) && previous.predictionVersion === forecast.predictionVersion
-  const delta = comparable && Number.isFinite(previous.probabilityYes) && Number.isFinite(forecast.probabilityYes) ? forecast.probabilityYes - previous.probabilityYes : null
+  const delta = comparable && Number.isFinite(previous.probabilityYes) ? forecast.probabilityYes - previous.probabilityYes : null
   return { version: 1, runId: run.runId, modelMode: run.modelMode, sourceMode: run.sourceMode,
     team: reports.filter((item) => !item.followUp), reviews, reports,
     sources: evidence.map((item) => ({ evidenceId: item.evidenceId, title: item.title || item.evidenceId, url: item.url, publishedAt: item.publishedAt, obtainedAt: item.obtainedAt, marketQuote: item.marketQuote || null })),
@@ -56,5 +57,5 @@ export function buildCollaboration(run) {
       delta, summary: output.summary, evidenceIds: refs(output.evidenceIds), dissent: output.dissent || output.limitations || [], evidenceAdequacy: output.evidenceAdequacy,
       scoringEligible: output.scoringEligible, recordedNotes: notes.length, totalReports: reports.filter((item) => item.reportStatus).length } : null,
     conclusion: research ? research.assemblyMode === 'harness' ? '研究员资料整理版已保存；主Agent最终裁决未完成。' : '研报已封存；可逐项查看发现、补查与裁决。' : forecast ? reviews.length ? '已发布；可逐项查看补查答复与裁决。' : '已发布；本轮未进行定向补查。'
-      : run.directionOutlook ? '本轮暂定走势已保存，概率留空。' : run.triage?.kind === 'no_change' ? '本次检查未发布新判断，保留上一判断。' : ['failed', 'insufficient', 'cancelled'].includes(run.status) ? '本轮未发布新判断，缺口与失败记录保留。' : '协作进行中，尚未发布判断。' }
+      : run.triage?.kind === 'no_change' ? '本次检查未发布新判断，保留上一判断。' : ['failed', 'insufficient', 'cancelled'].includes(run.status) ? '本轮未发布新判断，缺口与失败记录保留。' : '协作进行中，尚未发布判断。' }
 }

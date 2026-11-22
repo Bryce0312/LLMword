@@ -60,7 +60,7 @@ async function launch(t, { status = 402, onceOnly = false } = {}) {
 
 test('a model balance error pauses monitoring and the same unprepared question can recover manually without losing history', { timeout: 25000 }, async t => {
   const app = await launch(t)
-  const created = await app.api('/requests', { question: '【协议测试】香港红磡今天会下雨吗？', horizonHours: 24 })
+  const created = await app.api('/requests', { question: '【协议测试】香港红磡今天会下雨吗？', horizonHours: 24, watch: true })
   const failed = await app.settled(created.requestId)
   assert.equal(failed.run.status, 'failed')
   assert.equal(failed.run.error.code, 'MODEL_BALANCE_REQUIRED')
@@ -84,13 +84,19 @@ test('a model balance error pauses monitoring and the same unprepared question c
   assert.equal(recovered.forecast.scoringEligible, false, 'fixture sources remain explicitly unscoreable')
 })
 
-test('one temporary model service failure is retried within the real HTTP loop and every attempt consumes request budget', { timeout: 25000 }, async t => {
+test('bounded HTTP loop stops on a temporary service response with unknown usage and exposes an honest partial receipt', { timeout: 25000 }, async t => {
   const app = await launch(t, { status: 503, onceOnly: true })
   const created = await app.api('/requests', { question: '【协议测试】未来24小时科技展会开幕吗？', horizonHours: 24, watch: false })
   const recovered = await app.settled(created.requestId)
-  assert.equal(recovered.run.status, 'completed', JSON.stringify(recovered.run.error))
-  assert(recovered.forecast)
-  assert(app.gate.calls > 1)
+  assert.equal(recovered.run.status, 'insufficient', JSON.stringify(recovered.run.error))
+  assert.equal(recovered.forecast, null)
+  assert.equal(recovered.forecasts.length, 0)
+  assert.equal(app.gate.calls, 1, 'HTTP 503 without usage does not establish a free attempt')
   assert.equal(recovered.run.usage.modelRequests, app.gate.calls)
+  assert.equal(recovered.run.usage.unknownUsage, true)
+  assert.equal(recovered.run.delivery.kind, 'partial_research')
+  assert.equal(recovered.run.delivery.probabilityYes, null)
+  assert.match(recovered.run.delivery.reason, /用量/)
+  assert(recovered.run.events.some(event => event.type === 'budget.closeout'))
   assert(!JSON.stringify(recovered).includes('private-provider-payload'))
 })

@@ -12,6 +12,7 @@ import { courseMemoryPolicyLines } from './course-memory.mjs'
 import { renderCollaboration } from './course-collaboration.js'
 import { recoverCourseBudgetRequest, recoverCourseBudgetRun } from './course-budget-summary.mjs'
 import { directionLabel, directionText, formatProbability, isPriceDirection, priceDirections, validDirectionProbabilities } from './course-price-direction.mjs'
+import { formatCourseProbability, courseProbabilityPair } from './course-probability.mjs'
 
 const requestId = (record) => record.requestId ?? record.id
 const requestRunId = (record) => record.activeRunId ?? record.latestRunId ?? record.runId ?? record.run?.runId ?? record.latestRun?.runId
@@ -20,6 +21,12 @@ const modelText = (data, ctx) => (data.modelMode ?? ctx.cache.config.modelMode) 
 const sourceText = (data) => ({ live: '联网来源', replay: '历史／测试快照', fixture: '测试快照', provided: '用户提供材料' })[data.sourceMode] ?? '来源模式未提供'
 function requestStateLabel(data) {
   return courseRequestProgress(data).label
+}
+export function courseWatchEnabled(record = {}) {
+  if (record.purpose === 'research') return false
+  if (typeof record.watchEnabled === 'boolean') return record.watchEnabled
+  if (typeof record.watch === 'boolean') return record.watch
+  return ['active', 'paused_provider', 'completed'].includes(record.watch?.status)
 }
 function saveRequest(ctx, record) {
   const id = requestId(record); if (!id) return
@@ -72,8 +79,15 @@ export function courseStartForm(ctx, { standalone = false, headingId } = {}) {
     if (financialEntry) chip.dataset.tradingDays = value; else chip.dataset.hours = value
     chip.setAttribute('aria-pressed', String((financialEntry ? horizonTradingDays : horizonHours) === value)); chips.append(chip); chipButtons.push(chip)
   }
-  const horizonHint = financialEntry ? '可填名称或代码并注明市场；未注明市场默认港股。按对应市场休市日计算，从创建日期后的下一交易日起计数，第 N 个交易日收盘截止。' : '宽泛地问也可以。系统补全研究口径、选择研究员并找资料；默认 48 小时，可选上方窗口。问“今天”时跟踪到当地今天结束，明确日期优先。结果会说明“按这个意思研究”，你可以纠正。'
+  const horizonHint = financialEntry ? '代码和市场优先；英伟达、苹果等已识别美股名称采用美股日历线索，其余未注明默认港股，身份仍须核验。按对应市场休市日计算，从创建日期后的下一交易日起计数，第 N 个交易日收盘截止。' : '宽泛地问也可以。系统补全研究口径、选择研究员并找资料；默认 48 小时，可选上方窗口。问“今天”时跟踪到当地今天结束，明确日期优先。结果会说明“按这个意思研究”，你可以纠正。'
   form.append(h('div', 'cc-duration', h('span', '', '关注多久'), chips), h('p', 'cc-form-hint', horizonHint))
+  let forecastWatch = courseWatchEnabled(prior)
+  const watchEnabled = input('', 'checkbox'); watchEnabled.name = 'watch'; watchEnabled.id = 'field-watch'; watchEnabled.checked = forecastWatch
+  const watchHint = h('small', '', '默认只研究一次；勾选后，服务器会定时检查新信息并可能继续调用模型。'); watchHint.id = 'course-watch-hint'
+  watchEnabled.setAttribute('aria-describedby', watchHint.id)
+  const watchChoice = h('div', 'cc-watch-choice wb-checks', h('label', '', watchEnabled, h('span', '', '持续关注')), watchHint)
+  watchEnabled.addEventListener('change', () => { forecastWatch = watchEnabled.checked === true })
+  form.append(watchChoice)
   const priorTarget = prior.strict?.targetAt ? new Date(prior.strict.targetAt) : new Date(Date.now() + horizonHours * 3600000)
   strictTarget = field(strict, 'targetAt', '目标时间（本机时区）', input(!Number.isNaN(priorTarget.valueOf()) ? localTime(priorTarget) : '', 'datetime-local'))
   if (prior.strict?.targetAt) strictTarget.dataset.userEdited = 'true'
@@ -109,7 +123,7 @@ export function courseStartForm(ctx, { standalone = false, headingId } = {}) {
   }
   if (!financialEntry) form.append(strict)
   form.append(capabilityNotice, start)
-  const syncPurpose = () => { const research = purpose.value === 'research'; modes.hidden = research; strict.hidden = research || mode !== 'strict'; form.querySelector('.cc-duration').hidden = research; form.querySelector('.cc-form-hint').hidden = research; renderCapability() }
+  const syncPurpose = () => { const research = purpose.value === 'research'; modes.hidden = research; strict.hidden = research || mode !== 'strict'; form.querySelector('.cc-duration').hidden = research; form.querySelector('.cc-form-hint').hidden = research; watchChoice.hidden = research; watchEnabled.disabled = research; watchEnabled.checked = !research && forecastWatch; renderCapability() }
   purpose.addEventListener('change', syncPurpose); syncPurpose()
   if (!ctx.cache.courseCapability) void checkCurrentService()
   form.addEventListener('submit', async (event) => {
@@ -117,7 +131,7 @@ export function courseStartForm(ctx, { standalone = false, headingId } = {}) {
     submitting = true; renderCapability()
     try {
       if (!question.value.trim()) throw Object.assign(new Error(financialEntry ? '请先输入你关注的股票、证券或基金。' : '请先写下希望跟踪的问题。'), { fields: ['question'] })
-      const data = Object.fromEntries(new FormData(form)); const payload = { purpose: purpose.value, question: question.value.trim(), mode: purpose.value === 'research' || strictModeHidden() ? 'preset' : mode }
+      const data = Object.fromEntries(new FormData(form)); const payload = { purpose: purpose.value, question: question.value.trim(), mode: purpose.value === 'research' || strictModeHidden() ? 'preset' : mode, watch: purpose.value !== 'research' && watchEnabled.checked === true }
       if (financialEntry) {
         if (purpose.value !== 'research') {
           payload.horizonTradingDays = horizonTradingDays
@@ -159,12 +173,11 @@ export function courseBoard(ctx) {
     const questionLink = dataLink(record.question?.trim() || normalized.question || '准备中的题目', '#/course/' + requestId(record))
     questionLink.title = normalized.question ?? questionLink.textContent
     if (record.purpose === 'research') {
-      cards.append(h('article', 'wb-paper wb-board-card', h('span', 'wb-badge', requestStateLabel(record)), h('h3', '', questionLink), h('p', '', record.researchReport ? '财报核验研报已保存' : '财报资料调查中'), h('p', 'wb-muted', '核验已披露事实与管理层表述'), link('打开研报研究室', '#/course/' + requestId(record), 'wb-button')))
+      const boardProbability = isPriceDirection(record.forecast) ? h('p', '', directionText(record.forecast)) : null
+    cards.append(h('article', 'wb-paper wb-board-card', h('span', 'wb-badge', requestStateLabel(record)), h('h3', '', questionLink), h('p', '', record.researchReport ? '财报核验研报已保存' : '财报资料调查中'), h('p', 'wb-muted', '核验已披露事实与管理层表述'), link('打开研报研究室', '#/course/' + requestId(record), 'wb-button')))
       continue
     }
-    const probabilities = isPriceDirection(record.forecast) ? h('p', '', directionText(record.forecast))
-      : h('div', 'wb-card-probability', Number.isFinite(p) ? Math.round(p * 100) + '%' : '—', h('small', '', Number.isFinite(p) ? 'Yes 发生概率' : '暂未发布判断'))
-    cards.append(h('article', 'wb-paper wb-board-card', h('div', 'wb-card-top', h('span', 'wb-badge', requestStateLabel(record)), h('span', '', modelText(record, ctx) + ' / ' + sourceText(record))), h('h3', '', questionLink), probabilities, h('p', '', '固定到期：' + fmt(normalized.targetAt ?? record.targetAt)), link('打开研究室', '#/course/' + requestId(record), 'wb-button')))
+    cards.append(h('article', 'wb-paper wb-board-card', h('div', 'wb-card-top', h('span', 'wb-badge', requestStateLabel(record)), h('span', '', modelText(record, ctx) + ' / ' + sourceText(record))), h('h3', '', questionLink), boardProbability || h('div', 'wb-card-probability', formatCourseProbability(p), h('small', '', Number.isFinite(p) ? 'Yes 发生概率' : '暂未发布判断')), h('p', '', '固定到期：' + fmt(normalized.targetAt ?? record.targetAt)), link('打开研究室', '#/course/' + requestId(record), 'wb-button')))
   }
   const financialEntry = document.body.dataset.financialEntry === 'true'
   const heading = header(financialEntry ? '写下一个你关注的股票' : '我的事件研究', '主 Agent 按题选择研究员，查来源、讨论并生成预测结果')
@@ -293,9 +306,10 @@ function renderAnswer(node, data, ctx) {
   const sorted = directional && published ? [...priceDirections].sort((a, b) => forecast[b.key] - forecast[a.key]) : []
   const tendency = directional ? !published ? '暂未判断' : forecast[sorted[0].key] === forecast[sorted[1].key] ? '最高概率并列' : '当前倾向：' + sorted[0].label
     : !valid ? '暂未判断' : probability === .5 ? '两种结果接近' : probability > .5 ? '当前倾向：会发生' : '当前倾向：不会发生'
+  const probabilityLabels = courseProbabilityPair(probability)
   const distribution = directional ? h('div', 'wb-yes-no cc-price-directions', ...priceDirections.map(({ key, label }) =>
     h('div', '', h('small', '', label), h('strong', '', formatProbability(published ? forecast[key] : null)))))
-    : h('div', 'wb-yes-no', h('div', '', h('small', '', '是 Yes'), h('strong', '', valid ? Math.round(probability * 100) + '%' : '—')), h('div', '', h('small', '', '否 No'), h('strong', '', valid ? Math.round((1 - probability) * 100) + '%' : '—')))
+    : h('div', 'wb-yes-no', h('div', '', h('small', '', '是 Yes'), h('strong', '', probabilityLabels.yes)), h('div', '', h('small', '', '否 No'), h('strong', '', probabilityLabels.no)))
   const rule = p.resolutionRule ?? p.rule
   const questionHeading = dataContent('h2', '', data.question?.trim() || p.question || '正在把问题整理成可验证的命题…')
   questionHeading.title = p.question ?? questionHeading.textContent
@@ -338,15 +352,13 @@ function renderMemory(node, run, data) {
   const validPrevious = Number.isFinite(previous?.probabilityYes)
   const validCurrent = Number.isFinite(current?.probabilityYes)
   const change = validPrevious && validCurrent ? Math.round((current.probabilityYes - previous.probabilityYes) * 1000) / 10 : null
-  const previousText = isPriceDirection(previous) ? directionText(previous) + ' · ' + fmt(previous.issuedAt ?? previous.publishedAt)
-    : validPrevious ? 'Yes ' + Math.round(previous.probabilityYes * 100) + '% · ' + fmt(previous.issuedAt ?? previous.publishedAt) : '此前尚无已发布判断'
+  const previousText = isPriceDirection(previous) ? directionText(previous) + ' · ' + fmt(previous.issuedAt ?? previous.publishedAt) : validPrevious ? 'Yes ' + formatCourseProbability(previous.probabilityYes) + ' · ' + fmt(previous.issuedAt ?? previous.publishedAt) : '此前尚无已发布判断'
   const newSources = (triage.newEvidenceIds ?? []).map((id) => (data.evidence ?? run.evidence ?? []).find((source) => source.evidenceId === id)).filter(Boolean)
   const newInfo = h('div', 'cc-memory-item', h('h3', '', '这轮新信息'))
   if (newSources.length) for (const source of newSources) newInfo.append(h('p', '', dataContent('span', '', source.title ?? source.evidenceId), ' ', sourceLink(source)))
   else newInfo.append(h('p', '', triage.kind === 'initial' ? '首轮调查，尚无上一轮可比较。' : triage.newEvidenceIds?.length ? '新增资料已记录，当前未提供题名。' : '未记录新增的独立证据。'))
   const why = current?.summary ?? triage.reason
-  const adjustment = isPriceDirection(current) ? directionText(current)
-    : change === null ? validCurrent ? '这是首次发布' : '本轮尚未发布新概率' : change === 0 ? '当前概率保持不变' : '较上一判断' + (change > 0 ? '上调 ' : '下调 ') + Math.abs(change) + ' 个百分点'
+  const adjustment = isPriceDirection(current) ? directionText(current) : change === null ? validCurrent ? '这是首次发布' : '本轮尚未发布新概率' : change === 0 ? '当前概率保持不变' : '较上一判断' + (change > 0 ? '上调 ' : '下调 ') + Math.abs(change) + ' 个百分点'
   node.replaceChildren(h('h2', '', '这轮怎样接着上次查'), h('p', 'wb-muted', '对应房间所选轮次。历史摘要用于比较，不算新的外部证据。'), h('div', 'cc-memory-grid', h('div', 'cc-memory-item', h('h3', '', '上一判断'), h('p', '', previousText), previous?.statusLabel ? h('span', 'cc-status-badge', previous.statusLabel) : null, memory.summary ? dataContent('small', '', memory.summary) : null), newInfo, h('div', 'cc-memory-item', h('h3', '', '为什么调整'), h('strong', '', adjustment), why ? dataContent('p', '', why) : h('p', '', '尚无已保存的调整说明。'), triage.reason && why !== triage.reason ? h('small', '', '本轮触发：', dataContent('span', '', triage.reason)) : null)), h('small', 'wb-muted', '实际读取历史：' + (memory.sourceRunIds?.length ?? 0) + ' 轮，' + (memory.reportCount ?? 0) + ' 份报告，' + (memory.relationCount ?? 0) + ' 条资料关系。'))
   const policy = courseMemoryPolicyLines(memory)
   if (policy.length) node.insertBefore(h('div', 'cc-memory-policy', h('strong', '', '本轮记忆范围'), policy.map(line => h('p', '', line))), node.querySelector('.cc-memory-grid'))
@@ -431,7 +443,7 @@ function renderWorkflow(node, run, purpose) {
     item.dataset.state = row.waiting ? 'waiting' : row.status ?? 'pending'; workers.append(item)
   }
   if (!view.rows.length) workers.append(h('p', 'wb-muted', '尚无真实研究员派工记录；名单会在主 Agent 完成分配后出现。'))
-  const method = view.version === 3 && view.investigationSteps && view.reportStep ? `每位研究员最多 ${view.investigationSteps} 次调查决策，第 ${view.reportStep} 次只提交报告；资料足够可提前提交。模型次数与调查周期分开计数。` : '仅展示本轮保存的执行记录；历史流程和预算不会套用当前配置。'
+  const method = view.version === 3 && view.investigationSteps && view.reportStep ? Number.isSafeInteger(view.reportRepairRequests) ? `每位研究员最多 ${view.investigationSteps} 次调查决策；资料足够可提前提交报告，最迟第 ${view.reportStep} 次进入报告阶段，另留 ${view.reportRepairRequests} 次报告修正。调查与报告分开计数，仍受本席总调用与 token 上限约束。` : `每位研究员最多 ${view.investigationSteps} 次调查决策，第 ${view.reportStep} 次只提交报告；资料足够可提前提交。模型次数与调查周期分开计数。` : '仅展示本轮保存的执行记录；历史流程和预算不会套用当前配置。'
   node.replaceChildren(...[head, stage, h('p', 'cc-workflow-flow', purpose === 'research' ? '整理问题 → 独立取证 → 必要补查 → 引用研报；核验已披露事实与表述。' : view.flow), loop, draft, total, workers, h('small', 'cc-workflow-method', method)].filter(child => child !== null && child !== undefined))
   node.dataset.protocol = String(view.version ?? 'unknown')
 }
@@ -515,7 +527,7 @@ export async function mountCourseRequest(ctx, id, token) {
     resolution.replaceChildren(h('h2', '', '到期结果核验'), dataContent('p', '', data.strict?.resolutionRule || ''), h('p', '', '目标时点：' + fmt(data.normalized?.targetAt || data.resolutionPolicy.targetAt)))
     if (result) {
       resolution.append(dataContent('strong', '', result.summary), h('p', '', '实际取得：' + fmt(result.observedAt)), ...result.evidence.map(source => h('details', '', dataContent('summary', '', source.title), dataContent('pre', 'wb-prewrap', source.text), sourceLink(source))))
-      for (const score of result.scores || []) resolution.append(h('p', '', `${isPriceDirection(score) ? directionText(score) : 'Yes预测 ' + Math.round(score.probabilityYes * 100) + '%'} · Brier ${score.brier.toFixed(4)} · ${score.label}`))
+      for (const score of result.scores || []) resolution.append(h('p', '', `${isPriceDirection(score) ? directionText(score) : 'Yes预测 ' + formatCourseProbability(score.probabilityYes)} · Brier ${score.brier.toFixed(4)} · ${score.label}`))
       return
     }
     const resolve = button(resolving ? '正在读取官方快照…' : '读取官方结果并核验', async () => {
@@ -560,7 +572,7 @@ export async function mountCourseRequest(ctx, id, token) {
     try { const record = await api('/course/requests/' + id + '/stop', write('POST', {})); saveRequest(ctx, record); if (!disposed) { currentData = record; toast('停止请求已保存。'); await refresh() } } catch (error) { if (!disposed) showError(error) } finally { stopBusy = false; syncRunAction() }
   }, 'wb-text-button')
   stop.disabled = true
-  const edit = button('修改理解后重新跟踪', () => { ctx.courseRetryInput = { purpose: currentData?.purpose || 'forecast', question: currentData?.question ?? publicContract(currentData ?? {}).question, horizonHours: currentData?.horizonHours ?? 48, horizonTradingDays: currentData?.horizonTradingDays, market: currentData?.tradingHorizon?.market ?? currentData?.market, mode: currentData?.mode ?? 'preset', strict: currentData?.strict }; goto('/course/new') }, 'wb-text-button')
+  const edit = button('修改理解后重新跟踪', () => { ctx.courseRetryInput = { purpose: currentData?.purpose || 'forecast', question: currentData?.question ?? publicContract(currentData ?? {}).question, horizonHours: currentData?.horizonHours ?? 48, horizonTradingDays: currentData?.horizonTradingDays, market: currentData?.tradingHorizon?.market ?? currentData?.market, mode: currentData?.mode ?? 'preset', strict: currentData?.strict, watch: courseWatchEnabled(currentData ?? {}) }; goto('/course/new') }, 'wb-text-button')
   const actions = h('div', 'cc-course-actions', h('label', '', '房间显示轮次 ', runSelector), check, stop, edit)
   if (roomHost) {
     roomHost.append(roomNode)
