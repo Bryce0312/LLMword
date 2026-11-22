@@ -1,3 +1,4 @@
+import { evidenceView, focusedEvidenceView, requestReservation } from './retrieval-view.mjs'
 import { createHash } from 'node:crypto'
 import Ajv from 'ajv'
 import { setTimeout as delay } from 'node:timers/promises'
@@ -72,8 +73,8 @@ export function createCourseService({ path, workbench, provider = createCourseMo
   const thinking = provider.settings?.thinking === 'enabled'
   const maxOutput = Math.min(thinking ? 32768 : 4800, provider.settings?.outputCapConfigured ? provider.settings.maxOutputTokens : thinking ? 16384 : 4800)
   const timeoutMs = Math.min(300000, Math.max(provider.settings?.timeoutMs || 0, thinking ? 180000 : 90000))
-  const budget = { maxTotalTokens: 300000, maxModelRequests: 40, maxToolCalls: 64, mainRequests: 16, maxTokens: maxOutput, timeoutMs,
-    worker: { maxModelRequests: 6, maxToolCalls: 6, maxTotalTokens: 65536, maxTokens: maxOutput, timeoutMs, maxRetries: 1 } }
+  const budget = { admissionVersion: 1, reserveFinalTokens: 2 * (maxOutput + 16000), maxTotalTokens: 300000, maxModelRequests: 40, maxToolCalls: 64, mainRequests: 16, maxTokens: maxOutput, timeoutMs,
+    worker: { admissionVersion: 1, reserveReportTokens: maxOutput + 16000, maxModelRequests: 6, maxToolCalls: 6, maxTotalTokens: 65536, maxTokens: maxOutput, timeoutMs, maxRetries: 1 } }
   const configuration = { providerIdentity: identity, modelRef: provider.model || null, modelMode, sourceMode, budget, harnessVersion }
   const legacyBudget = { maxModelRequests: 32, maxToolCalls: 48, mainRequests: 12, maxTokens: 2400, timeoutMs: 60000,
     worker: { maxModelRequests: 5, maxToolCalls: 4, maxTotalTokens: 32000, maxTokens: 2400, timeoutMs: 60000, maxRetries: 1 } }
@@ -134,17 +135,23 @@ export function createCourseService({ path, workbench, provider = createCourseMo
     }
   }
   const researchReservations = new Map()
-  function providerFor(runId) {
+  function providerFor(runId, worker = false) {
     return { ...provider, async complete(input) {
       ensure(runId, input.signal)
       const run = store.requireRun(runId)
       let reservation = 0
-      if (store.requireRequest(run.requestId).purpose === 'research' || store.requireRequest(run.requestId).resolutionPolicy) {
-        if (run.usage.unknownUsage) throw courseFailure('COURSE_USAGE_UNKNOWN', '部分请求用量未知，已停止继续付费调用。', 409)
+      if (run.budget?.admissionVersion || store.requireRequest(run.requestId).purpose === 'research' || store.requireRequest(run.requestId).resolutionPolicy) {
+        if (run.usage.unknownUsage && (!run.budget?.admissionVersion || !run.admissionUnknownTokens)) throw courseFailure('COURSE_USAGE_UNKNOWN', '部分请求用量未知，已停止继续付费调用。', 409)
         // UTF-8 bytes plus protocol overhead conservatively reserve input and
         // capped output for concurrent calls. Never print these private messages.
-        reservation = Buffer.byteLength(JSON.stringify(input.messages || []), 'utf8') + Buffer.byteLength(JSON.stringify(input.tools || []), 'utf8') + (input.maxTokens || runBudget(runId).maxTokens) + 2048
-        if (run.usage.totalTokens + (researchReservations.get(runId) || 0) + reservation > runBudget(runId).maxTotalTokens) throw Object.assign(courseFailure('COURSE_BUDGET', '剩余预算不足以安全发起下一次模型请求，保留已取得资料。', 409), { usage: { total_tokens: 0 }, requestNotSent: true })
+        reservation = requestReservation(input)
+        const finalReserve = worker ? (run.budget?.reserveFinalTokens || 0) : 0
+        if (run.usage.totalTokens + (run.admissionUnknownTokens || 0) + (researchReservations.get(runId) || 0) + reservation + finalReserve > runBudget(runId).maxTotalTokens || worker && run.budget?.admissionVersion && run.usage.modelRequests >= runBudget(runId).maxModelRequests - 2) {
+          const code = finalReserve ? 'RUN_FINAL_RESERVE' : 'COURSE_BUDGET'
+          const limitKind = worker && run.usage.modelRequests >= runBudget(runId).maxModelRequests - 2 ? 'model_request_reserve' : 'input_output_tokens'
+          event(runId, 'budget.stopped', { code, limitKind, requestNotSent: true, reservation, finalReserve, usedTokens: run.usage.totalTokens, summary: '已保留最终审阅额度；本次请求未发送，已读证据仍在。' })
+          throw Object.assign(courseFailure(code, '剩余预算不足以安全继续调查，保留已取得资料和最终审阅额度。', 409), { usage: { total_tokens: 0 }, requestNotSent: true })
+        }
       }
       store.reserve(runId, 'modelRequests', runBudget(runId).maxModelRequests)
       if (reservation) researchReservations.set(runId, (researchReservations.get(runId) || 0) + reservation)
@@ -153,13 +160,16 @@ export function createCourseService({ path, workbench, provider = createCourseMo
         try { result = await provider.complete(input) }
         catch (error) {
           if (!stopping && !terminal.has(store.requireRun(runId).status)) {
-            try { store.recordUsage(runId, error?.usage?.total_tokens, error?.usage) }
+            try {
+              if (run.budget?.admissionVersion && !Number.isSafeInteger(error?.usage?.total_tokens)) { const latest = store.requireRun(runId); store.saveRun(runId, { admissionUnknownTokens: (latest.admissionUnknownTokens || 0) + reservation }) }
+              store.recordUsage(runId, error?.usage?.total_tokens, error?.usage) }
             catch (budgetError) { if (error?.usage) budgetError.usage = error.usage; throw budgetError }
           }
           if (blockingProviderFailure(error)) registerProviderFault(runId, error)
           throw error
         }
         ensure(runId, input.signal)
+        if (run.budget?.admissionVersion && !Number.isSafeInteger(result.usage?.total_tokens)) { const latest = store.requireRun(runId); store.saveRun(runId, { admissionUnknownTokens: (latest.admissionUnknownTokens || 0) + reservation }) }
         store.recordUsage(runId, result.usage?.total_tokens, result.usage)
         return result
       } finally {
@@ -203,7 +213,10 @@ export function createCourseService({ path, workbench, provider = createCourseMo
       let result = previous
       if (!result) {
         store.reserve(runId, 'toolCalls', runBudget(runId).maxToolCalls)
-        result = await tool.execute(tool.toolId === 'search_web' ? { ...args, maxResults: Math.min(args.maxResults || 2, 5) } : args, { ...context, signal: context.signal || signal })
+        const stored = currentRun.budget?.admissionVersion && tool.toolId === 'fetch_page' && args.focus
+          ? store.evidenceFor(runId).find(e => e.url === args.url && e.evidenceKind === 'page_content' && e.readBy.includes(readerId) && e.text.toLowerCase().includes(args.focus.toLowerCase())) : null
+        result = stored ? { status: 'ok', data: focusedEvidenceView(stored, args.focus), evidenceIds: [stored.evidenceId], observedAt: clock(), summary: '展开本轮本人已读的同一证据片段；没有新来源或网络请求。', error: null, usage: { providerRequests: 0 } }
+          : await tool.execute(tool.toolId === 'search_web' ? { ...args, maxResults: Math.min(args.maxResults || 2, 5) } : args, { ...context, signal: context.signal || signal })
       }
       ensure(runId, signal)
       if (!previous) store.saveReceipt(runId, key, input, result)
@@ -220,6 +233,7 @@ export function createCourseService({ path, workbench, provider = createCourseMo
         for (const candidate of result.data.results) candidateKnown[urlKey(candidate.url)] = digest({ url: candidate.url, title: candidate.title, snippet: candidate.snippet, publishedAt: candidate.publishedAt })
         store.saveWatch(request.requestId, { candidateKnown })
       }
+      if (currentRun.budget?.admissionVersion && tool.toolId === 'fetch_page' && !args.focus && result.data?.evidenceKind === 'page_content') return { ...result, data: evidenceView(result.data, request.question) }
       return result
     } }))
   }
@@ -233,7 +247,7 @@ export function createCourseService({ path, workbench, provider = createCourseMo
     const result = { runId: value.runId, requestId: value.requestId, status: value.status, phase: value.phase, trigger: value.trigger,
       topicId: value.topicId, predictionId: value.predictionId, predictionVersion: value.predictionVersion, modelMode: value.modelMode,
       sourceMode: value.sourceMode, createdAt: value.createdAt, updatedAt: value.updatedAt, usage: value.usage, error: value.error,
-      harnessVersion: value.harnessVersion || 2, budget: budgetView(value.budget), draft: value.state.draft || null, orchestration: orchestrationView(value),
+      harnessVersion: value.harnessVersion || 2, budget: budgetView(value.budget), admissionUnknownTokens: value.admissionUnknownTokens || 0, draft: value.state.draft || null, orchestration: orchestrationView(value),
       summaryResumeCount: value.state.summaryResumeCount || 0,
       summaryRequestNotSent: unsentSummaryRequest(value, store.listAssignments(value.runId)),
       modelRef: value.modelRef || null, team: value.state.team || assignments.filter((item) => !item.followUp).map(({ roleId, name, objective, reason }) => ({ roleId, name, objective, reason })),
@@ -312,7 +326,7 @@ export function createCourseService({ path, workbench, provider = createCourseMo
     const perform = async (item) => {
       if (item.status === 'completed') return item.report
       store.saveAssignment(item.assignmentId, { status: 'running' })
-      const value = await runWorker({ provider: providerFor(runId), assignment: item.config, agentSpec: item.agentSpec,
+      const value = await runWorker({ provider: providerFor(runId, true), assignment: item.config, agentSpec: item.agentSpec,
         tools: toolsFor(runId, item.assignmentId, item.roleId, signal), enabledToolIds: item.config.allowedTools, signal,
         resume: item.checkpoint, finishOnToolBudget: true,
         reportPolicy: item.config.groundingPolicy || item.config.marketReportPolicy ? { version: [item.config.marketReportPolicy, item.config.groundingPolicy].filter(Boolean).join('+'),
@@ -348,10 +362,10 @@ export function createCourseService({ path, workbench, provider = createCourseMo
     for (let index = 0; index < results.length; index++) {
       const result = results[index]
       if (result.status === 'rejected') {
-        if (['BUDGET_EXHAUSTED', 'COURSE_BUDGET'].includes(result.reason.code) && store.requireRequest(current.requestId).purpose === 'research') {
+        if (['BUDGET_EXHAUSTED', 'COURSE_BUDGET', 'WORKER_INPUT_BUDGET', 'RUN_FINAL_RESERVE'].includes(result.reason.code) && !store.requireRequest(current.requestId).resolutionPolicy && (current.budget?.admissionVersion || store.requireRequest(current.requestId).purpose === 'research')) {
           const item = assignments[index]
           const readIds = store.evidenceFor(runId).filter((evidence) => evidence.readBy.includes(item.assignmentId)).map((evidence) => evidence.evidenceId)
-          if (readIds.length) {
+          if (readIds.length || current.budget?.admissionVersion) {
             const report = { status: 'insufficient', summary: `程序生成的预算回执：已读取${readIds.length}份原文，但研究员未完成内容核验；以下引用不表示认可原文主张。`, evidenceIds: readIds,
               support: [], counterevidence: [], missingEvidence: ['研究预算耗尽，公开核验报告未完整生成。'], probability: null, nextSuggestion: '缩小子问题或核查已读来源。', generatedBy: 'harness-budget-receipt' }
             store.saveAssignment(item.assignmentId, { status: 'completed', report, error: errorValue(result.reason) })
@@ -511,7 +525,8 @@ export function createCourseService({ path, workbench, provider = createCourseMo
       store.saveRun(runId, { state })
     }
     const gatewayTools = toolsFor(runId, 'main', 'main', signal)
-    const remainingFollowUps = followUpLimit(run) - (modern(run) ? followUpsUsed(run) : Number(Boolean(state.followUpDone)))
+    const reserveReached = run.budget?.admissionVersion && ((run.usage.totalTokens + (run.admissionUnknownTokens || 0)) >= run.budget.maxTotalTokens - run.budget.reserveFinalTokens * 2 || store.listAssignments(runId).some(item => ['RUN_FINAL_RESERVE', 'WORKER_INPUT_BUDGET', 'BUDGET_EXHAUSTED'].includes(item.error?.code)))
+    const remainingFollowUps = reserveReached ? 0 : followUpLimit(run) - (modern(run) ? followUpsUsed(run) : Number(Boolean(state.followUpDone)))
     const allowedNames = request.resolutionPolicy?.version === PRICE_POLICY && phase === 'review' ? ['propose_forecast','mark_insufficient'] : (request.purpose === 'research' || request.resolutionPolicy) && state.summaryResumeCount ? [request.purpose === 'research' ? 'submit_research_report' : 'propose_forecast', 'mark_insufficient'] : phase === 'intake' ? ['draft_and_delegate'] : phase === 'prepare' ? ['normalize_prediction', 'mark_insufficient'] : phase === 'triage' ? ['triage_update', 'mark_insufficient'] : phase === 'plan' ? ['delegate_work', 'mark_insufficient'] : [
       ...(remainingFollowUps > 0 ? ['request_followup'] : []), request.purpose === 'research' ? 'submit_research_report' : 'propose_forecast', 'mark_insufficient',
     ]
@@ -761,6 +776,13 @@ export function createCourseService({ path, workbench, provider = createCourseMo
     } catch (error) {
       if (stopping || controller.signal.aborted || terminal.has(store.requireRun(runId).status)) return
       const saved = errorValue(error)
+      const stopped = store.requireRun(runId)
+      if (stopped.budget?.admissionVersion && !store.requireRequest(stopped.requestId).resolutionPolicy && store.requireRequest(stopped.requestId).purpose !== 'research' && ['COURSE_BUDGET', 'MAIN_BUDGET', 'RUN_FINAL_RESERVE', 'WORKER_INPUT_BUDGET'].includes(error.code)) {
+        store.saveRun(runId, { error: saved })
+        event(runId, 'budget.stopped', { code: error.code, requestNotSent: Boolean(error.requestNotSent), summary: saved.message })
+        finish(runId, 'insufficient', '预算内未完成有效最终审阅；已保留来源与研究员报告，未发布概率。')
+        return
+      }
       const resumeSuffix = store.requireRun(runId).state.summaryResumeCount ? '_' + store.requireRun(runId).state.summaryResumeCount : ''
       store.saveRun(runId, { status: 'failed', error: saved, message: saved.message }, [{ eventId: `${runId}_failed${resumeSuffix}`, type: 'run.finished', payload: { status: 'failed', summary: saved.message, error: saved } }])
       notify()
@@ -838,6 +860,11 @@ export function createCourseService({ path, workbench, provider = createCourseMo
           if (typeof strict.timezone !== 'string' || !strict.timezone.trim()) throw courseFailure('INVALID_TIMEZONE', '严格模式时区无效。')
           try { new Intl.DateTimeFormat('en', { timeZone: strict.timezone }).format() } catch { throw courseFailure('INVALID_TIMEZONE', '严格模式时区无效。') }
         }
+      }
+      if (data.purpose === 'research' || data.resolutionPolicy) {
+        data.budget = structuredClone(data.budget)
+        delete data.budget.admissionVersion; delete data.budget.reserveFinalTokens
+        delete data.budget.worker.admissionVersion
       }
       const result = store.createRequest(data, options)
       notify(); pump(); return publicRequest(result)

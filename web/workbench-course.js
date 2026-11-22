@@ -104,7 +104,7 @@ export function courseStartForm(ctx, { standalone = false } = {}) {
   })
   const image = h('img'); image.src = '/assets/lab-play.png'; image.alt = '等待新委托的像素研究室'
   const panel = h('section', 'cc-entry', h('div', 'cc-entry-paper', form), h('div', 'cc-entry-art', image, h('span', '', '有出处的调查，有期限的判断。')))
-  return standalone ? [header('开始一次事件跟踪', '只需一句问题，系统整理题意、找来源并分工调查。'), panel, link('高级：手工材料研读', '#/advanced', 'wb-side-link')] : panel
+  return standalone ? [header('新建研究', ''), panel, link('高级：手工材料研读', '#/advanced', 'wb-side-link')] : panel
 }
 
 export function courseBoard(ctx) {
@@ -121,7 +121,7 @@ export function courseBoard(ctx) {
     }
     cards.append(h('article', 'wb-paper wb-board-card', h('div', 'wb-card-top', h('span', 'wb-badge', requestStateLabel(record)), h('span', '', modelText(record, ctx) + ' / ' + sourceText(record))), h('h3', '', questionLink), h('div', 'wb-card-probability', Number.isFinite(p) ? Math.round(p * 100) + '%' : '—', h('small', '', Number.isFinite(p) ? 'Yes 发生概率' : '暂未发布判断')), h('p', '', '固定到期：' + fmt(normalized.targetAt ?? record.targetAt)), link('打开研究室', '#/course/' + requestId(record), 'wb-button')))
   }
-  return [header('我的事件研究', '一句问题，主 Agent 按题选择研究员，查来源、讨论并持续跟踪。'), courseStartForm(ctx), requests.length ? h('section', '', h('h2', 'wb-section-title', '正在关注与历史任务'), cards) : empty('第一张委托纸签还在等你', '直接说你关心的事，不需要先建主题、选角色或准备材料。'), link('高级：材料研读与旧案例管理', '#/advanced', 'wb-side-link')]
+  return [header('我的研究', ''), courseStartForm(ctx), requests.length ? h('section', '', h('h2', 'wb-section-title', '正在关注与历史任务'), cards) : empty('暂无研究记录', '提交上方问题开始调查。'), link('高级：材料研读与旧案例管理', '#/advanced', 'wb-side-link')]
 }
 
 function publicContract(data) {
@@ -351,7 +351,7 @@ export async function mountCourseRequest(ctx, id, token) {
   const answer = h('aside', 'wb-forecast-note cc-answer')
   const plan = h('div', 'cc-request-state', '正在读取题目与调查进度…'); plan.setAttribute('role', 'status')
   const errorBox = h('div', 'wb-error'); errorBox.hidden = true; errorBox.setAttribute('role', 'alert')
-  const title = header('事件跟踪研究室', '系统负责寻找来源与分工；人物只响应已保存的真实执行事件。')
+  const title = header('研究详情', '')
   const curve = h('div', 'cc-curve-slot'); const sources = h('section', 'wb-paper cc-sources'); const records = h('div')
   function syncPanelLimits() {
     requestAnimationFrame(() => {

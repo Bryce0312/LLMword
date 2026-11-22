@@ -28,6 +28,25 @@ export function renderCollaboration(node, trace) {
   node.replaceChildren(header)
   if (trace.modelMode !== 'live' || trace.sourceMode !== 'live') node.append(h('p', 'cc-collab-gap', '模拟／回放记录：用于验证协作流程，不作为真实预测成绩。'))
   if (trace.triage?.reason) node.append(h('p', '', '本轮范围：' + trace.triage.reason))
+  const sources = new Map()
+  for (const source of trace.sources) {
+    let key = source.url || source.evidenceId
+    try { const url = new URL(key); url.hash = ''; key = url.href } catch {}
+    if (!sources.has(key)) sources.set(key, { source, ids: new Set() })
+    sources.get(key).ids.add(source.evidenceId)
+  }
+  const relationships = h('details', 'cc-source-map', h('summary', '', `来源与研究员 · ${sources.size} 个来源地址`))
+  relationships.append(h('p', 'wb-muted', '同一地址只列一次；不同地址也可能转载同一来源。连线表示已记录的引用，不表示观点正确或相互独立。'))
+  const sourceList = h('ul', '')
+  for (const {source, ids} of sources.values()) {
+    const users = trace.reports.filter(report => report.evidenceIds.some(id => ids.has(id)))
+    const labels = [...new Set(users.map(report => courseRoleName(report.roleId, report.name)))]
+    const support = users.some(report => report.support.some(claim => claim.evidenceIds.some(id => ids.has(id))))
+    const counter = users.some(report => report.counterevidence.some(claim => claim.evidenceIds.some(id => ids.has(id))))
+    sourceList.append(h('li', '', sourceLink(source), ' → ', labels.join('、') || '尚无报告引用',
+      h('small', '', support && counter ? ' · 同时用于支持与反证，请核对具体主张' : counter ? ' · 反证引用' : support ? ' · 支持引用' : ' · 尚未形成判断')))
+  }
+  relationships.append(sourceList); node.append(relationships)
   const team = h('div', 'cc-collab-team', ...trace.team.map(reportCard))
   node.append(h('h3', '', '① 谁负责什么、查到了什么'), team, h('h3', '', '② 为什么补查、答复带来了什么'))
   if (!trace.reviews.length) node.append(h('p', 'wb-muted', trace.team.length ? '本轮未发起定向补查。' : '本次检查未派出研究员。'))

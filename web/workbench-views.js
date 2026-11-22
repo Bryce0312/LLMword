@@ -40,7 +40,7 @@ export function sidebar(ctx) {
     list.append(card)
   }
   if (!list.children.length) list.append(h('p', 'wb-sidebar-empty', '这里还没有任务纸签。写下一句希望验证的问题即可开始。'))
-  return [h('div', 'wb-sidebar-title', h('h2', '', '任务公告栏'), h('span', '', String(list.querySelectorAll('a').length))), chooser, link('＋ 开始事件跟踪', '#/course/new', 'wb-button wb-primary'), link('模型连接 · API Key', '#/model-connection', 'wb-side-link'), list, link('高级：材料研读', '#/advanced', 'wb-side-link'), link('工具台', '#/tools', 'wb-side-link'), link('旧历史案例回放', '/legacy.html', 'wb-side-link')]
+  return [h('div', 'wb-sidebar-title', h('h2', '', '任务公告栏'), h('span', '', String(list.querySelectorAll('a').length))), chooser, link('＋ 开始事件跟踪', '#/course/new', 'wb-button wb-primary'), list, link('高级：材料研读', '#/advanced', 'wb-side-link'), link('工具台', '#/tools', 'wb-side-link')]
 }
 
 export function board(ctx) {

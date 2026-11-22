@@ -1,0 +1,95 @@
+{
+  "date": "2026-11-22",
+  "baseline": "72b35acffa086cc2d2809250089fbe26603091f1",
+  "node": "24.22.3",
+  "baselineTests": 333,
+  "v41Tests": 344,
+  "before": {
+    "mode": "mock",
+    "actualModelUsage": null,
+    "syntheticUsage": {
+      "modelRequests": 16,
+      "toolCalls": 8,
+      "totalTokens": 2880,
+      "promptTokens": 1920,
+      "completionTokens": 960,
+      "cacheHitTokens": 640,
+      "cacheMissTokens": 1280,
+      "unknownUsage": false
+    },
+    "serializedMessageBytes": 258583,
+    "serializedToolSchemaBytes": 58200,
+    "estimatedInputTokensByteDiv4": 79196,
+    "estimateCaveat": "bytes/4 comparison only; not tokenizer usage and not suitable for admission (especially CJK)",
+    "calls": 16,
+    "status": "completed",
+    "forecasts": 1,
+    "sourceUrls": [
+      "https://example.com/course-lab/news",
+      "https://example.com/course-lab/official"
+    ],
+    "evidenceCount": 2,
+    "quoteCount": 6,
+    "exactQuoteCount": 6,
+    "workerStatuses": [
+      "complete",
+      "complete",
+      "complete",
+      "complete"
+    ],
+    "error": null
+  },
+  "after": {
+    "mode": "mock",
+    "actualModelUsage": null,
+    "syntheticUsage": {
+      "modelRequests": 16,
+      "toolCalls": 8,
+      "totalTokens": 2880,
+      "promptTokens": 1920,
+      "completionTokens": 960,
+      "cacheHitTokens": 640,
+      "cacheMissTokens": 1280,
+      "unknownUsage": false
+    },
+    "serializedMessageBytes": 231375,
+    "serializedToolSchemaBytes": 58200,
+    "estimatedInputTokensByteDiv4": 72394,
+    "estimateCaveat": "bytes/4 comparison only; not tokenizer usage and not suitable for admission (especially CJK)",
+    "calls": 16,
+    "status": "completed",
+    "forecasts": 1,
+    "sourceUrls": [
+      "https://example.com/course-lab/news",
+      "https://example.com/course-lab/official"
+    ],
+    "evidenceCount": 2,
+    "quoteCount": 6,
+    "exactQuoteCount": 6,
+    "workerStatuses": [
+      "complete",
+      "complete",
+      "complete",
+      "complete"
+    ],
+    "error": null
+  },
+  "liveValidation": false,
+  "browserValidation": {
+    "status": "blocked",
+    "reason": "Cloud browser cannot access isolated execution localhost; ERR_CONNECTION_REFUSED"
+  },
+  "httpValidation": {
+    "entry": "start-mock.mjs",
+    "freshTemporaryDatabase": true,
+    "homepageStatus": 200,
+    "citedResult": true,
+    "unchangedForecastPreserved": true,
+    "archiveReadable": true
+  },
+  "deferred": [
+    "weighted scoring",
+    "real browser layout verification",
+    "live DeepSeek end-to-end"
+  ]
+}

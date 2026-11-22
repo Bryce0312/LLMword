@@ -47,7 +47,8 @@ function setCourseCapability(capability) {
   const { parts } = route()
   if (parts[0] === 'course' || (parts[0] === 'predictions' && (!parts[1] || parts[1] === 'new'))) {
     const notice = document.querySelector('.wb-stage-note > span:not(.wb-tag)')
-    if (notice) notice.textContent = capability.available ? '一句问题，系统核对来源、分工调查；结果以实际运行记录为准。' : capability.message
+    if (notice) notice.textContent = capability.available ? '' : capability.message
+    const stage = document.querySelector('.wb-stage-note'); if (stage) stage.hidden = capability.available
   }
   return capability
 }
@@ -122,8 +123,8 @@ async function renderRoute() {
   for (const a of document.querySelectorAll('[data-nav]')) a.classList.toggle('is-selected', a.dataset.nav === parts[0] || (a.dataset.nav === 'predictions' && courseRoute))
   ctx.content.replaceChildren(h('p', 'wb-loading', '正在读取工作区…'))
   const stage = document.querySelector('.wb-stage-note')
-  stage.replaceChildren(h('span', 'wb-tag', parts[0] === 'advanced' ? '高级材料研读' : '事件跟踪'), h('span', '', parts[0] === 'advanced' ? '手动定义题目、选择材料与单研究员研读。' : cache.courseAvailable ? '一句问题，系统核对来源、分工调查；结果以实际运行记录为准。' : cache.courseCapability?.message ?? '正在检查当前服务的自动跟踪能力。'), h('a', '', '旧历史案例'))
-  stage.querySelector('a').href = '/legacy.html'
+  stage.replaceChildren(h('span', 'wb-tag', parts[0] === 'advanced' ? '高级材料研读' : '事件跟踪'), h('span', '', parts[0] === 'advanced' ? '手动定义题目、选择材料与单研究员研读。' : cache.courseAvailable ? '' : cache.courseCapability?.message ?? '正在检查当前服务的自动跟踪能力。'))
+  stage.hidden = parts[0] !== 'advanced' && cache.courseAvailable
   try {
     let nodes
     if (parts[0] === 'course-examples') nodes = await courseExamples({ finance: query.get('set') === 'finance' })

@@ -1,3 +1,4 @@
+import { requestReservation } from '../course/retrieval-view.mjs'
 import { createHash, randomUUID } from 'node:crypto'
 import Ajv from 'ajv'
 import { abortable, checkCancelled, RuntimeError } from './model-provider.mjs'
@@ -137,8 +138,12 @@ export async function runWorker({ provider, assignment, agentSpec, tools, enable
       active()
       if (state.usage.modelRequests >= budget.maxModelRequests || state.usage.totalTokens >= budget.maxTotalTokens) stopForBudget()
       state.usage.modelRequests += 1
-      const budgetState = workerBudgetState(budget, state.usage, { finishOnToolBudget })
-      state.messages[0] = { role: 'system', content: state.systemPromptBase + '\n\n' + workerBudgetInstruction(budget, state.usage, { finishOnToolBudget }) }
+      let budgetState = workerBudgetState(budget, state.usage, { finishOnToolBudget })
+      if (budget.admissionVersion && finishOnToolBudget) {
+        const next = requestReservation({ messages: state.messages, tools: modelTools, maxTokens: budget.maxTokens })
+        if (budget.maxTotalTokens - state.usage.totalTokens - (state.usage.admissionUnknownTokens || 0) < next + (budget.reserveReportTokens || 0)) budgetState = { ...budgetState, reportOnly: true }
+      }
+      state.messages[0] = { role: 'system', content: state.systemPromptBase + '\n\n' + workerBudgetInstruction(budget, state.usage, { finishOnToolBudget }) + (budgetState.reportOnly ? '\n只允许submit_report；已有证据不足则提交insufficient，不再调查。' : '') }
       await save()
       const modelRequestId = `${context.assignmentId}_model_${state.usage.modelRequests}`
       const beganAt = Date.now()
@@ -149,11 +154,15 @@ export async function runWorker({ provider, assignment, agentSpec, tools, enable
       const requestSignal = workerSignal ? AbortSignal.any([workerSignal, timeout]) : timeout
       try {
         const availableTools = budgetState.reportOnly ? [submitTool] : modelTools
+        if (budget.admissionVersion && requestReservation({ messages: state.messages, tools: availableTools, maxTokens: budget.maxTokens }) > budget.maxTotalTokens - state.usage.totalTokens - (state.usage.admissionUnknownTokens || 0)) {
+          await emit('budget.stopped', { code: 'WORKER_INPUT_BUDGET', requestNotSent: true, summary: '研究员剩余额度不足以同时容纳输入与报告，未发请求。' })
+          throw Object.assign(new RuntimeError('WORKER_INPUT_BUDGET', '研究员输入与输出合计超过剩余额度。'), { usage: { total_tokens: 0 }, requestNotSent: true })
+        }
         const response = await abortable(() => provider.complete({ messages: structuredClone(state.messages), tools: availableTools, signal: requestSignal, maxTokens: Math.min(budget.maxTokens, budget.maxTotalTokens - state.usage.totalTokens), ...(assignment.modelProfile?.reasoningEffort ? { reasoningEffortOverride: assignment.modelProfile.reasoningEffort } : {}) }), requestSignal)
         active()
         const tokens = response.usage?.total_tokens
         if (Number.isInteger(tokens) && tokens >= 0) state.usage.totalTokens += tokens
-        else state.usage.unknownUsage = true
+        else { state.usage.unknownUsage = true; if (budget.admissionVersion) state.usage.admissionUnknownTokens = (state.usage.admissionUnknownTokens || 0) + requestReservation({ messages: state.messages, tools: availableTools, maxTokens: budget.maxTokens }) }
         if (state.usage.totalTokens > budget.maxTotalTokens) {
           await save()
           stopForBudget()
@@ -166,7 +175,7 @@ export async function runWorker({ provider, assignment, agentSpec, tools, enable
         active()
         const consumed = error.usage?.total_tokens
         if (Number.isSafeInteger(consumed) && consumed >= 0) state.usage.totalTokens += consumed
-        else if (error.code !== 'BUDGET_EXHAUSTED') state.usage.unknownUsage = true
+        else if (error.code !== 'BUDGET_EXHAUSTED') { state.usage.unknownUsage = true; if (budget.admissionVersion) state.usage.admissionUnknownTokens = (state.usage.admissionUnknownTokens || 0) + requestReservation({ messages: state.messages, tools: modelTools, maxTokens: budget.maxTokens }) }
         await save()
         await emit('model.failed', { modelRequestId, modelRequestIndex: state.usage.modelRequests, elapsedMs: Date.now() - beganAt,
           remaining: workerBudgetState(budget, state.usage, { finishOnToolBudget }).remaining,
