@@ -72,7 +72,11 @@ export function createWorkbenchRoomShell({ baseCtx, mountScene, renderWorkspace,
       if (navigation.sceneId && baseCtx.cache.deletedCourseRequestIds.has(navigation.sceneId)) { historyMenu.open = false; historyEpoch++; history.replaceState(null, '', '#/room'); await navigation.navigate('#/room') }
     } catch { if (!disposed && epoch === historyEpoch && historyMenu.open) { baseCtx.cache.courseHistoryError = '历史记录暂未刷新，下面保留上次读取的真实任务。'; renderSidebar() } }
   }
-  const onToggle = () => { if (historyMenu.open) void refreshHistory(); else historyEpoch++ }
+  const onToggle = () => {
+    if (!historyMenu.open) { historyEpoch++; return }
+    if (navigation.overlayOpen) navigation.closeOverlay({ focus: false })
+    void refreshHistory()
+  }
   const onHeaderClick = event => {
     const link = event.target.closest?.('a[href^="#/"]')
     if (!link || event.button > 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return
