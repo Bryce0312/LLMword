@@ -1,0 +1,13 @@
+{
+  "finishedAt": "2026-11-21T12:58:43.589Z",
+  "nodeVersion": "v22.17.1",
+  "command": "node --test --test-reporter=tap",
+  "scope": "full",
+  "exitCode": 0,
+  "tests": 333,
+  "passed": 333,
+  "failed": 0,
+  "skipped": 0,
+  "cancelled": 0,
+  "durationMs": 24624.0543
+}

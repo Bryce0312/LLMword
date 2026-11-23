@@ -7,11 +7,11 @@ import { join } from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
-const entry = fileURLToPath(new URL('./start.mjs', import.meta.url));
+const entry = fileURLToPath(new URL('./server/app.mjs', import.meta.url));
 
 async function launch(statePath, t) {
   const child = spawn(process.execPath, [entry], {
-    env: { ...process.env, PORT: '0', WORLD_MODEL: 'mock', WORLD_STATE_PATH: statePath, WORLD_MONITOR: 'off', WORLD_MOCK_PACING: '0' },
+    env: { ...process.env, PORT: '0', WORLD_MODEL: 'mock', WORLD_STATE_PATH: statePath, WORLD_MONITOR: 'off', WORLD_MOCK_PACING: '0', WORLD_WORKBENCH: 'off', WORLD_RUNTIME: 'off' },
   });
   const exited = once(child, 'exit');
   let diagnostics = '';

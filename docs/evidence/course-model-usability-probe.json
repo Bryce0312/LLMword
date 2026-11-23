@@ -1,0 +1,52 @@
+{
+  "kind": "synthetic-model-usability-probe",
+  "notAccuracyBenchmark": true,
+  "limitations": [
+    "Two questions only; synthetic research facts.",
+    "The initial baseline field was semantically ambiguous, so automatic pass totals are not a reliable ranking.",
+    "End-to-end improvements also change the harness and tool access; model changes cannot be isolated as the cause."
+  ],
+  "findings": [
+    "All six responses produced a native presentation tool call with assumptions.",
+    "One ordinary Flash response used role objects where the schema required role IDs.",
+    "Pro separated the synthetic BTC price 100 from its 0.5 probability; Flash also described price 100 but used the ambiguous baseline field for a probability."
+  ],
+  "results": [
+    {
+      "configuration": "flash-disabled",
+      "question": "马斯克会不会发推特",
+      "elapsedMs": 3824,
+      "totalTokens": 1407
+    },
+    {
+      "configuration": "flash-disabled",
+      "question": "比特币回升",
+      "elapsedMs": 3861,
+      "totalTokens": 1335
+    },
+    {
+      "configuration": "flash-high",
+      "question": "比特币回升",
+      "elapsedMs": 5524,
+      "totalTokens": 1738
+    },
+    {
+      "configuration": "flash-high",
+      "question": "马斯克会不会发推特",
+      "elapsedMs": 5553,
+      "totalTokens": 1727
+    },
+    {
+      "configuration": "pro-high",
+      "question": "比特币回升",
+      "elapsedMs": 18543,
+      "totalTokens": 2780
+    },
+    {
+      "configuration": "pro-high",
+      "question": "马斯克会不会发推特",
+      "elapsedMs": 22094,
+      "totalTokens": 3133
+    }
+  ]
+}

@@ -1,0 +1,1006 @@
+{
+  "kind": "collaboration-live-validation",
+  "notAccuracyBenchmark": true,
+  "model": "deepseek-v4-pro",
+  "source": "live",
+  "testLimit": {
+    "initialCases": 2,
+    "manualChecks": 1,
+    "automaticWatch": false
+  },
+  "records": [
+    {
+      "requestId": "course_request_b222973b-c234-4655-ba24-b99e2ab3a665",
+      "question": "比特币未来24小时会下跌吗？",
+      "watch": "off",
+      "forecasts": 0,
+      "runs": [
+        {
+          "runId": "course_run_ff305127-5ddc-43ba-81cf-851bb1d6aa3f",
+          "status": "insufficient",
+          "phase": "finished",
+          "usage": {
+            "modelRequests": 22,
+            "toolCalls": 20,
+            "totalTokens": 181053,
+            "promptTokens": 144414,
+            "completionTokens": 36639,
+            "cacheHitTokens": 7296,
+            "cacheMissTokens": 137118,
+            "unknownUsage": false
+          },
+          "collaboration": {
+            "version": 1,
+            "runId": "course_run_ff305127-5ddc-43ba-81cf-851bb1d6aa3f",
+            "modelMode": "live",
+            "sourceMode": "live",
+            "team": [
+              {
+                "assignmentId": "course_run_ff305127-5ddc-43ba-81cf-851bb1d6aa3f_market_initial",
+                "roleId": "market",
+                "name": "预测市场研究员",
+                "objective": "用get_market_quote取得BTC/USD现货现价快照，作为本24小时观察窗口的起始基准；报告交易对、USD单位、快照的系统观察时间。核对目标时点（2026-11-21 23:30:48 Asia/Shanghai）及结果判定规则；若工具失败或仅取得其他资产报价，明确说明基准缺口，不得编造盘口概率、价差或把现价涨跌直接换算为Yes概率。",
+                "reason": "该题为BTC价格题，须先固定起始基准并核对判定规则",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "insufficient",
+                "summary": "市场研究员未在本轮引用可核验的 BTC-USD 现价快照；价格基准未确认。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_53d24440856acfe4551dbeacd0d4a15b"
+                ],
+                "support": [
+                  {
+                    "claim": "公开来源ChainCatcher引述Coinbase现货BTC中间价约61800美元，提供窗口前参考价格水平。",
+                    "evidenceIds": [
+                      "course_evidence_53d24440856acfe4551dbeacd0d4a15b"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "ChainCatcher文章为盘口流动性报道，页面时间与publishedAt不一致，不能充当窗口起始权威现货快照。",
+                    "evidenceIds": [
+                      "course_evidence_53d24440856acfe4551dbeacd0d4a15b"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "BTC-USD窗口起始（2026-11-20 23:30:48 Asia/Shanghai）权威现货现价快照",
+                  "窗口结束时刻（2026-11-21 23:30:48 Asia/Shanghai）现货价格",
+                  "正式可结算契约与来源核验（当前为待核验草稿，sourceVerified=false）",
+                  "get_market_quote重试成功的BTC-USD现货报价",
+                  "市场研究员未在本轮引用可核验的 BTC-USD 现价快照；价格基准未确认。"
+                ],
+                "decision": null,
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_ff305127-5ddc-43ba-81cf-851bb1d6aa3f_statistics_initial",
+                "roleId": "statistics",
+                "name": "统计与指标研究员",
+                "objective": "核对BTC价格指标的口径、单位、样本与时段：确认24小时窗口起始/结束价如何取值（现价、收盘还是某一时点快照）、时点如何对齐UTC；只报告可复核的数字，计算工具未接入时不要宣称已执行计算，缺数据须说明。",
+                "reason": "下跌判定依赖价格口径与时段对齐，需可复核指标",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "insufficient",
+                "summary": "未能取得可复核的现价快照（get_market_quote返回QUOTE_UNAVAILABLE），无法给出窗口起始基准价的具体数值。所有网页读取（Coinbase文档、stackoverflow）均返回404，仅有搜索摘要（不可引用为证据）。摘要显示Coinbase 24小时统计含open/high/low/last字段：open为24小时前价格、last为当前价，open/high/low单位为报价货币USD、volume为BTC；K线\"开盘/收盘\"为所选时段的起止价。时点以UTC为准：窗口2026-11-20T15:30:48Z→2026-11-21T15:30:48Z（上海23:30:48，UTC+8）。草稿\"固定窗口起止快照\"与Coinbase滚动24小时口径仅在窗口结束时刻一致，期间不同。",
+                "probability": null,
+                "evidenceIds": [],
+                "support": [],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "BTC-USD窗口起始基准价具体数值（2026-11-20T15:30:48Z快照）",
+                  "Coinbase 24小时统计端点的官方文档原文（open/last定义与单位说明）",
+                  "快照取值精度：现价(last成交)还是K线收盘价或中间价，未明确",
+                  "数据源/交易所具体是哪家（是否Coinbase现货）未指定",
+                  "窗口结束价具体数值（未来时刻尚不存在）"
+                ],
+                "decision": null,
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_ff305127-5ddc-43ba-81cf-851bb1d6aa3f_verification_initial",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "优先寻找与“窗口内BTC将下跌”或与起始基准价可信度相矛盾的材料，核验现价快照的来源、时间与独立性；检查判定口径是否存在歧义（如不同交易所报价差异、时点边界）；证据不足可保留异议，不得编造。",
+                "reason": "反证与核验确保基准和结论不被单一来源或口径误导",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "insufficient",
+                "summary": "草稿未给出起始基准价的具体数值、来源与抓取时间戳（sourceVerified=false），无法核验\"现价快照\"。实际取得两个独立来源：CNBC BTC=-USS现货价83,032美元（3:34 AM EDT≈07:34 UTC，早于窗口起点约8小时）；Investing.com分析称BTC在6.2万–6.3万美元区间有买盘支撑。不同来源价差巨大（约6.2万至8.3万美元，约34%），判定口径未指定交易所/指数，存在重大歧义；24小时方向本身近乎随机，证据不足，不宜给出确定性结论。",
+                "probability": 0.5,
+                "evidenceIds": [
+                  "course_evidence_d40d73bc4fea61af8c2f620dac30cf4f",
+                  "course_evidence_0616f6519c8c6de8002b95f750206d30"
+                ],
+                "support": [
+                  {
+                    "claim": "Investing.com（11/19）列出的宏观因素偏空：FOMC纪要暗示部分委员支持超25bp加息、美元走强、标普跌破200日均线，且BTC位于200周均线下方逾7%（三年最深），支持进一步下跌。",
+                    "evidenceIds": [
+                      "course_evidence_d40d73bc4fea61af8c2f620dac30cf4f"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "同一分析指出6.3万美元附近有持续买盘、跌势或仅为短暂停顿，且Anthropic成功上市或吸引资金回流加密，与'窗口内继续下跌'相矛盾。",
+                    "evidenceIds": [
+                      "course_evidence_d40d73bc4fea61af8c2f620dac30cf4f"
+                    ]
+                  },
+                  {
+                    "claim": "起始基准价可信度存疑：CNBC BTC=-USS报83,032美元，而Investing.com/币安现货口径约6.2万美元，价差约34%，基准数值与来源无法确定。",
+                    "evidenceIds": [
+                      "course_evidence_0616f6519c8c6de8002b95f750206d30",
+                      "course_evidence_d40d73bc4fea61af8c2f620dac30cf4f"
+                    ]
+                  },
+                  {
+                    "claim": "CNBC快照时间戳为3:34 AM EDT（≈07:34 UTC），早于窗口起点15:30:48 UTC约8小时，不构成窗口起始时刻的现价快照。",
+                    "evidenceIds": [
+                      "course_evidence_0616f6519c8c6de8002b95f750206d30"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "草稿未提供起始基准价的具体数值、数据来源与抓取时间戳",
+                  "未指定现货报价的交易所/指数口径（Binance、Coinbase、统一指数等），多源价差达约34%",
+                  "窗口起始时刻(2026-11-20 15:30:48 UTC)的现货快照缺失",
+                  "窗口结束价尚不存在，无法核验方向结论",
+                  "无法确认各来源报价的独立性与采集口径一致性"
+                ],
+                "decision": null,
+                "review": null
+              }
+            ],
+            "reviews": [
+              {
+                "assignmentId": "course_run_ff305127-5ddc-43ba-81cf-851bb1d6aa3f_market_followup_2",
+                "roleId": "market",
+                "name": "预测市场研究员",
+                "objective": "重试 get_market_quote 获取 BTC-USD 现货现价快照。若成功，报告必须引用该快照并写明交易对（如 BTC-USD）、USD 报价单位与系统观察时间（UTC），并确认该报价可否作为窗口起始基准（窗口起点 2026-11-20 15:30:48.516Z，当前仅约2分钟后）。若仍返回 QUOTE_UNAVAILABLE，请明确确认基准缺口无法闭合，并说明是否取得任何可核验的 BTC-USD 现货替代快照（含数值、来源、抓取时间戳），不得编造报价。",
+                "reason": "三份报告共同确认 get_market_quote 连续3次失败导致基准缺失；窗口刚开始约2分钟，一次现价快照是闭合起始基准最直接的唯一手段，值得定向重试一次。",
+                "followUp": true,
+                "cycle": 2,
+                "status": "completed",
+                "reportStatus": "insufficient",
+                "summary": "get_market_quote对BTC-USD第4次重试仍返回QUOTE_UNAVAILABLE（系统观察2026-11-20T15:35:02.927Z），未取得可核验现价。重读CNBC BTC=-USS页面contentHash与旧证据一致，仍为陈旧报价83,032.18美元（3:34 AM EDT≈07:34 UTC），早于窗口起点约8小时；Coinbase备用API(/v2/prices/BTC-USD/spot)返回404。因此窗口起点基准缺口无法闭合，无任何可核验的近窗口起始现货快照，本轮不给出概率。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_0616f6519c8c6de8002b95f750206d30"
+                ],
+                "support": [
+                  {
+                    "claim": "重读CNBC BTC=-USS页面contentHash未变，仍显示3:34 AM EDT报价83,032.18美元，页面未刷新到窗口起点。",
+                    "evidenceIds": [
+                      "course_evidence_0616f6519c8c6de8002b95f750206d30"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "CNBC存在BTC=-USS报价83,032.18美元，但时间戳3:34 AM EDT（约07:34 UTC）早于窗口起点约8小时，不能充当起始基准。",
+                    "evidenceIds": [
+                      "course_evidence_0616f6519c8c6de8002b95f750206d30"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "BTC-USD窗口起点(2026-11-20 15:30:48.516Z)权威现货现价快照",
+                  "窗口起点附近任意可核验BTC-USD现货价（含数值、来源、抓取时间戳）",
+                  "Coinbase备用API端点可访问性（/v2/prices/BTC-USD/spot返回404，未取得替代数据）"
+                ],
+                "decision": null,
+                "review": {
+                  "objective": "重试 get_market_quote 获取 BTC-USD 现货现价快照。若成功，报告必须引用该快照并写明交易对（如 BTC-USD）、USD 报价单位与系统观察时间（UTC），并确认该报价可否作为窗口起始基准（窗口起点 2026-11-20 15:30:48.516Z，当前仅约2分钟后）。若仍返回 QUOTE_UNAVAILABLE，请明确确认基准缺口无法闭合，并说明是否取得任何可核验的 BTC-USD 现货替代快照（含数值、来源、抓取时间戳），不得编造报价。",
+                  "reason": "三份报告共同确认 get_market_quote 连续3次失败导致基准缺失；窗口刚开始约2分钟，一次现价快照是闭合起始基准最直接的唯一手段，值得定向重试一次。",
+                  "evidenceIds": [
+                    "course_evidence_0616f6519c8c6de8002b95f750206d30",
+                    "course_evidence_53d24440856acfe4551dbeacd0d4a15b"
+                  ],
+                  "parentAssignmentIds": [
+                    "course_run_ff305127-5ddc-43ba-81cf-851bb1d6aa3f_market_initial",
+                    "course_run_ff305127-5ddc-43ba-81cf-851bb1d6aa3f_verification_initial"
+                  ],
+                  "requestedAt": "2026-11-20T15:34:59.133Z"
+                },
+                "previousSummary": "市场研究员未在本轮引用可核验的 BTC-USD 现价快照；价格基准未确认。",
+                "probabilityBefore": null,
+                "probabilityAfter": null,
+                "newEvidenceIds": [
+                  "course_evidence_0616f6519c8c6de8002b95f750206d30"
+                ],
+                "responseStatus": "submitted"
+              }
+            ],
+            "reports": [
+              {
+                "assignmentId": "course_run_ff305127-5ddc-43ba-81cf-851bb1d6aa3f_market_initial",
+                "roleId": "market",
+                "name": "预测市场研究员",
+                "objective": "用get_market_quote取得BTC/USD现货现价快照，作为本24小时观察窗口的起始基准；报告交易对、USD单位、快照的系统观察时间。核对目标时点（2026-11-21 23:30:48 Asia/Shanghai）及结果判定规则；若工具失败或仅取得其他资产报价，明确说明基准缺口，不得编造盘口概率、价差或把现价涨跌直接换算为Yes概率。",
+                "reason": "该题为BTC价格题，须先固定起始基准并核对判定规则",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "insufficient",
+                "summary": "市场研究员未在本轮引用可核验的 BTC-USD 现价快照；价格基准未确认。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_53d24440856acfe4551dbeacd0d4a15b"
+                ],
+                "support": [
+                  {
+                    "claim": "公开来源ChainCatcher引述Coinbase现货BTC中间价约61800美元，提供窗口前参考价格水平。",
+                    "evidenceIds": [
+                      "course_evidence_53d24440856acfe4551dbeacd0d4a15b"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "ChainCatcher文章为盘口流动性报道，页面时间与publishedAt不一致，不能充当窗口起始权威现货快照。",
+                    "evidenceIds": [
+                      "course_evidence_53d24440856acfe4551dbeacd0d4a15b"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "BTC-USD窗口起始（2026-11-20 23:30:48 Asia/Shanghai）权威现货现价快照",
+                  "窗口结束时刻（2026-11-21 23:30:48 Asia/Shanghai）现货价格",
+                  "正式可结算契约与来源核验（当前为待核验草稿，sourceVerified=false）",
+                  "get_market_quote重试成功的BTC-USD现货报价",
+                  "市场研究员未在本轮引用可核验的 BTC-USD 现价快照；价格基准未确认。"
+                ],
+                "decision": null,
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_ff305127-5ddc-43ba-81cf-851bb1d6aa3f_statistics_initial",
+                "roleId": "statistics",
+                "name": "统计与指标研究员",
+                "objective": "核对BTC价格指标的口径、单位、样本与时段：确认24小时窗口起始/结束价如何取值（现价、收盘还是某一时点快照）、时点如何对齐UTC；只报告可复核的数字，计算工具未接入时不要宣称已执行计算，缺数据须说明。",
+                "reason": "下跌判定依赖价格口径与时段对齐，需可复核指标",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "insufficient",
+                "summary": "未能取得可复核的现价快照（get_market_quote返回QUOTE_UNAVAILABLE），无法给出窗口起始基准价的具体数值。所有网页读取（Coinbase文档、stackoverflow）均返回404，仅有搜索摘要（不可引用为证据）。摘要显示Coinbase 24小时统计含open/high/low/last字段：open为24小时前价格、last为当前价，open/high/low单位为报价货币USD、volume为BTC；K线\"开盘/收盘\"为所选时段的起止价。时点以UTC为准：窗口2026-11-20T15:30:48Z→2026-11-21T15:30:48Z（上海23:30:48，UTC+8）。草稿\"固定窗口起止快照\"与Coinbase滚动24小时口径仅在窗口结束时刻一致，期间不同。",
+                "probability": null,
+                "evidenceIds": [],
+                "support": [],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "BTC-USD窗口起始基准价具体数值（2026-11-20T15:30:48Z快照）",
+                  "Coinbase 24小时统计端点的官方文档原文（open/last定义与单位说明）",
+                  "快照取值精度：现价(last成交)还是K线收盘价或中间价，未明确",
+                  "数据源/交易所具体是哪家（是否Coinbase现货）未指定",
+                  "窗口结束价具体数值（未来时刻尚不存在）"
+                ],
+                "decision": null,
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_ff305127-5ddc-43ba-81cf-851bb1d6aa3f_verification_initial",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "优先寻找与“窗口内BTC将下跌”或与起始基准价可信度相矛盾的材料，核验现价快照的来源、时间与独立性；检查判定口径是否存在歧义（如不同交易所报价差异、时点边界）；证据不足可保留异议，不得编造。",
+                "reason": "反证与核验确保基准和结论不被单一来源或口径误导",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "insufficient",
+                "summary": "草稿未给出起始基准价的具体数值、来源与抓取时间戳（sourceVerified=false），无法核验\"现价快照\"。实际取得两个独立来源：CNBC BTC=-USS现货价83,032美元（3:34 AM EDT≈07:34 UTC，早于窗口起点约8小时）；Investing.com分析称BTC在6.2万–6.3万美元区间有买盘支撑。不同来源价差巨大（约6.2万至8.3万美元，约34%），判定口径未指定交易所/指数，存在重大歧义；24小时方向本身近乎随机，证据不足，不宜给出确定性结论。",
+                "probability": 0.5,
+                "evidenceIds": [
+                  "course_evidence_d40d73bc4fea61af8c2f620dac30cf4f",
+                  "course_evidence_0616f6519c8c6de8002b95f750206d30"
+                ],
+                "support": [
+                  {
+                    "claim": "Investing.com（11/19）列出的宏观因素偏空：FOMC纪要暗示部分委员支持超25bp加息、美元走强、标普跌破200日均线，且BTC位于200周均线下方逾7%（三年最深），支持进一步下跌。",
+                    "evidenceIds": [
+                      "course_evidence_d40d73bc4fea61af8c2f620dac30cf4f"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "同一分析指出6.3万美元附近有持续买盘、跌势或仅为短暂停顿，且Anthropic成功上市或吸引资金回流加密，与'窗口内继续下跌'相矛盾。",
+                    "evidenceIds": [
+                      "course_evidence_d40d73bc4fea61af8c2f620dac30cf4f"
+                    ]
+                  },
+                  {
+                    "claim": "起始基准价可信度存疑：CNBC BTC=-USS报83,032美元，而Investing.com/币安现货口径约6.2万美元，价差约34%，基准数值与来源无法确定。",
+                    "evidenceIds": [
+                      "course_evidence_0616f6519c8c6de8002b95f750206d30",
+                      "course_evidence_d40d73bc4fea61af8c2f620dac30cf4f"
+                    ]
+                  },
+                  {
+                    "claim": "CNBC快照时间戳为3:34 AM EDT（≈07:34 UTC），早于窗口起点15:30:48 UTC约8小时，不构成窗口起始时刻的现价快照。",
+                    "evidenceIds": [
+                      "course_evidence_0616f6519c8c6de8002b95f750206d30"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "草稿未提供起始基准价的具体数值、数据来源与抓取时间戳",
+                  "未指定现货报价的交易所/指数口径（Binance、Coinbase、统一指数等），多源价差达约34%",
+                  "窗口起始时刻(2026-11-20 15:30:48 UTC)的现货快照缺失",
+                  "窗口结束价尚不存在，无法核验方向结论",
+                  "无法确认各来源报价的独立性与采集口径一致性"
+                ],
+                "decision": null,
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_ff305127-5ddc-43ba-81cf-851bb1d6aa3f_market_followup_2",
+                "roleId": "market",
+                "name": "预测市场研究员",
+                "objective": "重试 get_market_quote 获取 BTC-USD 现货现价快照。若成功，报告必须引用该快照并写明交易对（如 BTC-USD）、USD 报价单位与系统观察时间（UTC），并确认该报价可否作为窗口起始基准（窗口起点 2026-11-20 15:30:48.516Z，当前仅约2分钟后）。若仍返回 QUOTE_UNAVAILABLE，请明确确认基准缺口无法闭合，并说明是否取得任何可核验的 BTC-USD 现货替代快照（含数值、来源、抓取时间戳），不得编造报价。",
+                "reason": "三份报告共同确认 get_market_quote 连续3次失败导致基准缺失；窗口刚开始约2分钟，一次现价快照是闭合起始基准最直接的唯一手段，值得定向重试一次。",
+                "followUp": true,
+                "cycle": 2,
+                "status": "completed",
+                "reportStatus": "insufficient",
+                "summary": "get_market_quote对BTC-USD第4次重试仍返回QUOTE_UNAVAILABLE（系统观察2026-11-20T15:35:02.927Z），未取得可核验现价。重读CNBC BTC=-USS页面contentHash与旧证据一致，仍为陈旧报价83,032.18美元（3:34 AM EDT≈07:34 UTC），早于窗口起点约8小时；Coinbase备用API(/v2/prices/BTC-USD/spot)返回404。因此窗口起点基准缺口无法闭合，无任何可核验的近窗口起始现货快照，本轮不给出概率。",
+                "probability": null,
+                "evidenceIds": [
+                  "course_evidence_0616f6519c8c6de8002b95f750206d30"
+                ],
+                "support": [
+                  {
+                    "claim": "重读CNBC BTC=-USS页面contentHash未变，仍显示3:34 AM EDT报价83,032.18美元，页面未刷新到窗口起点。",
+                    "evidenceIds": [
+                      "course_evidence_0616f6519c8c6de8002b95f750206d30"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "CNBC存在BTC=-USS报价83,032.18美元，但时间戳3:34 AM EDT（约07:34 UTC）早于窗口起点约8小时，不能充当起始基准。",
+                    "evidenceIds": [
+                      "course_evidence_0616f6519c8c6de8002b95f750206d30"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "BTC-USD窗口起点(2026-11-20 15:30:48.516Z)权威现货现价快照",
+                  "窗口起点附近任意可核验BTC-USD现货价（含数值、来源、抓取时间戳）",
+                  "Coinbase备用API端点可访问性（/v2/prices/BTC-USD/spot返回404，未取得替代数据）"
+                ],
+                "decision": null,
+                "review": {
+                  "objective": "重试 get_market_quote 获取 BTC-USD 现货现价快照。若成功，报告必须引用该快照并写明交易对（如 BTC-USD）、USD 报价单位与系统观察时间（UTC），并确认该报价可否作为窗口起始基准（窗口起点 2026-11-20 15:30:48.516Z，当前仅约2分钟后）。若仍返回 QUOTE_UNAVAILABLE，请明确确认基准缺口无法闭合，并说明是否取得任何可核验的 BTC-USD 现货替代快照（含数值、来源、抓取时间戳），不得编造报价。",
+                  "reason": "三份报告共同确认 get_market_quote 连续3次失败导致基准缺失；窗口刚开始约2分钟，一次现价快照是闭合起始基准最直接的唯一手段，值得定向重试一次。",
+                  "evidenceIds": [
+                    "course_evidence_0616f6519c8c6de8002b95f750206d30",
+                    "course_evidence_53d24440856acfe4551dbeacd0d4a15b"
+                  ],
+                  "parentAssignmentIds": [
+                    "course_run_ff305127-5ddc-43ba-81cf-851bb1d6aa3f_market_initial",
+                    "course_run_ff305127-5ddc-43ba-81cf-851bb1d6aa3f_verification_initial"
+                  ],
+                  "requestedAt": "2026-11-20T15:34:59.133Z"
+                }
+              }
+            ],
+            "sources": [
+              {
+                "evidenceId": "course_evidence_0616f6519c8c6de8002b95f750206d30",
+                "title": "Check out Bitcoin/US Dollar FX Spot Rate's stock price (BTC=-USS) in real time",
+                "url": "https://www.cnbc.com/quotes/BTC%3D-USS",
+                "publishedAt": null,
+                "obtainedAt": "2026-11-20T15:31:47.074Z",
+                "marketQuote": null
+              },
+              {
+                "evidenceId": "course_evidence_53d24440856acfe4551dbeacd0d4a15b",
+                "title": "Coinbase spot BTC has a buy order of approxim...",
+                "url": "https://www.chaincatcher.com/en/article/2306619",
+                "publishedAt": "2026-11-19T16:00:00.000Z",
+                "obtainedAt": "2026-11-20T15:31:51.839Z",
+                "marketQuote": null
+              },
+              {
+                "evidenceId": "course_evidence_d40d73bc4fea61af8c2f620dac30cf4f",
+                "title": "Bitcoin Tests $62K Again but Remains Above It | Investing.com",
+                "url": "https://www.investing.com/analysis/bitcoin-tests-62k-again-but-remains-above-it-200691917",
+                "publishedAt": "2026-11-18T16:00:00.000Z",
+                "obtainedAt": "2026-11-20T15:31:25.766Z",
+                "marketQuote": null
+              }
+            ],
+            "triage": {
+              "kind": "initial",
+              "reason": "首次按题选择差异职责。",
+              "newEvidenceIds": []
+            },
+            "decision": null,
+            "conclusion": "本轮未发布新判断，缺口与失败记录保留。"
+          },
+          "createdAt": "2026-11-20T15:30:48.517Z",
+          "updatedAt": "2026-11-20T15:36:02.668Z",
+          "error": null,
+          "memory": {
+            "sourceRunIds": [],
+            "reportCount": 0,
+            "relationCount": 0
+          }
+        }
+      ]
+    },
+    {
+      "requestId": "course_request_55e2e96c-75d0-42f5-95d5-119ac8507c08",
+      "question": "香港天文台未来24小时会发出八号或以上热带气旋警告吗？",
+      "watch": "off",
+      "forecasts": 1,
+      "runs": [
+        {
+          "runId": "course_run_5e590270-4dfc-41aa-aeed-d16b686267ed",
+          "status": "completed",
+          "phase": "finished",
+          "usage": {
+            "modelRequests": 16,
+            "toolCalls": 18,
+            "totalTokens": 112395,
+            "promptTokens": 87730,
+            "completionTokens": 24665,
+            "cacheHitTokens": 4864,
+            "cacheMissTokens": 82866,
+            "unknownUsage": false
+          },
+          "collaboration": {
+            "version": 1,
+            "runId": "course_run_5e590270-4dfc-41aa-aeed-d16b686267ed",
+            "modelMode": "live",
+            "sourceMode": "live",
+            "team": [
+              {
+                "assignmentId": "course_run_5e590270-4dfc-41aa-aeed-d16b686267ed_official_initial",
+                "roleId": "official",
+                "name": "官方资料研究员",
+                "objective": "查阅香港天文台官方网站与官方公告，核实现时生效的热带气旋警告信号级别，以及观察窗口内是否已发出或升级至八号或以上；记录发出/升级/撤销的官方公告原文及具体时间（香港时间），区分正式发出与「考虑/预告」。",
+                "reason": "官方公告是判定是否发出八号或以上信号的权威基准。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "已读取香港天文台官方「热带气旋警告（本地）」页面及天气实况页。截至观察窗口起点（2026-11-20 23:36 香港时间，UTC+8）前后，官方页面明确显示「现时没有生效的热带气旋警告信号」，即连一号戒备信号都未发出。天气实况与展望均由强烈东北季候风及冷空气主导，预报中未提及任何热带气旋。据此，当前不存在任何生效信号，未来24小时内发出或升级至八号或以上信号缺乏任何官方依据，概率极低。注意：观察窗口（未来24小时）的结果尚未发生，本次判定为基于现有官方资料的条件性预判，而非已结算事实；题目本身仍为待核验草稿。",
+                "probability": 0.02,
+                "evidenceIds": [
+                  "course_evidence_6b4686314a3f3d38d1b10982bd26d581",
+                  "course_evidence_873dfbb7e373ddc567b56dcaff91b4ab"
+                ],
+                "support": [
+                  {
+                    "claim": "香港天文台官方「热带气旋警告（本地）」页面显示「There is no tropical cyclone warning signal」，即观察窗口起点时没有任何生效的热带气旋警告信号（连一号也没有）。",
+                    "evidenceIds": [
+                      "course_evidence_6b4686314a3f3d38d1b10982bd26d581"
+                    ]
+                  },
+                  {
+                    "claim": "天气实况页显示天气由强烈东北季候风主导、转冷及有雨，当前概况与九天天预报均未提及任何热带气旋或相关发展。",
+                    "evidenceIds": [
+                      "course_evidence_873dfbb7e373ddc567b56dcaff91b4ab"
+                    ]
+                  },
+                  {
+                    "claim": "在无任何生效信号、且官方预报无热带气旋迹象的情况下，未来24小时内发出或升级至八号或以上信号缺乏官方依据，概率很低。",
+                    "evidenceIds": [
+                      "course_evidence_6b4686314a3f3d38d1b10982bd26d581",
+                      "course_evidence_873dfbb7e373ddc567b56dcaff91b4ab"
+                    ]
+                  }
+                ],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "未取得热带气旋路径/位置页，无法用官方数据确认香港800公里范围内是否完全无热带气旋。",
+                  "天文台中文版热带气旋警告页读取超时，未能交叉核验中文公告原文。",
+                  "观察窗口（2026-11-20 23:36 至 2026-11-21 23:36 香港时间）为未来24小时，结果尚未发生，无法取得未来发出的任何公告原文。",
+                  "未检索到天文台任何关于热带气旋生成或影响香港的新闻稿/预报公报。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_5e590270-4dfc-41aa-aeed-d16b686267ed_official_initial",
+                  "disposition": "adopted",
+                  "reason": "该报告读取官方英文tc.htm页面显示无生效热带气旋警告信号，且天气实况由东北季候风主导、预报无TC，构成核心反证，直接支撑极低概率。",
+                  "evidenceIds": [
+                    "course_evidence_6b4686314a3f3d38d1b10982bd26d581",
+                    "course_evidence_873dfbb7e373ddc567b56dcaff91b4ab"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_5e590270-4dfc-41aa-aeed-d16b686267ed_timeline_initial",
+                "roleId": "timeline",
+                "name": "新闻时间线研究员",
+                "objective": "按发布时间顺序整理观察窗口内天文台发布的热带气旋警告信号相关公告与新闻，标明每次发出/升级/撤销的确切时间，区分正式生效与「考虑/预测」，并说明转载与更正情况。",
+                "reason": "确认各信号级别变化的确切时间与先后顺序。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "insufficient",
+                "summary": "观察窗口（2026-11-20 23:36 至 2026-11-21 23:36，香港时间）内未发现香港天文台发出或升级八号或以上热带气旋警告的公告。天文台「热带气旋位置及路径图」页面（11-20 23:39读取）为空白模板，显示追踪范围内当前无活跃热带气旋；搜索片段显示最近追踪的强台风「查帕卡」为11月10日、距港约2640公里，已远离。官方「热带气旋警告信号」页面为JavaScript动态渲染，静态读取仅返回标题，无法直接确认现行信号状态。综上，未来24小时发出八号信号的条件缺失，概率极低，但官方实时信号文本未能取得。",
+                "probability": 0.02,
+                "evidenceIds": [
+                  "course_evidence_ffdc08279a5f0649170752801f0fe530",
+                  "course_evidence_4bdbdd5bbda549295652568e151eb4fc"
+                ],
+                "support": [
+                  {
+                    "claim": "天文台热带气旋位置及路径图页面（2026-11-20 23:39读取）显示空白模板「{{name}} {{datetime}}」，即追踪范围内当前无活跃热带气旋，缺乏发出八号信号的触发条件。",
+                    "evidenceIds": [
+                      "course_evidence_ffdc08279a5f0649170752801f0fe530"
+                    ]
+                  },
+                  {
+                    "claim": "热带气旋警告信号页面读取仅返回「香港天文台」标题，未见任何生效中或预告发出的警告信号内容。",
+                    "evidenceIds": [
+                      "course_evidence_4bdbdd5bbda549295652568e151eb4fc"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "官方页面为JavaScript动态渲染，静态读取仅得标题或空白模板，不能据此断言当前确实无信号生效或确无热带气旋数据。",
+                    "evidenceIds": [
+                      "course_evidence_4bdbdd5bbda549295652568e151eb4fc",
+                      "course_evidence_ffdc08279a5f0649170752801f0fe530"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "香港天文台「现时生效的热带气旋警告信号」实时状态原文（页面动态渲染未能读取）",
+                  "观察窗口内天文台任何正式发出/升级/撤销信号的公告或新闻稿",
+                  "查帕卡11月10日后路径与是否消散的官方确认",
+                  "11月20-21日有无新热带气旋生成或靠近香港的官方资料",
+                  "天文台「考虑/预测」发出信号的任何说明"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_5e590270-4dfc-41aa-aeed-d16b686267ed_timeline_initial",
+                  "disposition": "qualified",
+                  "reason": "其自身未能读取信号页原文且路径图为空白模板，故仅保留条件；但其「无活跃TC、查帕卡已远离」的方向与官方报告一致，信号状态缺口已由official/verification补足。",
+                  "evidenceIds": [
+                    "course_evidence_ffdc08279a5f0649170752801f0fe530",
+                    "course_evidence_4bdbdd5bbda549295652568e151eb4fc"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_5e590270-4dfc-41aa-aeed-d16b686267ed_verification_initial",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "寻找与「窗口内已/将发出八号或以上」相反或矛盾的材料：核实当前是否有台风接近香港、是否仅三号或更低信号、官方是否明确表示不会升级；核验各来源时间与独立性，证据不足时保留异议。",
+                "reason": "反证核验关键主张，防止把预告或低级别信号误判为八号。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "已读取香港天文台官网英文版实时页面，明确显示现时「并无热带气旋警告信号」（There is no tropical cyclone warning signal），即当前连一号或三号信号都未发出，遑论八号或以上信号，直接与「窗口内已/将发出八号或以上」相反。搜索摘要另显示最近热带气旋「查帕卡」已于11月10日位于香港以东约2640公里，远离本港。未见任何支持八号升级的材料；中文版页面与路径图读取超时，官方对未来24小时的升级说明缺失。",
+                "probability": 0.03,
+                "evidenceIds": [
+                  "course_evidence_6b4686314a3f3d38d1b10982bd26d581"
+                ],
+                "support": [],
+                "counterevidence": [
+                  {
+                    "claim": "香港天文台官网（英文版，2026-11-20 23:37 HKT左右读取）现时明确显示「There is no tropical cyclone warning signal」，即当前并无任何热带气旋警告信号，连一号信号都未生效，与「将发出八号或以上」相反。",
+                    "evidenceIds": [
+                      "course_evidence_6b4686314a3f3d38d1b10982bd26d581"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "天文台中文版热带气旋警告页面（tc.htm）两次读取超时，未取得中文官方原文。",
+                  "未读取「热带气旋位置及路径图」完整正文，无法正式确认当前有/无热带气旋在警戒范围。",
+                  "未见天文台就未来24小时是否升级至八号或以上的明确官方预报或天气稿。",
+                  "「查帕卡」位置与当前天气仅为搜索摘要（不可引用），未经正文核实。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_5e590270-4dfc-41aa-aeed-d16b686267ed_verification_initial",
+                  "disposition": "adopted",
+                  "reason": "独立核验英文官方页并确认现时无任何热带气旋警告信号，与official一致，强化「无信号」这一关键反证。",
+                  "evidenceIds": [
+                    "course_evidence_6b4686314a3f3d38d1b10982bd26d581"
+                  ]
+                },
+                "review": null
+              }
+            ],
+            "reviews": [],
+            "reports": [
+              {
+                "assignmentId": "course_run_5e590270-4dfc-41aa-aeed-d16b686267ed_official_initial",
+                "roleId": "official",
+                "name": "官方资料研究员",
+                "objective": "查阅香港天文台官方网站与官方公告，核实现时生效的热带气旋警告信号级别，以及观察窗口内是否已发出或升级至八号或以上；记录发出/升级/撤销的官方公告原文及具体时间（香港时间），区分正式发出与「考虑/预告」。",
+                "reason": "官方公告是判定是否发出八号或以上信号的权威基准。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "已读取香港天文台官方「热带气旋警告（本地）」页面及天气实况页。截至观察窗口起点（2026-11-20 23:36 香港时间，UTC+8）前后，官方页面明确显示「现时没有生效的热带气旋警告信号」，即连一号戒备信号都未发出。天气实况与展望均由强烈东北季候风及冷空气主导，预报中未提及任何热带气旋。据此，当前不存在任何生效信号，未来24小时内发出或升级至八号或以上信号缺乏任何官方依据，概率极低。注意：观察窗口（未来24小时）的结果尚未发生，本次判定为基于现有官方资料的条件性预判，而非已结算事实；题目本身仍为待核验草稿。",
+                "probability": 0.02,
+                "evidenceIds": [
+                  "course_evidence_6b4686314a3f3d38d1b10982bd26d581",
+                  "course_evidence_873dfbb7e373ddc567b56dcaff91b4ab"
+                ],
+                "support": [
+                  {
+                    "claim": "香港天文台官方「热带气旋警告（本地）」页面显示「There is no tropical cyclone warning signal」，即观察窗口起点时没有任何生效的热带气旋警告信号（连一号也没有）。",
+                    "evidenceIds": [
+                      "course_evidence_6b4686314a3f3d38d1b10982bd26d581"
+                    ]
+                  },
+                  {
+                    "claim": "天气实况页显示天气由强烈东北季候风主导、转冷及有雨，当前概况与九天天预报均未提及任何热带气旋或相关发展。",
+                    "evidenceIds": [
+                      "course_evidence_873dfbb7e373ddc567b56dcaff91b4ab"
+                    ]
+                  },
+                  {
+                    "claim": "在无任何生效信号、且官方预报无热带气旋迹象的情况下，未来24小时内发出或升级至八号或以上信号缺乏官方依据，概率很低。",
+                    "evidenceIds": [
+                      "course_evidence_6b4686314a3f3d38d1b10982bd26d581",
+                      "course_evidence_873dfbb7e373ddc567b56dcaff91b4ab"
+                    ]
+                  }
+                ],
+                "counterevidence": [],
+                "missingEvidence": [
+                  "未取得热带气旋路径/位置页，无法用官方数据确认香港800公里范围内是否完全无热带气旋。",
+                  "天文台中文版热带气旋警告页读取超时，未能交叉核验中文公告原文。",
+                  "观察窗口（2026-11-20 23:36 至 2026-11-21 23:36 香港时间）为未来24小时，结果尚未发生，无法取得未来发出的任何公告原文。",
+                  "未检索到天文台任何关于热带气旋生成或影响香港的新闻稿/预报公报。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_5e590270-4dfc-41aa-aeed-d16b686267ed_official_initial",
+                  "disposition": "adopted",
+                  "reason": "该报告读取官方英文tc.htm页面显示无生效热带气旋警告信号，且天气实况由东北季候风主导、预报无TC，构成核心反证，直接支撑极低概率。",
+                  "evidenceIds": [
+                    "course_evidence_6b4686314a3f3d38d1b10982bd26d581",
+                    "course_evidence_873dfbb7e373ddc567b56dcaff91b4ab"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_5e590270-4dfc-41aa-aeed-d16b686267ed_timeline_initial",
+                "roleId": "timeline",
+                "name": "新闻时间线研究员",
+                "objective": "按发布时间顺序整理观察窗口内天文台发布的热带气旋警告信号相关公告与新闻，标明每次发出/升级/撤销的确切时间，区分正式生效与「考虑/预测」，并说明转载与更正情况。",
+                "reason": "确认各信号级别变化的确切时间与先后顺序。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "insufficient",
+                "summary": "观察窗口（2026-11-20 23:36 至 2026-11-21 23:36，香港时间）内未发现香港天文台发出或升级八号或以上热带气旋警告的公告。天文台「热带气旋位置及路径图」页面（11-20 23:39读取）为空白模板，显示追踪范围内当前无活跃热带气旋；搜索片段显示最近追踪的强台风「查帕卡」为11月10日、距港约2640公里，已远离。官方「热带气旋警告信号」页面为JavaScript动态渲染，静态读取仅返回标题，无法直接确认现行信号状态。综上，未来24小时发出八号信号的条件缺失，概率极低，但官方实时信号文本未能取得。",
+                "probability": 0.02,
+                "evidenceIds": [
+                  "course_evidence_ffdc08279a5f0649170752801f0fe530",
+                  "course_evidence_4bdbdd5bbda549295652568e151eb4fc"
+                ],
+                "support": [
+                  {
+                    "claim": "天文台热带气旋位置及路径图页面（2026-11-20 23:39读取）显示空白模板「{{name}} {{datetime}}」，即追踪范围内当前无活跃热带气旋，缺乏发出八号信号的触发条件。",
+                    "evidenceIds": [
+                      "course_evidence_ffdc08279a5f0649170752801f0fe530"
+                    ]
+                  },
+                  {
+                    "claim": "热带气旋警告信号页面读取仅返回「香港天文台」标题，未见任何生效中或预告发出的警告信号内容。",
+                    "evidenceIds": [
+                      "course_evidence_4bdbdd5bbda549295652568e151eb4fc"
+                    ]
+                  }
+                ],
+                "counterevidence": [
+                  {
+                    "claim": "官方页面为JavaScript动态渲染，静态读取仅得标题或空白模板，不能据此断言当前确实无信号生效或确无热带气旋数据。",
+                    "evidenceIds": [
+                      "course_evidence_4bdbdd5bbda549295652568e151eb4fc",
+                      "course_evidence_ffdc08279a5f0649170752801f0fe530"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "香港天文台「现时生效的热带气旋警告信号」实时状态原文（页面动态渲染未能读取）",
+                  "观察窗口内天文台任何正式发出/升级/撤销信号的公告或新闻稿",
+                  "查帕卡11月10日后路径与是否消散的官方确认",
+                  "11月20-21日有无新热带气旋生成或靠近香港的官方资料",
+                  "天文台「考虑/预测」发出信号的任何说明"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_5e590270-4dfc-41aa-aeed-d16b686267ed_timeline_initial",
+                  "disposition": "qualified",
+                  "reason": "其自身未能读取信号页原文且路径图为空白模板，故仅保留条件；但其「无活跃TC、查帕卡已远离」的方向与官方报告一致，信号状态缺口已由official/verification补足。",
+                  "evidenceIds": [
+                    "course_evidence_ffdc08279a5f0649170752801f0fe530",
+                    "course_evidence_4bdbdd5bbda549295652568e151eb4fc"
+                  ]
+                },
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_5e590270-4dfc-41aa-aeed-d16b686267ed_verification_initial",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "寻找与「窗口内已/将发出八号或以上」相反或矛盾的材料：核实当前是否有台风接近香港、是否仅三号或更低信号、官方是否明确表示不会升级；核验各来源时间与独立性，证据不足时保留异议。",
+                "reason": "反证核验关键主张，防止把预告或低级别信号误判为八号。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "completed",
+                "reportStatus": "complete",
+                "summary": "已读取香港天文台官网英文版实时页面，明确显示现时「并无热带气旋警告信号」（There is no tropical cyclone warning signal），即当前连一号或三号信号都未发出，遑论八号或以上信号，直接与「窗口内已/将发出八号或以上」相反。搜索摘要另显示最近热带气旋「查帕卡」已于11月10日位于香港以东约2640公里，远离本港。未见任何支持八号升级的材料；中文版页面与路径图读取超时，官方对未来24小时的升级说明缺失。",
+                "probability": 0.03,
+                "evidenceIds": [
+                  "course_evidence_6b4686314a3f3d38d1b10982bd26d581"
+                ],
+                "support": [],
+                "counterevidence": [
+                  {
+                    "claim": "香港天文台官网（英文版，2026-11-20 23:37 HKT左右读取）现时明确显示「There is no tropical cyclone warning signal」，即当前并无任何热带气旋警告信号，连一号信号都未生效，与「将发出八号或以上」相反。",
+                    "evidenceIds": [
+                      "course_evidence_6b4686314a3f3d38d1b10982bd26d581"
+                    ]
+                  }
+                ],
+                "missingEvidence": [
+                  "天文台中文版热带气旋警告页面（tc.htm）两次读取超时，未取得中文官方原文。",
+                  "未读取「热带气旋位置及路径图」完整正文，无法正式确认当前有/无热带气旋在警戒范围。",
+                  "未见天文台就未来24小时是否升级至八号或以上的明确官方预报或天气稿。",
+                  "「查帕卡」位置与当前天气仅为搜索摘要（不可引用），未经正文核实。"
+                ],
+                "decision": {
+                  "assignmentId": "course_run_5e590270-4dfc-41aa-aeed-d16b686267ed_verification_initial",
+                  "disposition": "adopted",
+                  "reason": "独立核验英文官方页并确认现时无任何热带气旋警告信号，与official一致，强化「无信号」这一关键反证。",
+                  "evidenceIds": [
+                    "course_evidence_6b4686314a3f3d38d1b10982bd26d581"
+                  ]
+                },
+                "review": null
+              }
+            ],
+            "sources": [
+              {
+                "evidenceId": "course_evidence_4bdbdd5bbda549295652568e151eb4fc",
+                "title": "香港天文台",
+                "url": "https://www.weather.gov.hk/en/wxinfo/currwx/tcsignal.htm",
+                "publishedAt": null,
+                "obtainedAt": "2026-11-20T15:37:59.540Z",
+                "marketQuote": null
+              },
+              {
+                "evidenceId": "course_evidence_6b4686314a3f3d38d1b10982bd26d581",
+                "title": "Tropical Cyclone Warning (Local)",
+                "url": "https://www.hko.gov.hk/en/wxinfo/currwx/tc.htm",
+                "publishedAt": null,
+                "obtainedAt": "2026-11-20T15:37:25.384Z",
+                "marketQuote": null
+              },
+              {
+                "evidenceId": "course_evidence_873dfbb7e373ddc567b56dcaff91b4ab",
+                "title": "天氣實況",
+                "url": "https://www.hko.gov.hk/en/wxinfo/currwx/tc_gis_e.htm",
+                "publishedAt": null,
+                "obtainedAt": "2026-11-20T15:39:10.897Z",
+                "marketQuote": null
+              },
+              {
+                "evidenceId": "course_evidence_ffdc08279a5f0649170752801f0fe530",
+                "title": "Tropical Cyclone Track and Position",
+                "url": "https://my.weather.gov.hk/en/wxinfo/currwx/tc_fixarea.htm",
+                "publishedAt": null,
+                "obtainedAt": "2026-11-20T15:39:04.579Z",
+                "marketQuote": null
+              }
+            ],
+            "triage": {
+              "kind": "initial",
+              "reason": "首次按题选择差异职责。",
+              "newEvidenceIds": []
+            },
+            "decision": {
+              "forecastId": "course_forecast_dc55fbde-6e8a-4b98-ba58-ce71d63f9808",
+              "probabilityYes": 0.02,
+              "previousProbabilityYes": null,
+              "delta": null,
+              "summary": "截至观察窗口起点（2026-11-20 23:36 HKT），香港天文台官方英文热带气旋警告页面明确显示「现时没有生效的热带气旋警告信号」，即连一号/三号都未发出。天气实况页显示天气由强烈东北季候风与冷空气主导，预报未提及任何热带气旋。据此，24小时窗口内需从无信号状态直接发展并升级至八号或以上，缺乏官方依据。路径图为动态空白模板，未能以正文确认无活跃TC，但「无信号」本身已由官方信号页直接确认。综合概率约2%，为基于当前官方资料的条件性预判，而非已结算事实。",
+              "evidenceIds": [
+                "course_evidence_6b4686314a3f3d38d1b10982bd26d581",
+                "course_evidence_873dfbb7e373ddc567b56dcaff91b4ab",
+                "course_evidence_ffdc08279a5f0649170752801f0fe530"
+              ],
+              "dissent": [
+                "timeline报告标记insufficient：信号页（weather.gov.hk域名）动态渲染仅返回标题、路径图空白模板，其自身未能直接确认无信号状态；该缺口已由official与verification读取hko.gov.hk英文tc.htm页面（显示无信号）补足。",
+                "中文版热带气旋警告页读取超时，未交叉核验中文原文；本轮以英文官方页为准。",
+                "路径/位置图为动态空白模板，未取得正文以独立确认香港警戒范围内无活跃热带气旋；此判断依赖官方信号页与天气实况页。",
+                "观察窗口为未来24小时，最终是否发出需待结算时再读官方页面；本预测为条件性预判。"
+              ],
+              "evidenceAdequacy": "adequate",
+              "scoringEligible": true,
+              "recordedNotes": 3,
+              "totalReports": 3
+            },
+            "conclusion": "已发布；本轮未进行定向补查。"
+          },
+          "createdAt": "2026-11-20T15:36:39.934Z",
+          "updatedAt": "2026-11-20T15:41:39.019Z",
+          "error": null,
+          "memory": {
+            "sourceRunIds": [],
+            "reportCount": 0,
+            "relationCount": 0
+          }
+        },
+        {
+          "runId": "course_run_31480119-4e44-4c4f-bd6a-4d56ad839f0c",
+          "status": "failed",
+          "phase": "review",
+          "usage": {
+            "modelRequests": 12,
+            "toolCalls": 12,
+            "totalTokens": 308398,
+            "promptTokens": 280578,
+            "completionTokens": 27820,
+            "cacheHitTokens": 3456,
+            "cacheMissTokens": 277122,
+            "unknownUsage": true
+          },
+          "collaboration": {
+            "version": 1,
+            "runId": "course_run_31480119-4e44-4c4f-bd6a-4d56ad839f0c",
+            "modelMode": "live",
+            "sourceMode": "live",
+            "team": [
+              {
+                "assignmentId": "course_run_31480119-4e44-4c4f-bd6a-4d56ad839f0c_official_initial",
+                "roleId": "official",
+                "name": "官方资料研究员",
+                "objective": "读取香港天文台官方热带气旋警告（本地）页（英文 hko.gov.hk/en/wxinfo/currwx/tc.htm，并尝试中文版），记录截至 2026-11-20 23:44 HKT 生效信号的确切原文并注明读取时间。再查天文台预报/新闻稿是否提及未来24小时任何热带气旋接近或可能发出信号。严格区分'正式发出'与'考虑/预告/展望'。",
+                "reason": "官方来源即裁决依据，先确认当前信号状态与未来24小时官方迹象。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "failed",
+                "reportStatus": null,
+                "summary": "研究员已用完本次调查预算，保留取得的证据和缺口。",
+                "probability": null,
+                "evidenceIds": [],
+                "support": [],
+                "counterevidence": [],
+                "missingEvidence": [],
+                "decision": null,
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_31480119-4e44-4c4f-bd6a-4d56ad839f0c_verification_initial",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "独立核查'现无热带气旋警告信号'这一主张：查香港天文台、日本气象厅/JTWC等气象来源，是否有活跃或发展中热带气旋在未来24小时可能影响香港；交叉核对英文tc.htm内容与中文版一致性及其时间戳；并检索11月历史8号+信号的基准频次作为反证参考。寻找与'无信号、不会发8号'相矛盾的材料。",
+                "reason": "反证与来源独立性核验，兼补历史基准缺口，团队一致不等于事实正确。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "failed",
+                "reportStatus": null,
+                "summary": "研究员已用完本次调查预算，保留取得的证据和缺口。",
+                "probability": null,
+                "evidenceIds": [],
+                "support": [],
+                "counterevidence": [],
+                "missingEvidence": [],
+                "decision": null,
+                "review": null
+              }
+            ],
+            "reviews": [],
+            "reports": [
+              {
+                "assignmentId": "course_run_31480119-4e44-4c4f-bd6a-4d56ad839f0c_official_initial",
+                "roleId": "official",
+                "name": "官方资料研究员",
+                "objective": "读取香港天文台官方热带气旋警告（本地）页（英文 hko.gov.hk/en/wxinfo/currwx/tc.htm，并尝试中文版），记录截至 2026-11-20 23:44 HKT 生效信号的确切原文并注明读取时间。再查天文台预报/新闻稿是否提及未来24小时任何热带气旋接近或可能发出信号。严格区分'正式发出'与'考虑/预告/展望'。",
+                "reason": "官方来源即裁决依据，先确认当前信号状态与未来24小时官方迹象。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "failed",
+                "reportStatus": null,
+                "summary": "研究员已用完本次调查预算，保留取得的证据和缺口。",
+                "probability": null,
+                "evidenceIds": [],
+                "support": [],
+                "counterevidence": [],
+                "missingEvidence": [],
+                "decision": null,
+                "review": null
+              },
+              {
+                "assignmentId": "course_run_31480119-4e44-4c4f-bd6a-4d56ad839f0c_verification_initial",
+                "roleId": "verification",
+                "name": "反证与核验研究员",
+                "objective": "独立核查'现无热带气旋警告信号'这一主张：查香港天文台、日本气象厅/JTWC等气象来源，是否有活跃或发展中热带气旋在未来24小时可能影响香港；交叉核对英文tc.htm内容与中文版一致性及其时间戳；并检索11月历史8号+信号的基准频次作为反证参考。寻找与'无信号、不会发8号'相矛盾的材料。",
+                "reason": "反证与来源独立性核验，兼补历史基准缺口，团队一致不等于事实正确。",
+                "followUp": false,
+                "cycle": 1,
+                "status": "failed",
+                "reportStatus": null,
+                "summary": "研究员已用完本次调查预算，保留取得的证据和缺口。",
+                "probability": null,
+                "evidenceIds": [],
+                "support": [],
+                "counterevidence": [],
+                "missingEvidence": [],
+                "decision": null,
+                "review": null
+              }
+            ],
+            "sources": [
+              {
+                "evidenceId": "course_evidence_2aaa0dc3f3ccb94f2a56bebf478a663b",
+                "title": "发出热带气旋警告信号的考虑因素 - 发出热带气旋警告信号的考虑因素",
+                "url": "https://www.hko.gov.hk/sc/education/tropical-cyclone/associated-weather-warnings/00782-Considerations-for-Issuing-Tropical-Cyclone-Warning-Signals.html",
+                "publishedAt": "2026-11-11T16:00:00.000Z",
+                "obtainedAt": "2026-11-20T15:44:03.741Z",
+                "marketQuote": null
+              },
+              {
+                "evidenceId": "course_evidence_6b4686314a3f3d38d1b10982bd26d581",
+                "title": "Tropical Cyclone Warning (Local)",
+                "url": "https://www.hko.gov.hk/en/wxinfo/currwx/tc.htm",
+                "publishedAt": null,
+                "obtainedAt": "2026-11-20T15:44:03.183Z",
+                "marketQuote": null
+              },
+              {
+                "evidenceId": "course_evidence_fb5bc71f3041bc78fa354db48e4f2ebb",
+                "title": "熱帶氣旋警告（本港地區）",
+                "url": "https://www.hko.gov.hk/tc/wxinfo/currwx/tc.htm",
+                "publishedAt": null,
+                "obtainedAt": "2026-11-20T15:45:32.502Z",
+                "marketQuote": null
+              }
+            ],
+            "triage": {
+              "kind": "local",
+              "reason": "去重后新增1条证据：香港天文台官方教育文章《发出热带气旋警告信号的考虑因素》（2026年8月），逐条给出1/3/8/9/10号信号定义（8号需持续烈风63-117km/h、9号显著增强、10号飓风118km/h以上）及登陆方位、移速等考虑因素。该文与本题判定规则（是否发出或升级至八号或以上）直接相关，但属背景解释性材料，不含当前或未来24小时的操作性事实，亦与既有「窗口起点无生效信号」判断无冲突，故按普通增量local处理。安排official重读该原文并核对信号定义与既有官方页面/天气实况的一致性；verification反查是否存在支持或反对「24小时内升级至八号或以上」的官方材料，重点核验原文发布时间（2026年8月）与当前（2026-11-20）时效差异，避免把历史科普当作实时信号状态。",
+              "newEvidenceIds": [
+                "course_evidence_2aaa0dc3f3ccb94f2a56bebf478a663b"
+              ]
+            },
+            "decision": null,
+            "conclusion": "本轮未发布新判断，缺口与失败记录保留。"
+          },
+          "createdAt": "2026-11-20T15:44:02.845Z",
+          "updatedAt": "2026-11-20T15:52:54.198Z",
+          "error": {
+            "code": "COURSE_BUDGET",
+            "message": "本轮已达到总 token 预算。",
+            "retryable": false
+          },
+          "memory": {
+            "sourceRunIds": [
+              "course_run_5e590270-4dfc-41aa-aeed-d16b686267ed"
+            ],
+            "previousForecastId": "course_forecast_dc55fbde-6e8a-4b98-ba58-ce71d63f9808",
+            "reportCount": 3,
+            "relationCount": 8
+          }
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "BTC-USD报价在当前网络下不可用，首题资料不足且未发布。",
+    "官方资料案例完成发布及三份公开裁决；未来结果尚未到期，不能报告准确率。",
+    "一次增量检查实际触发两席复核，但累计用量达到预算后停止，没有新增预测；原判断保留。",
+    "本次失败暴露重复的短期/长期记忆装配成本，已追加模型输入去重；该修复仅离线验证，未再次付费实跑。"
+  ]
+}

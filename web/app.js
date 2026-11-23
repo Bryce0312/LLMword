@@ -1,12 +1,26 @@
 import { createRoomScene } from './actors.js';
+import { initLocaleUI } from './locale.mjs';
+import { dateContent } from './workbench-core.js';
+import { isLegacyBuiltinText } from './locale-zh-en-legacy.mjs';
+
+initLocaleUI();
 
 const byId = (id) => document.getElementById(id);
 
 function node(tag, className, ...children) {
   const element = document.createElement(tag);
   if (className) element.className = className;
-  element.append(...children.filter((child) => child !== null && child !== undefined));
+  element.append(...children.flat(Infinity).filter((child) => child !== null && child !== undefined));
   return element;
+}
+
+function originalNode(tag, className, ...children) {
+  const element = node(tag, className, ...children);
+  element.setAttribute('data-i18n-skip', 'true');
+  return element;
+}
+function metadataNode(kind, record, field = 'name', tag = 'span', className = '') {
+  return (isLegacyBuiltinText(kind, record, field) ? node : originalNode)(tag, className, record?.[field]);
 }
 
 function list(className, values, item) {
@@ -14,23 +28,9 @@ function list(className, values, item) {
 }
 
 function replace(element, ...children) {
-  element.replaceChildren(...children.filter((child) => child !== null && child !== undefined));
+  element.replaceChildren(...children.flat(Infinity).filter((child) => child !== null && child !== undefined));
 }
 
-const clockFormat = new Intl.DateTimeFormat('zh-CN', {
-  timeZone: 'America/New_York',
-  month: '2-digit',
-  day: '2-digit',
-  hour: '2-digit',
-  minute: '2-digit',
-  hourCycle: 'h23',
-});
-const dateFormat = new Intl.DateTimeFormat('zh-CN', {
-  timeZone: 'America/New_York',
-  year: 'numeric',
-  month: '2-digit',
-  day: '2-digit',
-});
 const branchLabels = { base: '历史主线', narrow: '限制范围较窄', broad: '限制范围较广' };
 const roles = {
   policy: '政策范围与执行',
@@ -57,6 +57,7 @@ let monitorRefresh = 0;
 let replayRefreshPending = false;
 let autoHeadline = '';
 let streamStatus = '连接中';
+for (const id of ['case-title', 'live-speaker', 'live-message', 'speech-speaker', 'speech-message', 'branch-note']) byId(id).setAttribute('data-i18n-skip', 'true');
 const notebook = byId('notebook');
 const notebookScroll = notebook.querySelector('.notebook-scroll');
 const roomScene = createRoomScene({
@@ -81,11 +82,11 @@ const roomScene = createRoomScene({
 });
 
 function formatDate(raw, withTime = false) {
-  if (!raw) return '—';
-  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw.replaceAll('-', '/');
-  const value = new Date(raw);
-  if (Number.isNaN(value.valueOf())) return String(raw);
-  return withTime ? `${clockFormat.format(value)} ET` : dateFormat.format(value);
+  if (!raw) return originalNode('span', '', '—');
+  const value = /^\d{4}-\d{2}-\d{2}$/.test(raw) ? raw + 'T12:00:00.000Z' : raw;
+  const element = dateContent(value, 'America/New_York');
+  if (!withTime) element.setAttribute('data-i18n-date-format', 'date');
+  return element;
 }
 
 const pct = (value) => Number.isFinite(value) ? `${(value * 100).toFixed(0)}%` : '—';
@@ -110,13 +111,14 @@ function sourceLink(item, title = '打开原文') {
   link.href = url.href;
   link.target = '_blank';
   link.rel = 'noopener noreferrer';
+  if (arguments.length > 1) link.setAttribute('data-i18n-skip', 'true');
   return link;
 }
 
 function sourceRefs(ids = []) {
   const refs = (ids ?? []).map((id) => snapshot.evidence.find((item) => item.id === id))
     .filter(Boolean)
-    .map((item) => sourceLink(item, item.source ?? item.id) ?? node('span', '', item.id));
+    .map((item) => sourceLink(item, item.source ?? item.id) ?? originalNode('span', '', item.id));
   return refs.length ? node('div', 'evidence-meta', ...refs) : null;
 }
 
@@ -131,14 +133,14 @@ function openAgent(agent) {
   const details = byId('agent-details');
   const skill = agent.skill;
   const skillText = typeof skill === 'string' ? skill : skill?.description || skill?.instructions || skill?.name;
-  const tools = (agent.tools ?? []).map((id) => snapshot.tools.find((tool) => tool.id === id)?.name ?? id);
-  const title = node('h2', '', agent.name);
+  const tools = (agent.tools ?? []).map((id) => snapshot.tools.find((tool) => tool.id === id) ?? { id, name: id });
+  const title = metadataNode('agent', agent, 'name', 'h2');
   title.id = 'agent-dialog-title';
   replace(details,
-    node('div', 'dialog-heading', portrait(agent.id), node('div', '', title, node('p', '', agent.role))),
-    node('section', 'dialog-block', node('h3', '', '研究技能'), node('p', '', Array.isArray(skillText) ? skillText.join('。') : skillText || '该角色通过专属工具提供证据。')),
-    agent.skillText ? node('details', 'dialog-block', node('summary', '', '查看技能指令'), node('p', 'skill-text', agent.skillText)) : null,
-    node('section', 'dialog-block', node('h3', '', '可用工具'), tools.length ? list('', tools, (tool) => node('li', '', tool)) : node('p', '', '暂无已注册工具。')),
+    node('div', 'dialog-heading', portrait(agent.id), node('div', '', title, metadataNode('agent', agent, 'role', 'p'))),
+    node('section', 'dialog-block', node('h3', '', '研究技能'), typeof skill === 'string' && isLegacyBuiltinText('agent', agent, 'skill') ? metadataNode('agent', agent, 'skill', 'p') : skillText ? originalNode('p', '', Array.isArray(skillText) ? skillText.join('。') : skillText) : node('p', '', '该角色通过专属工具提供证据。')),
+    agent.skillText ? node('details', 'dialog-block', node('summary', '', '查看技能指令'), originalNode('p', 'skill-text', agent.skillText)) : null,
+    node('section', 'dialog-block', node('h3', '', '可用工具'), tools.length ? list('', tools, (tool) => metadataNode('tool', tool, 'name', 'li')) : node('p', '', '暂无已注册工具。')),
   );
   byId('agent-dialog').showModal();
 }
@@ -146,10 +148,11 @@ function openAgent(agent) {
 function renderAgents() {
   byId('agents').replaceChildren(...snapshot.agents.map((agent) => {
     const role = roles[agent.id] ?? agent.role;
-    const card = node('button', 'agent-card', portrait(agent.id), node('span', '', node('strong', '', agent.name), node('small', '', role)));
+    const card = node('button', 'agent-card', portrait(agent.id), node('span', '', metadataNode('agent', agent, 'name', 'strong'), Object.hasOwn(roles, agent.id) ? node('small', '', role) : originalNode('small', '', role)));
     card.type = 'button';
     card.setAttribute('aria-haspopup', 'dialog');
     card.title = role;
+    if (!Object.hasOwn(roles, agent.id)) card.setAttribute('data-i18n-skip-attributes', 'title');
     card.addEventListener('click', () => openAgent(agent));
     return card;
   }));
@@ -165,9 +168,9 @@ function renderStages() {
     const dot = node('i', 'stage-dot');
     dot.setAttribute('aria-hidden', 'true');
     const content = node('div', '',
-      node('div', 'stage-title', future ? `第 ${index + 1} 条事件 · 待揭示` : stage.title),
+      (future ? node : originalNode)('div', 'stage-title', future ? `第 ${index + 1} 条事件 · 待揭示` : stage.title),
       future ? null : node('p', 'stage-meta', formatDate(stage.date, true)),
-      current && stage.description ? node('p', 'stage-desc', stage.description) : null,
+      current && stage.description ? originalNode('p', 'stage-desc', stage.description) : null,
     );
     const entry = node('li', `stage ${current ? 'current' : future ? 'future' : 'done'}`, dot, content);
     if (current) entry.setAttribute('aria-current', 'step');
@@ -181,13 +184,13 @@ function renderRelations(factors, companies) {
   const section = node('section', 'relations-section',
     heading('关系图', '共享因素与各公司的敞口'),
     node('div', 'relation-map',
-      node('div', 'relation-root', node('strong', '', policy.label), node('p', '', policy.value), sourceRefs(policy.sourceIds)),
+      node('div', 'relation-root', originalNode('strong', '', policy.label), originalNode('p', '', policy.value), sourceRefs(policy.sourceIds)),
       node('div', 'relation-connector'),
       node('div', 'relation-children', ...companies.map((company) => {
         const signal = directions[company.signal] ?? company.signal;
         return node('div', 'relation-company',
-          node('strong', '', company.ticker),
-          node('div', '', node('p', '', company.exposure), signal ? node('span', '', signal) : null, sourceRefs(company.sourceIds)),
+          originalNode('strong', '', company.ticker),
+          node('div', '', originalNode('p', '', company.exposure), signal ? (Object.hasOwn(directions, company.signal) ? node : originalNode)('span', '', signal) : null, sourceRefs(company.sourceIds)),
         );
       })),
     ),
@@ -200,26 +203,26 @@ function renderWorld() {
   const { factors, companies, evidence, outcome, question } = snapshot;
   const factorItems = list('factor-list', factors, (factor) =>
     node('li', 'factor-item',
-      node('div', '', node('strong', '', factor.label), node('p', '', factor.value), sourceRefs(factor.sourceIds)),
+      node('div', '', originalNode('strong', '', factor.label), originalNode('p', '', factor.value), sourceRefs(factor.sourceIds)),
       node('span', `badge ${Object.hasOwn(statusLabels, factor.status) ? factor.status : 'unknown'}`, statusLabels[factor.status] ?? '观察中'),
     ),
   );
   const companyItems = list('company-list', companies, (company) =>
     node('li', 'company-item',
-      node('div', '', node('strong', '', node('span', '', company.ticker), company.name), node('p', '', company.exposure)),
-      company.signal ? node('span', `badge company-signal ${Object.hasOwn(directions, company.signal) ? company.signal : 'neutral'}`, directions[company.signal] ?? company.signal) : null,
+      node('div', '', originalNode('strong', '', node('span', '', company.ticker), company.name), originalNode('p', '', company.exposure)),
+      company.signal ? (Object.hasOwn(directions, company.signal) ? node : originalNode)('span', `badge company-signal ${Object.hasOwn(directions, company.signal) ? company.signal : 'neutral'}`, directions[company.signal] ?? company.signal) : null,
     ),
   );
   const evidenceItems = list('evidence-list', evidence, (item) =>
     node('li', 'evidence-item',
-      node('h4', '', item.title),
-      node('p', '', item.summary),
-      node('div', 'evidence-meta', item.source, formatDate(item.publishedAt, true), sourceLink(item)),
+      originalNode('h4', '', item.title),
+      originalNode('p', '', item.summary),
+      node('div', 'evidence-meta', originalNode('span', '', item.source), formatDate(item.publishedAt, true), sourceLink(item)),
     ),
   );
   replace(byId('panel-world'),
-    question ? node('div', 'research-question', node('strong', '', '待预测'), node('p', '', question)) : null,
-    outcome ? node('div', 'outcome-note', node('strong', '', '已揭示结果'), node('p', '', outcome.label), sourceRefs(outcome.sourceIds)) : null,
+    question ? node('div', 'research-question', node('strong', '', '待预测'), originalNode('p', '', question)) : null,
+    outcome ? node('div', 'outcome-note', node('strong', '', '已揭示结果'), originalNode('p', '', outcome.label), sourceRefs(outcome.sourceIds)) : null,
     node('div', 'world-summary',
       node('section', '', heading('共享因素', `${factors.length} 项`), factorItems),
       node('section', '', heading('公司与敞口', `${companies.length} 家`), companyItems),
@@ -233,24 +236,24 @@ function renderForecast(forecast) {
   const probability = forecast.probability;
   const tracks = Number.isFinite(probability)
     ? node('div', 'forecast-top', node('strong', 'forecast-value', pct(probability)),
-      node('div', '', node('strong', '', forecast.target),
-        node('p', '', node('small', '', `会前 ${pct(forecast.prior)} · ${forecast.branchLabel ?? branchLabels[forecast.branch] ?? '推演情景'}`))))
+      node('div', '', originalNode('strong', '', forecast.target),
+        node('p', '', node('small', '', node('span', '', '会前 ' + pct(forecast.prior)), ' · ', forecast.branchLabel ? originalNode('span', '', forecast.branchLabel) : node('span', '', branchLabels[forecast.branch] ?? '推演情景')))))
     : heading('情景判断', branchLabels[forecast.branch] ?? '推演情景');
-  const market = Number.isFinite(forecast.marketProbability) ? `${forecast.marketTarget || '股价预测'} · ${pct(forecast.marketProbability)}` : forecast.marketTarget || '股价预测 · 暂无可评分数据';
+  const market = [forecast.marketTarget ? originalNode('span', '', forecast.marketTarget) : node('span', '', Number.isFinite(forecast.marketProbability) ? '股价预测' : '股价预测 · 暂无可评分数据'), Number.isFinite(forecast.marketProbability) ? ' · ' + pct(forecast.marketProbability) : null];
   const lock = Number.isFinite(forecast.lockedProbability) ? `已封存预测 ${pct(forecast.lockedProbability)}，揭示结果后按此结算。` : forecast.branch !== 'base' ? '假设分支用于对比情景。' : null;
   const paths = (forecast.paths ?? []).length ? list('paths', forecast.paths, (path) =>
-    node('li', '', node('div', '', node('strong', '', path.label), node('p', '', path.detail)),
+    node('li', '', node('div', '', originalNode('strong', '', path.label), originalNode('p', '', path.detail)),
       node('span', `badge ${Object.hasOwn(directions, path.direction) ? path.direction : 'neutral'}`, directions[path.direction] ?? '待核验')),
   ) : null;
   const transitions = (forecast.transitions ?? []).length ? node('section', 'transitions',
     node('h3', '', '状态推演'),
     node('ol', '', ...forecast.transitions.map((transition) => node('li', '',
-      node('strong', '', variableLabels[transition.variable] ?? transition.variable),
-      node('p', '', `${stateLabels[transition.from] ?? transition.from} → ${stateLabels[transition.to] ?? transition.to}`),
+      Object.hasOwn(variableLabels, transition.variable) ? node('strong', '', variableLabels[transition.variable]) : originalNode('strong', '', transition.variable),
+      node('p', '', Object.hasOwn(stateLabels, transition.from) ? node('span', '', stateLabels[transition.from]) : originalNode('span', '', transition.from), ' → ', Object.hasOwn(stateLabels, transition.to) ? node('span', '', stateLabels[transition.to]) : originalNode('span', '', transition.to)),
       node('span', 'badge', basisLabels[transition.basis] ?? '推演'),
     ))),
   ) : null;
-  return node('section', 'forecast', tracks, node('p', '', forecast.summary),
+  return node('section', 'forecast', tracks, originalNode('p', '', forecast.summary),
     lock ? node('p', 'lock-note', lock) : null,
     node('p', 'market-note', market), paths, transitions, sourceRefs(forecast.sourceIds));
 }
@@ -262,10 +265,10 @@ function renderMeeting() {
     const tool = snapshot.tools.find((candidate) => candidate.id === event.tool);
     const label = stageLabels[event.stage] ?? traceLabels[event.kind] ?? '运行记录';
     const details = node('details', 'trace-item',
-      node('summary', '', node('strong', '', agent?.name ?? '运行引擎'),
+      node('summary', '', agent ? metadataNode('agent', agent, 'name', 'strong') : node('strong', '', '运行引擎'),
         node('span', 'trace-type', label),
-        tool ? node('span', 'trace-type', tool.name) : null),
-      node('p', 'trace-message', event.message),
+        tool ? metadataNode('tool', tool, 'name', 'span', 'trace-type') : null),
+      originalNode('p', 'trace-message', event.message),
       sourceRefs(event.sourceIds),
     );
     if (['challenge', 'decision'].includes(event.stage)) details.open = true;
@@ -284,9 +287,9 @@ function renderLearning() {
       metric('平均 Brier 分数', decimal(learning.brier)),
       metric('当前概率校正', signedPoints(learning.adjustment)),
     ),
-    node('p', 'learning-note', (learning.description || '历史主线在结果揭示后更新之后的概率校准。') + ' Brier 分数越低，概率误差越小。'),
+    node('p', 'learning-note', learning.description ? originalNode('span', '', learning.description) : node('span', '', '历史主线在结果揭示后更新之后的概率校准。'), node('span', '', ' Brier 分数越低，概率误差越小。')),
     history.length ? list('learning-history', history, (entry) =>
-      node('li', '', node('div', '', node('strong', '', entry.target),
+      node('li', '', node('div', '', originalNode('strong', '', entry.target),
         node('p', '', `预测 ${pct(entry.probability)} · 结果 ${entry.outcome ? '发生' : '未发生'}`)),
       node('span', 'badge', `Brier ${decimal(entry.brier)}`))) : empty('先在历史主线召集会议，再揭示后续事件，结果会进入学习档案。'),
   );
@@ -296,8 +299,8 @@ function renderTools() {
   byId('panel-tools').replaceChildren(
     heading('已注册工具', `${snapshot.tools.length} 项`),
     list('tool-list', snapshot.tools, (tool) => node('li', 'tool-item',
-      node('h4', '', tool.name),
-      node('p', '', tool.description),
+      metadataNode('tool', tool, 'name', 'h4'),
+      metadataNode('tool', tool, 'description', 'p'),
       node('code', '', tool.id),
     )),
   );
@@ -307,13 +310,15 @@ function render() {
   byId('mode-label').textContent = snapshot.mode === 'live' ? '真实模型' : '模拟模型';
   byId('mode-label').parentElement.classList.remove('offline');
   byId('case-title').textContent = snapshot.case.title;
-  byId('world-clock').textContent = formatDate(snapshot.cutoff, true);
+  byId('world-clock').replaceChildren(formatDate(snapshot.cutoff, true));
   byId('company-count').textContent = snapshot.companies.length;
   byId('agent-count').textContent = snapshot.agents.length;
   if (snapshot.branches?.length) {
     const selected = controls.branch.value;
     controls.branch.replaceChildren(...snapshot.branches.map((branch) => {
-      const option = node('option', '', branch.label);
+      const canonical = branch.label === branchLabels[branch.id];
+      const option = (canonical ? node : originalNode)('option', '', branch.label);
+      if (canonical) option.setAttribute('data-i18n-ui', 'true');
       option.value = branch.id;
       return option;
     }));
@@ -343,11 +348,11 @@ function monitorSource(source) {
   const status = sourceStatuses[source.status];
   return node('li', 'evidence-item',
     node('div', 'monitor-source-head',
-      node('strong', '', sourceNames[source.id] ?? source.name ?? source.id),
+      Object.hasOwn(sourceNames, source.id) ? node('strong', '', sourceNames[source.id]) : originalNode('strong', '', source.name ?? source.id),
       status ? node('span', `badge ${status.style}`, status.label) : null,
     ),
-    node('p', '', source.message || '等待第一次检查。'),
-    node('div', 'evidence-meta', source.lastSuccessAt ? `最近成功 ${formatDate(source.lastSuccessAt, true)}` : '尚无成功记录'),
+    source.message ? originalNode('p', '', source.message) : node('p', '', '等待第一次检查。'),
+    node('div', 'evidence-meta', ...(source.lastSuccessAt ? ['最近成功 ', formatDate(source.lastSuccessAt, true)] : ['尚无成功记录'])),
   );
 }
 
@@ -359,15 +364,15 @@ function monitorItem(item) {
     Number.isFinite(market.liquidity) ? `流动性 ${liquidityFormat.format(market.liquidity)}` : null,
   ].filter(Boolean) : [];
   return node('li', 'evidence-item',
-    node('h4', '', item.title),
-    node('p', '', item.summary),
+    originalNode('h4', '', item.title),
+    originalNode('p', '', item.summary),
     pricing.length ? node('div', 'monitor-pricing', ...pricing.map((value) => node('span', 'badge', value))) : null,
-    market ? node('p', 'monitor-quote', market.quoteTimestamp ? `Gamma 报价 ${formatDate(market.quoteTimestamp, true)}` : 'Gamma 报价时间未提供') : null,
+    market ? node('p', 'monitor-quote', ...(market.quoteTimestamp ? ['Gamma 报价 ', formatDate(market.quoteTimestamp, true)] : ['Gamma 报价时间未提供'])) : null,
     node('div', 'evidence-meta',
-      sourceNames[item.sourceId] ?? item.sourceId,
-      item.symbols?.join(' / '),
-      item.publishedAt ? `发布 ${formatDate(item.publishedAt, true)}` : '发布时间未提供',
-      item.observedAt ? `观测 ${formatDate(item.observedAt, true)}` : null,
+      Object.hasOwn(sourceNames, item.sourceId) ? node('span', '', sourceNames[item.sourceId]) : originalNode('span', '', item.sourceId),
+      originalNode('span', '', item.symbols?.join(' / ')),
+      item.publishedAt ? node('span', '', '发布 ', formatDate(item.publishedAt, true)) : '发布时间未提供',
+      item.observedAt ? node('span', '', '观测 ', formatDate(item.observedAt, true)) : null,
       sourceLink(item)),
   );
 }
@@ -376,7 +381,7 @@ function updateMonitorNotice() {
   const announcement = byId('monitor-announcement');
   const title = autoHeadline || monitorState?.latestMeeting?.headline;
   announcement.hidden = !title;
-  announcement.textContent = title ? `最新监测会议 · ${title}` : '';
+  announcement.replaceChildren(...(title ? [node('span', '', '最新监测会议 · '), originalNode('span', '', title)] : []));
   const button = byId('open-monitor');
   button.dataset.alert = String(Boolean(title));
   if (monitorState?.mode) button.title = monitorModeLabels[monitorState.mode] ?? '';
@@ -389,15 +394,15 @@ function renderMonitor() {
     return;
   }
   const { mode, latestItems = [], decisions = [], latestMeeting, nextCheckAt, lastCheckAt, sources = [], error } = monitorState;
-  const timing = [lastCheckAt ? `上次 ${formatDate(lastCheckAt, true)}` : null, nextCheckAt ? `下次 ${formatDate(nextCheckAt, true)}` : null].filter(Boolean);
+  const timing = [lastCheckAt ? node('span', '', '上次 ', formatDate(lastCheckAt, true)) : null, nextCheckAt ? node('span', '', '下次 ', formatDate(nextCheckAt, true)) : null].filter(Boolean);
   const meetingEvidence = latestMeeting?.evidence ?? [];
   const meeting = latestMeeting ? node('section', 'forecast',
-    heading(latestMeeting.headline || '最近一次自动会议', formatDate(latestMeeting.completedAt || latestMeeting.startedAt, true)),
-    latestMeeting.summary ? node('p', '', latestMeeting.summary) : null,
+    heading(latestMeeting.headline ? originalNode('span', '', latestMeeting.headline) : '最近一次自动会议', formatDate(latestMeeting.completedAt || latestMeeting.startedAt, true)),
+    latestMeeting.summary ? originalNode('p', '', latestMeeting.summary) : null,
     list('trace-list monitor-meeting-list', latestMeeting.findings ?? [], (finding) =>
       node('li', 'trace-item',
-        node('strong', '', snapshot?.agents.find((agent) => agent.id === finding.agentId)?.name ?? roles[finding.agentId] ?? '研究员'),
-        node('p', '', finding.message),
+        originalNode('strong', '', snapshot?.agents.find((agent) => agent.id === finding.agentId)?.name ?? roles[finding.agentId] ?? '研究员'),
+        originalNode('p', '', finding.message),
         node('div', 'evidence-meta', ...(finding.sourceIds ?? []).map((id) => {
           const item = meetingEvidence.find((entry) => entry.id === id);
           return item ? sourceLink(item, item.title) : null;
@@ -409,16 +414,16 @@ function renderMonitor() {
   const activity = decisions.length ? list('trace-list', decisions, (decision) =>
     node('li', 'trace-item',
       node('strong', '', monitorDecisionLabels[decision.action] ?? '记录'),
-      node('span', 'trace-type', decision.title),
-      node('p', '', decision.reason),
+      originalNode('span', 'trace-type', decision.title),
+      originalNode('p', '', decision.reason),
       node('div', 'evidence-meta', formatDate(decision.at, true)),
     ),
   ) : empty('暂无调度记录。');
   replace(pane,
-    heading(monitorModeLabels[mode] ?? '监测状态', timing.join(' · ')),
-    node('p', 'monitor-stream-state', `消息通道 · ${streamStatus}`),
+    heading(monitorModeLabels[mode] ?? '监测状态', timing.flatMap((item, index) => index ? [' · ', item] : [item])),
+    node('p', 'monitor-stream-state', '消息通道 · ', node('span', '', streamStatus)),
     sources.length ? list('evidence-list monitor-sources', sources, monitorSource) : null,
-    error ? empty(String(error)) : null,
+    error ? originalNode('p', 'empty', String(error)) : null,
     meeting, heading('最近资料', `${latestItems.length} 条`), items, heading('调度记录', `${decisions.length} 条`), activity,
   );
   updateMonitorNotice();
@@ -604,7 +609,7 @@ async function request(action, options) {
       byId('mode-label').textContent = '服务离线';
       byId('mode-label').parentElement.classList.add('offline');
     }
-    byId('error-message').textContent = action === 'connect' ? `研究室连接失败。${error.message}` : `操作未完成。${error.message}`;
+    byId('error-message').replaceChildren(node('span', '', action === 'connect' ? '研究室连接失败。' : '操作未完成。'), originalNode('span', '', error.message));
     byId('error').hidden = false;
   } finally {
     setBusy('');

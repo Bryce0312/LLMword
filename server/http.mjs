@@ -28,7 +28,7 @@ async function readBody(req) {
   }
 }
 
-export async function handleApi({ world, events, monitor, mode }, req, res) {
+export async function handleApi({ world, events, monitor, mode, runtime, workbench, course }, req, res) {
   const pathname = new URL(req.url, 'http://localhost').pathname
   const route = `${req.method} ${pathname}`
   try {
@@ -36,6 +36,15 @@ export async function handleApi({ world, events, monitor, mode }, req, res) {
       req.headers.origin !== `http://${req.headers.host}` &&
       req.headers.origin !== `https://${req.headers.host}`) {
       send(res, 403, { error: '请从研究室页面发起此操作。' })
+      return
+    }
+    if (pathname.startsWith('/api/v1/')) {
+      const { handleCourseApi } = await import('./course-http.mjs')
+      if (await handleCourseApi(course, req, res)) return
+      const { handleWorkbenchApi } = await import('./workbench-http.mjs')
+      if (await handleWorkbenchApi(workbench, req, res)) return
+      const { handleRuntimeApi } = await import('./v1-http.mjs')
+      await handleRuntimeApi(runtime, req, res)
       return
     }
     let result

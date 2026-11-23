@@ -1,0 +1,30 @@
+{
+  "capturedAt": "2026-11-21T07:52:55.238Z",
+  "requestId": "course_request_61ef8b84-4710-4209-94e1-d858afa59644",
+  "targetAt": "2026-11-21T08:22:15.813Z",
+  "tokenLimit": 300000,
+  "sourceHashes": {
+    "server/course/course-service.mjs": "c91f26a7c37f1a3d8ed145735a2cdbdc12f3c5d5ba6ddf5e5a339344c6151456",
+    "server/course/course-store.mjs": "c1b3ef3b9758e8389ba3e2eab60b69f6fa1407152f462129fd8ee9a7aee6a76b",
+    "server/course/market-resolution.mjs": "081f97632442923484476f6a45d232a33abece3e2f09cdc4a95760d58b9f3ff2",
+    "server/course/web-tools.mjs": "d0d3bd6919a33ee97de83c0b4e1eae489a3a209fa165a12f124d35433e8ba050",
+    "server/course/research-summary.mjs": "f112ea7295394e3681aad6531eaa7137c2746428704197f60210e46bb96e087d",
+    "server/domain/claim-grounding.mjs": "c1c99bd0a507a9aee19b6da7924ae833bcc43f6fa4a2def726e767cb67945a76",
+    "server/runtime/worker-loop.mjs": "bd3c4c2a37b6dbd5fd5abef9cb2bc0224498d2d0a91eee361af6bb2ebf01246b",
+    "scripts/live-price-case.mjs": "d08380a4acceccdbfd83cb7142f0e9880d163ad0b85362a6c32d1d2cbc65ab9b"
+  },
+  "sourceFrozenDuringRun": true,
+  "regression": {
+    "finishedAt": "2026-11-21T07:51:20.405Z",
+    "nodeVersion": "v22.17.1",
+    "command": "node --test --test-reporter=tap",
+    "scope": "full",
+    "exitCode": 0,
+    "tests": 333,
+    "passed": 333,
+    "failed": 0,
+    "skipped": 0,
+    "cancelled": 0,
+    "durationMs": 23639.2742
+  }
+}

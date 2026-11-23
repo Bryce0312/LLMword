@@ -1,0 +1,13 @@
+{
+  "finishedAt": "2026-11-20T15:57:38.168Z",
+  "nodeVersion": "v22.17.1",
+  "command": "node --test --test-reporter=tap",
+  "scope": "server/scripts/web: no root HTTP suites",
+  "exitCode": 1,
+  "tests": 284,
+  "passed": 279,
+  "failed": 5,
+  "skipped": 0,
+  "cancelled": 0,
+  "durationMs": 24611.0052
+}

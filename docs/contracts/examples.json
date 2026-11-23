@@ -1,0 +1,247 @@
+{
+  "schemaVersion": "0.3-draft",
+  "status": "design-example-only",
+  "topic": {
+    "topicId": "topic_demo",
+    "title": "甲公司管理层变化",
+    "sourceMode": "provided"
+  },
+  "prediction": {
+    "predictionId": "pred_demo",
+    "topicId": "topic_demo",
+    "version": 1,
+    "type": "binary",
+    "question": "甲公司是否在 2026 年 12 月 31 日前正式任命新任 CEO",
+    "timezone": "Asia/Shanghai",
+    "forecastClosesAt": "2026-12-30T16:00:00Z",
+    "targetAt": "2026-12-31T15:59:59Z",
+    "resolutionRuleVersion": 1,
+    "resolutionRule": "指定官方任命公告明确新任 CEO 姓名和正式任命；无公告至期限记为否",
+    "resolutionSource": {
+      "kind": "official",
+      "url": "https://example.com/appointments"
+    },
+    "unresolvablePolicy": "pending_then_manual_review",
+    "status": "draft"
+  },
+  "agentSpec": {
+    "agentSpecId": "official",
+    "specVersion": 1,
+    "name": "官方资料研究员",
+    "instructions": "核对正式公告和更正，并保留直接出处及时间",
+    "skillRefs": [
+      "official-research@1"
+    ],
+    "allowedTools": [
+      "search_official",
+      "read_evidence"
+    ],
+    "extensionSlots": [
+      null,
+      null
+    ],
+    "modelRef": "primary",
+    "limits": {
+      "maxToolCalls": 6,
+      "maxModelRequests": 8
+    }
+  },
+  "assignment": {
+    "assignmentId": "assignment_demo",
+    "runId": "run_demo",
+    "agentInstanceId": "worker_demo",
+    "agentSpecId": "official",
+    "specVersion": 1,
+    "objective": "核实是否存在任命、更正或候选程序公告",
+    "allowedTools": [
+      "read_evidence"
+    ],
+    "inputEvidence": [
+      "ev_demo"
+    ],
+    "timePolicy": "fixed",
+    "cutoff": "2026-11-18T04:00:00Z",
+    "inputSnapshotId": "step_demo",
+    "status": "running"
+  },
+  "toolSpec": {
+    "toolId": "read_evidence",
+    "version": 1,
+    "effect": "read",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "evidenceId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "evidenceId"
+      ],
+      "additionalProperties": false
+    },
+    "resultSchemaRef": "ToolResult@1",
+    "timeoutMs": 15000,
+    "handler": "registered-locally"
+  },
+  "toolResult": {
+    "status": "ok",
+    "data": {
+      "title": "甲公司治理程序说明",
+      "text": "虚构样例正文"
+    },
+    "evidenceIds": [
+      "ev_demo"
+    ],
+    "summary": "正式程序尚在进行",
+    "observedAt": "2026-11-18T03:50:00Z",
+    "error": null,
+    "usage": {
+      "cost": null
+    }
+  },
+  "evidence": {
+    "evidenceId": "ev_demo",
+    "topicId": "topic_demo",
+    "url": "https://example.com/governance",
+    "publishedAt": "2026-11-18T02:00:00Z",
+    "firstSeenAt": "2026-11-18T03:50:00Z",
+    "retrievedAt": "2026-11-18T03:50:00Z",
+    "contentHash": "sha256:example-placeholder",
+    "locator": "paragraph-2",
+    "status": "fictional-example",
+    "sourceGroupId": "original_demo"
+  },
+  "report": {
+    "assignmentId": "assignment_demo",
+    "resultId": "report_demo",
+    "status": "insufficient",
+    "summary": "发现治理程序线索，尚不足以确认正式任命",
+    "evidenceIds": [
+      "ev_demo"
+    ],
+    "support": [],
+    "counterevidence": [],
+    "missingEvidence": [
+      "正式任命公告"
+    ],
+    "probability": null,
+    "nextSuggestion": "继续监听官方公告"
+  },
+  "graphPatch": {
+    "patchId": "patch_demo",
+    "runId": "run_demo",
+    "status": "proposed",
+    "relations": [
+      {
+        "graphRelationId": "rel_demo",
+        "kind": "influence_hypothesis",
+        "fromEntityId": "procedure_demo",
+        "toEntityId": "appointment_demo",
+        "effectDirection": "unknown",
+        "targetMetric": "期限内正式任命",
+        "conditions": [
+          "已公布治理程序，但未核实进展"
+        ],
+        "evidenceStatus": "insufficient",
+        "supportEvidenceIds": [
+          "ev_demo"
+        ],
+        "counterEvidenceIds": [],
+        "validFrom": "2026-11-18T02:00:00Z",
+        "validTo": null,
+        "recordedAt": "2026-11-18T03:55:00Z",
+        "supersededAt": null,
+        "version": 1
+      }
+    ]
+  },
+  "forecast": {
+    "forecastId": "forecast_demo",
+    "predictionId": "pred_demo",
+    "predictionVersion": 1,
+    "runId": "run_demo",
+    "type": "binary",
+    "probabilityYes": 0.45,
+    "publishedAt": "2026-11-18T04:10:00Z",
+    "cutoff": "2026-11-18T04:00:00Z",
+    "graphSnapshotId": "graph_demo",
+    "evidenceSnapshotId": "snapshot_demo",
+    "evidenceIds": [
+      "ev_demo"
+    ],
+    "rationale": "虚构演示概率，供接口展示",
+    "evidenceAdequacy": "low",
+    "disputes": [
+      "程序尚未有确定时间表"
+    ],
+    "mode": "mock"
+  },
+  "watchPlan": {
+    "predictionId": "pred_demo",
+    "version": 1,
+    "checks": [
+      {
+        "sourceId": "official_demo",
+        "query": "甲公司 CEO 任命",
+        "intervalSeconds": 14400
+      }
+    ],
+    "triggers": [
+      "新的任命公告或程序更正"
+    ],
+    "stopAt": "2026-12-31T15:59:59Z",
+    "reason": "该来源能够直接确认预测结果"
+  },
+  "event": {
+    "schemaVersion": 1,
+    "serverEpoch": "epoch_demo",
+    "eventId": "event_demo",
+    "seq": 23,
+    "emittedAt": "2026-11-18T04:05:00Z",
+    "topicId": "topic_demo",
+    "predictionId": "pred_demo",
+    "runId": "run_demo",
+    "scope": "replay",
+    "trigger": "manual",
+    "type": "assignment.completed",
+    "payload": {
+      "assignmentId": "assignment_demo",
+      "agentInstanceId": "worker_demo",
+      "agentSpecId": "official",
+      "specVersion": 1,
+      "resultId": "report_demo",
+      "status": "insufficient",
+      "summary": "尚缺正式任命公告"
+    }
+  },
+  "syncSnapshot": {
+    "snapshotVersion": 8,
+    "coveredThroughCursor": "epoch_demo:23",
+    "activeRuns": [
+      "run_demo"
+    ],
+    "predictionId": "pred_demo"
+  },
+  "resolution": {
+    "resolutionId": "resolution_demo",
+    "predictionId": "pred_demo",
+    "predictionVersion": 1,
+    "resolutionRuleVersion": 1,
+    "status": "pending",
+    "observedValue": null,
+    "outcomeKnownAt": null,
+    "evidenceIds": [],
+    "score": null
+  },
+  "outputScope": {
+    "active": [
+      "binary"
+    ],
+    "deferred": [
+      "categorical",
+      "numeric",
+      "ranked_list"
+    ]
+  }
+}

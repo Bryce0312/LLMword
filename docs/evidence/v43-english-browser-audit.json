@@ -1,0 +1,313 @@
+{
+  "checkedAt": "2026-11-23T04:48:23.203Z",
+  "base": "http://127.0.0.1:4174",
+  "browser": "isolated headless Chrome",
+  "viewport": {
+    "width": 1440,
+    "height": 1000
+  },
+  "noPersonalProfile": true,
+  "noInputValuesRead": true,
+  "noUserWrites": true,
+  "noRealModelCalls": true,
+  "restoredLanguage": "zh-CN",
+  "writeRequests": [],
+  "routes": [
+    {
+      "route": "#/room",
+      "lang": "en",
+      "title": "Stock Forecast Office",
+      "findings": [],
+      "bodyWidth": 1440,
+      "viewport": 1440
+    },
+    {
+      "route": "#/predictions",
+      "lang": "en",
+      "title": "Stock Forecast Office",
+      "findings": [],
+      "bodyWidth": 1440,
+      "viewport": 1440
+    },
+    {
+      "route": "#/course/new",
+      "lang": "en",
+      "title": "Stock Forecast Office",
+      "findings": [],
+      "bodyWidth": 1440,
+      "viewport": 1440
+    },
+    {
+      "route": "#/agents",
+      "lang": "en",
+      "title": "Stock Forecast Office",
+      "findings": [],
+      "bodyWidth": 1440,
+      "viewport": 1440
+    },
+    {
+      "route": "#/agents/new",
+      "lang": "en",
+      "title": "Stock Forecast Office",
+      "findings": [],
+      "bodyWidth": 1440,
+      "viewport": 1440
+    },
+    {
+      "route": "#/model-connection",
+      "lang": "en",
+      "title": "Stock Forecast Office",
+      "findings": [],
+      "bodyWidth": 1440,
+      "viewport": 1440
+    },
+    {
+      "route": "#/learning",
+      "lang": "en",
+      "title": "Stock Forecast Office",
+      "findings": [],
+      "bodyWidth": 1440,
+      "viewport": 1440
+    },
+    {
+      "route": "#/tools",
+      "lang": "en",
+      "title": "Stock Forecast Office",
+      "findings": [],
+      "bodyWidth": 1440,
+      "viewport": 1440
+    },
+    {
+      "route": "#/advanced",
+      "lang": "en",
+      "title": "Stock Forecast Office",
+      "findings": [],
+      "bodyWidth": 1440,
+      "viewport": 1440
+    },
+    {
+      "route": "#/advanced/new",
+      "lang": "en",
+      "title": "Stock Forecast Office",
+      "findings": [],
+      "bodyWidth": 1440,
+      "viewport": 1440
+    },
+    {
+      "route": "#/topics/new",
+      "lang": "en",
+      "title": "Stock Forecast Office",
+      "findings": [],
+      "bodyWidth": 1440,
+      "viewport": 1440
+    },
+    {
+      "route": "#/course-examples?set=finance",
+      "lang": "en",
+      "title": "Stock Forecast Office",
+      "findings": [],
+      "bodyWidth": 1440,
+      "viewport": 1440
+    },
+    {
+      "route": "#/agents/analogy",
+      "lang": "en",
+      "title": "Stock Forecast Office",
+      "findings": [],
+      "bodyWidth": 1440,
+      "viewport": 1440
+    },
+    {
+      "route": "#/agents/graph",
+      "lang": "en",
+      "title": "Stock Forecast Office",
+      "findings": [],
+      "bodyWidth": 1440,
+      "viewport": 1440
+    },
+    {
+      "route": "#/agents/industry",
+      "lang": "en",
+      "title": "Stock Forecast Office",
+      "findings": [],
+      "bodyWidth": 1440,
+      "viewport": 1440
+    },
+    {
+      "route": "#/agents/market",
+      "lang": "en",
+      "title": "Stock Forecast Office",
+      "findings": [],
+      "bodyWidth": 1440,
+      "viewport": 1440
+    },
+    {
+      "route": "#/agents/official",
+      "lang": "en",
+      "title": "Stock Forecast Office",
+      "findings": [],
+      "bodyWidth": 1440,
+      "viewport": 1440
+    },
+    {
+      "route": "#/agents/people",
+      "lang": "en",
+      "title": "Stock Forecast Office",
+      "findings": [],
+      "bodyWidth": 1440,
+      "viewport": 1440
+    },
+    {
+      "route": "#/agents/social",
+      "lang": "en",
+      "title": "Stock Forecast Office",
+      "findings": [],
+      "bodyWidth": 1440,
+      "viewport": 1440
+    },
+    {
+      "route": "#/agents/statistics",
+      "lang": "en",
+      "title": "Stock Forecast Office",
+      "findings": [],
+      "bodyWidth": 1440,
+      "viewport": 1440
+    },
+    {
+      "route": "#/agents/timeline",
+      "lang": "en",
+      "title": "Stock Forecast Office",
+      "findings": [],
+      "bodyWidth": 1440,
+      "viewport": 1440
+    },
+    {
+      "route": "#/agents/verification",
+      "lang": "en",
+      "title": "Stock Forecast Office",
+      "findings": [],
+      "bodyWidth": 1440,
+      "viewport": 1440
+    },
+    {
+      "route": "#/topics/topic_283b8be6-a9cb-4905-a63c-117d81214547",
+      "lang": "en",
+      "title": "Stock Forecast Office",
+      "findings": [],
+      "bodyWidth": 1440,
+      "viewport": 1440
+    },
+    {
+      "route": "#/topics/topic_283b8be6-a9cb-4905-a63c-117d81214547/inbox",
+      "lang": "en",
+      "title": "Stock Forecast Office",
+      "findings": [],
+      "bodyWidth": 1440,
+      "viewport": 1440
+    },
+    {
+      "route": "#/topics/topic_cf6fdca1-f8e7-40ba-bd15-0af4a5c39405",
+      "lang": "en",
+      "title": "Stock Forecast Office",
+      "findings": [],
+      "bodyWidth": 1440,
+      "viewport": 1440
+    },
+    {
+      "route": "#/topics/topic_cf6fdca1-f8e7-40ba-bd15-0af4a5c39405/inbox",
+      "lang": "en",
+      "title": "Stock Forecast Office",
+      "findings": [],
+      "bodyWidth": 1440,
+      "viewport": 1440
+    },
+    {
+      "route": "#/predictions/prediction_course_request_3304f174-8111-493a-a911-ed9d8af5e1dc",
+      "lang": "en",
+      "title": "Stock Forecast Office",
+      "findings": [],
+      "bodyWidth": 1440,
+      "viewport": 1440
+    },
+    {
+      "route": "#/predictions/prediction_course_request_3c439c7a-787b-4f0d-9033-7fa2ee889fd2",
+      "lang": "en",
+      "title": "Stock Forecast Office",
+      "findings": [],
+      "bodyWidth": 1440,
+      "viewport": 1440
+    },
+    {
+      "route": "#/course/course_request_ef7d0104-e7fa-4480-8dc3-c24acc2cfc2f?results=1",
+      "lang": "en",
+      "title": "Stock Forecast Office",
+      "findings": [],
+      "bodyWidth": 1440,
+      "viewport": 1440
+    },
+    {
+      "route": "#/course/course_request_66bd219f-a3f7-4f26-8665-9f8df30107ae?results=1",
+      "lang": "en",
+      "title": "Stock Forecast Office",
+      "findings": [],
+      "bodyWidth": 1440,
+      "viewport": 1440
+    },
+    {
+      "route": "#/course/course_request_56c7740a-5104-4ab7-850a-a4224d77d640?results=1",
+      "lang": "en",
+      "title": "Stock Forecast Office",
+      "findings": [],
+      "bodyWidth": 1440,
+      "viewport": 1440
+    },
+    {
+      "route": "#/course/course_request_3c439c7a-787b-4f0d-9033-7fa2ee889fd2?results=1",
+      "lang": "en",
+      "title": "Stock Forecast Office",
+      "findings": [],
+      "bodyWidth": 1440,
+      "viewport": 1440
+    },
+    {
+      "route": "#/course/course_request_3304f174-8111-493a-a911-ed9d8af5e1dc?results=1",
+      "lang": "en",
+      "title": "Stock Forecast Office",
+      "findings": [],
+      "bodyWidth": 1440,
+      "viewport": 1440
+    },
+    {
+      "route": "confirmation:researcher-cancel",
+      "lang": "en",
+      "title": "Stock Forecast Office",
+      "findings": [],
+      "bodyWidth": 1440,
+      "viewport": 1440
+    },
+    {
+      "route": "responsive:lab:900",
+      "lang": "en",
+      "title": "Stock Forecast Office",
+      "findings": [],
+      "bodyWidth": 900,
+      "viewport": 900
+    },
+    {
+      "route": "responsive:lab:390",
+      "lang": "en",
+      "title": "Stock Forecast Office",
+      "findings": [],
+      "bodyWidth": 390,
+      "viewport": 390
+    },
+    {
+      "route": "/legacy.html",
+      "lang": "en",
+      "title": "World Office · Semiconductor Research Room",
+      "findings": [],
+      "bodyWidth": 1425,
+      "viewport": 1440
+    }
+  ]
+}

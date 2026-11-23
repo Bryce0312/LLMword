@@ -1,0 +1,19 @@
+{
+  "scope": "Text-only room navigation, same-family smaller menu typography and Simplified Chinese / English interface switch",
+  "startedAt": "2026-11-22T06:48:32.850Z",
+  "finishedAt": "2026-11-22T06:48:41.692Z",
+  "node": "v24.22.3",
+  "exitCode": 0,
+  "tests": 447,
+  "pass": 447,
+  "fail": 0,
+  "cancelled": 0,
+  "skipped": 0,
+  "durationMs": 8782.1974,
+  "uiTranslations": 274,
+  "dynamicRules": 16,
+  "languagePreferenceKey": "world-lab.locale",
+  "liveModelCalls": 0,
+  "userTaskWrites": 0,
+  "browserReview": "Computer Use stopped by physical Escape at the user request; no further Computer Use calls."
+}

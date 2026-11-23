@@ -1,0 +1,46 @@
+{
+  "checkedAt": "2026-11-21T07:57:18.155Z",
+  "requestId": "course_request_61ef8b84-4710-4209-94e1-d858afa59644",
+  "results": [
+    {
+      "label": "desktop",
+      "width": 1365,
+      "scrollWidth": 1350,
+      "probabilities": [
+        "46%",
+        "54%"
+      ],
+      "hasBaseline": true,
+      "hasCurrent": true,
+      "hasLiveLabel": true,
+      "actors": 4,
+      "quotes": 17,
+      "globalError": false,
+      "hasResult": false
+    },
+    {
+      "label": "mobile",
+      "width": 390,
+      "scrollWidth": 390,
+      "probabilities": [
+        "46%",
+        "54%"
+      ],
+      "hasBaseline": true,
+      "hasCurrent": true,
+      "hasLiveLabel": true,
+      "actors": 4,
+      "quotes": 17,
+      "globalError": false,
+      "hasResult": false
+    },
+    {
+      "label": "public-archive",
+      "realLabel": true,
+      "notes": true,
+      "hasQuotes": true,
+      "hasScore": true
+    }
+  ],
+  "consoleErrors": []
+}

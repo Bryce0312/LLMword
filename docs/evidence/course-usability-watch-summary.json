@@ -1,0 +1,153 @@
+{
+  "kind": "live-follow-up-watch-check",
+  "notAccuracyBenchmark": true,
+  "requestId": "course_request_7a60cf4b-4ad3-4be0-bcd1-b5bde239df59",
+  "runId": "course_run_036750ff-fbff-4ad6-a5b9-614c6d9820c0",
+  "status": "completed",
+  "error": null,
+  "previousForecastId": "course_forecast_bb18d299-90b8-418f-a477-72d935817a83",
+  "forecastCountBefore": 1,
+  "forecastCountAfter": 1,
+  "currentForecast": {
+    "forecastId": "course_forecast_bb18d299-90b8-418f-a477-72d935817a83",
+    "requestId": "course_request_7a60cf4b-4ad3-4be0-bcd1-b5bde239df59",
+    "runId": "course_run_9fdece31-dd1e-49c0-bdb9-43d222cf789e",
+    "predictionId": "prediction_course_request_7a60cf4b-4ad3-4be0-bcd1-b5bde239df59",
+    "predictionVersion": 1,
+    "probabilityYes": 0.47,
+    "probabilityNo": 0.53,
+    "summary": "维持上一判断（团队中枢0.45–0.50）并取0.47。目标时点要求Coinbase BTC-USD现货高于固定基线63,091.745。核验确认当前Coinbase现价63,113.965，仅高于基线+22.22 USD（+0.04%），Binance 63,210.26、Kraken 63,142.20无实质价差，基线一致有效——即当前时刻几乎恰在基线上，24小时后方向近乎掷硬币。偏空一侧：Deribit Nov19 25Δ看跌-看涨IV价差8.92点、Wintermute称失守200周均线且\"阻力最小方向仍向下\"、现货ETF 2026年净流出约19亿美元、Fed纪要(19:00 UTC Nov18)偏鹰风险未落地。偏多一侧：$62k低点后空头回补式反弹、Binance月报称G10收紧放缓。Polymarket(Chainlink TWAP、平局记涨)与Kalshi(触及价结算至12-01)与本题Coinbase现货+固定基线规则不一致，不直接换算。综合：轻微低于中性0.5，取0.47。",
+    "evidenceIds": [
+      "course_evidence_e1730238d3273d0b3b1380d333f50e75",
+      "course_evidence_ec2cc55d9ccbed4e670ab5bc8a01e341",
+      "course_evidence_5ab359f5b9174bbf97f9fc0d16e44055",
+      "course_evidence_49761f0688fac01e52882323bdcf7bb8",
+      "course_evidence_fb6e7304924ebcdb62788664a5ceb9db",
+      "course_evidence_633f0e91fa52d4385a654598885851e8",
+      "course_evidence_7dc19bcbcf8bcf98ac3643a2e3c76cff",
+      "course_evidence_a054493eb1731e9ba3ed1cd9b13ad074",
+      "course_evidence_e399cc7ebda0f2ababa063f457222325"
+    ],
+    "evidenceAdequacy": "adequate",
+    "dissent": [
+      "Kalshi聚合页出现↓80,000=100%与↑80,000=2%并存的矛盾数值，报价质量存疑，未用作精确概率依据。",
+      "目标时点精确到小时/分钟级盘口与挂单深度缺失，0.47为'当前价≈基线+短期偏空'的条件近似，非可复算盘口概率。"
+    ],
+    "issuedAt": "2026-11-18T18:25:10.672Z",
+    "publishedAt": "2026-11-18T18:25:10.672Z",
+    "knowledgeCutoff": "2026-11-18T18:25:10.672Z",
+    "targetAt": "2026-11-19T17:46:51.293Z",
+    "resolutionRuleVersion": 1,
+    "modelMode": "live",
+    "modelRef": "deepseek-v4-pro",
+    "sourceMode": "live",
+    "kind": "forecast",
+    "defaultAssumptions": [
+      "默认观察窗口从本次创建 2026-11-19 01:46:51 (Asia/Shanghai, UTC+08:00) 至 2026-11-20 01:46:51 (Asia/Shanghai, UTC+08:00)；用户明确指定的条件优先。",
+      "“回升”默认指目标时点 BTC-USD 价格高于本轮实际取得的最近可验证现价，不另设任意涨幅阈值；拿不到数值基准时只作有资料依据的条件性方向估计，不计分。",
+      "基准价为本轮经 Coinbase 取得的 BTC-USD 现价 63,091.745 USD，作为“回升”的比较基线（快照已保存）。",
+      "“回升”指目标时点 BTC-USD 价格高于该基准价，不另设任意涨幅阈值。",
+      "结算以 Coinbase BTC-USD 现货现价为准；若 Coinbase 不可用，采用可验证的主要现货交易所价格并说明替代来源。",
+      "观察窗口与目标时点以 UTC 为权威；本地标签仅作显示。",
+      "用户未指定交易所、发帖类型、账号或阈值等，按默认常识假设继续，不把常见缺项退回用户。"
+    ],
+    "currentReference": {
+      "kind": "price",
+      "value": 63091.745,
+      "unit": "USD",
+      "currency": "USD",
+      "pair": "BTC-USD",
+      "observedAt": "2026-11-18T18:22:13.475Z",
+      "url": "https://api.coinbase.com/v2/prices/BTC-USD/spot",
+      "evidenceId": "course_evidence_e1730238d3273d0b3b1380d333f50e75",
+      "verified": true,
+      "synthetic": false,
+      "timestampMeaning": "system-observation-time"
+    },
+    "sourceLimitations": [
+      "本轮直接读取到 Coinbase 现价快照与一篇 KuCoin 市场评论（发布于观察窗口开始前），评论仅作背景，不作结算依据。",
+      "部分搜索片段（OKX、Gate 广场）所述价格区间（约 7.3–7.5 万美元）与当前基准价（约 6.31 万美元）不符，疑为旧文或不同时段，未采信。",
+      "无法访问私有账户/订单流/交易所内部数据，不评估单一主体持仓或资金流向的精确数值。",
+      "报价时间为系统取得该公开价格的观察时间，不冒充交易所逐笔成交时间。"
+    ],
+    "researchBasis": {
+      "mode": "alternative-public",
+      "summary": "已读取公开研究依据；这不等同于官方已经确认未来结果。"
+    },
+    "timeContext": {
+      "nowUtc": "2026-11-18T18:23:05.207Z",
+      "nowLocalLabel": "2026-11-19 02:23:05 (Asia/Shanghai, UTC+08:00)",
+      "windowStartsAtUtc": "2026-11-18T17:46:51.293Z",
+      "windowStartsAtLocalLabel": "2026-11-19 01:46:51 (Asia/Shanghai, UTC+08:00)",
+      "targetAtUtc": "2026-11-19T17:46:51.293Z",
+      "targetAtLocalLabel": "2026-11-20 01:46:51 (Asia/Shanghai, UTC+08:00)",
+      "forecastClosesAtUtc": "2026-11-19T17:46:51.293Z",
+      "forecastClosesAtLocalLabel": "2026-11-20 01:46:51 (Asia/Shanghai, UTC+08:00)",
+      "timezone": "Asia/Shanghai",
+      "utcOffset": "UTC+08:00",
+      "authority": "UTC instant is authoritative; local labels are server-generated and display-only."
+    },
+    "baseline": {
+      "kind": "price",
+      "value": 63091.745,
+      "unit": "USD",
+      "currency": "USD",
+      "pair": "BTC-USD",
+      "observedAt": "2026-11-18T18:22:13.475Z",
+      "url": "https://api.coinbase.com/v2/prices/BTC-USD/spot",
+      "evidenceId": "course_evidence_e1730238d3273d0b3b1380d333f50e75",
+      "verified": true,
+      "synthetic": false,
+      "timestampMeaning": "system-observation-time"
+    },
+    "scoringEligible": true,
+    "label": "模型事件概率估计"
+  },
+  "baselineUnchanged": true,
+  "memory": {
+    "historical": true,
+    "sourceRunIds": [
+      "course_run_9fdece31-dd1e-49c0-bdb9-43d222cf789e"
+    ],
+    "previousForecast": {
+      "forecastId": "course_forecast_bb18d299-90b8-418f-a477-72d935817a83",
+      "probabilityYes": 0.47,
+      "issuedAt": "2026-11-18T18:25:10.672Z",
+      "modelMode": "live",
+      "modelRef": "deepseek-v4-pro"
+    },
+    "reportCount": 3,
+    "relationCount": 8,
+    "summary": "历史记忆：3份报告、8条关系及上一判断。这些是历史上下文，不是本轮新取得证据；必须重新读取才能引用为当前证据。"
+  },
+  "triage": {
+    "kind": "no_change",
+    "reason": "内容重复、价格变化未达阈值或来源不可读，不新增概率。",
+    "selectedRoleIds": [],
+    "newEvidenceIds": [],
+    "duplicateCount": 6,
+    "comparedToRunId": "course_run_9fdece31-dd1e-49c0-bdb9-43d222cf789e"
+  },
+  "team": [],
+  "usage": {
+    "modelRequests": 0,
+    "toolCalls": 8,
+    "totalTokens": 0,
+    "unknownUsage": false
+  },
+  "watch": {
+    "status": "active",
+    "policySummary": "先去重；价格累计变化至少0.5%或出现新相关正文才分诊。普通变化相关研究员加核验两人，重大或冲突召回本题团队；不等所有来源轮询完成。",
+    "lastTriage": {
+      "kind": "no_change",
+      "reason": "内容重复、价格变化未达阈值或来源不可读，不新增概率。",
+      "selectedRoleIds": [],
+      "newEvidenceIds": [],
+      "duplicateCount": 6,
+      "comparedToRunId": "course_run_9fdece31-dd1e-49c0-bdb9-43d222cf789e"
+    }
+  },
+  "assignments": [],
+  "createdAt": "2026-11-18T18:27:24.452Z",
+  "updatedAt": "2026-11-18T18:27:34.904Z"
+}

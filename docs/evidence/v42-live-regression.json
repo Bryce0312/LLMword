@@ -1,0 +1,2839 @@
+{
+  "schemaVersion": 1,
+  "version": "4.2",
+  "generatedAt": "2026-11-22T12:17:42.308Z",
+  "scope": "8 existing real live QA cases; includes preserved semantic failure, active/queued cancellation, memory/watch continuity, and sealed-window retests.",
+  "audit": {
+    "readOnly": true,
+    "httpMethods": [
+      "GET"
+    ],
+    "modelRequestsInitiatedByThisAudit": 0,
+    "sourceRequestsInitiatedByThisAudit": 0,
+    "taskMutationsByThisAudit": 0,
+    "mockOrSimulatedPredictionsUsed": false,
+    "privateProtocolsIncluded": false,
+    "apiKeysIncluded": false,
+    "longSourceBodiesIncluded": false,
+    "rawLocalObserverRecordsExcludedFromRepository": true
+  },
+  "cases": [
+    {
+      "caseId": "apple-us-calendar-and-restart",
+      "sourcePort": 4205,
+      "requestId": "course_request_4a017234-5b6b-4935-984b-755cf5b07e8a",
+      "question": "苹果 AAPL 股价会跌",
+      "requestStatus": "stopped",
+      "observationMethod": "GET-only public local API; no model/source calls or task mutations initiated by this audit",
+      "originalCreatedAt": "2026-11-22T11:45:58.676Z",
+      "financialTargetPolicy": "listed-price-target-v1",
+      "target": {
+        "predictionId": "prediction_course_request_4a017234-5b6b-4935-984b-755cf5b07e8a",
+        "predictionVersion": 1,
+        "market": "US",
+        "marketSelection": "identified",
+        "timezone": "America/New_York",
+        "targetAt": "2026-11-25T21:00:00.000Z",
+        "tradingDays": 3,
+        "temporalPolicy": "at_target"
+      },
+      "run": {
+        "runId": "course_run_54dbd66d-e5be-4234-84a3-7cb1b2b76bd8",
+        "trigger": "manual",
+        "status": "completed",
+        "phase": "finished",
+        "createdAt": "2026-11-22T11:45:58.681Z",
+        "updatedAt": "2026-11-22T11:47:15.140Z",
+        "modelMode": "live",
+        "sourceMode": "live",
+        "modelRef": "deepseek-flash",
+        "notMock": true,
+        "usage": {
+          "modelRequests": 22,
+          "toolCalls": 17,
+          "totalTokens": 224977,
+          "promptTokens": 206349,
+          "completionTokens": 18628,
+          "cacheHitTokens": 22784,
+          "cacheMissTokens": 183565,
+          "unknownUsage": false
+        },
+        "workerModelRequests": 20,
+        "mainOrCoordinatorModelRequests": 2,
+        "roles": [
+          {
+            "assignmentId": "course_run_54dbd66d-e5be-4234-84a3-7cb1b2b76bd8_market_initial",
+            "roleId": "market",
+            "followUp": false,
+            "status": "completed",
+            "reportStatus": "complete",
+            "reportProbability": 0.5,
+            "partialProbability": 0.53,
+            "usableReportStatus": "complete",
+            "usage": {
+              "modelRequests": 8,
+              "toolCalls": 6,
+              "totalTokens": 81299,
+              "unknownUsage": false,
+              "investigationRequests": 5,
+              "reportRequests": 3
+            },
+            "error": null,
+            "partialAudit": {
+              "mode": "validated-partial-model-report",
+              "modelGenerated": true,
+              "substantiveReportComplete": false,
+              "originalStatus": "complete",
+              "originalProbabilityPreserved": true,
+              "rejectedCount": 1,
+              "usageKnown": true
+            }
+          },
+          {
+            "assignmentId": "course_run_54dbd66d-e5be-4234-84a3-7cb1b2b76bd8_statistics_initial",
+            "roleId": "statistics",
+            "followUp": false,
+            "status": "completed",
+            "reportStatus": "complete",
+            "reportProbability": 0.53,
+            "partialProbability": 0.52,
+            "usableReportStatus": "complete",
+            "usage": {
+              "modelRequests": 6,
+              "toolCalls": 6,
+              "totalTokens": 64157,
+              "unknownUsage": false,
+              "investigationRequests": 4,
+              "reportRequests": 2
+            },
+            "error": null,
+            "partialAudit": {
+              "mode": "validated-partial-model-report",
+              "modelGenerated": true,
+              "substantiveReportComplete": false,
+              "originalStatus": "complete",
+              "originalProbabilityPreserved": true,
+              "rejectedCount": 1,
+              "usageKnown": true
+            }
+          },
+          {
+            "assignmentId": "course_run_54dbd66d-e5be-4234-84a3-7cb1b2b76bd8_verification_initial",
+            "roleId": "verification",
+            "followUp": false,
+            "status": "completed",
+            "reportStatus": "insufficient",
+            "reportProbability": null,
+            "partialProbability": 0.52,
+            "usableReportStatus": "insufficient",
+            "usage": {
+              "modelRequests": 6,
+              "toolCalls": 5,
+              "totalTokens": 61665,
+              "unknownUsage": false,
+              "investigationRequests": 3,
+              "reportRequests": 3
+            },
+            "error": null,
+            "partialAudit": {
+              "mode": "validated-partial-model-report",
+              "modelGenerated": true,
+              "substantiveReportComplete": false,
+              "originalStatus": "complete",
+              "originalProbabilityPreserved": true,
+              "rejectedCount": 2,
+              "usageKnown": true
+            }
+          }
+        ],
+        "toolCallCounts": {
+          "search_web": 6,
+          "fetch_page": 9,
+          "search_news": 2,
+          "submit_report": 8
+        },
+        "errorCounts": {
+          "byEvent": {
+            "tool.failed": 7,
+            "model.failed": 1,
+            "budget.closeout": 1
+          },
+          "byCode": {},
+          "byTool": {
+            "submit_report": 6,
+            "fetch_page": 1
+          },
+          "terminalError": null
+        },
+        "memory": {
+          "historical": true,
+          "sourceRunIds": [],
+          "previousForecastId": null,
+          "previousProbability": null,
+          "reportCount": 0,
+          "relationCount": 0,
+          "policyVersion": "2.0",
+          "shortTermDays": 7,
+          "maxJudgments": 4,
+          "longTermDays": 90,
+          "crossRequestRetrieval": false,
+          "parameterTraining": false
+        },
+        "memoryLoadedEvents": [
+          {
+            "eventId": "event_a94caacd-ed50-46c0-bb4f-d281cac82dc0",
+            "scope": "live",
+            "sourceRunIds": [],
+            "previousForecastId": null,
+            "previousProbability": null,
+            "reportCount": 0,
+            "relationCount": 0
+          }
+        ],
+        "evidenceProvenance": {
+          "count": 7,
+          "sourceModes": [
+            "live"
+          ],
+          "fixtureOrSyntheticCount": 0,
+          "allHaveActualReaders": true,
+          "allSameRun": true,
+          "sources": [
+            {
+              "evidenceId": "course_evidence_0ee50b6956a2a1959a402e7134b3fa07",
+              "url": "https://investor.apple.com/investor-relations/stock-price/",
+              "contentHash": "sha256:9274530e3c1c1ab15c94ace39f21884b0975dbd97f4f07a75b131e27d70da2b8",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T11:46:12.044Z",
+              "publishedAt": "2026-11-15T16:00:00.000Z",
+              "readers": [
+                "course_run_54dbd66d-e5be-4234-84a3-7cb1b2b76bd8_market_initial",
+                "course_run_54dbd66d-e5be-4234-84a3-7cb1b2b76bd8_statistics_initial"
+              ]
+            },
+            {
+              "evidenceId": "course_evidence_47f789d57d2773cf4cf1cbfbd9521cda",
+              "url": "https://stockanalysis.com/stocks/aapl/history/",
+              "contentHash": "sha256:1a8ebb31b3c7c1ce50b79d0f1c076e3f7a870be7be9c0ae946f6f0c63e3a1b71",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T11:46:16.717Z",
+              "publishedAt": "2026-11-19T16:00:00.000Z",
+              "readers": [
+                "course_run_54dbd66d-e5be-4234-84a3-7cb1b2b76bd8_statistics_initial"
+              ]
+            },
+            {
+              "evidenceId": "course_evidence_581c4b8166cd31c2ecc7808200be72af",
+              "url": "https://news.einfomax.co.kr/news/articleView.html?idxno=4444858",
+              "contentHash": "sha256:14907004505f7848180182448e949fbb374500ca8781b730b2cdaa04fd1e6639",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T11:46:39.880Z",
+              "publishedAt": "2026-11-15T16:00:00.000Z",
+              "readers": [
+                "course_run_54dbd66d-e5be-4234-84a3-7cb1b2b76bd8_verification_initial"
+              ]
+            },
+            {
+              "evidenceId": "course_evidence_84cfb0bb6a59b71fe149564ae5fa37e2",
+              "url": "https://www.moomoo.com/hans/stock/AAPL-US",
+              "contentHash": "sha256:09c5aa262372896034d013220f17bb6a27d992487c7f2a902e301da6bf90f492",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T11:46:12.276Z",
+              "publishedAt": "2026-11-19T16:00:00.000Z",
+              "readers": [
+                "course_run_54dbd66d-e5be-4234-84a3-7cb1b2b76bd8_statistics_initial"
+              ]
+            },
+            {
+              "evidenceId": "course_evidence_88913386b6d789e38ef3faba15c7b3bc",
+              "url": "https://www.moomoo.com/hans/stock/AAPL-US",
+              "contentHash": "sha256:21b89a3ed40994e56319baeb241388e84f4d9fa5263210c3825242221e0ec091",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T11:46:12.268Z",
+              "publishedAt": "2026-11-19T16:00:00.000Z",
+              "readers": [
+                "course_run_54dbd66d-e5be-4234-84a3-7cb1b2b76bd8_market_initial"
+              ]
+            },
+            {
+              "evidenceId": "course_evidence_a33fec857d030f378a385c0ef4197f0d",
+              "url": "https://www.stcn.com/article/detail/4344778.html",
+              "contentHash": "sha256:ab524a9bedd19e3398d6928721af89ee078bc56a79365fa1ce0143840158d146",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T11:46:26.675Z",
+              "publishedAt": "2026-11-19T16:00:00.000Z",
+              "readers": [
+                "course_run_54dbd66d-e5be-4234-84a3-7cb1b2b76bd8_market_initial"
+              ]
+            },
+            {
+              "evidenceId": "course_evidence_ecd8241cd8eb18d128fa8fe69b9c40da",
+              "url": "https://stockanalysis.com/stocks/aapl/",
+              "contentHash": "sha256:615fdc86f060926fcc418402e3186003e9c8d481609a987f04e7221d5c716d02",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T11:46:09.726Z",
+              "publishedAt": null,
+              "readers": [
+                "course_run_54dbd66d-e5be-4234-84a3-7cb1b2b76bd8_verification_initial"
+              ]
+            }
+          ]
+        },
+        "closeoutFailure": null
+      },
+      "forecast": {
+        "forecastId": "course_forecast_ba75d103-858a-4407-8077-57c1b6b38fc7",
+        "runId": "course_run_54dbd66d-e5be-4234-84a3-7cb1b2b76bd8",
+        "predictionId": "prediction_course_request_4a017234-5b6b-4935-984b-755cf5b07e8a",
+        "predictionVersion": 1,
+        "probabilityYes": 0.52,
+        "probabilityNo": 0.48,
+        "issuedAt": "2026-11-22T11:47:15.111Z",
+        "targetAt": "2026-11-25T21:00:00.000Z",
+        "modelMode": "live",
+        "sourceMode": "live",
+        "modelRef": "deepseek-flash",
+        "kind": "conditional_estimate",
+        "publicationMode": "model-provisional-estimate",
+        "scoringEligible": false,
+        "reviewRequired": true,
+        "conditionalOnly": true,
+        "baselineVerified": false,
+        "evidenceAdequacy": "limited",
+        "reportAdequacy": {
+          "eligibleRoleCount": 3,
+          "completeRoleCount": 2,
+          "partialRoleCount": 1,
+          "acceptedAssignmentIds": [
+            "course_run_54dbd66d-e5be-4234-84a3-7cb1b2b76bd8_market_initial",
+            "course_run_54dbd66d-e5be-4234-84a3-7cb1b2b76bd8_statistics_initial",
+            "course_run_54dbd66d-e5be-4234-84a3-7cb1b2b76bd8_verification_initial"
+          ],
+          "preliminary": true
+        },
+        "evidenceCount": 4,
+        "groundedClaimCount": 7,
+        "decisions": [
+          {
+            "assignmentId": "course_run_54dbd66d-e5be-4234-84a3-7cb1b2b76bd8_market_initial",
+            "disposition": "adopted",
+            "reportQuality": null,
+            "evidenceCount": 2
+          },
+          {
+            "assignmentId": "course_run_54dbd66d-e5be-4234-84a3-7cb1b2b76bd8_statistics_initial",
+            "disposition": "adopted",
+            "reportQuality": null,
+            "evidenceCount": 2
+          },
+          {
+            "assignmentId": "course_run_54dbd66d-e5be-4234-84a3-7cb1b2b76bd8_verification_initial",
+            "disposition": "qualified",
+            "reportQuality": "partial",
+            "evidenceCount": 1
+          }
+        ],
+        "probabilityOrigin": "main-model-proposal",
+        "modelGenerated": true
+      },
+      "delivery": null,
+      "watchAndRestart": {
+        "observerSource": "work/full-live-qa/watch-restart.json",
+        "outcome": "one-natural-watch-run-completed",
+        "browserClosureEvidence": {
+          "source": "Reported by lead agent; browser state is not inspected by this API observer.",
+          "independentlyVerifiedByApiObserver": false
+        },
+        "observerModelOrSourceCalls": 0,
+        "observerTaskMutations": 0,
+        "initialForecastHash": "1bcfacb93b0dd6fa9f711cbd4def33f5ef13836460b47e2089d4ccf466f1fab4",
+        "independentlyRecomputedOriginalForecastHash": "1bcfacb93b0dd6fa9f711cbd4def33f5ef13836460b47e2089d4ccf466f1fab4",
+        "originalForecastHashUnchanged": true,
+        "originalEvidence": {
+          "beforeCount": 7,
+          "afterCount": 7,
+          "missingEvidenceIds": [],
+          "changedContentHashIds": [],
+          "changedBodyHashIds": [],
+          "changedOriginalMetadataIds": [],
+          "unchanged": true
+        },
+        "observerImmutableChecks": {
+          "forecastUnchanged": true,
+          "originalProbabilityUnchanged": true,
+          "evidenceCountUnchanged": true,
+          "missingEvidenceIds": [],
+          "changedContentHashIds": [],
+          "changedBodyHashIds": [],
+          "changedOriginalMetadataIds": []
+        },
+        "naturalWatchRuns": [
+          {
+            "run": {
+              "runId": "course_run_95aaf22d-b9dd-4f88-a581-41c17891750c",
+              "trigger": "watch",
+              "status": "completed",
+              "phase": "finished",
+              "createdAt": "2026-11-22T11:48:45.153Z",
+              "updatedAt": "2026-11-22T11:51:28.671Z",
+              "modelMode": "live",
+              "sourceMode": "live",
+              "modelRef": "deepseek-flash",
+              "notMock": true,
+              "usage": {
+                "modelRequests": 25,
+                "toolCalls": 22,
+                "totalTokens": 372405,
+                "promptTokens": 342484,
+                "completionTokens": 29921,
+                "cacheHitTokens": 25728,
+                "cacheMissTokens": 316756,
+                "unknownUsage": false
+              },
+              "workerModelRequests": 16,
+              "mainOrCoordinatorModelRequests": 9,
+              "roles": [
+                {
+                  "assignmentId": "course_run_95aaf22d-b9dd-4f88-a581-41c17891750c_market_initial",
+                  "roleId": "market",
+                  "followUp": false,
+                  "status": "completed",
+                  "reportStatus": "insufficient",
+                  "reportProbability": null,
+                  "partialProbability": 0.5,
+                  "usableReportStatus": null,
+                  "usage": {
+                    "modelRequests": 4,
+                    "toolCalls": 2,
+                    "totalTokens": 52161,
+                    "unknownUsage": false,
+                    "investigationRequests": 1,
+                    "reportRequests": 3
+                  },
+                  "error": null,
+                  "partialAudit": {
+                    "mode": "validated-partial-model-report",
+                    "modelGenerated": true,
+                    "substantiveReportComplete": false,
+                    "originalStatus": "complete",
+                    "originalProbabilityPreserved": true,
+                    "rejectedCount": 1,
+                    "usageKnown": true
+                  }
+                },
+                {
+                  "assignmentId": "course_run_95aaf22d-b9dd-4f88-a581-41c17891750c_verification_initial",
+                  "roleId": "verification",
+                  "followUp": false,
+                  "status": "completed",
+                  "reportStatus": "insufficient",
+                  "reportProbability": null,
+                  "partialProbability": 0.47,
+                  "usableReportStatus": null,
+                  "usage": {
+                    "modelRequests": 5,
+                    "toolCalls": 5,
+                    "totalTokens": 69029,
+                    "unknownUsage": false,
+                    "investigationRequests": 3,
+                    "reportRequests": 2
+                  },
+                  "error": null,
+                  "partialAudit": {
+                    "mode": "validated-partial-model-report",
+                    "modelGenerated": true,
+                    "substantiveReportComplete": false,
+                    "originalStatus": "complete",
+                    "originalProbabilityPreserved": true,
+                    "rejectedCount": 2,
+                    "usageKnown": true
+                  }
+                },
+                {
+                  "assignmentId": "course_run_95aaf22d-b9dd-4f88-a581-41c17891750c_verification_followup_2",
+                  "roleId": "verification",
+                  "followUp": true,
+                  "status": "completed",
+                  "reportStatus": "insufficient",
+                  "reportProbability": null,
+                  "partialProbability": 0.47,
+                  "usableReportStatus": "insufficient",
+                  "usage": {
+                    "modelRequests": 4,
+                    "toolCalls": 5,
+                    "totalTokens": 74036,
+                    "unknownUsage": false,
+                    "investigationRequests": 2,
+                    "reportRequests": 2
+                  },
+                  "error": null,
+                  "partialAudit": {
+                    "mode": "validated-partial-model-report",
+                    "modelGenerated": true,
+                    "substantiveReportComplete": false,
+                    "originalStatus": "complete",
+                    "originalProbabilityPreserved": true,
+                    "rejectedCount": 2,
+                    "usageKnown": true
+                  }
+                },
+                {
+                  "assignmentId": "course_run_95aaf22d-b9dd-4f88-a581-41c17891750c_market_followup_3",
+                  "roleId": "market",
+                  "followUp": true,
+                  "status": "completed",
+                  "reportStatus": "insufficient",
+                  "reportProbability": null,
+                  "partialProbability": 0.5,
+                  "usableReportStatus": "insufficient",
+                  "usage": {
+                    "modelRequests": 3,
+                    "toolCalls": 7,
+                    "totalTokens": 55474,
+                    "unknownUsage": false,
+                    "investigationRequests": 2,
+                    "reportRequests": 1
+                  },
+                  "error": null,
+                  "partialAudit": {
+                    "mode": "validated-partial-model-report",
+                    "modelGenerated": true,
+                    "substantiveReportComplete": false,
+                    "originalStatus": "complete",
+                    "originalProbabilityPreserved": true,
+                    "rejectedCount": 2,
+                    "usageKnown": true
+                  }
+                }
+              ],
+              "toolCallCounts": {
+                "fetch_page": 15,
+                "search_web": 1,
+                "search_news": 2,
+                "submit_report": 8,
+                "read_run_evidence": 4
+              },
+              "errorCounts": {
+                "byEvent": {
+                  "action.rejected": 4,
+                  "tool.failed": 9,
+                  "budget.closeout": 4
+                },
+                "byCode": {
+                  "DELEGATION_ROLES": 1,
+                  "MAIN_ARGUMENTS": 2,
+                  "COURSE_FAILED": 1
+                },
+                "byTool": {
+                  "delegate_work": 2,
+                  "submit_report": 8,
+                  "fetch_page": 1,
+                  "propose_forecast": 2
+                },
+                "terminalError": null
+              },
+              "memory": {
+                "historical": true,
+                "sourceRunIds": [
+                  "course_run_54dbd66d-e5be-4234-84a3-7cb1b2b76bd8"
+                ],
+                "previousForecastId": "course_forecast_ba75d103-858a-4407-8077-57c1b6b38fc7",
+                "previousProbability": 0.52,
+                "reportCount": 3,
+                "relationCount": 8,
+                "policyVersion": "2.0",
+                "shortTermDays": 7,
+                "maxJudgments": 4,
+                "longTermDays": 90,
+                "crossRequestRetrieval": false,
+                "parameterTraining": false
+              },
+              "memoryLoadedEvents": [
+                {
+                  "eventId": "event_f0c5fb83-1bca-43e0-a2ba-3205bd350911",
+                  "scope": "live",
+                  "sourceRunIds": [
+                    "course_run_54dbd66d-e5be-4234-84a3-7cb1b2b76bd8"
+                  ],
+                  "previousForecastId": "course_forecast_ba75d103-858a-4407-8077-57c1b6b38fc7",
+                  "previousProbability": 0.52,
+                  "reportCount": 3,
+                  "relationCount": 8
+                }
+              ],
+              "evidenceProvenance": {
+                "count": 12,
+                "sourceModes": [
+                  "live"
+                ],
+                "fixtureOrSyntheticCount": 0,
+                "allHaveActualReaders": true,
+                "allSameRun": true,
+                "sources": [
+                  {
+                    "evidenceId": "course_evidence_00e6674de667e4e7fe39be711ef4acd4",
+                    "url": "https://stockanalysis.com/stocks/aapl/",
+                    "contentHash": "sha256:4eae760d584819dfafbcbf7ed1eeaa19489388559bac95617e1b2c25cc1a0aef",
+                    "sourceMode": "live",
+                    "obtainedAt": "2026-11-22T11:49:35.331Z",
+                    "publishedAt": null,
+                    "readers": [
+                      "course_run_95aaf22d-b9dd-4f88-a581-41c17891750c_verification_initial"
+                    ]
+                  },
+                  {
+                    "evidenceId": "course_evidence_08ef123bc7a2ec3e212368431320bacc",
+                    "url": "https://in.marketscreener.com/news/apple-inc-jp-morgan-reiterates-its-buy-rating-ce785ed2d880f626",
+                    "contentHash": "sha256:54bf601f18c4d5485c822c3ffdb845b43a121f2fbf52e97d98f017579d78c3f2",
+                    "sourceMode": "live",
+                    "obtainedAt": "2026-11-22T11:49:19.147Z",
+                    "publishedAt": "2026-11-18T16:00:00.000Z",
+                    "readers": [
+                      "course_run_95aaf22d-b9dd-4f88-a581-41c17891750c_verification_initial"
+                    ]
+                  },
+                  {
+                    "evidenceId": "course_evidence_0ed7846821a784911c6c36177f69d863",
+                    "url": "https://stockanalysis.com/stocks/aapl/forecast/",
+                    "contentHash": "sha256:4382a9084df34947960e7a3b6b7d485bf50a0429683cca6291359d9af08e3838",
+                    "sourceMode": "live",
+                    "obtainedAt": "2026-11-22T11:49:28.268Z",
+                    "publishedAt": "2026-11-15T16:00:00.000Z",
+                    "readers": [
+                      "course_run_95aaf22d-b9dd-4f88-a581-41c17891750c_verification_initial"
+                    ]
+                  },
+                  {
+                    "evidenceId": "course_evidence_7e72a0d59539b5a5291a24aa5d8e08dc",
+                    "url": "https://finance.sina.com.cn/wm/2026-11-21/doc-iniznakn3556447.shtml",
+                    "contentHash": "sha256:e089a557d7c3e6f0e5c02865c1db8bdbb814c9585561013dedd8fb22f5962156",
+                    "sourceMode": "live",
+                    "obtainedAt": "2026-11-22T11:50:15.334Z",
+                    "publishedAt": "2026-11-20T16:00:00.000Z",
+                    "readers": [
+                      "course_run_95aaf22d-b9dd-4f88-a581-41c17891750c_verification_followup_2"
+                    ]
+                  },
+                  {
+                    "evidenceId": "course_evidence_ac15319f20dd15ebdcc2c2caaae5ad7c",
+                    "url": "https://in.marketscreener.com/news/apple-inc-jp-morgan-reiterates-its-buy-rating-ce785ed2d880f626",
+                    "contentHash": "sha256:6aab0e46a984d78d646362f76645325a20c9ec42cc30a8ab1f686de6aa0be21c",
+                    "sourceMode": "live",
+                    "obtainedAt": "2026-11-22T11:50:50.866Z",
+                    "publishedAt": null,
+                    "readers": [
+                      "course_run_95aaf22d-b9dd-4f88-a581-41c17891750c_market_followup_3"
+                    ]
+                  },
+                  {
+                    "evidenceId": "course_evidence_b22bc7f8dde969fd4e8e1215c09ce400",
+                    "url": "https://finance.sina.com.cn/wm/2026-11-21/doc-iniznakn3556447.shtml",
+                    "contentHash": "sha256:56a4050c283f4343c591e78f145766d971e7c0e193b6d4b6d7fd729a08c62837",
+                    "sourceMode": "live",
+                    "obtainedAt": "2026-11-22T11:50:50.776Z",
+                    "publishedAt": null,
+                    "readers": [
+                      "course_run_95aaf22d-b9dd-4f88-a581-41c17891750c_market_followup_3"
+                    ]
+                  },
+                  {
+                    "evidenceId": "course_evidence_b5eebd61883589f2a588e276c5edbf86",
+                    "url": "https://render.alipay.com/p/yuyan/180020010001268694/news.html?newsId=231994637",
+                    "contentHash": "sha256:e00485fd0a8c4ced9da973f623f636624eb8a13dcf9681b6d41685033e64aa95",
+                    "sourceMode": "live",
+                    "obtainedAt": "2026-11-22T11:48:51.147Z",
+                    "publishedAt": null,
+                    "readers": [
+                      "course_run_95aaf22d-b9dd-4f88-a581-41c17891750c_market_followup_3",
+                      "main"
+                    ]
+                  },
+                  {
+                    "evidenceId": "course_evidence_dff0151d32d7b918702443ef78a729ab",
+                    "url": "https://investor.apple.com/investor-relations/stock-price/",
+                    "contentHash": "sha256:9274530e3c1c1ab15c94ace39f21884b0975dbd97f4f07a75b131e27d70da2b8",
+                    "sourceMode": "live",
+                    "obtainedAt": "2026-11-22T11:48:45.433Z",
+                    "publishedAt": null,
+                    "readers": [
+                      "course_run_95aaf22d-b9dd-4f88-a581-41c17891750c_market_initial",
+                      "course_run_95aaf22d-b9dd-4f88-a581-41c17891750c_verification_followup_2",
+                      "main"
+                    ]
+                  },
+                  {
+                    "evidenceId": "course_evidence_e48270a2c78bbfb83f7d084bf6d257c3",
+                    "url": "https://www.ainvest.com/news/apple-duo-wait-times-fell-number-matters-gross-margin-2611/",
+                    "contentHash": "sha256:ba5887df613532e3225627c9631f0bb23426e476efc9841bb76a6039e221b939",
+                    "sourceMode": "live",
+                    "obtainedAt": "2026-11-22T11:50:15.591Z",
+                    "publishedAt": "2026-11-20T16:00:00.000Z",
+                    "readers": [
+                      "course_run_95aaf22d-b9dd-4f88-a581-41c17891750c_verification_followup_2"
+                    ]
+                  },
+                  {
+                    "evidenceId": "course_evidence_ecd8241cd8eb18d128fa8fe69b9c40da",
+                    "url": "https://stockanalysis.com/stocks/aapl/",
+                    "contentHash": "sha256:615fdc86f060926fcc418402e3186003e9c8d481609a987f04e7221d5c716d02",
+                    "sourceMode": "live",
+                    "obtainedAt": "2026-11-22T11:49:16.155Z",
+                    "publishedAt": null,
+                    "readers": [
+                      "course_run_95aaf22d-b9dd-4f88-a581-41c17891750c_market_initial"
+                    ]
+                  },
+                  {
+                    "evidenceId": "course_evidence_efc0a86347e4554a623f454ae468cfc2",
+                    "url": "https://stockanalysis.com/stocks/aapl/forecast/",
+                    "contentHash": "sha256:261807ee8022e119aa801230341f74bf3a8a5ea7db8c40ea70f33bb560a90962",
+                    "sourceMode": "live",
+                    "obtainedAt": "2026-11-22T11:50:11.107Z",
+                    "publishedAt": null,
+                    "readers": [
+                      "course_run_95aaf22d-b9dd-4f88-a581-41c17891750c_verification_followup_2"
+                    ]
+                  },
+                  {
+                    "evidenceId": "course_evidence_fec1b420923d7b9c8b608a627340210e",
+                    "url": "https://stockanalysis.com/stocks/aapl/forecast/",
+                    "contentHash": "sha256:4382a9084df34947960e7a3b6b7d485bf50a0429683cca6291359d9af08e3838",
+                    "sourceMode": "live",
+                    "obtainedAt": "2026-11-22T11:50:50.822Z",
+                    "publishedAt": null,
+                    "readers": [
+                      "course_run_95aaf22d-b9dd-4f88-a581-41c17891750c_market_followup_3"
+                    ]
+                  }
+                ]
+              },
+              "closeoutFailure": null
+            },
+            "forecast": {
+              "forecastId": "course_forecast_4ba6ce70-a05b-4eee-b761-dc91a2188637",
+              "runId": "course_run_95aaf22d-b9dd-4f88-a581-41c17891750c",
+              "predictionId": "prediction_course_request_4a017234-5b6b-4935-984b-755cf5b07e8a",
+              "predictionVersion": 1,
+              "probabilityYes": 0.54,
+              "probabilityNo": 0.45999999999999996,
+              "issuedAt": "2026-11-22T11:51:28.646Z",
+              "targetAt": "2026-11-25T21:00:00.000Z",
+              "modelMode": "live",
+              "sourceMode": "live",
+              "modelRef": "deepseek-flash",
+              "kind": "conditional_estimate",
+              "publicationMode": "model-provisional-estimate",
+              "scoringEligible": false,
+              "reviewRequired": true,
+              "conditionalOnly": true,
+              "baselineVerified": false,
+              "evidenceAdequacy": "limited",
+              "reportAdequacy": {
+                "eligibleRoleCount": 2,
+                "completeRoleCount": 0,
+                "partialRoleCount": 2,
+                "acceptedAssignmentIds": [
+                  "course_run_95aaf22d-b9dd-4f88-a581-41c17891750c_market_followup_3",
+                  "course_run_95aaf22d-b9dd-4f88-a581-41c17891750c_verification_followup_2"
+                ],
+                "preliminary": true
+              },
+              "evidenceCount": 4,
+              "groundedClaimCount": 4,
+              "decisions": [
+                {
+                  "assignmentId": "course_run_95aaf22d-b9dd-4f88-a581-41c17891750c_market_followup_3",
+                  "disposition": "qualified",
+                  "reportQuality": "partial",
+                  "evidenceCount": 2
+                },
+                {
+                  "assignmentId": "course_run_95aaf22d-b9dd-4f88-a581-41c17891750c_verification_followup_2",
+                  "disposition": "qualified",
+                  "reportQuality": "partial",
+                  "evidenceCount": 2
+                },
+                {
+                  "assignmentId": "course_run_95aaf22d-b9dd-4f88-a581-41c17891750c_market_initial",
+                  "disposition": "rejected",
+                  "reportQuality": null,
+                  "evidenceCount": 0
+                },
+                {
+                  "assignmentId": "course_run_95aaf22d-b9dd-4f88-a581-41c17891750c_verification_initial",
+                  "disposition": "rejected",
+                  "reportQuality": null,
+                  "evidenceCount": 0
+                }
+              ],
+              "probabilityOrigin": "main-model-proposal",
+              "modelGenerated": true
+            }
+          }
+        ],
+        "stopVerification": {
+          "checkedAt": "2026-11-22T11:53:06.552Z",
+          "requestStatus": "stopped",
+          "watchStatus": "stopped",
+          "nextDueAt": null,
+          "automaticRunCount": 1,
+          "activeRunId": null,
+          "performedBy": "Lead agent via UI; this observer only GET"
+        },
+        "currentWatch": {
+          "status": "stopped",
+          "nextDueAt": null,
+          "checks": 1,
+          "intervalMs": 90000
+        },
+        "oldWatchVsNewPriceDirectionNote": "Initial and updated probabilities both refer to the original fall/Yes question; the original point is not overwritten.",
+        "hashMethod": "Full original forecast, recursively key-sorted SHA-256 (domain digest), not a metadata projection."
+      },
+      "verifiedOutcome": "US three-session close retained; real initial forecast and one natural post-restart update, then UI stop.",
+      "knownLimits": [
+        "Conditional price estimate with unverified numeric baseline; not a scored forecast or accuracy result.",
+        "Browser closure and stop actions were performed/reported by the lead UI agent, not this GET-only observer.",
+        "The watch run contains nonfatal schema and citation rejections; see error counts."
+      ]
+    },
+    {
+      "caseId": "bytedance-unlisted-price-guard",
+      "sourcePort": 4205,
+      "requestId": "course_request_59bc2bb0-6ae4-432a-9887-abf6d6b3de46",
+      "question": "字节股票",
+      "requestStatus": "insufficient",
+      "observationMethod": "GET-only public local API; no model/source calls or task mutations initiated by this audit",
+      "originalCreatedAt": "2026-11-22T11:50:36.857Z",
+      "financialTargetPolicy": "listed-price-target-v1",
+      "target": {
+        "predictionId": null,
+        "predictionVersion": null,
+        "market": "HK",
+        "marketSelection": "default",
+        "timezone": "Asia/Hong_Kong",
+        "targetAt": "2026-11-27T08:10:00.000Z",
+        "tradingDays": 5,
+        "temporalPolicy": null
+      },
+      "run": {
+        "runId": "course_run_3230edf4-df22-42e9-a88a-b2330fd41c87",
+        "trigger": "manual",
+        "status": "insufficient",
+        "phase": "finished",
+        "createdAt": "2026-11-22T11:50:36.863Z",
+        "updatedAt": "2026-11-22T11:52:30.680Z",
+        "modelMode": "live",
+        "sourceMode": "live",
+        "modelRef": "deepseek-flash",
+        "notMock": true,
+        "usage": {
+          "modelRequests": 19,
+          "toolCalls": 15,
+          "totalTokens": 180971,
+          "promptTokens": 165095,
+          "completionTokens": 15876,
+          "cacheHitTokens": 20096,
+          "cacheMissTokens": 144999,
+          "unknownUsage": false
+        },
+        "workerModelRequests": 18,
+        "mainOrCoordinatorModelRequests": 1,
+        "roles": [
+          {
+            "assignmentId": "course_run_3230edf4-df22-42e9-a88a-b2330fd41c87_market_initial",
+            "roleId": "market",
+            "followUp": false,
+            "status": "completed",
+            "reportStatus": "insufficient",
+            "reportProbability": null,
+            "partialProbability": 0.02,
+            "usableReportStatus": "insufficient",
+            "usage": {
+              "modelRequests": 5,
+              "toolCalls": 4,
+              "totalTokens": 45032,
+              "unknownUsage": false,
+              "investigationRequests": 2,
+              "reportRequests": 3
+            },
+            "error": null,
+            "partialAudit": {
+              "mode": "validated-partial-model-report",
+              "modelGenerated": true,
+              "substantiveReportComplete": false,
+              "originalStatus": "complete",
+              "originalProbabilityPreserved": true,
+              "rejectedCount": 1,
+              "usageKnown": true
+            }
+          },
+          {
+            "assignmentId": "course_run_3230edf4-df22-42e9-a88a-b2330fd41c87_official_initial",
+            "roleId": "official",
+            "followUp": false,
+            "status": "completed",
+            "reportStatus": "insufficient",
+            "reportProbability": null,
+            "partialProbability": null,
+            "usableReportStatus": null,
+            "usage": {
+              "modelRequests": 7,
+              "toolCalls": 6,
+              "totalTokens": 66145,
+              "unknownUsage": false,
+              "investigationRequests": 4,
+              "reportRequests": 3
+            },
+            "error": null,
+            "partialAudit": null
+          },
+          {
+            "assignmentId": "course_run_3230edf4-df22-42e9-a88a-b2330fd41c87_verification_initial",
+            "roleId": "verification",
+            "followUp": false,
+            "status": "completed",
+            "reportStatus": "insufficient",
+            "reportProbability": null,
+            "partialProbability": 0.02,
+            "usableReportStatus": "insufficient",
+            "usage": {
+              "modelRequests": 6,
+              "toolCalls": 5,
+              "totalTokens": 64694,
+              "unknownUsage": false,
+              "investigationRequests": 3,
+              "reportRequests": 3
+            },
+            "error": null,
+            "partialAudit": {
+              "mode": "validated-partial-model-report",
+              "modelGenerated": true,
+              "substantiveReportComplete": false,
+              "originalStatus": "complete",
+              "originalProbabilityPreserved": true,
+              "rejectedCount": 2,
+              "usageKnown": true
+            }
+          }
+        ],
+        "toolCallCounts": {
+          "search_web": 6,
+          "search_news": 1,
+          "fetch_page": 8,
+          "submit_report": 9
+        },
+        "errorCounts": {
+          "byEvent": {
+            "tool.failed": 9,
+            "budget.closeout": 3
+          },
+          "byCode": {},
+          "byTool": {
+            "submit_report": 9
+          },
+          "terminalError": null
+        },
+        "memory": {
+          "historical": true,
+          "sourceRunIds": [],
+          "previousForecastId": null,
+          "previousProbability": null,
+          "reportCount": 0,
+          "relationCount": 0,
+          "policyVersion": "2.0",
+          "shortTermDays": 7,
+          "maxJudgments": 4,
+          "longTermDays": 90,
+          "crossRequestRetrieval": false,
+          "parameterTraining": false
+        },
+        "memoryLoadedEvents": [
+          {
+            "eventId": "event_ad094055-7a10-4ffb-a727-8c795c4f3769",
+            "scope": "live",
+            "sourceRunIds": [],
+            "previousForecastId": null,
+            "previousProbability": null,
+            "reportCount": 0,
+            "relationCount": 0
+          }
+        ],
+        "evidenceProvenance": {
+          "count": 7,
+          "sourceModes": [
+            "live"
+          ],
+          "fixtureOrSyntheticCount": 0,
+          "allHaveActualReaders": true,
+          "allSameRun": true,
+          "sources": [
+            {
+              "evidenceId": "course_evidence_1574fee2d607a8594c6c08a0048657ce",
+              "url": "https://dealroom.co/news/172559-bytedance-marks-itself-at-400b-in-6b-buyback-up-20/",
+              "contentHash": "sha256:d064e8662fb9fe7cb1ffad40dca8ca0ead3c151dbd1f8ea97c6cbe82fa06f9e3",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T11:51:59.098Z",
+              "publishedAt": "2026-11-12T16:00:00.000Z",
+              "readers": [
+                "course_run_3230edf4-df22-42e9-a88a-b2330fd41c87_verification_initial"
+              ]
+            },
+            {
+              "evidenceId": "course_evidence_2aec736cff7c868d0c164c869002273e",
+              "url": "https://www.hk01.com/%E8%B2%A1%E7%B6%93%E5%BF%AB%E8%A8%8A/60363390/%E5%85%A8%E7%90%83%E6%9C%80%E5%A4%A7%E7%8D%A8%E8%A7%92%E7%8D%B8-%E5%AD%97%E7%AF%80%E8%B7%B3%E5%8B%95%E6%93%9A%E5%A0%B1%E5%B0%8B%E6%B1%82200%E5%84%84%E7%BE%8E%E5%85%83%E5%A2%83%E5%A4%96%E8%B2%B8-%E6%9A%AB%E7%84%A1%E6%84%8F%E4%B8%8A%E5%B8%82",
+              "contentHash": "sha256:83f32e263fc248235e1f27431719e6f109627bfbc72c284b577818fe525b7ff0",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T11:51:44.106Z",
+              "publishedAt": "2026-06-23T16:00:00.000Z",
+              "readers": [
+                "course_run_3230edf4-df22-42e9-a88a-b2330fd41c87_official_initial",
+                "course_run_3230edf4-df22-42e9-a88a-b2330fd41c87_verification_initial"
+              ]
+            },
+            {
+              "evidenceId": "course_evidence_6df2b839c761da6e4421802da950955a",
+              "url": "https://www.markets.com/education-centre/bytedance-ipo",
+              "contentHash": "sha256:b4ca4935ce57020f6f54fb8494b0fbb59a941b2a6495e722fc72de1a72a2a36b",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T11:51:44.499Z",
+              "publishedAt": "2026-09-02T16:00:00.000Z",
+              "readers": [
+                "course_run_3230edf4-df22-42e9-a88a-b2330fd41c87_official_initial"
+              ]
+            },
+            {
+              "evidenceId": "course_evidence_c3fc9adc646ff88f0afc359be23cfb4a",
+              "url": "https://finance.eastmoney.com/a/202611203935990091.html",
+              "contentHash": "sha256:a54ae87a2e06ba2bf34f5ef2a936b1acad49760f775dc4899645319ebffe50bd",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T11:51:57.386Z",
+              "publishedAt": "2026-11-19T16:00:00.000Z",
+              "readers": [
+                "course_run_3230edf4-df22-42e9-a88a-b2330fd41c87_verification_initial"
+              ]
+            },
+            {
+              "evidenceId": "course_evidence_c75766a28dab395fa2272e774fd8c9ee",
+              "url": "https://stockanalysis.com/private/bytedance/",
+              "contentHash": "sha256:7c64b53bb40f4175bad36eaa6fc01b6ba5d2c63c26aa73f8610804bcabc44f92",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T11:52:00.622Z",
+              "publishedAt": "2026-11-02T16:00:00.000Z",
+              "readers": [
+                "course_run_3230edf4-df22-42e9-a88a-b2330fd41c87_market_initial"
+              ]
+            },
+            {
+              "evidenceId": "course_evidence_ec2c6e86a5b893d0757b3e4bff45d84d",
+              "url": "https://secure.markets.com/education-centre/bytedance-ipo",
+              "contentHash": "sha256:b4ca4935ce57020f6f54fb8494b0fbb59a941b2a6495e722fc72de1a72a2a36b",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T11:52:07.044Z",
+              "publishedAt": "2026-09-02T16:00:00.000Z",
+              "readers": [
+                "course_run_3230edf4-df22-42e9-a88a-b2330fd41c87_market_initial"
+              ]
+            },
+            {
+              "evidenceId": "course_evidence_f1e8022db8070cf2c58fd5f57364d553",
+              "url": "https://www.jiemian.com/article/15355132.html",
+              "contentHash": "sha256:3824fdbdc61077a038929ff2655d4b07d611cfde9c1f96ad87b869c2c28ee616",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T11:51:56.068Z",
+              "publishedAt": "2026-11-19T16:00:00.000Z",
+              "readers": [
+                "course_run_3230edf4-df22-42e9-a88a-b2330fd41c87_official_initial"
+              ]
+            }
+          ]
+        },
+        "closeoutFailure": null
+      },
+      "forecast": null,
+      "delivery": {
+        "kind": "partial_research",
+        "generatedBy": "harness",
+        "probabilityYes": null,
+        "reason": "PUBLIC_PRICE_TARGET_UNAVAILABLE"
+      },
+      "verifiedOutcome": "Real investigation ended with target clarification and no published price, proxy or IPO probability.",
+      "guard": {
+        "eventCodes": [
+          "PUBLIC_PRICE_TARGET_UNAVAILABLE"
+        ],
+        "forecastCount": 0,
+        "normalizedContractCreated": false,
+        "watchStatus": "off",
+        "probabilityInvented": false,
+        "clarificationGeneratedByHarness": true
+      },
+      "knownLimits": [
+        "Listing identity remained unverified; the result is a clarification/control-flow success, not a price prediction.",
+        "Historical unlisted descriptions are not conclusive proof of current listing status."
+      ]
+    },
+    {
+      "caseId": "cancel-queued-real-task",
+      "sourcePort": 4205,
+      "requestId": "course_request_a79c770a-c4e0-4a1f-822c-89db22fcd53d",
+      "question": "腾讯 00700.HK 股票（取消验收任务）",
+      "requestStatus": "stopped",
+      "observationMethod": "GET-only public local API; no model/source calls or task mutations initiated by this audit",
+      "originalCreatedAt": "2026-11-22T11:51:41.242Z",
+      "financialTargetPolicy": "listed-price-target-v1",
+      "target": {
+        "predictionId": null,
+        "predictionVersion": null,
+        "market": "HK",
+        "marketSelection": "identified",
+        "timezone": "Asia/Hong_Kong",
+        "targetAt": "2026-11-27T08:10:00.000Z",
+        "tradingDays": 5,
+        "temporalPolicy": null
+      },
+      "run": {
+        "runId": "course_run_4b69ec15-61f8-4cbb-a167-fb47be449577",
+        "trigger": "manual",
+        "status": "cancelled",
+        "phase": "intake",
+        "createdAt": "2026-11-22T11:51:41.246Z",
+        "updatedAt": "2026-11-22T11:51:53.195Z",
+        "modelMode": "live",
+        "sourceMode": "live",
+        "modelRef": "deepseek-flash",
+        "notMock": true,
+        "usage": {
+          "modelRequests": 0,
+          "toolCalls": 0,
+          "totalTokens": 0,
+          "promptTokens": 0,
+          "completionTokens": 0,
+          "cacheHitTokens": 0,
+          "cacheMissTokens": 0,
+          "unknownUsage": false
+        },
+        "workerModelRequests": 0,
+        "mainOrCoordinatorModelRequests": 0,
+        "roles": [],
+        "toolCallCounts": {},
+        "errorCounts": {
+          "byEvent": {},
+          "byCode": {},
+          "byTool": {},
+          "terminalError": null
+        },
+        "memory": null,
+        "memoryLoadedEvents": [],
+        "evidenceProvenance": {
+          "count": 0,
+          "sourceModes": [],
+          "fixtureOrSyntheticCount": 0,
+          "allHaveActualReaders": true,
+          "allSameRun": true,
+          "sources": []
+        },
+        "closeoutFailure": null
+      },
+      "forecast": null,
+      "delivery": null,
+      "verifiedOutcome": "Queued live-mode request cancelled before any model or tool request.",
+      "controlFlow": {
+        "zeroModelRequests": true,
+        "zeroToolCalls": true,
+        "zeroUsageTokens": true,
+        "assignmentCount": 0,
+        "forecastCount": 0,
+        "requestStopped": true,
+        "runCancelled": true
+      },
+      "knownLimits": [
+        "No prediction was generated; this validates real queued cancellation, not model behavior."
+      ]
+    },
+    {
+      "caseId": "tencent-manual-memory-update",
+      "sourcePort": 4204,
+      "requestId": "course_request_73e00216-c408-4c3c-ac1f-2a7e3570280e",
+      "question": "腾讯股价",
+      "requestStatus": "completed",
+      "observationMethod": "GET-only public local API; no model/source calls or task mutations initiated by this audit",
+      "originalCreatedAt": "2026-11-22T10:25:24.505Z",
+      "financialTargetPolicy": null,
+      "target": {
+        "predictionId": "prediction_course_request_73e00216-c408-4c3c-ac1f-2a7e3570280e",
+        "predictionVersion": 1,
+        "market": "HK",
+        "marketSelection": "default",
+        "timezone": "Asia/Hong_Kong",
+        "targetAt": "2026-11-23T08:10:00.000Z",
+        "tradingDays": 1,
+        "temporalPolicy": "at_target"
+      },
+      "run": {
+        "runId": "course_run_3d901dc6-01ba-4cab-8d49-df5cb073ec2d",
+        "trigger": "manual",
+        "status": "completed",
+        "phase": "finished",
+        "createdAt": "2026-11-22T11:42:42.999Z",
+        "updatedAt": "2026-11-22T11:44:31.068Z",
+        "modelMode": "live",
+        "sourceMode": "live",
+        "modelRef": "deepseek-flash",
+        "notMock": true,
+        "usage": {
+          "modelRequests": 15,
+          "toolCalls": 11,
+          "totalTokens": 220012,
+          "promptTokens": 202955,
+          "completionTokens": 17057,
+          "cacheHitTokens": 8576,
+          "cacheMissTokens": 194379,
+          "unknownUsage": false
+        },
+        "workerModelRequests": 9,
+        "mainOrCoordinatorModelRequests": 6,
+        "roles": [
+          {
+            "assignmentId": "course_run_3d901dc6-01ba-4cab-8d49-df5cb073ec2d_market_initial",
+            "roleId": "market",
+            "followUp": false,
+            "status": "completed",
+            "reportStatus": "insufficient",
+            "reportProbability": null,
+            "partialProbability": 0.45,
+            "usableReportStatus": "insufficient",
+            "usage": {
+              "modelRequests": 4,
+              "toolCalls": 4,
+              "totalTokens": 60935,
+              "unknownUsage": false,
+              "investigationRequests": 3,
+              "reportRequests": 1
+            },
+            "error": null,
+            "partialAudit": {
+              "mode": "validated-partial-model-report",
+              "modelGenerated": true,
+              "substantiveReportComplete": false,
+              "originalStatus": "complete",
+              "originalProbabilityPreserved": true,
+              "rejectedCount": 2,
+              "usageKnown": true
+            }
+          },
+          {
+            "assignmentId": "course_run_3d901dc6-01ba-4cab-8d49-df5cb073ec2d_verification_initial",
+            "roleId": "verification",
+            "followUp": false,
+            "status": "completed",
+            "reportStatus": "insufficient",
+            "reportProbability": null,
+            "partialProbability": 0.44,
+            "usableReportStatus": "insufficient",
+            "usage": {
+              "modelRequests": 5,
+              "toolCalls": 6,
+              "totalTokens": 78407,
+              "unknownUsage": false,
+              "investigationRequests": 3,
+              "reportRequests": 2
+            },
+            "error": null,
+            "partialAudit": {
+              "mode": "validated-partial-model-report",
+              "modelGenerated": true,
+              "substantiveReportComplete": false,
+              "originalStatus": "complete",
+              "originalProbabilityPreserved": true,
+              "rejectedCount": 1,
+              "usageKnown": true
+            }
+          }
+        ],
+        "toolCallCounts": {
+          "fetch_page": 8,
+          "search_news": 2,
+          "search_web": 1,
+          "submit_report": 3
+        },
+        "errorCounts": {
+          "byEvent": {
+            "action.rejected": 3,
+            "tool.failed": 3,
+            "budget.closeout": 2
+          },
+          "byCode": {
+            "DELEGATION_ROLES": 1,
+            "COURSE_FAILED": 1,
+            "MAIN_ARGUMENTS": 1
+          },
+          "byTool": {
+            "delegate_work": 1,
+            "submit_report": 3,
+            "propose_forecast": 2
+          },
+          "terminalError": null
+        },
+        "memory": {
+          "historical": true,
+          "sourceRunIds": [
+            "course_run_5fe4f852-8eba-498e-acca-ddb681a8c6eb"
+          ],
+          "previousForecastId": "course_forecast_a6b8ca74-336a-4900-a996-d02ea36103d5",
+          "previousProbability": 0.46,
+          "reportCount": 4,
+          "relationCount": 8,
+          "policyVersion": "2.0",
+          "shortTermDays": 7,
+          "maxJudgments": 4,
+          "longTermDays": 90,
+          "crossRequestRetrieval": false,
+          "parameterTraining": false
+        },
+        "memoryLoadedEvents": [
+          {
+            "eventId": "event_07abbe81-c563-483a-b632-e152947a752b",
+            "scope": "live",
+            "sourceRunIds": [
+              "course_run_5fe4f852-8eba-498e-acca-ddb681a8c6eb"
+            ],
+            "previousForecastId": "course_forecast_a6b8ca74-336a-4900-a996-d02ea36103d5",
+            "previousProbability": 0.46,
+            "reportCount": 4,
+            "relationCount": 8
+          }
+        ],
+        "evidenceProvenance": {
+          "count": 6,
+          "sourceModes": [
+            "live"
+          ],
+          "fixtureOrSyntheticCount": 0,
+          "allHaveActualReaders": true,
+          "allSameRun": true,
+          "sources": [
+            {
+              "evidenceId": "course_evidence_899e5062937324b261ed61a04d128999",
+              "url": "https://depositaryreceiptsuat.citi.com/adr/guides/pgm_dispdsfhist.aspx?cusip=88032Q109&pageId=15&subpageID=192",
+              "contentHash": "sha256:42f30b9e9b705ee60479e756a67cc40e6738b93618b5a3712589828475ed1414",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T11:43:25.552Z",
+              "publishedAt": null,
+              "readers": [
+                "course_run_3d901dc6-01ba-4cab-8d49-df5cb073ec2d_verification_initial"
+              ]
+            },
+            {
+              "evidenceId": "course_evidence_98733f8b8c9fdafe8f1c36fcf739ab0d",
+              "url": "https://m.21jingji.com/article/20261120/herald/7bfcdd2799cda535b309ac8e6c603431.html",
+              "contentHash": "sha256:565b1724dc183734180bc2b1a05e23f9059549cbf589803effe5157421b0d645",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T11:43:13.287Z",
+              "publishedAt": "2026-11-19T16:00:00.000Z",
+              "readers": [
+                "course_run_3d901dc6-01ba-4cab-8d49-df5cb073ec2d_market_initial"
+              ]
+            },
+            {
+              "evidenceId": "course_evidence_a40ec9bc27d1a1040acdc5fa15810098",
+              "url": "https://wap.stockstar.com/detail/IG2026112000015264",
+              "contentHash": "sha256:ffba0d91f7f189906d30a4f8a11a8cbdda49dd66d0e85ef0e5f90c790806cf2c",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T11:43:25.773Z",
+              "publishedAt": "2026-11-19T16:00:00.000Z",
+              "readers": [
+                "course_run_3d901dc6-01ba-4cab-8d49-df5cb073ec2d_verification_initial"
+              ]
+            },
+            {
+              "evidenceId": "course_evidence_bc096b8380221fc451c4b9dc46151843",
+              "url": "https://www.etnet.com.hk/www/tc/stocks/realtime/quote_announcement.php?code=700",
+              "contentHash": "sha256:699b70f301768c0d01053bb046814cf475bf2259f0679b9d2a7e6574d0beb935",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T11:43:52.031Z",
+              "publishedAt": null,
+              "readers": [
+                "course_run_3d901dc6-01ba-4cab-8d49-df5cb073ec2d_verification_initial"
+              ]
+            },
+            {
+              "evidenceId": "course_evidence_c9a4deb7e43d23707f954c31761d2d0f",
+              "url": "https://hk.finance.yahoo.com/quote/0700.HK/",
+              "contentHash": "sha256:39e5bc33a51f88e1d38d4ccbaeb538b762350c5007fa8c5dc0e431610a28fea8",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T11:43:04.525Z",
+              "publishedAt": null,
+              "readers": [
+                "course_run_3d901dc6-01ba-4cab-8d49-df5cb073ec2d_market_initial"
+              ]
+            },
+            {
+              "evidenceId": "course_evidence_cdce262cca09f78a8fa2e30f768d4599",
+              "url": "https://cn.investing.com/equities/tencent-holdings-hk-historical-data",
+              "contentHash": "sha256:f7db9ee4feb06b875627e1a72d4703252cf43092c16200e4b91eceaf40a29ffc",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T11:42:43.385Z",
+              "publishedAt": null,
+              "readers": [
+                "course_run_3d901dc6-01ba-4cab-8d49-df5cb073ec2d_market_initial",
+                "course_run_3d901dc6-01ba-4cab-8d49-df5cb073ec2d_verification_initial",
+                "main"
+              ]
+            }
+          ]
+        },
+        "closeoutFailure": null
+      },
+      "forecast": {
+        "forecastId": "course_forecast_cc9d472e-80b5-450c-bb1d-844c109c633b",
+        "runId": "course_run_3d901dc6-01ba-4cab-8d49-df5cb073ec2d",
+        "predictionId": "prediction_course_request_73e00216-c408-4c3c-ac1f-2a7e3570280e",
+        "predictionVersion": 1,
+        "probabilityYes": 0.45,
+        "probabilityNo": 0.55,
+        "issuedAt": "2026-11-22T11:44:31.039Z",
+        "targetAt": "2026-11-23T08:10:00.000Z",
+        "modelMode": "live",
+        "sourceMode": "live",
+        "modelRef": "deepseek-flash",
+        "kind": "conditional_estimate",
+        "publicationMode": "model-provisional-estimate",
+        "scoringEligible": false,
+        "reviewRequired": true,
+        "conditionalOnly": true,
+        "baselineVerified": false,
+        "evidenceAdequacy": "limited",
+        "reportAdequacy": {
+          "eligibleRoleCount": 2,
+          "completeRoleCount": 0,
+          "partialRoleCount": 2,
+          "acceptedAssignmentIds": [
+            "course_run_3d901dc6-01ba-4cab-8d49-df5cb073ec2d_market_initial",
+            "course_run_3d901dc6-01ba-4cab-8d49-df5cb073ec2d_verification_initial"
+          ],
+          "preliminary": true
+        },
+        "evidenceCount": 4,
+        "groundedClaimCount": 5,
+        "decisions": [
+          {
+            "assignmentId": "course_run_3d901dc6-01ba-4cab-8d49-df5cb073ec2d_market_initial",
+            "disposition": "qualified",
+            "reportQuality": "partial",
+            "evidenceCount": 1
+          },
+          {
+            "assignmentId": "course_run_3d901dc6-01ba-4cab-8d49-df5cb073ec2d_verification_initial",
+            "disposition": "qualified",
+            "reportQuality": "partial",
+            "evidenceCount": 4
+          }
+        ],
+        "probabilityOrigin": "main-model-proposal",
+        "modelGenerated": true
+      },
+      "delivery": null,
+      "verifiedOutcome": "Existing real manual update loaded prior same-task memory and published a new unscored conditional probability.",
+      "manualMemory": {
+        "observerSource": "work/full-live-qa/manual-memory.json",
+        "observerModelRequestsInitiated": 0,
+        "priorRunId": "course_run_5fe4f852-8eba-498e-acca-ddb681a8c6eb",
+        "priorForecast": {
+          "forecastId": "course_forecast_a6b8ca74-336a-4900-a996-d02ea36103d5",
+          "probabilityYes": 0.46,
+          "targetAt": "2026-11-23T08:10:00.000Z"
+        },
+        "updatedForecast": {
+          "forecastId": "course_forecast_cc9d472e-80b5-450c-bb1d-844c109c633b",
+          "probabilityYes": 0.45,
+          "targetAt": "2026-11-23T08:10:00.000Z"
+        },
+        "contractChecks": {
+          "samePredictionId": true,
+          "sameVersion": true,
+          "sameTarget": true,
+          "sameBaseline": true
+        },
+        "selectedRoles": [
+          "market",
+          "verification"
+        ],
+        "memoryLoaded": {
+          "historical": true,
+          "sourceRunIds": [
+            "course_run_5fe4f852-8eba-498e-acca-ddb681a8c6eb"
+          ],
+          "previousForecastId": "course_forecast_a6b8ca74-336a-4900-a996-d02ea36103d5",
+          "previousProbability": 0.46,
+          "reportCount": 4,
+          "relationCount": 8,
+          "policyVersion": "2.0",
+          "shortTermDays": 7,
+          "maxJudgments": 4,
+          "longTermDays": 90,
+          "crossRequestRetrieval": false,
+          "parameterTraining": false
+        },
+        "memoryLoadedEvents": [
+          {
+            "eventId": "event_07abbe81-c563-483a-b632-e152947a752b",
+            "scope": "live",
+            "sourceRunIds": [
+              "course_run_5fe4f852-8eba-498e-acca-ddb681a8c6eb"
+            ],
+            "previousForecastId": "course_forecast_a6b8ca74-336a-4900-a996-d02ea36103d5",
+            "previousProbability": 0.46,
+            "reportCount": 4,
+            "relationCount": 8
+          }
+        ]
+      },
+      "knownLimits": [
+        "Memory use and contract continuity were verified, not learning of model parameters or prediction accuracy.",
+        "Published result used audited partial reports; raw program closeout receipts were not counted as complete research."
+      ]
+    },
+    {
+      "caseId": "explicit-ipo-event-original-semantic-failure",
+      "sourcePort": 4205,
+      "requestId": "course_request_82cc96b4-2cb7-4fad-aa24-8ebcc36b74d5",
+      "question": "字节跳动未来会上市吗",
+      "requestStatus": "completed",
+      "observationMethod": "GET-only public local API; no model/source calls or task mutations initiated by this audit",
+      "originalCreatedAt": "2026-11-22T11:54:16.527Z",
+      "financialTargetPolicy": "listed-price-target-v1",
+      "forecastWindowPolicy": null,
+      "target": {
+        "predictionId": "prediction_course_request_82cc96b4-2cb7-4fad-aa24-8ebcc36b74d5",
+        "predictionVersion": 1,
+        "market": "HK",
+        "timezone": "Asia/Hong_Kong",
+        "targetAt": "2026-11-23T08:10:00.000Z",
+        "tradingDays": 1,
+        "temporalPolicy": "by_target"
+      },
+      "run": {
+        "runId": "course_run_a72e6cd4-a9c0-4fda-8344-a8f891ff8371",
+        "trigger": "manual",
+        "status": "completed",
+        "phase": "finished",
+        "createdAt": "2026-11-22T11:54:16.534Z",
+        "updatedAt": "2026-11-22T11:55:58.110Z",
+        "modelMode": "live",
+        "sourceMode": "live",
+        "modelRef": "deepseek-flash",
+        "notMock": true,
+        "usage": {
+          "modelRequests": 20,
+          "toolCalls": 15,
+          "totalTokens": 191152,
+          "promptTokens": 173911,
+          "completionTokens": 17241,
+          "cacheHitTokens": 18816,
+          "cacheMissTokens": 155095,
+          "unknownUsage": false
+        },
+        "workerModelRequests": 18,
+        "mainOrCoordinatorModelRequests": 2,
+        "roles": [
+          {
+            "assignmentId": "course_run_a72e6cd4-a9c0-4fda-8344-a8f891ff8371_official_initial",
+            "roleId": "official",
+            "followUp": false,
+            "status": "completed",
+            "reportStatus": "insufficient",
+            "reportProbability": null,
+            "partialProbability": 0.09,
+            "usableReportStatus": "insufficient",
+            "usage": {
+              "modelRequests": 7,
+              "toolCalls": 6,
+              "totalTokens": 65230,
+              "unknownUsage": false,
+              "investigationRequests": 4,
+              "reportRequests": 3
+            },
+            "error": null,
+            "partialAudit": {
+              "mode": "validated-partial-model-report",
+              "modelGenerated": true,
+              "substantiveReportComplete": false,
+              "originalStatus": "complete",
+              "originalProbabilityPreserved": true,
+              "rejectedCount": 1,
+              "usageKnown": true
+            }
+          },
+          {
+            "assignmentId": "course_run_a72e6cd4-a9c0-4fda-8344-a8f891ff8371_timeline_initial",
+            "roleId": "timeline",
+            "followUp": false,
+            "status": "completed",
+            "reportStatus": "complete",
+            "reportProbability": 0.13,
+            "partialProbability": 0.13,
+            "usableReportStatus": "complete",
+            "usage": {
+              "modelRequests": 6,
+              "toolCalls": 5,
+              "totalTokens": 57422,
+              "unknownUsage": false,
+              "investigationRequests": 4,
+              "reportRequests": 2
+            },
+            "error": null,
+            "partialAudit": {
+              "mode": "validated-partial-model-report",
+              "modelGenerated": true,
+              "substantiveReportComplete": false,
+              "originalStatus": "complete",
+              "originalProbabilityPreserved": true,
+              "rejectedCount": 1,
+              "usageKnown": true
+            }
+          },
+          {
+            "assignmentId": "course_run_a72e6cd4-a9c0-4fda-8344-a8f891ff8371_verification_initial",
+            "roleId": "verification",
+            "followUp": false,
+            "status": "completed",
+            "reportStatus": "complete",
+            "reportProbability": 0.08,
+            "partialProbability": 0.08,
+            "usableReportStatus": "complete",
+            "usage": {
+              "modelRequests": 5,
+              "toolCalls": 4,
+              "totalTokens": 50136,
+              "unknownUsage": false,
+              "investigationRequests": 3,
+              "reportRequests": 2
+            },
+            "error": null,
+            "partialAudit": {
+              "mode": "validated-partial-model-report",
+              "modelGenerated": true,
+              "substantiveReportComplete": false,
+              "originalStatus": "complete",
+              "originalProbabilityPreserved": true,
+              "rejectedCount": 2,
+              "usageKnown": true
+            }
+          }
+        ],
+        "toolCallCounts": {
+          "search_news": 4,
+          "search_web": 4,
+          "fetch_page": 7,
+          "submit_report": 7
+        },
+        "errorCounts": {
+          "byEvent": {
+            "tool.failed": 6
+          },
+          "byCode": {},
+          "byTool": {
+            "submit_report": 5,
+            "fetch_page": 1
+          },
+          "terminalError": null
+        },
+        "memory": {
+          "sourceRunIds": [],
+          "reportCount": 0,
+          "relationCount": 0,
+          "previousForecastId": null,
+          "previousProbability": null,
+          "policy": {
+            "shortTermDays": 7,
+            "maxJudgments": 4,
+            "maxReports": 8,
+            "longTermDays": 90,
+            "maxRelations": 8,
+            "maxEvidence": 12,
+            "retention": "archive-kept-without-automatic-deletion",
+            "historicalEvidenceRequiresRefresh": true,
+            "crossRequestRetrieval": false,
+            "parameterTraining": false
+          }
+        },
+        "memoryLoadedEvents": [
+          {
+            "eventId": "event_72c21278-0221-4454-b09a-d6d6674047e5",
+            "scope": "live",
+            "sourceRunIds": [],
+            "reportCount": 0,
+            "relationCount": 0,
+            "previousForecastId": null,
+            "previousProbability": null
+          }
+        ],
+        "evidenceProvenance": {
+          "count": 5,
+          "sourceModes": [
+            "live"
+          ],
+          "fixtureOrSyntheticCount": 0,
+          "allHaveActualReaders": true,
+          "allSameRun": true,
+          "sources": [
+            {
+              "evidenceId": "course_evidence_161328d519776c3b37f1645913537205",
+              "url": "https://www.ctee.com.tw/news/20261115700075-430804",
+              "contentHash": "sha256:2f668f8afd5232cc8f5167e0820f66975d75e083b591f2e054fe94135925bffb",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T11:54:35.285Z",
+              "publishedAt": "2026-11-14T16:00:00.000Z",
+              "readers": [
+                "course_run_a72e6cd4-a9c0-4fda-8344-a8f891ff8371_timeline_initial"
+              ]
+            },
+            {
+              "evidenceId": "course_evidence_6eb5e843ff4ae4ba69c277955a820a50",
+              "url": "http://gfe-desktop.cnyes.com/news/id/6661805/print?exp=a",
+              "contentHash": "sha256:31d2c275b5581e93ec753f5242c4485a900fa6a90691eb36e43bcc3c9a710d88",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T11:55:23.245Z",
+              "publishedAt": "2026-11-12T16:00:00.000Z",
+              "readers": [
+                "course_run_a72e6cd4-a9c0-4fda-8344-a8f891ff8371_verification_initial"
+              ]
+            },
+            {
+              "evidenceId": "course_evidence_80498f62f468681171578a8c44b3a153",
+              "url": "https://www.edigest.hk/%e6%9c%80%e6%96%b0%e8%b2%a1%e7%b6%93%e6%b6%88%e6%81%af/%e5%ad%97%e7%af%80%e8%b7%b3%e5%8b%95%e6%8b%92%e7%b5%95%e4%b8%8a%e5%b8%82-2016325/",
+              "contentHash": "sha256:c1ed3bebe98c5c49d0c0690b0d94182ef5b6cea213b6a29b7055983814d49a98",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T11:54:51.505Z",
+              "publishedAt": "2026-06-22T16:00:00.000Z",
+              "readers": [
+                "course_run_a72e6cd4-a9c0-4fda-8344-a8f891ff8371_timeline_initial"
+              ]
+            },
+            {
+              "evidenceId": "course_evidence_cf5861555fa628133a5f9b6ca8ec4317",
+              "url": "https://global.hk01.com/%E8%B4%A2%E7%BB%8F%E5%BF%AB%E8%AE%AF/60363390/%E5%85%A8%E7%90%83%E6%9C%80%E5%A4%A7%E7%8B%AC%E8%A7%92%E5%85%BD-%E5%AD%97%E8%8A%82%E8%B7%B3%E5%8A%A8%E6%8D%AE%E6%8A%A5%E5%AF%BB%E6%B1%82200%E4%BA%BF%E7%BE%8E%E5%85%83%E5%A2%83%E5%A4%96%E8%B4%B7-%E6%9A%82%E6%97%A0%E6%84%8F%E4%B8%8A%E5%B8%82",
+              "contentHash": "sha256:feae0b3445adc5014920858940ac6aa5b733b64e242c3f3d236055d1c4179c56",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T11:54:43.144Z",
+              "publishedAt": "2026-06-23T16:00:00.000Z",
+              "readers": [
+                "course_run_a72e6cd4-a9c0-4fda-8344-a8f891ff8371_official_initial"
+              ]
+            },
+            {
+              "evidenceId": "course_evidence_dee30b0802aeeca270bff5e7e855c54e",
+              "url": "https://www.stcn.com/article/detail/3358253.html",
+              "contentHash": "sha256:2739c1c6bf90dff3f52381884b395920d1fcad34ffb62ff33d4f943cb806ef5a",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T11:54:46.295Z",
+              "publishedAt": "2025-09-24T16:00:00.000Z",
+              "readers": [
+                "course_run_a72e6cd4-a9c0-4fda-8344-a8f891ff8371_official_initial",
+                "course_run_a72e6cd4-a9c0-4fda-8344-a8f891ff8371_verification_initial"
+              ]
+            }
+          ]
+        },
+        "closeoutFailure": null
+      },
+      "forecast": {
+        "forecastId": "course_forecast_46caa481-2697-49e3-90d1-fb7910d40ec9",
+        "runId": "course_run_a72e6cd4-a9c0-4fda-8344-a8f891ff8371",
+        "predictionId": "prediction_course_request_82cc96b4-2cb7-4fad-aa24-8ebcc36b74d5",
+        "predictionVersion": 1,
+        "probabilityYes": 0.09,
+        "probabilityNo": 0.91,
+        "issuedAt": "2026-11-22T11:55:58.091Z",
+        "publishedAt": "2026-11-22T11:55:58.091Z",
+        "targetAt": "2026-11-23T08:10:00.000Z",
+        "modelMode": "live",
+        "modelRef": "deepseek-flash",
+        "sourceMode": "live",
+        "kind": "conditional_estimate",
+        "publicationMode": "model-provisional-estimate",
+        "scoringEligible": false,
+        "reviewRequired": true,
+        "reviewReasons": [
+          "采用的研究报告数量或完整程度有限；保留模型估计，不能作为完整核验或可计分结果。"
+        ],
+        "conditionalOnly": true,
+        "baselineVerified": false,
+        "reportAdequacy": {
+          "completeRoleCount": 2,
+          "partialRoleCount": 1,
+          "acceptedAssignmentIds": [
+            "course_run_a72e6cd4-a9c0-4fda-8344-a8f891ff8371_official_initial",
+            "course_run_a72e6cd4-a9c0-4fda-8344-a8f891ff8371_timeline_initial",
+            "course_run_a72e6cd4-a9c0-4fda-8344-a8f891ff8371_verification_initial"
+          ],
+          "preliminary": true
+        },
+        "evidenceCount": 5,
+        "groundedClaimCount": 8,
+        "decisions": [
+          {
+            "assignmentId": "course_run_a72e6cd4-a9c0-4fda-8344-a8f891ff8371_official_initial",
+            "disposition": "qualified",
+            "reportQuality": "partial",
+            "evidenceCount": 1
+          },
+          {
+            "assignmentId": "course_run_a72e6cd4-a9c0-4fda-8344-a8f891ff8371_timeline_initial",
+            "disposition": "adopted",
+            "evidenceCount": 2
+          },
+          {
+            "assignmentId": "course_run_a72e6cd4-a9c0-4fda-8344-a8f891ff8371_verification_initial",
+            "disposition": "adopted",
+            "evidenceCount": 2
+          }
+        ],
+        "probabilityOrigin": "main-model-proposal",
+        "modelGenerated": true
+      },
+      "delivery": null,
+      "validationStatus": "semantic-failure",
+      "verifiedOutcome": "A real model produced 9%, but its draft, worker tasks and final rationale used 24 months while the sealed contract allowed one trading day. Not accepted as a valid forecast for the selected question.",
+      "semanticFailure": {
+        "originalProbabilityPreserved": 0.09,
+        "acceptedAsCorrectWindowForecast": false,
+        "sealedTargetAt": "2026-11-23T08:10:00.000Z",
+        "sealedTradingDays": 1,
+        "modelInventedTargetDate": "2028-11-22",
+        "modelInventedWindowMonths": 24,
+        "storedDraftTargetAtWasServerFilled": true,
+        "evidenceOfMismatch": [
+          "draft.question",
+          "draft.interpretation",
+          "draft.defaultAssumptions",
+          "assignments.objective",
+          "forecast.summary"
+        ],
+        "oldRunOrDatabaseModifiedByAudit": false,
+        "correctivePolicy": "sealed-forecast-window-v1",
+        "needsFreshRealRetest": false,
+        "retestRequestId": "course_request_457448bc-1f21-428e-a71a-45da95a65144"
+      },
+      "knownLimits": [
+        "Live execution and grounded references did not establish that the model answered the sealed prediction window.",
+        "The 9% value remains historical evidence of a semantic defect; it is not rescaled, relabeled, or replaced."
+      ]
+    },
+    {
+      "caseId": "cancel-active-real-task",
+      "sourcePort": 4205,
+      "requestId": "course_request_6a382a7e-e6c1-42bb-b629-ac785ac9137c",
+      "question": "英伟达 NVDA 股价（运行中取消验收）",
+      "requestStatus": "stopped",
+      "observationMethod": "GET-only public local API; no model/source calls or task mutations initiated by this audit",
+      "originalCreatedAt": "2026-11-22T11:57:21.786Z",
+      "financialTargetPolicy": "listed-price-target-v1",
+      "forecastWindowPolicy": null,
+      "target": {
+        "predictionId": null,
+        "predictionVersion": null,
+        "market": "US",
+        "timezone": "America/New_York",
+        "targetAt": "2026-12-21T21:00:00.000Z",
+        "tradingDays": 20,
+        "temporalPolicy": null
+      },
+      "run": {
+        "runId": "course_run_dd1c4dce-d97f-4308-a200-088497a51601",
+        "trigger": "manual",
+        "status": "cancelled",
+        "phase": "workers",
+        "createdAt": "2026-11-22T11:57:21.808Z",
+        "updatedAt": "2026-11-22T11:57:40.547Z",
+        "modelMode": "live",
+        "sourceMode": "live",
+        "modelRef": "deepseek-flash",
+        "notMock": true,
+        "usage": {
+          "modelRequests": 9,
+          "toolCalls": 12,
+          "totalTokens": 55063,
+          "promptTokens": 51838,
+          "completionTokens": 3225,
+          "cacheHitTokens": 12544,
+          "cacheMissTokens": 39294,
+          "unknownUsage": false
+        },
+        "workerModelRequests": 8,
+        "mainOrCoordinatorModelRequests": 1,
+        "roles": [
+          {
+            "assignmentId": "course_run_dd1c4dce-d97f-4308-a200-088497a51601_market_initial",
+            "roleId": "market",
+            "followUp": false,
+            "status": "cancelled",
+            "reportStatus": null,
+            "reportProbability": null,
+            "partialProbability": null,
+            "usableReportStatus": null,
+            "usage": {
+              "modelRequests": 3,
+              "toolCalls": 4,
+              "totalTokens": 21110,
+              "unknownUsage": false,
+              "investigationRequests": 3,
+              "reportRequests": 0
+            },
+            "error": null,
+            "partialAudit": null
+          },
+          {
+            "assignmentId": "course_run_dd1c4dce-d97f-4308-a200-088497a51601_statistics_initial",
+            "roleId": "statistics",
+            "followUp": false,
+            "status": "cancelled",
+            "reportStatus": null,
+            "reportProbability": null,
+            "partialProbability": null,
+            "usableReportStatus": null,
+            "usage": {
+              "modelRequests": 3,
+              "toolCalls": 4,
+              "totalTokens": 12938,
+              "unknownUsage": false,
+              "investigationRequests": 3,
+              "reportRequests": 0
+            },
+            "error": null,
+            "partialAudit": null
+          },
+          {
+            "assignmentId": "course_run_dd1c4dce-d97f-4308-a200-088497a51601_verification_initial",
+            "roleId": "verification",
+            "followUp": false,
+            "status": "cancelled",
+            "reportStatus": null,
+            "reportProbability": null,
+            "partialProbability": null,
+            "usableReportStatus": null,
+            "usage": {
+              "modelRequests": 2,
+              "toolCalls": 4,
+              "totalTokens": 15783,
+              "unknownUsage": false,
+              "investigationRequests": 2,
+              "reportRequests": 0
+            },
+            "error": null,
+            "partialAudit": null
+          }
+        ],
+        "toolCallCounts": {
+          "search_web": 5,
+          "fetch_page": 6,
+          "search_news": 1
+        },
+        "errorCounts": {
+          "byEvent": {},
+          "byCode": {},
+          "byTool": {},
+          "terminalError": null
+        },
+        "memory": {
+          "sourceRunIds": [],
+          "reportCount": 0,
+          "relationCount": 0,
+          "previousForecastId": null,
+          "previousProbability": null,
+          "policy": {
+            "shortTermDays": 7,
+            "maxJudgments": 4,
+            "maxReports": 8,
+            "longTermDays": 90,
+            "maxRelations": 8,
+            "maxEvidence": 12,
+            "retention": "archive-kept-without-automatic-deletion",
+            "historicalEvidenceRequiresRefresh": true,
+            "crossRequestRetrieval": false,
+            "parameterTraining": false
+          }
+        },
+        "memoryLoadedEvents": [
+          {
+            "eventId": "event_cc707e7b-aef1-4ecf-996f-c8768bfb602b",
+            "scope": "live",
+            "sourceRunIds": [],
+            "reportCount": 0,
+            "relationCount": 0,
+            "previousForecastId": null,
+            "previousProbability": null
+          }
+        ],
+        "evidenceProvenance": {
+          "count": 4,
+          "sourceModes": [
+            "live"
+          ],
+          "fixtureOrSyntheticCount": 0,
+          "allHaveActualReaders": true,
+          "allSameRun": true,
+          "sources": [
+            {
+              "evidenceId": "course_evidence_795a5d23fbb3ba6752e88ca9eb601e09",
+              "url": "https://longbridge.com/en/quote/NVDA.US",
+              "contentHash": "sha256:03c1da850c33695d86b21be61882353002781e6a22fe67571d29c027caef4bc4",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T11:57:40.116Z",
+              "publishedAt": "2026-11-21T16:00:00.000Z",
+              "readers": [
+                "course_run_dd1c4dce-d97f-4308-a200-088497a51601_statistics_initial"
+              ]
+            },
+            {
+              "evidenceId": "course_evidence_8f0ddfcc39453b113903f52a465e2db6",
+              "url": "https://stockanalysis.com/stocks/nvda/",
+              "contentHash": "sha256:b93725380557fffa2129dcabb856ea79e3839241d0bbce75d843d41fd3cd760b",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T11:57:32.580Z",
+              "publishedAt": "2026-11-21T16:00:00.000Z",
+              "readers": [
+                "course_run_dd1c4dce-d97f-4308-a200-088497a51601_market_initial"
+              ]
+            },
+            {
+              "evidenceId": "course_evidence_cc505a5b3c7b8bad1dc0bfc649704716",
+              "url": "https://nvidianews.nvidia.com/news/nvidia-announces-financial-results-for-third-quarter-fiscal-2027",
+              "contentHash": "sha256:323d425318be5e7f839bca4845430cb6a90372b3ad07037d73491189999f0bfc",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T11:57:34.593Z",
+              "publishedAt": null,
+              "readers": [
+                "course_run_dd1c4dce-d97f-4308-a200-088497a51601_statistics_initial"
+              ]
+            },
+            {
+              "evidenceId": "course_evidence_fcaa20ef44811c22a097c3ed4c8406b5",
+              "url": "https://stockanalysis.com/stocks/nvda/history/",
+              "contentHash": "sha256:6670bc649bb107538a787bfb9dfad4a774a1f0e784651ce7f48febdd7a1fd3f5",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T11:57:35.296Z",
+              "publishedAt": null,
+              "readers": [
+                "course_run_dd1c4dce-d97f-4308-a200-088497a51601_verification_initial"
+              ]
+            }
+          ]
+        },
+        "closeoutFailure": null
+      },
+      "forecast": null,
+      "delivery": null,
+      "validationStatus": "control-flow-pass",
+      "verifiedOutcome": "Three real workers began investigation and used actual tools. User stopped the task; no probability was published, including the later read-only check.",
+      "controlFlow": {
+        "workerCount": 3,
+        "realToolsExecutedBeforeCancellation": true,
+        "uiStopEvidence": "Lead agent observed all three investigators and actual tool calls, then clicked Stop in the browser.",
+        "firstObservedAt": "2026-11-22T12:13:00.350Z",
+        "secondObservedAt": "2026-11-22T12:13:48.060Z",
+        "intervalSeconds": 47.717,
+        "requestStopped": true,
+        "runCancelled": true,
+        "forecastCount": 0,
+        "latestForecastId": null,
+        "forecastPublishedEventsAfterCancellation": 0,
+        "noLatePublication": true,
+        "finalUsageUnchanged": true
+      },
+      "knownLimits": [
+        "Cancelled investigation produced no forecast; validates active cancellation, not prediction accuracy.",
+        "Browser observation comes from the lead UI agent; this independent auditor inspected public backend records only."
+      ]
+    },
+    {
+      "caseId": "explicit-ipo-event-sealed-window-retest",
+      "sourcePort": 4205,
+      "requestId": "course_request_457448bc-1f21-428e-a71a-45da95a65144",
+      "question": "字节跳动未来会上市吗",
+      "requestStatus": "completed",
+      "observationMethod": "GET-only public local API; no model/source calls or task mutations initiated by this audit",
+      "originalCreatedAt": "2026-11-22T12:13:15.640Z",
+      "financialTargetPolicy": "listed-price-target-v1",
+      "forecastWindowPolicy": "sealed-forecast-window-v1",
+      "target": {
+        "predictionId": "prediction_course_request_457448bc-1f21-428e-a71a-45da95a65144",
+        "predictionVersion": 1,
+        "market": "HK",
+        "timezone": "Asia/Hong_Kong",
+        "targetAt": "2026-11-23T08:10:00.000Z",
+        "tradingDays": 1,
+        "temporalPolicy": "by_target"
+      },
+      "run": {
+        "runId": "course_run_1daee55b-71d8-4053-a5de-c1b9b763f87e",
+        "trigger": "manual",
+        "status": "completed",
+        "phase": "finished",
+        "createdAt": "2026-11-22T12:13:15.648Z",
+        "updatedAt": "2026-11-22T12:14:27.377Z",
+        "modelMode": "live",
+        "sourceMode": "live",
+        "modelRef": "deepseek-flash",
+        "notMock": true,
+        "usage": {
+          "modelRequests": 21,
+          "toolCalls": 17,
+          "totalTokens": 213109,
+          "promptTokens": 193847,
+          "completionTokens": 19262,
+          "cacheHitTokens": 13440,
+          "cacheMissTokens": 180407,
+          "unknownUsage": false
+        },
+        "workerModelRequests": 19,
+        "mainOrCoordinatorModelRequests": 2,
+        "roles": [
+          {
+            "assignmentId": "course_run_1daee55b-71d8-4053-a5de-c1b9b763f87e_official_initial",
+            "roleId": "official",
+            "followUp": false,
+            "status": "completed",
+            "reportStatus": "complete",
+            "reportProbability": 0.004,
+            "partialProbability": 0.004,
+            "usableReportStatus": "complete",
+            "usage": {
+              "modelRequests": 6,
+              "toolCalls": 7,
+              "totalTokens": 67963,
+              "unknownUsage": false,
+              "investigationRequests": 3,
+              "reportRequests": 3
+            },
+            "error": null,
+            "partialAudit": {
+              "mode": "validated-partial-model-report",
+              "modelGenerated": true,
+              "substantiveReportComplete": false,
+              "originalStatus": "complete",
+              "originalProbabilityPreserved": true,
+              "rejectedCount": 2,
+              "usageKnown": true
+            }
+          },
+          {
+            "assignmentId": "course_run_1daee55b-71d8-4053-a5de-c1b9b763f87e_market_initial",
+            "roleId": "market",
+            "followUp": false,
+            "status": "completed",
+            "reportStatus": "insufficient",
+            "reportProbability": null,
+            "partialProbability": 0.003,
+            "usableReportStatus": "insufficient",
+            "usage": {
+              "modelRequests": 5,
+              "toolCalls": 4,
+              "totalTokens": 48153,
+              "unknownUsage": false,
+              "investigationRequests": 2,
+              "reportRequests": 3
+            },
+            "error": null,
+            "partialAudit": {
+              "mode": "validated-partial-model-report",
+              "modelGenerated": true,
+              "substantiveReportComplete": false,
+              "originalStatus": "complete",
+              "originalProbabilityPreserved": true,
+              "rejectedCount": 2,
+              "usageKnown": true
+            }
+          },
+          {
+            "assignmentId": "course_run_1daee55b-71d8-4053-a5de-c1b9b763f87e_verification_initial",
+            "roleId": "verification",
+            "followUp": false,
+            "status": "completed",
+            "reportStatus": "insufficient",
+            "reportProbability": null,
+            "partialProbability": 0.02,
+            "usableReportStatus": "insufficient",
+            "usage": {
+              "modelRequests": 8,
+              "toolCalls": 6,
+              "totalTokens": 78810,
+              "unknownUsage": false,
+              "investigationRequests": 5,
+              "reportRequests": 3
+            },
+            "error": null,
+            "partialAudit": {
+              "mode": "validated-partial-model-report",
+              "modelGenerated": true,
+              "substantiveReportComplete": false,
+              "originalStatus": "complete",
+              "originalProbabilityPreserved": true,
+              "rejectedCount": 1,
+              "usageKnown": true
+            }
+          }
+        ],
+        "toolCallCounts": {
+          "search_news": 3,
+          "search_web": 5,
+          "fetch_page": 9,
+          "submit_report": 9
+        },
+        "errorCounts": {
+          "byEvent": {
+            "tool.failed": 8
+          },
+          "byCode": {},
+          "byTool": {
+            "submit_report": 8
+          },
+          "terminalError": null
+        },
+        "memory": {
+          "sourceRunIds": [],
+          "reportCount": 0,
+          "relationCount": 0,
+          "previousForecastId": null,
+          "previousProbability": null,
+          "policy": {
+            "shortTermDays": 7,
+            "maxJudgments": 4,
+            "maxReports": 8,
+            "longTermDays": 90,
+            "maxRelations": 8,
+            "maxEvidence": 12,
+            "retention": "archive-kept-without-automatic-deletion",
+            "historicalEvidenceRequiresRefresh": true,
+            "crossRequestRetrieval": false,
+            "parameterTraining": false
+          }
+        },
+        "memoryLoadedEvents": [
+          {
+            "eventId": "event_f0c68116-6f0c-4617-8a55-acf39c9a7e64",
+            "scope": "live",
+            "sourceRunIds": [],
+            "reportCount": 0,
+            "relationCount": 0,
+            "previousForecastId": null,
+            "previousProbability": null
+          }
+        ],
+        "evidenceProvenance": {
+          "count": 8,
+          "sourceModes": [
+            "live"
+          ],
+          "fixtureOrSyntheticCount": 0,
+          "allHaveActualReaders": true,
+          "allSameRun": true,
+          "sources": [
+            {
+              "evidenceId": "course_evidence_4b969371411ca07c9b478295464485b1",
+              "url": "https://www.markets.com/education-centre/bytedance-ipo",
+              "contentHash": "sha256:b4ca4935ce57020f6f54fb8494b0fbb59a941b2a6495e722fc72de1a72a2a36b",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T12:13:29.370Z",
+              "publishedAt": "2026-09-02T16:00:00.000Z",
+              "readers": [
+                "course_run_1daee55b-71d8-4053-a5de-c1b9b763f87e_market_initial",
+                "course_run_1daee55b-71d8-4053-a5de-c1b9b763f87e_official_initial"
+              ]
+            },
+            {
+              "evidenceId": "course_evidence_748fb479f066829745e7689bf4be06c4",
+              "url": "https://www.chinastarmarket.cn/detail/2540045",
+              "contentHash": "sha256:c0970a9f967c0f4879beb0fe6e74aba0243793f03d4dd5715efc0caa0c0ecdf3",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T12:13:33.505Z",
+              "publishedAt": "2026-11-19T16:00:00.000Z",
+              "readers": [
+                "course_run_1daee55b-71d8-4053-a5de-c1b9b763f87e_verification_initial"
+              ]
+            },
+            {
+              "evidenceId": "course_evidence_9a6c678a76917e04da5ebb8fed10cd1f",
+              "url": "https://finance.sina.com.cn/stock/marketresearch/2026-11-20/doc-inizkizm0334661.shtml",
+              "contentHash": "sha256:138e76c661a2bb31679b3704d773ea94c8cd29b81b6459ff152e2fc2f42039d7",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T12:13:59.573Z",
+              "publishedAt": null,
+              "readers": [
+                "course_run_1daee55b-71d8-4053-a5de-c1b9b763f87e_official_initial"
+              ]
+            },
+            {
+              "evidenceId": "course_evidence_b801964f4953c0a8705651e8998de59e",
+              "url": "https://www.edigest.hk/%e6%9c%80%e6%96%b0%e8%b2%a1%e7%b6%93%e6%b6%88%e6%81%af/%e5%ad%97%e7%af%80%e8%b7%b3%e5%8b%95%e6%8b%92%e7%b5%95%e4%b8%8a%e5%b8%82-2016325/",
+              "contentHash": "sha256:c1ed3bebe98c5c49d0c0690b0d94182ef5b6cea213b6a29b7055983814d49a98",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T12:13:52.312Z",
+              "publishedAt": "2026-06-22T16:00:00.000Z",
+              "readers": [
+                "course_run_1daee55b-71d8-4053-a5de-c1b9b763f87e_verification_initial"
+              ]
+            },
+            {
+              "evidenceId": "course_evidence_b99df463f835b71afcd593abd79e47e8",
+              "url": "https://www.163.com/dy/article/LC6JCDLF05198CJN.html",
+              "contentHash": "sha256:7ac1664db306151fd62af8815285fc9016892e19f92485a8c68086275568f68f",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T12:13:59.777Z",
+              "publishedAt": "2026-11-19T16:00:00.000Z",
+              "readers": [
+                "course_run_1daee55b-71d8-4053-a5de-c1b9b763f87e_official_initial"
+              ]
+            },
+            {
+              "evidenceId": "course_evidence_d338c9d3ac8d104836a2528c0a6b7c19",
+              "url": "https://hk.finance.yahoo.com/news/%E5%A2%83%E5%A4%96%E8%B2%B8%E6%AC%BE-%E5%82%B3%E5%AD%97%E7%AF%80%E8%B7%B3%E5%8B%95%E6%AD%A3%E5%B0%8B%E6%B1%82200%E5%84%84%E7%BE%8E%E5%85%83%E5%A2%83%E5%A4%96%E8%B2%B8%E6%AC%BE-%E6%9A%AB%E6%9C%AA%E6%9C%89%E4%B8%8A%E5%B8%82%E8%A8%88%E5%8A%83-110000823.html",
+              "contentHash": "sha256:842136fcecd04d20025b0e152023336277b3202d529d7b18382168b31a6c9f89",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T12:13:48.049Z",
+              "publishedAt": "2026-06-23T16:00:00.000Z",
+              "readers": [
+                "course_run_1daee55b-71d8-4053-a5de-c1b9b763f87e_verification_initial"
+              ]
+            },
+            {
+              "evidenceId": "course_evidence_df1398ee153f9f9dfbf51c9f76e8ac32",
+              "url": "https://kresmion.com/odds/bytedance-ipo-before-2027",
+              "contentHash": "sha256:41e41074b9e2100d1fcac0c45fe8ae4c35fc28b5824bfbcd93c87fc1f19c4746",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T12:13:29.142Z",
+              "publishedAt": "2026-11-05T16:00:00.000Z",
+              "readers": [
+                "course_run_1daee55b-71d8-4053-a5de-c1b9b763f87e_market_initial"
+              ]
+            },
+            {
+              "evidenceId": "course_evidence_ff22afe1045b274bded95d69878b53da",
+              "url": "https://invest.hket.com/article/4149876",
+              "contentHash": "sha256:0d058db1804fb146d0def4a631803622bdf8153fc2ad119d91a5e031152ab0a6",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T12:13:39.139Z",
+              "publishedAt": "2026-06-21T16:00:00.000Z",
+              "readers": [
+                "course_run_1daee55b-71d8-4053-a5de-c1b9b763f87e_official_initial"
+              ]
+            }
+          ]
+        },
+        "closeoutFailure": null
+      },
+      "forecast": {
+        "forecastId": "course_forecast_70d674b4-e1ce-4ff9-90d9-f1a572032792",
+        "runId": "course_run_1daee55b-71d8-4053-a5de-c1b9b763f87e",
+        "predictionId": "prediction_course_request_457448bc-1f21-428e-a71a-45da95a65144",
+        "predictionVersion": 1,
+        "probabilityYes": 0.005,
+        "probabilityNo": 0.995,
+        "issuedAt": "2026-11-22T12:14:27.358Z",
+        "publishedAt": "2026-11-22T12:14:27.358Z",
+        "targetAt": "2026-11-23T08:10:00.000Z",
+        "modelMode": "live",
+        "modelRef": "deepseek-flash",
+        "sourceMode": "live",
+        "kind": "conditional_estimate",
+        "publicationMode": "model-provisional-estimate",
+        "scoringEligible": false,
+        "reviewRequired": true,
+        "reviewReasons": [
+          "核验席未提交并被实际采纳的完整实质原文核验报告；原始complete状态或来源提示不能替代有效核验。",
+          "采用的研究报告数量或完整程度有限；保留模型估计，不能作为完整核验或可计分结果。"
+        ],
+        "conditionalOnly": true,
+        "baselineVerified": false,
+        "reportAdequacy": {
+          "completeRoleCount": 1,
+          "partialRoleCount": 2,
+          "acceptedAssignmentIds": [
+            "course_run_1daee55b-71d8-4053-a5de-c1b9b763f87e_official_initial"
+          ],
+          "preliminary": true
+        },
+        "evidenceCount": 4,
+        "groundedClaimCount": 4,
+        "decisions": [
+          {
+            "assignmentId": "course_run_1daee55b-71d8-4053-a5de-c1b9b763f87e_official_initial",
+            "disposition": "adopted",
+            "evidenceCount": 4
+          },
+          {
+            "assignmentId": "course_run_1daee55b-71d8-4053-a5de-c1b9b763f87e_market_initial",
+            "disposition": "rejected",
+            "reportQuality": "partial",
+            "evidenceCount": 0
+          },
+          {
+            "assignmentId": "course_run_1daee55b-71d8-4053-a5de-c1b9b763f87e_verification_initial",
+            "disposition": "rejected",
+            "reportQuality": "partial",
+            "evidenceCount": 0
+          }
+        ],
+        "probabilityOrigin": "main-model-proposal",
+        "modelGenerated": true
+      },
+      "delivery": null,
+      "validationStatus": "execution-and-window-consistency-pass",
+      "windowConsistency": {
+        "authoritativeTargetAt": "2026-11-23T08:10:00.000Z",
+        "modelDeclaredTargetAt": "2026-11-23T08:10:00.000Z",
+        "exactDraftEcho": true,
+        "normalizedContractSameTarget": true,
+        "forecastSameTarget": true,
+        "checkedFields": [
+          "draft.question",
+          "draft.interpretation",
+          "official.objective",
+          "official.report.summary",
+          "official.partialReport.summary",
+          "market.objective",
+          "market.report.summary",
+          "market.partialReport.summary",
+          "verification.objective",
+          "verification.report.summary",
+          "verification.partialReport.summary",
+          "forecast.summary"
+        ],
+        "detectedExplicitWindowConflicts": [],
+        "directionPreserved": "Yes means formal listing within sealed window; private shares or price moves do not count.",
+        "assessmentMethod": "Human read-only review of actual draft, objectives, worker summaries, final summary and sealed contract; no model rerun by this auditor."
+      },
+      "knownLimits": [
+        "Uncalibrated model estimate; correct execution and window do not prove future forecast accuracy.",
+        "Source factual uncertainty, partial-report qualification and review/scoring flags are retained."
+      ],
+      "verifiedOutcome": "Fresh real run answered the original broad listing question within the user-selected one-trading-day deadline; Main model issued 0.5%, with review required and scoring disabled."
+    },
+    {
+      "caseId": "apple-different-deadline-sealed-window-retest",
+      "sourcePort": 4205,
+      "requestId": "course_request_e9dbede5-18e8-4676-8680-e113b6e18960",
+      "question": "苹果 AAPL 股价会跌",
+      "requestStatus": "completed",
+      "observationMethod": "GET-only public local API; no model/source calls or task mutations initiated by this audit",
+      "originalCreatedAt": "2026-11-22T12:13:47.893Z",
+      "financialTargetPolicy": "listed-price-target-v1",
+      "forecastWindowPolicy": "sealed-forecast-window-v1",
+      "target": {
+        "predictionId": "prediction_course_request_e9dbede5-18e8-4676-8680-e113b6e18960",
+        "predictionVersion": 1,
+        "market": "US",
+        "timezone": "America/New_York",
+        "targetAt": "2026-11-25T21:00:00.000Z",
+        "tradingDays": 3,
+        "temporalPolicy": "at_target"
+      },
+      "run": {
+        "runId": "course_run_376dae31-c700-41db-a3aa-4d945faf22cd",
+        "trigger": "manual",
+        "status": "completed",
+        "phase": "finished",
+        "createdAt": "2026-11-22T12:13:47.898Z",
+        "updatedAt": "2026-11-22T12:16:27.005Z",
+        "modelMode": "live",
+        "sourceMode": "live",
+        "modelRef": "deepseek-flash",
+        "notMock": true,
+        "usage": {
+          "modelRequests": 24,
+          "toolCalls": 20,
+          "totalTokens": 281341,
+          "promptTokens": 251536,
+          "completionTokens": 29805,
+          "cacheHitTokens": 15488,
+          "cacheMissTokens": 236048,
+          "unknownUsage": false
+        },
+        "workerModelRequests": 20,
+        "mainOrCoordinatorModelRequests": 4,
+        "roles": [
+          {
+            "assignmentId": "course_run_376dae31-c700-41db-a3aa-4d945faf22cd_market_initial",
+            "roleId": "market",
+            "followUp": false,
+            "status": "completed",
+            "reportStatus": "complete",
+            "reportProbability": 0.47,
+            "partialProbability": null,
+            "usableReportStatus": null,
+            "usage": {
+              "modelRequests": 4,
+              "toolCalls": 5,
+              "totalTokens": 35515,
+              "unknownUsage": false,
+              "investigationRequests": 3,
+              "reportRequests": 1
+            },
+            "error": null,
+            "partialAudit": null
+          },
+          {
+            "assignmentId": "course_run_376dae31-c700-41db-a3aa-4d945faf22cd_statistics_initial",
+            "roleId": "statistics",
+            "followUp": false,
+            "status": "completed",
+            "reportStatus": "insufficient",
+            "reportProbability": null,
+            "partialProbability": 0.55,
+            "usableReportStatus": "insufficient",
+            "usage": {
+              "modelRequests": 5,
+              "toolCalls": 4,
+              "totalTokens": 58828,
+              "unknownUsage": false,
+              "investigationRequests": 2,
+              "reportRequests": 3
+            },
+            "error": null,
+            "partialAudit": {
+              "mode": "validated-partial-model-report",
+              "modelGenerated": true,
+              "substantiveReportComplete": false,
+              "originalStatus": "complete",
+              "originalProbabilityPreserved": true,
+              "rejectedCount": 1,
+              "usageKnown": true
+            }
+          },
+          {
+            "assignmentId": "course_run_376dae31-c700-41db-a3aa-4d945faf22cd_verification_initial",
+            "roleId": "verification",
+            "followUp": false,
+            "status": "completed",
+            "reportStatus": "complete",
+            "reportProbability": 0.45,
+            "partialProbability": 0.45,
+            "usableReportStatus": "complete",
+            "usage": {
+              "modelRequests": 6,
+              "toolCalls": 5,
+              "totalTokens": 72476,
+              "unknownUsage": false,
+              "investigationRequests": 4,
+              "reportRequests": 2
+            },
+            "error": null,
+            "partialAudit": {
+              "mode": "validated-partial-model-report",
+              "modelGenerated": true,
+              "substantiveReportComplete": false,
+              "originalStatus": "complete",
+              "originalProbabilityPreserved": true,
+              "rejectedCount": 1,
+              "usageKnown": true
+            }
+          },
+          {
+            "assignmentId": "course_run_376dae31-c700-41db-a3aa-4d945faf22cd_market_followup_2",
+            "roleId": "market",
+            "followUp": true,
+            "status": "completed",
+            "reportStatus": "insufficient",
+            "reportProbability": null,
+            "partialProbability": 0.48,
+            "usableReportStatus": "insufficient",
+            "usage": {
+              "modelRequests": 5,
+              "toolCalls": 6,
+              "totalTokens": 65143,
+              "unknownUsage": false,
+              "investigationRequests": 4,
+              "reportRequests": 1
+            },
+            "error": null,
+            "partialAudit": {
+              "mode": "validated-partial-model-report",
+              "modelGenerated": true,
+              "substantiveReportComplete": false,
+              "originalStatus": "complete",
+              "originalProbabilityPreserved": true,
+              "rejectedCount": 1,
+              "usageKnown": true
+            }
+          }
+        ],
+        "toolCallCounts": {
+          "search_web": 5,
+          "search_news": 1,
+          "fetch_page": 12,
+          "submit_report": 7,
+          "read_run_evidence": 2
+        },
+        "errorCounts": {
+          "byEvent": {
+            "tool.failed": 7,
+            "model.failed": 1
+          },
+          "byCode": {},
+          "byTool": {
+            "fetch_page": 2,
+            "submit_report": 5
+          },
+          "terminalError": null
+        },
+        "memory": {
+          "sourceRunIds": [],
+          "reportCount": 0,
+          "relationCount": 0,
+          "previousForecastId": null,
+          "previousProbability": null,
+          "policy": {
+            "shortTermDays": 7,
+            "maxJudgments": 4,
+            "maxReports": 8,
+            "longTermDays": 90,
+            "maxRelations": 8,
+            "maxEvidence": 12,
+            "retention": "archive-kept-without-automatic-deletion",
+            "historicalEvidenceRequiresRefresh": true,
+            "crossRequestRetrieval": false,
+            "parameterTraining": false
+          }
+        },
+        "memoryLoadedEvents": [
+          {
+            "eventId": "event_83d1e1c2-8999-489b-acd2-c3694790c9c2",
+            "scope": "live",
+            "sourceRunIds": [],
+            "reportCount": 0,
+            "relationCount": 0,
+            "previousForecastId": null,
+            "previousProbability": null
+          }
+        ],
+        "evidenceProvenance": {
+          "count": 9,
+          "sourceModes": [
+            "live"
+          ],
+          "fixtureOrSyntheticCount": 0,
+          "allHaveActualReaders": true,
+          "allSameRun": true,
+          "sources": [
+            {
+              "evidenceId": "course_evidence_00ce00a400a4ffde7fa516784a3e05ef",
+              "url": "https://stockanalysis.com/stocks/aapl/history/",
+              "contentHash": "sha256:1a8ebb31b3c7c1ce50b79d0f1c076e3f7a870be7be9c0ae946f6f0c63e3a1b71",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T12:14:37.973Z",
+              "publishedAt": "2026-11-19T16:00:00.000Z",
+              "readers": [
+                "course_run_376dae31-c700-41db-a3aa-4d945faf22cd_statistics_initial",
+                "course_run_376dae31-c700-41db-a3aa-4d945faf22cd_verification_initial"
+              ]
+            },
+            {
+              "evidenceId": "course_evidence_0451f5a842d364facf2480ed2d84b2b2",
+              "url": "https://247wallst.com/investing/2026/11/21/mark-gurman-says-apple-is-not-set-up-to-move-at-the-pace-of-these-ai-companies/",
+              "contentHash": "sha256:7d558eeb5e95f7967a1d48a2309a1092a528557a7a801794c0db87cedfaf506e",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T12:16:02.834Z",
+              "publishedAt": "2026-11-20T16:00:00.000Z",
+              "readers": [
+                "course_run_376dae31-c700-41db-a3aa-4d945faf22cd_market_followup_2"
+              ]
+            },
+            {
+              "evidenceId": "course_evidence_29cc880a0410793efa2beb7bd40fbd35",
+              "url": "https://stockanalysis.com/stocks/aapl/",
+              "contentHash": "sha256:615fdc86f060926fcc418402e3186003e9c8d481609a987f04e7221d5c716d02",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T12:14:36.806Z",
+              "publishedAt": null,
+              "readers": [
+                "course_run_376dae31-c700-41db-a3aa-4d945faf22cd_market_initial"
+              ]
+            },
+            {
+              "evidenceId": "course_evidence_501b0fa6d22e4001a9e2815201efef84",
+              "url": "https://stockanalysis.com/stocks/aapl/history/",
+              "contentHash": "sha256:1a8ebb31b3c7c1ce50b79d0f1c076e3f7a870be7be9c0ae946f6f0c63e3a1b71",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T12:14:39.990Z",
+              "publishedAt": null,
+              "readers": [
+                "course_run_376dae31-c700-41db-a3aa-4d945faf22cd_market_initial"
+              ]
+            },
+            {
+              "evidenceId": "course_evidence_703171f4168735c7a5605e15f2b96ca2",
+              "url": "https://finance.yahoo.com/quote/AAPL/history/",
+              "contentHash": "sha256:6bcbc34425f788e08b231f3efa2083c5bf8114b5e6118ab3078532c866c65c38",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T12:15:58.460Z",
+              "publishedAt": null,
+              "readers": [
+                "course_run_376dae31-c700-41db-a3aa-4d945faf22cd_market_followup_2"
+              ]
+            },
+            {
+              "evidenceId": "course_evidence_7224f2b9b922cb4ca10dbabc716a4e7d",
+              "url": "https://www.timeanddate.com/holidays/us/thanksgiving-day",
+              "contentHash": "sha256:ddaa473d562c33f58043f2c4232d41f925648296a2c3c1083c166bf0350996a1",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T12:15:18.299Z",
+              "publishedAt": null,
+              "readers": [
+                "course_run_376dae31-c700-41db-a3aa-4d945faf22cd_market_initial"
+              ]
+            },
+            {
+              "evidenceId": "course_evidence_7ac60178f9549fc5ebff232b1df2de70",
+              "url": "https://xincai.com/article/nixzany3848755",
+              "contentHash": "sha256:96649622ae77052bc87a2244531fda4ceaab0c10f20d3ad248be0e251c67476a",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T12:14:51.184Z",
+              "publishedAt": "2026-11-07T16:00:00.000Z",
+              "readers": [
+                "course_run_376dae31-c700-41db-a3aa-4d945faf22cd_verification_initial"
+              ]
+            },
+            {
+              "evidenceId": "course_evidence_c3e3421a38f94002af9e500dc136abb7",
+              "url": "https://finance.yahoo.com/quote/AAPL/history/",
+              "contentHash": "sha256:f53cc7814ac7db14f11f9f4303767bf0d887e77d6b160aa031785e32c398986f",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T12:14:38.179Z",
+              "publishedAt": "2026-11-14T16:00:00.000Z",
+              "readers": [
+                "course_run_376dae31-c700-41db-a3aa-4d945faf22cd_statistics_initial"
+              ]
+            },
+            {
+              "evidenceId": "course_evidence_c4cc5bbc49006029afae8bb49b207083",
+              "url": "https://www.benzinga.com/analyst-stock-ratings/upgrades/26/11/63149012/this-apple-analyst-turns-bullish-here-are-top-5-upgrades-for-wednesday",
+              "contentHash": "sha256:097e460ccd1b88598d00c3acddbe82e3d98ce16176f484e3018bcdaa637264fc",
+              "sourceMode": "live",
+              "obtainedAt": "2026-11-22T12:14:48.597Z",
+              "publishedAt": null,
+              "readers": [
+                "course_run_376dae31-c700-41db-a3aa-4d945faf22cd_verification_initial"
+              ]
+            }
+          ]
+        },
+        "closeoutFailure": null
+      },
+      "forecast": {
+        "forecastId": "course_forecast_01ea0211-1e49-4cc0-86bc-c908937e099e",
+        "runId": "course_run_376dae31-c700-41db-a3aa-4d945faf22cd",
+        "predictionId": "prediction_course_request_e9dbede5-18e8-4676-8680-e113b6e18960",
+        "predictionVersion": 1,
+        "probabilityYes": 0.47,
+        "probabilityNo": 0.53,
+        "issuedAt": "2026-11-22T12:16:26.980Z",
+        "publishedAt": "2026-11-22T12:16:26.980Z",
+        "targetAt": "2026-11-25T21:00:00.000Z",
+        "modelMode": "live",
+        "modelRef": "deepseek-flash",
+        "sourceMode": "live",
+        "kind": "conditional_estimate",
+        "publicationMode": "model-provisional-estimate",
+        "scoringEligible": false,
+        "reviewRequired": true,
+        "reviewReasons": [
+          "采用的研究报告数量或完整程度有限；保留模型估计，不能作为完整核验或可计分结果。"
+        ],
+        "conditionalOnly": true,
+        "baselineVerified": false,
+        "reportAdequacy": {
+          "completeRoleCount": 1,
+          "partialRoleCount": 2,
+          "acceptedAssignmentIds": [
+            "course_run_376dae31-c700-41db-a3aa-4d945faf22cd_market_followup_2",
+            "course_run_376dae31-c700-41db-a3aa-4d945faf22cd_statistics_initial",
+            "course_run_376dae31-c700-41db-a3aa-4d945faf22cd_verification_initial"
+          ],
+          "preliminary": true
+        },
+        "evidenceCount": 3,
+        "groundedClaimCount": 8,
+        "decisions": [
+          {
+            "assignmentId": "course_run_376dae31-c700-41db-a3aa-4d945faf22cd_verification_initial",
+            "disposition": "adopted",
+            "evidenceCount": 2
+          },
+          {
+            "assignmentId": "course_run_376dae31-c700-41db-a3aa-4d945faf22cd_market_followup_2",
+            "disposition": "qualified",
+            "reportQuality": "partial",
+            "evidenceCount": 1
+          },
+          {
+            "assignmentId": "course_run_376dae31-c700-41db-a3aa-4d945faf22cd_statistics_initial",
+            "disposition": "qualified",
+            "reportQuality": "partial",
+            "evidenceCount": 1
+          },
+          {
+            "assignmentId": "course_run_376dae31-c700-41db-a3aa-4d945faf22cd_market_initial",
+            "disposition": "rejected",
+            "evidenceCount": 0
+          }
+        ],
+        "probabilityOrigin": "main-model-proposal",
+        "modelGenerated": true
+      },
+      "delivery": null,
+      "validationStatus": "execution-and-window-consistency-pass",
+      "windowConsistency": {
+        "authoritativeTargetAt": "2026-11-25T21:00:00.000Z",
+        "modelDeclaredTargetAt": "2026-11-25T21:00:00.000Z",
+        "exactDraftEcho": true,
+        "normalizedContractSameTarget": true,
+        "forecastSameTarget": true,
+        "checkedFields": [
+          "draft.question",
+          "draft.interpretation",
+          "market.objective",
+          "market.report.summary",
+          "statistics.objective",
+          "statistics.report.summary",
+          "statistics.partialReport.summary",
+          "verification.objective",
+          "verification.report.summary",
+          "verification.partialReport.summary",
+          "market.objective",
+          "market.report.summary",
+          "market.partialReport.summary",
+          "forecast.summary"
+        ],
+        "detectedExplicitWindowConflicts": [],
+        "directionPreserved": "Yes means lower closing price; original drop question was not converted to rise.",
+        "assessmentMethod": "Human read-only review of actual draft, objectives, worker summaries, final summary and sealed contract; no model rerun by this auditor."
+      },
+      "knownLimits": [
+        "Uncalibrated model estimate; correct execution and window do not prove future forecast accuracy.",
+        "Source factual uncertainty, partial-report qualification and review/scoring flags are retained.",
+        "Final summary described the 0.45-0.55 role probability range as directionally unanimous, although it straddles 50%; this wording is a remaining model-quality limitation, not hidden or rewritten."
+      ],
+      "verifiedOutcome": "Fresh real run retained the downward price proposition and distinct three-US-trading-day deadline; Main model issued 47% after one targeted market follow-up."
+    }
+  ],
+  "pendingAdditionalLiveCases": [],
+  "knownLimits": [
+    "Execution and safety/control-flow evidence only; none of these records establishes future prediction accuracy.",
+    "Probabilities are uncalibrated model estimates. Conditional/provisional forecasts remain explicitly unscored and review-marked where required.",
+    "Reported usage is provider accounting from the actual run; requests with no generated probability are kept as no-result rather than fabricated forecasts.",
+    "The original IPO case is explicitly a semantic failure; success is not inferred from backend completed status or non-null probability."
+  ],
+  "environmentCleanup": {
+    "restored4204Budget": {
+      "checkedAt": "2026-11-22T12:17:39.728Z",
+      "sourcePort": 4204,
+      "httpMethod": "GET",
+      "predictionBudget": {
+        "mode": "limited",
+        "maxTotalTokens": 1000000
+      }
+    },
+    "qaWatchesStoppedOrDisabled": true,
+    "confirmationSource": "All audited request watch flags off or stopped; lead UI agent stopped the natural Apple watch after restart verification."
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "checkedAt": "2026-11-21T07:50:57.068Z",
+  "quote": {
+    "value": 57906.07,
+    "url": "https://data-api.binance.vision/api/v3/ticker/price?symbol=BTCUSDT",
+    "obtainedAt": "2026-11-21T07:50:56.118Z"
+  },
+  "history": {
+    "status": "ok",
+    "availableCandles": 30,
+    "lastBucket": "2026-11-21T07:49:00.000Z",
+    "url": "https://data-api.binance.vision/api/v3/klines?symbol=BTCUSDT&interval=1m&limit=30&endTime=1795247399999"
+  },
+  "modelCalls": 0,
+  "usedAsForecastBaseline": false
+}

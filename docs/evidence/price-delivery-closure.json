@@ -1,0 +1,39 @@
+{
+  "completedAt": "2026-11-21T08:25:25.248403+00:00",
+  "requestId": "course_request_61ef8b84-4710-4209-94e1-d858afa59644",
+  "autonomousValidationPassed": true,
+  "acceptance": {
+    "threeComplete": true,
+    "normalPublication": true,
+    "beforeTarget": true,
+    "liveSources": true,
+    "resultVerified": true,
+    "originalSealedUnchanged": true
+  },
+  "actualOutcome": 0,
+  "observedValue": 57718,
+  "brier": 0.2116,
+  "modelTokens": 58727,
+  "modelCalls": 10,
+  "noModelCallsForResolution": true,
+  "originalForecastEvidenceUsageUnchanged": true,
+  "criticalRuntimeSourceHashesUnchanged": true,
+  "fullRegressionPassed": 333,
+  "freshPackageApplicationFilesCompared": 144,
+  "readmeLocalReferencesChecked": 71,
+  "readmeScreenshots": [
+    "financial-real-room.png",
+    "financial-real-citations.png",
+    "financial-real-result.png"
+  ],
+  "cleanup": {
+    "live4196Stopped": true,
+    "mock4207Stopped": true,
+    "isolatedBrowser9336Stopped": true,
+    "verifiedViaHttp": true,
+    "temporaryKeyProcessStopped": true
+  },
+  "githubUploaded": false,
+  "userReviewPending": true,
+  "scope": "Single fixed financial rule workflow accepted; not overall predictive skill or every operating system/network."
+}

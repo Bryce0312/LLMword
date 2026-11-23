@@ -1,0 +1,25 @@
+{
+  "finishedAt": "2026-11-22T04:56:33.064Z",
+  "nodeVersion": "v24.22.3",
+  "command": "node --test --test-reporter=tap",
+  "scope": "full",
+  "tests": 398,
+  "passed": 398,
+  "failed": 0,
+  "skipped": 0,
+  "cancelled": 0,
+  "durationMs": 7918.4797,
+  "noRealModelCalls": true,
+  "noUserAgentsDeletedByChecks": true,
+  "verified": [
+    "asynchronous confirmation must resolve exactly true before DELETE",
+    "pending confirmation prevents duplicate actions",
+    "cancelled/rejected confirmations send no request",
+    "existing model credential and data connection regressions"
+  ],
+  "reviewed": [
+    "theme dialog cleanup and focus handling",
+    "Escape, backdrop, route and owner removal dismiss as cancellation",
+    "purpose tooltips and AI model badge wording"
+  ]
+}

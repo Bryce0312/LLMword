@@ -1,0 +1,791 @@
+{
+  "kind": "v2-real-live-acceptance",
+  "notAccuracyBenchmark": true,
+  "finishedAt": "2026-11-19T03:18:48.238Z",
+  "requestId": "course_request_06be7e53-1faf-4c74-b4a2-6e78e92c8685",
+  "question": "黄金会跌吗",
+  "createdAt": "2026-11-19T03:10:34.502Z",
+  "runId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5",
+  "status": "completed",
+  "error": null,
+  "harnessVersion": 3,
+  "draft": {
+    "status": "draft",
+    "question": "黄金会跌吗（未来约48小时内黄金价格是否较当前下跌）",
+    "originalQuestion": "黄金会跌吗",
+    "object": "现货黄金价格走势（默认 XAU/USD，美元/盎司）",
+    "interpretation": "判断观察窗口 2026-11-19 11:10 → 2026-11-21 11:10 (Asia/Shanghai) 内黄金是否下跌：以窗口起点现价为基准，终点价低于起点即“跌”；优先采用现货黄金美元/盎司报价，若工具不支持黄金则改用主流可复核基准并说明口径差异。",
+    "defaultAssumptions": [
+      "观察窗口按权威UTC：2026-11-19 11:10 → 2026-11-21 11:10 (Asia/Shanghai)。",
+      "“黄金”默认指现货黄金 XAU/USD，单位美元/盎司。",
+      "“跌”= 终点价 < 起点价；不考虑交易成本、税费、杠杆。",
+      "所有价格须带来源与时间戳；工具不支持黄金报价时说明缺口，不编造报价。"
+    ],
+    "targetAt": "2026-11-21T03:10:34.502Z",
+    "timezone": "Asia/Shanghai",
+    "sourceVerified": false,
+    "notice": "待核验题意草稿；来源、规则和数值基准由子Agent调查后核定，不是正式预测。"
+  },
+  "orchestration": {
+    "cycle": 1,
+    "maxCycles": 3,
+    "followUpsUsed": 0,
+    "maxFollowUps": 2,
+    "investigationSteps": 5,
+    "reportStep": 6,
+    "stage": "finished"
+  },
+  "team": [
+    {
+      "roleId": "market",
+      "name": "预测市场研究员",
+      "objective": "确定可复核的黄金基准：尝试获取现货黄金 XAU/USD 现价及窗口起点基准价（美元/盎司）；如报价工具不支持黄金，说明缺口并改用可引用来源的报价。检查是否有与“2026-11-21 11:10 前黄金下跌”对齐的预测市场或期权/期货隐含盘口，记录报价时间与流动性；无盘口不编造。",
+      "reason": "需固定基准并寻找市场隐含概率，避免“黄金”指代模糊。"
+    },
+    {
+      "roleId": "statistics",
+      "name": "统计与指标研究员",
+      "objective": "核对黄金价格数据口径：现价/最近收盘价、单位、时区、样本区间；近1-2日波动幅度、关键支撑/阻力或动量指标（仅报告能复核的数字）；说明数据来源与更新时间；若无法取得行情数据，明确说明缺口而非估算。",
+      "reason": "“会跌”依赖价格序列与波动基准，统计口径决定“跌”是否成立。"
+    },
+    {
+      "roleId": "verification",
+      "name": "反证与核验研究员",
+      "objective": "复核上述报价与方向主张：寻找与“下跌”相矛盾的材料（看涨因素、近期反弹、数据发布时间冲突等）；核对来源独立性、时间戳与基准是否一致；对单方报价或未经核实的技术指标保留异议；说明无法排除的相反情景。",
+      "reason": "防止单一来源或先入为主的下跌判断，保证结论可证伪。"
+    }
+  ],
+  "normalized": {
+    "type": "binary",
+    "question": "黄金会跌吗（观察至：2026-11-21 11:10:34 (Asia/Shanghai, UTC+08:00)）",
+    "object": "现货黄金 XAU/USD，美元/盎司",
+    "options": [],
+    "candidateUniverseRule": "",
+    "timezone": "Asia/Shanghai",
+    "forecastClosesAt": "2026-11-21T03:10:34.502Z",
+    "targetAt": "2026-11-21T03:10:34.502Z",
+    "resolutionRuleVersion": 1,
+    "resolutionRule": "固定观察窗口为2026-11-19 11:10:34 (Asia/Shanghai, UTC+08:00)至2026-11-21 11:10:34 (Asia/Shanghai, UTC+08:00)。当前没有可核实的数值基准，仅输出条件性方向估计，不作为可计分的价格涨跌题；补齐基准需另建契约版本。",
+    "resolutionSource": {
+      "kind": "public_research_reference",
+      "url": "https://th.investing.com/currencies/xau-usd"
+    },
+    "unresolvablePolicy": "若目标时点 investing.com 页面不可用或无更新，改用其他已核验公开现货金报价源（路透/新浪/新华财经），并记录所用来源与时间戳；若整窗口内无任何可核验现货金价，则标记为无法解析，不强行判定。",
+    "status": "ready",
+    "validation": {
+      "ready": true,
+      "missingFields": []
+    },
+    "predictionId": "prediction_course_request_06be7e53-1faf-4c74-b4a2-6e78e92c8685",
+    "topicId": "topic_course_request_06be7e53-1faf-4c74-b4a2-6e78e92c8685",
+    "version": 1,
+    "scoringEligible": true,
+    "createdAt": "2026-11-19T03:16:01.721Z",
+    "updatedAt": "2026-11-19T03:16:01.721Z",
+    "forecast": null,
+    "latestRun": null,
+    "activeRunId": null,
+    "watchQuery": "现货黄金 XAU/USD 价格 美元/盎司",
+    "sourceVerified": true,
+    "sourceEvidenceId": "course_evidence_40be19d625375c24b2b6d26716c1505c",
+    "interpretation": "判断观察窗口内黄金是否下跌：以窗口起点现价为基准，终点价低于起点即『跌』。经子Agent核验，窗口起点附近可复核报价为 investing.com XAU/USD $3,728.85（快照距窗口起点约26秒），据此固定基准 P0。",
+    "defaultAssumptions": [
+      "默认观察窗口从本次创建 2026-11-19 11:10:34 (Asia/Shanghai, UTC+08:00) 至 2026-11-21 11:10:34 (Asia/Shanghai, UTC+08:00)；用户明确指定的条件优先。",
+      "观察窗口按权威UTC从窗口起点到目标时点；『当前/今天』以 server 的 windowStartsAt 与 targetAt 为准。",
+      "『黄金』默认指现货黄金 XAU/USD，单位美元/盎司。",
+      "『跌』= 终点价 < 起点价；不考虑交易成本、税费、杠杆。",
+      "起点基准 P0=$3,728.85（investing.com XAU/USD 快照，距观察窗口起点约26秒）。",
+      "所有价格须带来源与时间戳；工具不支持黄金报价时说明缺口，不编造报价。"
+    ],
+    "currentReference": {
+      "kind": "directional",
+      "value": null,
+      "unit": null,
+      "observedAt": null,
+      "url": "https://th.investing.com/currencies/xau-usd",
+      "evidenceId": "course_evidence_40be19d625375c24b2b6d26716c1505c",
+      "verified": false
+    },
+    "baseline": {
+      "kind": "directional",
+      "value": null,
+      "unit": null,
+      "observedAt": null,
+      "url": "https://th.investing.com/currencies/xau-usd",
+      "evidenceId": "course_evidence_40be19d625375c24b2b6d26716c1505c",
+      "verified": false
+    },
+    "sourceLimitations": [
+      "investing.com 为单一行情聚合源，无第二独立交易所/Kitco/彭博实时交叉验证；页面内另显 09:48:04 报价 $3,730.89 与 Binance Futures $3,738.40，口径/时点不一致。",
+      "market 工具 get_market_quote 仅支持 BTC/ETH，无法直接取 XAU/USD 现价；Reuters 与新浪报价为 11-18 数据，距窗口起点滞后约17小时。",
+      "wellxin 报道存在日期自相矛盾（称周三11/19，实际11/19为周四，暴跌应为周三11/18）；新华财经/wellxin 叙事同源，缺乏独立英文原始报价交叉验证。",
+      "未找到与 11-19→11-21 窗口精确对齐的预测市场盘口（Polymarket/Kalshi 现有合约规则与窗口不匹配），无法提供隐含概率对照。",
+      "未取得可验证现价，数值基准缺失；仅作有公开资料依据的条件性方向估计，不计分。"
+    ],
+    "conditionalOnly": true,
+    "timeContext": {
+      "nowUtc": "2026-11-19T03:16:01.720Z",
+      "nowLocalLabel": "2026-11-19 11:16:01 (Asia/Shanghai, UTC+08:00)",
+      "windowStartsAtUtc": "2026-11-19T03:10:34.502Z",
+      "windowStartsAtLocalLabel": "2026-11-19 11:10:34 (Asia/Shanghai, UTC+08:00)",
+      "targetAtUtc": "2026-11-21T03:10:34.502Z",
+      "targetAtLocalLabel": "2026-11-21 11:10:34 (Asia/Shanghai, UTC+08:00)",
+      "forecastClosesAtUtc": "2026-11-21T03:10:34.502Z",
+      "forecastClosesAtLocalLabel": "2026-11-21 11:10:34 (Asia/Shanghai, UTC+08:00)",
+      "timezone": "Asia/Shanghai",
+      "utcOffset": "UTC+08:00",
+      "authority": "UTC instant is authoritative; local labels are server-generated and display-only."
+    },
+    "temporalPolicy": "by_target",
+    "researchBasis": {
+      "mode": "conditional",
+      "summary": "实际读取公开资料的条件性估计；缺少数值基准，不计分。"
+    },
+    "temporalPolicyBasis": "课程首版语义启发式；目标时点状态题在T之前不能以当前状态结算。"
+  },
+  "forecast": {
+    "forecastId": "course_forecast_df007a5b-733f-48bf-8a81-85a1e2d07a53",
+    "requestId": "course_request_06be7e53-1faf-4c74-b4a2-6e78e92c8685",
+    "runId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5",
+    "predictionId": "prediction_course_request_06be7e53-1faf-4c74-b4a2-6e78e92c8685",
+    "predictionVersion": 1,
+    "probabilityYes": 0.52,
+    "probabilityNo": 0.48,
+    "summary": "契约核定：现货黄金 XAU/USD（美元/盎司），窗口 2026-11-19 11:10:34→11-21 11:10:34（上海），起点基准 P0=$3,728.85（investing.com 快照，statistics 核验，距窗口起点约26秒），『跌』=终点价<$3,728.85。三名研究员一致呈现：宏观偏空（美联储偏鹰、美元19个月高位、10Y近5%）叠加下行趋势与平台『卖出』信号；反证为技术超卖、11/19亚盘逢低买盘、地缘尾部风险（伊朗袭击海湾美军设施）及12月或仅加息25bp的可能。market=0.52、verification=0.50、statistics 未给概率；团队一致度较高（硬币偏空）。综合取 0.52：略高于0.5以反映持续性利率/美元压力与下行动能，但明确48小时方向噪声大，接近抛硬币，任一方均无强证据。",
+    "evidenceIds": [
+      "course_evidence_40be19d625375c24b2b6d26716c1505c",
+      "course_evidence_30ed733ea3032b359b397b7efc97006d",
+      "course_evidence_da05a0b2514fe1868c3eacd9ff333385",
+      "course_evidence_f5ebdf1aa5c7cffdd1caeaa8af63c3a4",
+      "course_evidence_7afdff413f5df4fe605fb332e39014c7",
+      "course_evidence_bc00a2d6d284ad6313a66a85e6723e37",
+      "course_evidence_e1b8353c7db4c21d7b4e6da9a1954378"
+    ],
+    "evidenceAdequacy": "limited",
+    "dissent": [
+      "超卖反弹风险：新湖期货（新华财经）指技术指标进入超卖区、3700美元为第一支撑，短期或有反弹修复；11/19亚盘已见逢低买盘，金价自周三收盘3724.67一度反弹至3741.66，与『跌』方向相反。",
+      "地缘尾部风险：wellxin 称伊朗袭击科威特、巴林境内美军设施，霍尔木兹海峡航运受扰；若冲突急剧升级将触发避险买盘，阶段性推升金价。",
+      "加息路径不确定性：部分经济学家认为若通胀降温，美联储12月或仅加息25bp而非50bp；若如此利率压制弱于当前市场定价，金价下行压力或减弱。",
+      "无对齐盘口：Polymarket 黄金15分钟合约与 Kalshi 贵金属合约规则/窗口均与本题不匹配，无法用隐含概率校准方向概率。"
+    ],
+    "issuedAt": "2026-11-19T03:18:47.578Z",
+    "publishedAt": "2026-11-19T03:18:47.578Z",
+    "knowledgeCutoff": "2026-11-19T03:18:47.578Z",
+    "targetAt": "2026-11-21T03:10:34.502Z",
+    "resolutionRuleVersion": 1,
+    "modelMode": "live",
+    "modelRef": "deepseek-v4-pro",
+    "sourceMode": "live",
+    "kind": "conditional_estimate",
+    "defaultAssumptions": [
+      "默认观察窗口从本次创建 2026-11-19 11:10:34 (Asia/Shanghai, UTC+08:00) 至 2026-11-21 11:10:34 (Asia/Shanghai, UTC+08:00)；用户明确指定的条件优先。",
+      "观察窗口按权威UTC从窗口起点到目标时点；『当前/今天』以 server 的 windowStartsAt 与 targetAt 为准。",
+      "『黄金』默认指现货黄金 XAU/USD，单位美元/盎司。",
+      "『跌』= 终点价 < 起点价；不考虑交易成本、税费、杠杆。",
+      "起点基准 P0=$3,728.85（investing.com XAU/USD 快照，距观察窗口起点约26秒）。",
+      "所有价格须带来源与时间戳；工具不支持黄金报价时说明缺口，不编造报价。"
+    ],
+    "currentReference": {
+      "kind": "directional",
+      "value": null,
+      "unit": null,
+      "observedAt": null,
+      "url": "https://th.investing.com/currencies/xau-usd",
+      "evidenceId": "course_evidence_40be19d625375c24b2b6d26716c1505c",
+      "verified": false
+    },
+    "sourceLimitations": [
+      "investing.com 单源基准：页面内部价不一致（最新$3,728.85、09:48:04报$3,730.89、Binance Futures $3,738.40），无第二独立实时行情源交叉验证窗口起点价。",
+      "Reuters/Sina 报价为 11-18 数据（距窗口起点滞后约17小时），仅作趋势背景，不作窗口起点基准。",
+      "wellxin 日期自相矛盾（称周三11/19，实际11/19为周四）；新华财经与 wellxin 叙事同源，缺乏独立英文原始报价交叉验证。",
+      "未取得与 11-19→11-21 窗口精确对齐的预测市场盘口，无隐含概率对照。",
+      "48小时窗口内经济数据（如 11/19 美初请失业金、费城联储制造业）结果在预测时点未知，无法评估其扰动方向。"
+    ],
+    "researchBasis": {
+      "mode": "conditional",
+      "summary": "实际读取公开资料的条件性估计；缺少数值基准，不计分。"
+    },
+    "timeContext": {
+      "nowUtc": "2026-11-19T03:16:01.720Z",
+      "nowLocalLabel": "2026-11-19 11:16:01 (Asia/Shanghai, UTC+08:00)",
+      "windowStartsAtUtc": "2026-11-19T03:10:34.502Z",
+      "windowStartsAtLocalLabel": "2026-11-19 11:10:34 (Asia/Shanghai, UTC+08:00)",
+      "targetAtUtc": "2026-11-21T03:10:34.502Z",
+      "targetAtLocalLabel": "2026-11-21 11:10:34 (Asia/Shanghai, UTC+08:00)",
+      "forecastClosesAtUtc": "2026-11-21T03:10:34.502Z",
+      "forecastClosesAtLocalLabel": "2026-11-21 11:10:34 (Asia/Shanghai, UTC+08:00)",
+      "timezone": "Asia/Shanghai",
+      "utcOffset": "UTC+08:00",
+      "authority": "UTC instant is authoritative; local labels are server-generated and display-only."
+    },
+    "baseline": {
+      "kind": "directional",
+      "value": null,
+      "unit": null,
+      "observedAt": null,
+      "url": "https://th.investing.com/currencies/xau-usd",
+      "evidenceId": "course_evidence_40be19d625375c24b2b6d26716c1505c",
+      "verified": false
+    },
+    "scoringEligible": false,
+    "label": "模型事件概率估计"
+  },
+  "result": null,
+  "usage": {
+    "modelRequests": 15,
+    "toolCalls": 17,
+    "totalTokens": 159288,
+    "unknownUsage": false
+  },
+  "dispatchProof": {
+    "teamSelectedSeq": 1377,
+    "firstSourceSeq": 1386,
+    "mainSourceCallsBeforeDelegation": 0,
+    "modelEvents": [
+      {
+        "eventId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_market_initial_model.requested_course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_market_initial_model_1",
+        "seq": 1382,
+        "type": "model.requested",
+        "roleId": "market",
+        "assignmentId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_market_initial",
+        "modelRequestId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_market_initial_model_1",
+        "index": 1,
+        "summary": "正在进行第1次模型判断，等待真实返回。"
+      },
+      {
+        "eventId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_statistics_initial_model.requested_course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_statistics_initial_model_1",
+        "seq": 1383,
+        "type": "model.requested",
+        "roleId": "statistics",
+        "assignmentId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_statistics_initial",
+        "modelRequestId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_statistics_initial_model_1",
+        "index": 1,
+        "summary": "正在进行第1次模型判断，等待真实返回。"
+      },
+      {
+        "eventId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_verification_initial_model.requested_course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_verification_initial_model_1",
+        "seq": 1384,
+        "type": "model.requested",
+        "roleId": "verification",
+        "assignmentId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_verification_initial",
+        "modelRequestId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_verification_initial_model_1",
+        "index": 1,
+        "summary": "正在进行第1次模型判断，等待真实返回。"
+      },
+      {
+        "eventId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_statistics_initial_model.completed_course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_statistics_initial_model_1",
+        "seq": 1385,
+        "type": "model.completed",
+        "roleId": "statistics",
+        "assignmentId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_statistics_initial",
+        "modelRequestId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_statistics_initial_model_1",
+        "index": 1,
+        "elapsedMs": 8077,
+        "summary": "本次模型调用已返回，正在处理实际动作。"
+      },
+      {
+        "eventId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_verification_initial_model.completed_course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_verification_initial_model_1",
+        "seq": 1389,
+        "type": "model.completed",
+        "roleId": "verification",
+        "assignmentId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_verification_initial",
+        "modelRequestId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_verification_initial_model_1",
+        "index": 1,
+        "elapsedMs": 8612,
+        "summary": "本次模型调用已返回，正在处理实际动作。"
+      },
+      {
+        "eventId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_statistics_initial_model.requested_course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_statistics_initial_model_2",
+        "seq": 1392,
+        "type": "model.requested",
+        "roleId": "statistics",
+        "assignmentId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_statistics_initial",
+        "modelRequestId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_statistics_initial_model_2",
+        "index": 2,
+        "summary": "正在进行第2次模型判断，等待真实返回。"
+      },
+      {
+        "eventId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_market_initial_model.completed_course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_market_initial_model_1",
+        "seq": 1393,
+        "type": "model.completed",
+        "roleId": "market",
+        "assignmentId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_market_initial",
+        "modelRequestId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_market_initial_model_1",
+        "index": 1,
+        "elapsedMs": 8981,
+        "summary": "本次模型调用已返回，正在处理实际动作。"
+      },
+      {
+        "eventId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_verification_initial_model.requested_course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_verification_initial_model_2",
+        "seq": 1400,
+        "type": "model.requested",
+        "roleId": "verification",
+        "assignmentId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_verification_initial",
+        "modelRequestId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_verification_initial_model_2",
+        "index": 2,
+        "summary": "正在进行第2次模型判断，等待真实返回。"
+      },
+      {
+        "eventId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_market_initial_model.requested_course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_market_initial_model_2",
+        "seq": 1402,
+        "type": "model.requested",
+        "roleId": "market",
+        "assignmentId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_market_initial",
+        "modelRequestId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_market_initial_model_2",
+        "index": 2,
+        "summary": "正在进行第2次模型判断，等待真实返回。"
+      },
+      {
+        "eventId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_verification_initial_model.completed_course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_verification_initial_model_2",
+        "seq": 1403,
+        "type": "model.completed",
+        "roleId": "verification",
+        "assignmentId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_verification_initial",
+        "modelRequestId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_verification_initial_model_2",
+        "index": 2,
+        "elapsedMs": 7546,
+        "summary": "本次模型调用已返回，正在处理实际动作。"
+      },
+      {
+        "eventId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_statistics_initial_model.completed_course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_statistics_initial_model_2",
+        "seq": 1405,
+        "type": "model.completed",
+        "roleId": "statistics",
+        "assignmentId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_statistics_initial",
+        "modelRequestId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_statistics_initial_model_2",
+        "index": 2,
+        "elapsedMs": 9297,
+        "summary": "本次模型调用已返回，正在处理实际动作。"
+      },
+      {
+        "eventId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_market_initial_model.completed_course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_market_initial_model_2",
+        "seq": 1407,
+        "type": "model.completed",
+        "roleId": "market",
+        "assignmentId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_market_initial",
+        "modelRequestId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_market_initial_model_2",
+        "index": 2,
+        "elapsedMs": 10912,
+        "summary": "本次模型调用已返回，正在处理实际动作。"
+      },
+      {
+        "eventId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_market_initial_model.requested_course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_market_initial_model_3",
+        "seq": 1414,
+        "type": "model.requested",
+        "roleId": "market",
+        "assignmentId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_market_initial",
+        "modelRequestId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_market_initial_model_3",
+        "index": 3,
+        "summary": "正在进行第3次模型判断，等待真实返回。"
+      },
+      {
+        "eventId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_statistics_initial_model.requested_course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_statistics_initial_model_3",
+        "seq": 1420,
+        "type": "model.requested",
+        "roleId": "statistics",
+        "assignmentId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_statistics_initial",
+        "modelRequestId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_statistics_initial_model_3",
+        "index": 3,
+        "summary": "正在进行第3次模型判断，等待真实返回。"
+      },
+      {
+        "eventId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_verification_initial_model.requested_course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_verification_initial_model_3",
+        "seq": 1422,
+        "type": "model.requested",
+        "roleId": "verification",
+        "assignmentId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_verification_initial",
+        "modelRequestId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_verification_initial_model_3",
+        "index": 3,
+        "summary": "正在进行第3次模型判断，等待真实返回。"
+      },
+      {
+        "eventId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_statistics_initial_model.completed_course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_statistics_initial_model_3",
+        "seq": 1423,
+        "type": "model.completed",
+        "roleId": "statistics",
+        "assignmentId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_statistics_initial",
+        "modelRequestId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_statistics_initial_model_3",
+        "index": 3,
+        "elapsedMs": 35704,
+        "summary": "本次模型调用已返回，正在处理实际动作。"
+      },
+      {
+        "eventId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_statistics_initial_model.requested_course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_statistics_initial_model_4",
+        "seq": 1428,
+        "type": "model.requested",
+        "roleId": "statistics",
+        "assignmentId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_statistics_initial",
+        "modelRequestId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_statistics_initial_model_4",
+        "index": 4,
+        "summary": "正在整理并提交调查报告，等待模型真实返回。"
+      },
+      {
+        "eventId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_market_initial_model.completed_course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_market_initial_model_3",
+        "seq": 1429,
+        "type": "model.completed",
+        "roleId": "market",
+        "assignmentId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_market_initial",
+        "modelRequestId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_market_initial_model_3",
+        "index": 3,
+        "elapsedMs": 54698,
+        "summary": "本次模型调用已返回，正在处理实际动作。"
+      },
+      {
+        "eventId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_verification_initial_model.completed_course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_verification_initial_model_3",
+        "seq": 1433,
+        "type": "model.completed",
+        "roleId": "verification",
+        "assignmentId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_verification_initial",
+        "modelRequestId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_verification_initial_model_3",
+        "index": 3,
+        "elapsedMs": 37265,
+        "summary": "本次模型调用已返回，正在处理实际动作。"
+      },
+      {
+        "eventId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_verification_initial_model.requested_course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_verification_initial_model_4",
+        "seq": 1438,
+        "type": "model.requested",
+        "roleId": "verification",
+        "assignmentId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_verification_initial",
+        "modelRequestId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_verification_initial_model_4",
+        "index": 4,
+        "summary": "正在整理并提交调查报告，等待模型真实返回。"
+      },
+      {
+        "eventId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_statistics_initial_model.completed_course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_statistics_initial_model_4",
+        "seq": 1439,
+        "type": "model.completed",
+        "roleId": "statistics",
+        "assignmentId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_statistics_initial",
+        "modelRequestId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_statistics_initial_model_4",
+        "index": 4,
+        "elapsedMs": 87381,
+        "summary": "本次模型调用已返回，正在处理实际动作。"
+      },
+      {
+        "eventId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_verification_initial_model.completed_course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_verification_initial_model_4",
+        "seq": 1443,
+        "type": "model.completed",
+        "roleId": "verification",
+        "assignmentId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_verification_initial",
+        "modelRequestId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_verification_initial_model_4",
+        "index": 4,
+        "elapsedMs": 79653,
+        "summary": "本次模型调用已返回，正在处理实际动作。"
+      }
+    ]
+  },
+  "reports": [
+    {
+      "roleId": "market",
+      "assignmentId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_market_initial",
+      "cycle": 1,
+      "followUp": false,
+      "status": "completed",
+      "report": {
+        "status": "complete",
+        "summary": "报价工具 get_market_quote 仅支持 BTC/ETH，不支持黄金，无法直接取得 XAU/USD 现价。改用公开来源基准：2026-11-18 09:09 GMT 现货黄金 $3,772.91/盎司（路透）；新浪 11-18 16:59 伦敦金 CFD 报 $3,769.32（美元/盎司）。窗口起点（11-19 11:10 上海）无精确同时点报价，基准滞后约 17 小时。未找到与 11-19→11-21 窗口精确对齐的预测市场：Polymarket 有黄金 15 分钟涨跌合约（Chainlink 结算）、Kalshi 有贵金属市场，但所获聚合页为 11 月 2 日当周，规则与窗口不匹配；无对齐盘口，不编造。",
+        "evidenceIds": [
+          "course_evidence_f5ebdf1aa5c7cffdd1caeaa8af63c3a4",
+          "course_evidence_7afdff413f5df4fe605fb332e39014c7",
+          "course_evidence_e1b8353c7db4c21d7b4e6da9a1954378"
+        ],
+        "support": [
+          {
+            "claim": "现货黄金已跌至一年多低点，2026-11-18 09:09 GMT 报 $3,772.91/盎司，当日跌约2%，显示下行趋势。",
+            "evidenceIds": [
+              "course_evidence_f5ebdf1aa5c7cffdd1caeaa8af63c3a4"
+            ]
+          },
+          {
+            "claim": "新浪伦敦金 CFD 11-18 16:59 报 $3,769.32（-2.07%），今开 3852.93、昨结 3849.17，跌破 3800 美元关口。",
+            "evidenceIds": [
+              "course_evidence_7afdff413f5df4fe605fb332e39014c7"
+            ]
+          },
+          {
+            "claim": "宏观利空：美联储官员放鹰、美元接近 19 个月高位、10 年期收益率逼近 5%，压制无息黄金。",
+            "evidenceIds": [
+              "course_evidence_f5ebdf1aa5c7cffdd1caeaa8af63c3a4",
+              "course_evidence_7afdff413f5df4fe605fb332e39014c7"
+            ]
+          }
+        ],
+        "counterevidence": [
+          {
+            "claim": "未找到与 11-19 11:10→11-21 11:10（上海）窗口精确对齐的预测市场盘口，无法获得隐含概率。",
+            "evidenceIds": [
+              "course_evidence_e1b8353c7db4c21d7b4e6da9a1954378"
+            ]
+          },
+          {
+            "claim": "所获报价为 11-18 数据，距窗口起点约 17 小时，窗口起点基准价未在同一时点取得。",
+            "evidenceIds": [
+              "course_evidence_f5ebdf1aa5c7cffdd1caeaa8af63c3a4",
+              "course_evidence_7afdff413f5df4fe605fb332e39014c7"
+            ]
+          },
+          {
+            "claim": "48 小时二元方向噪声大，金价已近一年低点，存在超跌反弹可能，趋势延续无保证。",
+            "evidenceIds": [
+              "course_evidence_f5ebdf1aa5c7cffdd1caeaa8af63c3a4"
+            ]
+          }
+        ],
+        "missingEvidence": [
+          "窗口起点（2026-11-19 11:10 上海）同一时点的 XAU/USD 官方现货报价",
+          "与 11-19→11-21 窗口精确对齐的预测市场/期权/期货隐含盘口（Polymarket、Kalshi 具体合约）",
+          "支持黄金的实时报价工具或 Pyth/Chainlink 数据源",
+          "未来 48 小时美联储发言、经济数据等催化剂日程"
+        ],
+        "probability": 0.52,
+        "nextSuggestion": "用支持黄金的数据源（如 Pyth/Chainlink、investing.com 静态快照）取得窗口起点同一时点 XAU/USD 基准；检索 Polymarket/Kalshi 是否有 11-19→11-21 黄金涨跌具体合约并读取盘口与流动性，以得出对齐的隐含概率。",
+        "resultId": "18400dba-9496-445a-bb5e-cfb7d6226fd1",
+        "topicId": "topic_course_request_06be7e53-1faf-4c74-b4a2-6e78e92c8685",
+        "predictionId": "prediction_course_request_06be7e53-1faf-4c74-b4a2-6e78e92c8685",
+        "runId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5",
+        "assignmentId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_market_initial",
+        "agentInstanceId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_market_initial_actor",
+        "agentSpecId": "market",
+        "specVersion": 1
+      },
+      "usage": {
+        "modelRequests": 3,
+        "toolCalls": 5,
+        "totalTokens": 24865,
+        "unknownUsage": false
+      },
+      "error": null
+    },
+    {
+      "roleId": "statistics",
+      "assignmentId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_statistics_initial",
+      "cycle": 1,
+      "followUp": false,
+      "status": "completed",
+      "report": {
+        "status": "complete",
+        "summary": "现货黄金 XAU/USD，单位美元/盎司。来源 investing.com XAU/USD 页面（页面当前时间 2026-11-19 10:11 GMT+7，约等于上海 11:11，与观察窗口起点基本一致）。最新价 $3,728.85（+3.94，+0.11%，实时），前收盘 $3,724.91；日内区间 $3,724.91–3,758.44；52周区间 $3,719.86–5,595.46，现价贴近52周低点；1年变动 -8.6693%；平台技术总结与均线均为\"卖出\"。近1-2日：周三(11-18)早盘 00:48 ET 现货价 $3,790.18（-1.5%），当日报\"跌破$3,800\"，至周四现价 $3,728.85，约 -1.6%，延续下行。报价时间戳约 09:47–09:48（页面10:11快照）。主要缺口：单一来源、无周二(11-17)精确收盘价、无独立交叉验证与专业支撑/阻力位数值。",
+        "evidenceIds": [
+          "course_evidence_40be19d625375c24b2b6d26716c1505c",
+          "course_evidence_bc00a2d6d284ad6313a66a85e6723e37"
+        ],
+        "support": [
+          {
+            "claim": "现货 XAU/USD 最新价 $3,728.85/盎司（+3.94，+0.11%），前收盘 $3,724.91；页面时间 2026-11-19 10:11 GMT+7，约等于上海 11:11。",
+            "evidenceIds": [
+              "course_evidence_40be19d625375c24b2b6d26716c1505c"
+            ]
+          },
+          {
+            "claim": "日内区间 $3,724.91–3,758.44；52周区间 $3,719.86–5,595.46（现价贴近52周低点）；1年变动 -8.6693%；平台技术总结与均线均为'卖出'。",
+            "evidenceIds": [
+              "course_evidence_40be19d625375c24b2b6d26716c1505c"
+            ]
+          },
+          {
+            "claim": "周三(11-18)早盘 00:48 ET 现货价 $3,790.18（-1.5%），当日报'跌破$3,800'；至周四现价 $3,728.85，约 -1.6%，近1-2日延续下行。",
+            "evidenceIds": [
+              "course_evidence_bc00a2d6d284ad6313a66a85e6723e37",
+              "course_evidence_40be19d625375c24b2b6d26716c1505c"
+            ]
+          }
+        ],
+        "counterevidence": [
+          {
+            "claim": "现价主要来自 investing.com 单一聚合页，无第二独立行情源交叉验证；页面内部另显示 09:48:04 报价 $3,730.89 与 Binance Futures $3,738.40，口径/时点不一致。",
+            "evidenceIds": [
+              "course_evidence_40be19d625375c24b2b6d26716c1505c"
+            ]
+          },
+          {
+            "claim": "Yahoo 文章元数据 publishedAt 2026-11-17 与其正文'周三(11-18)'交易描述存在日期不一致，其时间锚点需谨慎使用。",
+            "evidenceIds": [
+              "course_evidence_bc00a2d6d284ad6313a66a85e6723e37"
+            ]
+          },
+          {
+            "claim": "'卖出'为平台自动聚合技术信号而非价格数据本身，不构成未来必然下跌的证据。",
+            "evidenceIds": [
+              "course_evidence_40be19d625375c24b2b6d26716c1505c"
+            ]
+          }
+        ],
+        "missingEvidence": [
+          "观察窗口起点(2026-11-19 11:10 上海)的精确瞬时成交价，仅有约1分钟前的页面快照。",
+          "周二(2026-11-17)精确收盘价，导致无法给出精确的2日累计涨跌幅。",
+          "独立权威行情源(如交易所/Kitco/彭博)对现价的交叉验证。",
+          "专业支撑/阻力位具体数值(页面仅给日内与52周区间，未给明确阻力/支撑位)。",
+          "样本区间与历史序列的完整口径说明。"
+        ],
+        "probability": null,
+        "nextSuggestion": "建议读取独立行情源（Kitco/彭博/交易所）复核现价并补齐11-17收盘价以计算精确2日涨跌幅；若需判断方向，应进一步获取明确的支撑/阻力位与动量指标（RSI/MACD等）具体数值。",
+        "resultId": "5cf1ee55-4e3f-405a-9e4d-877199fab843",
+        "topicId": "topic_course_request_06be7e53-1faf-4c74-b4a2-6e78e92c8685",
+        "predictionId": "prediction_course_request_06be7e53-1faf-4c74-b4a2-6e78e92c8685",
+        "runId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5",
+        "assignmentId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_statistics_initial",
+        "agentInstanceId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_statistics_initial_actor",
+        "agentSpecId": "statistics",
+        "specVersion": 1
+      },
+      "usage": {
+        "modelRequests": 4,
+        "toolCalls": 6,
+        "totalTokens": 36748,
+        "unknownUsage": false
+      },
+      "error": null
+    },
+    {
+      "roleId": "verification",
+      "assignmentId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_verification_initial",
+      "cycle": 1,
+      "followUp": false,
+      "status": "completed",
+      "report": {
+        "status": "complete",
+        "summary": "复核\"黄金会跌吗\"草稿：读取新华财经11/19机构看金市、wellxin暴跌报道两份中文来源。共识偏空——美联储10月纪要偏鹰、沃勒提12月加息50bp、美元指数创19个月新高，现货金周三跌超3%至14个月低点、收盘3724.67美元，11/19亚市反弹至3741.66。与\"下跌\"相矛盾的反证：新湖期货称技术指标超卖、短期或有反弹修复；亚盘逢低买盘已现；伊朗袭击海湾美军设施等地缘升级构成避险尾部风险；部分经济学家认为通胀若降温12月或仅加息25bp。两来源叙事同源、报价单源未交叉验证，wellxin日期自相矛盾；48小时内11/19美初请失业金数据未读取。短期近抛硬币，温和偏空但反弹风险不可排除。",
+        "evidenceIds": [
+          "course_evidence_30ed733ea3032b359b397b7efc97006d",
+          "course_evidence_da05a0b2514fe1868c3eacd9ff333385"
+        ],
+        "support": [
+          {
+            "claim": "新华财经11/19汇总福能、光大、国信等机构一致偏空：短期贵金属仍处承压格局，趋势性反弹条件尚不具备，加息预期施压金银续创新低。",
+            "evidenceIds": [
+              "course_evidence_30ed733ea3032b359b397b7efc97006d"
+            ]
+          },
+          {
+            "claim": "wellxin：现货黄金单日暴跌超3%创14个月新低，盘中3719.84、收盘3724.67美元；美元指数创19个月新高103.91，2年期美债4.802%，利率主导下跌。",
+            "evidenceIds": [
+              "course_evidence_da05a0b2514fe1868c3eacd9ff333385"
+            ]
+          },
+          {
+            "claim": "国信期货：CME FedWatch显示12月加息25bp后1月再加息25bp概率达66%，市场交易连续加息逻辑，强美元压制无息资产。",
+            "evidenceIds": [
+              "course_evidence_30ed733ea3032b359b397b7efc97006d"
+            ]
+          }
+        ],
+        "counterevidence": [
+          {
+            "claim": "新湖期货（新华财经）：黄金技术指标进入超卖区域，短期可能存在反弹修复动能，3700美元整数关口为第一支撑。",
+            "evidenceIds": [
+              "course_evidence_30ed733ea3032b359b397b7efc97006d"
+            ]
+          },
+          {
+            "claim": "wellxin：11/19亚市早盘现货黄金反弹至3741.66美元（较周三收盘3724.67回升约17美元）；部分经济学家认为若通胀改善，美联储12月或仅加息25bp而非50bp。",
+            "evidenceIds": [
+              "course_evidence_da05a0b2514fe1868c3eacd9ff333385"
+            ]
+          },
+          {
+            "claim": "地缘升级构成避险尾部风险：伊朗袭击科威特、巴林境内美军设施，霍尔木兹海峡航运受扰，若冲突急剧升级或避险回流，可能阶段性支撑金价。",
+            "evidenceIds": [
+              "course_evidence_da05a0b2514fe1868c3eacd9ff333385",
+              "course_evidence_30ed733ea3032b359b397b7efc97006d"
+            ]
+          }
+        ],
+        "missingEvidence": [
+          "窗口起点(11/19 11:10上海)的精确现货金报价未取得；最近报价为07:43北京3741.66美元（wellxin单源），未与第二个独立报价源交叉核对。",
+          "48小时窗口内经济数据日程（如11/19 21:30美初请失业金、费城联储制造业等）未读取权威来源，无法评估对金价的扰动方向。",
+          "两份已读来源均为中文财经媒体、叙事同源（同引美联储纪要/沃勒/FedWatch），缺乏独立英文或交易所原始报价交叉验证。",
+          "技术指标（RSI超卖）无原始数值与计算口径，仅转述接近超卖，无法核实。",
+          "wellxin文中周三(11/19)与周四(11/19)亚市早盘日期自相矛盾；11/19实为周四，暴跌应为周三(11/18)美盘，来源时间戳存在瑕疵。"
+        ],
+        "probability": 0.5,
+        "nextSuggestion": "补充读取独立英文源（Reuters/Kitco）当前XAU/USD报价与11/19-21美国经济日历，交叉核对窗口起点价；并核实RSI超卖数值及11/19美初请失业金结果对短期反弹/下跌的影响。",
+        "resultId": "d577de6f-2f6b-4896-94f2-1aafc2f705ea",
+        "topicId": "topic_course_request_06be7e53-1faf-4c74-b4a2-6e78e92c8685",
+        "predictionId": "prediction_course_request_06be7e53-1faf-4c74-b4a2-6e78e92c8685",
+        "runId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5",
+        "assignmentId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_verification_initial",
+        "agentInstanceId": "course_run_604d72c6-506c-4d29-b4c5-e91eef80f8b5_verification_initial_actor",
+        "agentSpecId": "verification",
+        "specVersion": 1
+      },
+      "usage": {
+        "modelRequests": 4,
+        "toolCalls": 6,
+        "totalTokens": 36552,
+        "unknownUsage": false
+      },
+      "error": null
+    }
+  ],
+  "evidence": [
+    {
+      "evidenceId": "course_evidence_30ed733ea3032b359b397b7efc97006d",
+      "title": "机构看金市：11月19日",
+      "url": "https://www.cnfin.com/dz-lb/detail/20261119/4497520_1.html",
+      "obtainedAt": "2026-11-19T03:11:41.196Z",
+      "publishedAt": "2026-11-18T16:00:00.000Z"
+    },
+    {
+      "evidenceId": "course_evidence_40be19d625375c24b2b6d26716c1505c",
+      "title": "XAU USD | ราคาทองวันนี้ล่าสุด - Investing.com",
+      "url": "https://th.investing.com/currencies/xau-usd",
+      "obtainedAt": "2026-11-19T03:11:49.748Z",
+      "publishedAt": null
+    },
+    {
+      "evidenceId": "course_evidence_7afdff413f5df4fe605fb332e39014c7",
+      "title": "美联储，加息大消息",
+      "url": "https://finance.sina.com.cn/jjxw/2026-11-18/doc-inizeacc6924480.shtml",
+      "obtainedAt": "2026-11-19T03:11:35.989Z",
+      "publishedAt": "2026-11-17T16:00:00.000Z"
+    },
+    {
+      "evidenceId": "course_evidence_bc00a2d6d284ad6313a66a85e6723e37",
+      "title": "Oro Sotto i 3.800 Dollari, le Attese di Nuovi Rialzi dei Tassi Fed Pesano sui Metalli Preziosi",
+      "url": "https://it.finance.yahoo.com/notizie/oro-sotto-3-800-dollari-102652052.html",
+      "obtainedAt": "2026-11-19T03:12:25.710Z",
+      "publishedAt": "2026-11-17T16:00:00.000Z"
+    },
+    {
+      "evidenceId": "course_evidence_da05a0b2514fe1868c3eacd9ff333385",
+      "title": "金价暴跌超3%创14个月新低！美联储鹰派“核按钮”已按下，多头将全面崩盘？",
+      "url": "http://wellxin.com/index.php/index/show?id=37809&catname=gjszx",
+      "obtainedAt": "2026-11-19T03:12:09.740Z",
+      "publishedAt": "2026-11-18T16:00:00.000Z"
+    },
+    {
+      "evidenceId": "course_evidence_e1b8353c7db4c21d7b4e6da9a1954378",
+      "title": "What will Gold (XAUUSD) hit Week of November 2 2026? Odds & Prediction Markets",
+      "url": "https://predictionhero.com/event/what-will-gold-xauusd-hit-week-of-november-2-2026",
+      "obtainedAt": "2026-11-19T03:11:36.165Z",
+      "publishedAt": null
+    },
+    {
+      "evidenceId": "course_evidence_f5ebdf1aa5c7cffdd1caeaa8af63c3a4",
+      "title": "Gold drops to one-year low",
+      "url": "https://www.thedailystar.net/business/economy/news/gold-drops-one-year-low-4327476",
+      "obtainedAt": "2026-11-19T03:11:35.812Z",
+      "publishedAt": "2026-11-18T16:00:00.000Z"
+    }
+  ],
+  "watch": {
+    "status": "active",
+    "nextDueAt": "2026-11-19T04:18:47.583Z"
+  },
+  "connection": {
+    "provider": "deepseek",
+    "configured": true,
+    "keySource": "session",
+    "modelMode": "live",
+    "persistence": "server-session",
+    "activeRuns": 0,
+    "activeWatchers": 1,
+    "canUpdate": false,
+    "changing": false
+  },
+  "stoppedEarlierAttempt": {
+    "requestId": "course_request_087a7613-bc8c-4150-b57f-63855595419e",
+    "reason": "Stopped before publication to fix unrecognized gold-price scoring eligibility; archived unchanged."
+  }
+}

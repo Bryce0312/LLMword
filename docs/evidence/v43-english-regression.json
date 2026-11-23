@@ -1,0 +1,59 @@
+{
+  "startedAt": "2026-11-23T04:46:13.308Z",
+  "finishedAt": "2026-11-23T04:46:30.002Z",
+  "nodeVersion": "v24.22.3",
+  "command": "node --test --test-concurrency=4 --test-reporter=tap",
+  "scope": "full",
+  "syntaxChecked": 50,
+  "tests": 645,
+  "passed": 645,
+  "failed": 0,
+  "skipped": 0,
+  "cancelled": 0,
+  "durationMs": 16638.1471,
+  "exitCode": 0,
+  "staticTranslations": 1314,
+  "dynamicTemplates": 105,
+  "englishCatalogContainsChinese": false,
+  "noRealModelCalls": true,
+  "noUserRecordWrites": true,
+  "verified": [
+    "complete current and legacy UI localization",
+    "dynamic labels, static options, tooltips, dates and accessibility",
+    "original input, configuration, report and evidence protection",
+    "same-document bidirectional language switching without task creation",
+    "fresh capability and old Chinese backend compatibility",
+    "per-request outputLanguage persisted and isolated across restarts and watch/recovery",
+    "language policy applied to all main/worker calls before budget reservation",
+    "English deterministic closeout/assembly without probability or evidence changes"
+  ],
+  "limitations": [
+    "Verbatim quotations, proper names, saved configuration and original history remain in their source language",
+    "No new paid model generation was used to measure language compliance"
+  ],
+  "browserAudit": {
+    "routes": 37,
+    "untranslatedSystemFindings": 0,
+    "horizontalOverflow": 0,
+    "viewportWidths": [
+      1440,
+      900,
+      390
+    ],
+    "apiWriteRequests": 0,
+    "legacyIncluded": true,
+    "confirmationOnlyCancelled": true,
+    "personalBrowserProfileUsed": false,
+    "screenshot": "docs/screenshots/v43-english-lab.png"
+  },
+  "runtimeReload": {
+    "outputLanguages": [
+      "zh-CN",
+      "en"
+    ],
+    "historyPreserved": true,
+    "deletionStatePreserved": true,
+    "budgetPreserved": true,
+    "configuredAfterReload": false
+  }
+}

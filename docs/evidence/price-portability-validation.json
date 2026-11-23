@@ -1,0 +1,20 @@
+{
+  "checkedAt": "2026-11-21T08:24:24.334080+00:00",
+  "scope": "fresh extracted Windows copy; not every OS or network",
+  "cleanCopy": "tmp/financial-acceptance-clean/LLMword",
+  "install": {
+    "command": "npm.cmd ci --ignore-scripts --no-audit --no-fund",
+    "exitCode": 0,
+    "packagesAdded": 5
+  },
+  "mockCommand": "node scripts/price-case.mjs",
+  "mockChecks": 8,
+  "liveArchivesPreserved": 2,
+  "applicationSourceFilesCompared": 144,
+  "applicationSourceSha256": "228ffb57b02abef02be9c6a584466947c56acf27b54bcb4071c1ea6cafc797ed",
+  "browserValidation": "price-package-browser-validation.json",
+  "fullRegressionPassed": 333,
+  "gitDiffCheckPassed": true,
+  "handoffLinksValid": true,
+  "githubUploaded": false
+}
