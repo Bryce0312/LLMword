@@ -1,3 +1,6 @@
+import { getLocale } from './locale.mjs'
+import { formatUiDate } from './locale-format.mjs'
+
 export const $ = (id) => document.getElementById(id)
 export const labels = { draft: '草稿', ready: '可研读', active: '进行中', queued: '排队中', running: '研读中', completed: '报告已保存', failed: '研读失败', cancelled: '已取消', waiting: '等待资料', cancelling: '取消中', closed: '已关闭', resolved: '已结算', void: '无法结算', complete: '已完成', insufficient: '资料不足', blocked: '暂被阻塞' }
 export const fieldLabel = (name) => ({ question: '预测问题', type: '题型', timezone: '时区', targetAt: '目标日期', forecastClosesAt: '停止发布时间', resolutionRule: '结算规则', 'resolutionSource.url': '结算来源链接', 'resolutionSource.kind': '结算来源类型', unresolvablePolicy: '无法判定处理' })[name] ?? name
@@ -6,6 +9,13 @@ export function h(tag, cls, ...children) {
   if (cls) el.className = cls
   el.append(...children.flat(Infinity).filter((child) => child !== null && child !== undefined))
   return el
+}
+export function uiContent(tag, cls, ...children) { const node = h(tag, cls, ...children); node.setAttribute('data-i18n-ui', 'true'); return node }
+export function dateContent(raw, timezone, tag = 'span', cls = '') {
+  const node = h(tag, cls, fmt(raw, timezone))
+  node.setAttribute('data-i18n-date', raw || '')
+  if (timezone) node.setAttribute('data-i18n-timezone', timezone)
+  return node
 }
 export function dataContent(tag, cls, ...children) { const node = h(tag, cls, ...children); node.setAttribute('data-i18n-skip', 'true'); return node }
 export function dataLink(text, url, cls = '') { const node = link(text, url, cls); node.setAttribute('data-i18n-skip', 'true'); return node }
@@ -17,10 +27,8 @@ export const header = (title, subtitle, ...actions) => h('div', 'wb-page-heading
 export const goto = (path) => { location.hash = path }
 export const terminal = (run) => !run || ['completed', 'failed', 'cancelled'].includes(run.status)
 export function route() { const u = new URL(location.hash.slice(1) || '/predictions', location.origin); return { parts: u.pathname.split('/').filter(Boolean).map(decodeURIComponent), query: u.searchParams } }
-export function fmt(raw, timezone) {
-  if (!raw || Number.isNaN(new Date(raw).valueOf())) return '尚未设置'
-  try { return new Intl.DateTimeFormat('zh-CN', { dateStyle: 'medium', timeStyle: 'short', timeZone: timezone || undefined }).format(new Date(raw)) + (timezone ? ' (' + timezone + ')' : '') } catch { return String(raw) }
-}
+export function fmt(raw, timezone) { return formatUiDate(raw, { locale: getLocale(), timezone }) }
+
 export async function api(path, options = {}) {
   const headers = { Accept: 'application/json' }
   if (options.body !== undefined) { headers['Content-Type'] = 'application/json'; headers['Idempotency-Key'] = crypto.randomUUID() }
@@ -58,7 +66,7 @@ export function field(form, name, label, control, note = '') {
 export function formError(form, error) {
   let box = form.querySelector('.wb-form-error')
   if (!box) { box = h('div', 'wb-form-error'); box.setAttribute('role', 'alert'); form.prepend(box) }
-  box.textContent = error.status === 409 ? error.message + ' 请刷新读取最新版本；当前输入仍保留。' : error.message
+  box.replaceChildren(h('span', '', error.message), ...(error.status === 409 ? [h('span', '', ' 请刷新读取最新版本；当前输入仍保留。')] : []))
   for (const note of form.querySelectorAll('[data-field-error]')) note.textContent = ''
   const missing = Array.isArray(error.fields) ? error.fields : Object.keys(error.fields ?? {})
   for (const name of missing) { const note = form.querySelector('[data-field-error="' + CSS.escape(name) + '"]'); if (note) note.textContent = '请补充或修正此项。' }
@@ -69,5 +77,5 @@ export function sourceLink(item) {
   const a = link('查看来源原文', item.url, 'wb-source-link'); a.target = '_blank'; a.rel = 'noopener noreferrer'; return a
 }
 export function evidenceCard(e) {
-  return h('article', 'wb-evidence-item', h('div', 'wb-card-top', dataContent('h3', '', e.title), h('span', 'wb-badge', e.sourceMode === 'replay' ? '历史资料' : '提供的材料')), dataContent('p', 'wb-prewrap', e.text), h('div', 'wb-evidence-meta', h('span', '', '取得：' + fmt(e.firstSeenAt)), e.publishedAt ? h('span', '', '原发布：' + fmt(e.publishedAt)) : null, sourceLink(e)), dataContent('small', 'wb-muted', e.evidenceId))
+  return h('article', 'wb-evidence-item', h('div', 'wb-card-top', dataContent('h3', '', e.title), h('span', 'wb-badge', e.sourceMode === 'replay' ? '历史资料' : '提供的材料')), dataContent('p', 'wb-prewrap', e.text), h('div', 'wb-evidence-meta', h('span', '', h('span', '', '取得：'), dateContent(e.firstSeenAt)), e.publishedAt ? h('span', '', h('span', '', '原发布：'), dateContent(e.publishedAt)) : null, sourceLink(e)), dataContent('small', 'wb-muted', e.evidenceId))
 }

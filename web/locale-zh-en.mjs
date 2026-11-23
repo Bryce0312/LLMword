@@ -1,5 +1,15 @@
+import { legacyTranslations, legacyDynamicRules } from './locale-zh-en-legacy.mjs'
+import { courseTranslations, courseDynamicRules } from './locale-zh-en-course.mjs'
+import { shellTranslations, shellDynamicRules } from './locale-zh-en-shell.mjs'
+import { workspaceTranslations, workspaceDynamicRules } from './locale-zh-en-workspace.mjs'
+import { roomTranslations, roomDynamicRules } from './locale-zh-en-room.mjs'
 // Interface text only. User records, model output and original evidence are protected separately.
 export const uiTranslations = Object.freeze({
+  ...roomTranslations,
+  ...workspaceTranslations,
+  ...shellTranslations,
+  ...courseTranslations,
+  ...legacyTranslations,
   '股票预测事务所': 'Stock Forecast Office',
   '等待派工': 'Waiting for assignment',
   '整理题意与派工': 'Clarifying and assigning',
@@ -20,7 +30,7 @@ export const uiTranslations = Object.freeze({
   '判断时间': 'Judgment time',
   '关闭预测结果与进度': 'Close prediction results and progress',
   '预测整体进度': 'Overall prediction progress',
-  '写下一个你关注的股票': 'Enter a stock to research',
+  '写下一个你想预测的股票': 'Enter a stock you want to forecast',
   '可填名称或代码并注明市场；未注明市场默认港股。按对应市场休市日计算，从创建日期后的下一交易日起计数，第 N 个交易日收盘截止。': 'Enter a name or ticker and, optionally, its market. Hong Kong is the default. Holidays are excluded; counting starts on the next trading date and ends at the close of the selected trading day.',
   '本轮已提前收尾': 'This run wrapped up early',
   '预算用尽，已整理材料': 'Budget reached; saved materials collected',
@@ -64,6 +74,20 @@ export const uiTranslations = Object.freeze({
   '取消': 'Cancel',
   '删除': 'Delete',
   '确认删除': 'Confirm deletion',
+  '删除预测记录': 'Delete prediction record',
+  '删除记录': 'Delete record',
+  '删除这条预测记录': 'Delete this prediction record',
+  '删除后，这条记录将从预测历史列表移除。原始运行、判断和证据保留供追溯；不会自动重新调查。': 'This record will be removed from prediction history. Original runs, forecasts and evidence are retained for reference; no new research will start automatically.',
+  '预测记录已删除，原始运行与证据保留。': 'Prediction record deleted. Original runs and evidence are retained.',
+  '请先停止持续预测，再删除这条记录。': 'Stop continuous forecasting before deleting this record.',
+  '请等待当前调查结束，或刷新历史记录后再删除。': 'Wait for the current research to finish, or refresh history before deleting.',
+  '调查或持续预测仍在进行，暂不能删除记录。请先停止后重试。': 'Research or continuous forecasting is still active. Stop it before deleting the record.',
+  '记录状态已变化，未能删除。请刷新历史记录后重试。': 'The record has changed and was not deleted. Refresh history and try again.',
+  '服务未确认删除结果，当前记录保留。请刷新历史记录核对。': 'The service did not confirm deletion. The current record is retained; refresh history to check.',
+  '没有删除这条预测记录的权限，记录保留。': 'You do not have permission to delete this prediction record. The record is retained.',
+  '暂时无法删除这条记录，请刷新历史记录；若服务尚未更新，请重启当前服务。': 'This record cannot be deleted right now. Refresh history; if the service has not been updated, restart it.',
+  '删除记录失败，当前记录保留。请稍后重试。': 'Deletion failed. The current record is retained; try again later.',
+  '这项预测记录已从历史列表移除，仅供查看。': 'This prediction record has been removed from history and is read-only.',
   '删除研究员席位': 'Delete researcher seat',
   '取消并关闭弹框': 'Cancel and close dialog',
   '真实环境 · AI模型未配置': 'Live environment · AI model not configured',
@@ -96,8 +120,8 @@ export const uiTranslations = Object.freeze({
   '主 Agent 按题选择研究员，查来源、讨论并生成预测结果': 'The lead agent selects researchers, checks sources, discusses findings and produces a forecast.',
   '例如：腾讯控股、00700.HK、沪深300ETF（A股）、NVDA（美股）': 'For example: Tencent, 00700.HK, CSI 300 ETF (China), NVDA (US)',
   '请先输入你关注的股票、证券或基金。': 'Enter a stock, security or fund first.',
-  '关注多久': 'Forecast horizon',
-  '持续关注': 'Keep monitoring',
+  '预测多久': 'Forecast horizon',
+  '持续预测': 'Continuous forecasting',
   '本席 Yes 估计：未给估计。': 'This researcher’s Yes estimate: not provided.',
   '默认只研究一次；勾选后，服务器会定时检查新信息并可能继续调用模型。': 'Research once by default. If selected, the server checks for new information periodically and may call the model again.',
   '预测窗口（交易日）': 'Forecast horizon (trading days)',
@@ -327,6 +351,11 @@ export const uiTranslations = Object.freeze({
 })
 
 export const dynamicRules = Object.freeze([
+  ...roomDynamicRules,
+  ...workspaceDynamicRules,
+  ...shellDynamicRules,
+  ...courseDynamicRules,
+  ...legacyDynamicRules,
   { pattern: /^每位研究员最多 (\d+) 次调查决策；资料足够可提前提交报告，最迟第 (\d+) 次进入报告阶段，另留 (\d+) 次报告修正。调查与报告分开计数，仍受本席总调用与 token 上限约束。$/, replace: (_all, research, report, repairs) => `Each researcher may make up to ${research} research decisions and report early when ready. Reporting starts no later than request ${report}, with ${repairs} report corrections reserved. Research and reporting are counted separately within the same overall request and token limits.` },
   { pattern: /^本席 Yes 估计 (\d+(?:\.\d)?)%（未校准）$/, replace: (_all, n) => `This researcher’s Yes estimate: ${n}% (uncalibrated)` },
   { pattern: /^扩展槽 (\d+)$/, replace: (_all, n) => `Extension slot ${n}` },

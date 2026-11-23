@@ -21,9 +21,13 @@
         </div>
         <div class="mission">
           <span class="pixel-icon journal-icon" aria-hidden="true"></span>
-          <div><span>当前案件</span><strong id="case-title">芯片出口许可</strong></div>
+          <div><span>当前案件</span><strong id="case-title" data-i18n-skip="true">芯片出口许可</strong></div>
         </div>
         <div class="telemetry">
+          <div id="wb-language-switch" class="legacy-language-switch" role="group" aria-label="界面语言" data-i18n-skip="true">
+            <button type="button" data-locale="zh-CN" aria-pressed="true" lang="zh-CN">简体中文</button>
+            <button type="button" data-locale="en" aria-pressed="false" lang="en">English</button>
+          </div>
           <span class="mode-chip"><i aria-hidden="true"></i><span id="mode-label">连接中</span></span>
           <span class="game-clock"><span class="pixel-icon clock-icon" aria-hidden="true"></span><strong id="world-clock">—</strong></span>
         </div>
@@ -47,17 +51,17 @@
           <button class="hotspot archive-hotspot" type="button" data-open-panel="learning" aria-haspopup="dialog"><span class="pixel-icon journal-icon" aria-hidden="true"></span>学习档案柜</button>
           <section class="speech actor-bubble live-bubble" id="live-speech" aria-label="现场发言" aria-live="polite" aria-atomic="true" hidden>
             <div class="speech-header">
-              <strong id="live-speaker"></strong>
+              <strong id="live-speaker" data-i18n-skip="true"></strong>
               <span id="live-speech-kind">现场发言</span>
             </div>
-            <p id="live-message"></p>
+            <p id="live-message" data-i18n-skip="true"></p>
           </section>
           <section class="speech actor-bubble" id="speech" aria-label="圆桌发言回放" hidden>
             <div class="speech-header">
-              <strong id="speech-speaker"></strong>
+              <strong id="speech-speaker" data-i18n-skip="true"></strong>
               <button type="button" id="close-speech" class="speech-close" aria-label="关闭发言回放">×</button>
             </div>
-            <p id="speech-message"></p>
+            <p id="speech-message" data-i18n-skip="true"></p>
             <div class="speech-controls">
               <button type="button" id="prev-speech" aria-label="上一条发言">◀</button>
               <span id="speech-position"></span>
@@ -76,9 +80,9 @@
           <div class="scenario">
             <label for="branch">推演情景</label>
             <select id="branch" aria-describedby="branch-note" disabled>
-              <option value="base">历史主线</option>
-              <option value="narrow">假设：限制范围较窄</option>
-              <option value="broad">假设：限制范围较广</option>
+              <option data-i18n-ui="true" value="base">历史主线</option>
+              <option data-i18n-ui="true" value="narrow">假设：限制范围较窄</option>
+              <option data-i18n-ui="true" value="broad">假设：限制范围较广</option>
             </select>
           </div>
           <button id="run" class="button primary-button" type="button" disabled><span class="pixel-icon play-icon" aria-hidden="true"></span> 召集 Agent 会议</button>
@@ -90,7 +94,7 @@
             <button type="button" class="console-link" data-open-panel="meeting" aria-haspopup="dialog"><span class="pixel-icon journal-icon" aria-hidden="true"></span>研究手册</button>
           </div>
         </div>
-        <p id="branch-note" class="branch-note" hidden></p>
+        <p id="branch-note" data-i18n-skip="true" class="branch-note" hidden></p>
         <p id="monitor-announcement" class="monitor-announcement" role="status" hidden></p>
         <div class="roster">
           <div class="roster-label"><h2>研究员席位</h2><span><strong id="company-count">—</strong> 家公司 / <strong id="agent-count">—</strong> 位研究员</span></div>

@@ -8,6 +8,7 @@ import { digest, validDate, validUrl } from '../domain/contracts.mjs'
 import { createCourseStore, courseFailure } from './course-store.mjs'
 import { TRADING_DAY_OPTIONS, TRADING_DAY_CAPABILITIES, tradingMarketTimezone } from './trading-calendar.mjs'
 import { totalTokenLimit, remainingTotalTokens, boundedOutputTokens } from './prediction-budget.mjs'
+import { OUTPUT_LANGUAGES, withRequestOutputLanguage } from './output-language.mjs'
 import { planModelCall, estimateModelInputTokens } from '../runtime/model-budget.mjs'
 import { boundedForecastBudget, isBoundedForecast, effectiveRoleReports, reportScorecard, boundedMainMessages, assembleForecastCandidate, partialForecastSummary } from './bounded-forecast.mjs'
 import { EXPLORATORY_DELIVERY_POLICY, isExploratoryForecast, selectExploratoryReports } from './exploratory-reports.mjs'
@@ -74,6 +75,7 @@ export function createCourseService({ path, workbench, provider = createCourseMo
   if (evidencePolicy !== null && evidencePolicy !== groundingPolicy) throw courseFailure('COURSE_CONFIG', '证据策略无效。')
   const store = createCourseStore({ path, now })
   const jobs = new Map()
+  const resolvingRequests = new Set()
   const listeners = new Set()
   const identity = provider.configurationId || provider.model || 'injected-course-provider'
   const sourceMode = sourceTools.capabilities?.sourceMode || (sourceTools.capabilities?.mode === 'mock' ? 'replay' : 'unavailable')
@@ -181,7 +183,7 @@ export function createCourseService({ path, workbench, provider = createCourseMo
     checkCancelled(signal)
     if (stopping) throw courseFailure('SERVICE_STOPPED', '服务正在关闭，检查点保留。', 409)
     const run = store.requireRun(runId)
-    if (terminal.has(run.status) || store.requireRequest(run.requestId).status === 'stopped') throw courseFailure('COURSE_CANCELLED', '本题已经停止。', 409)
+    if (terminal.has(run.status) || store.requireLiveRequest(run.requestId).status === 'stopped') throw courseFailure('COURSE_CANCELLED', '本题已经停止。', 409)
     return run
   }
   const event = (runId, type, payload, eventId) => { store.event(runId, { type, payload, ...(eventId ? { eventId } : {}) }); notify() }
@@ -219,8 +221,12 @@ export function createCourseService({ path, workbench, provider = createCourseMo
     return { ...provider, async complete(input) {
       ensure(runId, input.signal)
       const run = store.requireRun(runId)
+      // Apply the saved request policy before estimating/reserving every model call.
+      // The helper clones messages, leaving durable checkpoints and sibling workers untouched.
+      const request = store.requireRequest(run.requestId)
+      input = withRequestOutputLanguage(input, request.outputLanguage)
       let reservation = 0
-      if (isBoundedForecast(run) || store.requireRequest(run.requestId).purpose === 'research' || store.requireRequest(run.requestId).resolutionPolicy) {
+      if (request.outputLanguage !== undefined || isBoundedForecast(run) || request.purpose === 'research' || request.resolutionPolicy) {
         if (run.usage.unknownUsage) throw courseFailure('COURSE_USAGE_UNKNOWN', '部分请求用量未知，已停止继续付费调用。', 409)
         // UTF-8 bytes plus protocol overhead conservatively reserve input and
         // capped output for concurrent calls. Never print these private messages.
@@ -649,21 +655,22 @@ export function createCourseService({ path, workbench, provider = createCourseMo
     const run = store.requireRun(runId)
     if (terminal.has(run.status)) return
     if (finishTargetClarification(runId)) return
+    const outputLanguage = store.requireRequest(run.requestId).outputLanguage
     const error = typeof cause === 'string' ? { code: 'BOUNDED_CLOSEOUT', message: cause } : { code: cause.code, message: cause.message }
     const reason = error.message
     store.saveRun(runId, { state: { ...run.state, closeoutFailure: error } })
     let failure = reason
     try {
       await compileBoundedPrediction(runId)
-      const candidate = assembleForecastCandidate(store.listAssignments(runId), store.evidenceFor(runId))
+      const candidate = assembleForecastCandidate(store.listAssignments(runId), store.evidenceFor(runId), { outputLanguage })
       if (candidate && !run.usage.unknownUsage) {
         store.publishForecast(runId, candidate, workbench.getPrediction(store.requireRun(runId).predictionId))
-        event(runId, 'budget.closeout', { agentSpecId: 'main', name: '执行框架', summary: '未追加模型调用，按有效研究员报告作明确标记的程序汇集；保留独立核验和引用守卫。', reason, error })
-        finish(runId, 'completed', '本轮已结束：已汇集研究员的有据估计；主Agent最终裁决未完成，结果标记为程序汇集、需复核。')
+        event(runId, 'budget.closeout', { agentSpecId: 'main', name: '执行框架', summary: outputLanguage === 'en' ? 'No model calls added. Valid researcher reports were assembled with an explicit program-aggregation label; verification and citation checks remain in force.' : '未追加模型调用，按有效研究员报告作明确标记的程序汇集；保留独立核验和引用守卫。', reason, error })
+        finish(runId, 'completed', outputLanguage === 'en' ? 'This run has ended. Evidence-backed researcher estimates were assembled by the program and require review; the lead agent’s final decision is incomplete.' : '本轮已结束：已汇集研究员的有据估计；主Agent最终裁决未完成，结果标记为程序汇集、需复核。')
         return
       }
     } catch (error) { failure = `${reason}；${errorValue(error).message}` }
-    const delivery = partialForecastSummary(store.listAssignments(runId), store.evidenceFor(runId), failure)
+    const delivery = partialForecastSummary(store.listAssignments(runId), store.evidenceFor(runId), failure, { outputLanguage })
     const message = `${delivery.summary} ${delivery.gaps.join('；')} ${delivery.notice}`
     store.saveRun(runId, { state: { ...store.requireRun(runId).state, delivery } })
     store.updateRequest(run.requestId, { message, missingFields: delivery.gaps })
@@ -920,7 +927,7 @@ export function createCourseService({ path, workbench, provider = createCourseMo
             event(runId, 'meeting.message', { agentSpecId: 'main', name: '主 Agent', summary: '已用默认窗口和明确展示的假设补全常见细项，继续调查；资料限制已保留。' })
           } else {
             store.updateRequest(run.requestId, { missingFields: args.missingFields, message: args.message })
-            if (isBoundedForecast(run)) store.saveRun(runId, { state: { ...store.requireRun(runId).state, delivery: partialForecastSummary(store.listAssignments(runId), available, args.message) } })
+            if (isBoundedForecast(run)) store.saveRun(runId, { state: { ...store.requireRun(runId).state, delivery: partialForecastSummary(store.listAssignments(runId), available, args.message, { outputLanguage: request.outputLanguage }) } })
             finish(runId, 'insufficient', args.message); finished = true; result = { status: 'insufficient', data: args }
           }
         } else if (call.function.name === 'submit_research_report') {
@@ -1041,7 +1048,7 @@ export function createCourseService({ path, workbench, provider = createCourseMo
     if (stopping) return
     for (const run of store.listRuns()) {
       if (jobs.size >= 1) break
-      if (terminal.has(run.status) || jobs.has(run.runId)) continue
+      if (terminal.has(run.status) || jobs.has(run.runId) || store.requireRequest(run.requestId).deleted) continue
       if (isPriceDirection(store.requireRequest(run.requestId))) {
         const message = '旧版三分类调查在升级后归档，已有记录保留。继续预测请创建新的二元任务。'
         store.saveRun(run.runId, { status: 'insufficient', phase: 'finished', message }, [
@@ -1057,7 +1064,7 @@ export function createCourseService({ path, workbench, provider = createCourseMo
   return {
     metadata: store.metadata,
     capabilities: { stage: 'course-adaptive', modelMode, modelRef: provider.model || 'injected', sourceMode,
-      groundingPolicy: evidencePolicy, tradingDayHorizons: TRADING_DAY_CAPABILITIES,
+      groundingPolicy: evidencePolicy, tradingDayHorizons: TRADING_DAY_CAPABILITIES, outputLanguages: [...OUTPUT_LANGUAGES],
       reasoningSettings: provider.settings ? Object.fromEntries(['thinking', 'reasoningEffort', 'timeoutMs', 'maxOutputTokens', 'protocol'].map((key) => [key, provider.settings[key]])) : null,
       sources: sourceTools.capabilities, supervisor: true, get roles() { return activeRoleSpecs().map(spec => spec.agentSpecId) }, get roleCatalogue() { return roleCatalogue(activeRoleSpecs()) },
       get teamAvailability() { try { requireTeam(activeRoleSpecs()); return { available: true, minimumRoles: 3, requiredRoleIds: ['verification'] } } catch (error) { return { available: false, code: error.code, message: error.message, minimumRoles: 3, requiredRoleIds: ['verification'] } } }, nativeToolProtocol: true, persistent: true, watchPlans: true, forecastPublishing: true, historyMemory: true, watchTriage: true,
@@ -1065,8 +1072,9 @@ export function createCourseService({ path, workbench, provider = createCourseMo
       limits: { maxConcurrentRuns: 1, workers: 3, localWorkers: 2, followUps: 2, modelRequestsPerWorker: 6, toolsPerWorker: 6, modelRequestsPerRun: 40, toolCallsPerRun: 64, get totalTokensPerRun() { return store.getSettings().predictionBudget.maxTotalTokens }, maxOutputTokens: maxOutput, timeoutMs, watchIntervalMs } },
     createRequest(input, options) {
       if (!input || typeof input !== 'object' || Array.isArray(input) || typeof input.question !== 'string' || !input.question.trim() || input.question.length > 2000) throw courseFailure('INVALID_QUESTION', '请输入一句具体事件问题。')
-      if (Object.keys(input).some((key) => !['question', 'horizonHours', 'horizonTradingDays', 'market', 'timezone', 'mode', 'watch', 'strict', 'purpose'].includes(key)) ||
+      if (Object.keys(input).some((key) => !['question', 'horizonHours', 'horizonTradingDays', 'market', 'timezone', 'mode', 'watch', 'strict', 'purpose', 'outputLanguage'].includes(key)) ||
         (input.watch !== undefined && typeof input.watch !== 'boolean')) throw courseFailure('INVALID_COURSE_INPUT', '不支持手工材料、工具授权或其他隐藏配置。')
+      if (Object.hasOwn(input, 'outputLanguage') && !OUTPUT_LANGUAGES.includes(input.outputLanguage)) throw courseFailure('INVALID_OUTPUT_LANGUAGE', '输出语言须为en或zh-CN。')
       const trading = input.horizonTradingDays !== undefined
       if (trading && (!TRADING_DAY_OPTIONS.includes(input.horizonTradingDays) || input.horizonHours !== undefined || input.purpose === 'research')) throw courseFailure('INVALID_TRADING_HORIZON', '预测交易日窗口须为1、3、5或20，不能与小时窗口或研报目的混用。')
       if (input.market !== undefined && !trading) throw courseFailure('INVALID_TRADING_MARKET', '市场上下文只用于交易日窗口。')
@@ -1076,6 +1084,7 @@ export function createCourseService({ path, workbench, provider = createCourseMo
       if (input.purpose === 'research' && (input.strict || input.mode === 'strict' || input.watch === true)) throw courseFailure('INVALID_RESEARCH_INPUT', '研报不使用预测契约或自动监听。')
       const data = { purpose: input.purpose || 'forecast', question: input.question.trim(), ...(trading ? { horizonTradingDays: input.horizonTradingDays, ...(input.market !== undefined ? { market: input.market } : {}) } : { horizonHours: durationHours(input.question) ?? input.horizonHours ?? 48 }), timezone: input.timezone || tradingTimezone || 'Asia/Shanghai',
         mode: input.mode || 'preset', watch: input.watch === true, modelMode, sourceMode, providerIdentity: identity, modelRef: provider.model || null, budget, harnessVersion }
+      if (Object.hasOwn(input, 'outputLanguage')) data.outputLanguage = input.outputLanguage
       if (evidencePolicy) data.groundingPolicy = evidencePolicy
       if (data.purpose === 'research') { data.watch = false; data.budget = { ...budget, maxModelRequests: 24, maxToolCalls: 36, maxTotalTokens: 160000, mainRequests: 8, maxTokens: Math.min(maxOutput, 16384), worker: { ...budget.worker, maxModelRequests: 5, maxTotalTokens: 40000, maxTokens: Math.min(maxOutput, 8192), reserveReportTokens: 12000 } } }
       if ((!trading && (!Number.isInteger(data.horizonHours) || data.horizonHours < 1 || data.horizonHours > 168)) || !['preset', 'strict'].includes(data.mode)) throw courseFailure('INVALID_PRESET', '窗口应为一至一百六十八小时，模式为preset或strict。')
@@ -1120,28 +1129,42 @@ export function createCourseService({ path, workbench, provider = createCourseMo
     getSettings: () => store.getSettings(),
     updateSettings: (input) => store.updateSettings(input),
     listRequests: () => store.listRequests().map(publicRequest),
+    listDeletedRequestIds: () => store.listDeletedRequestIds(),
+    listDeletedPredictionIds: () => store.listDeletedPredictionIds(),
+    deleteRequest(requestId, input) {
+      const request = store.requireRequest(requestId)
+      if (!request.deleted && (resolvingRequests.has(requestId) || store.listRuns({ requestId }).some(run => jobs.has(run.runId)))) {
+        throw courseFailure('REQUEST_IN_USE', '任务仍在执行，请等待完成后再删除历史。', 409)
+      }
+      const receipt = store.deleteRequest(requestId, input)
+      notify(); schedule(); return receipt
+    },
     getRequest: (requestId) => publicRequest(store.requireRequest(requestId)),
     getRun: (runId) => publicRun(store.requireRun(runId)),
     resumeResearchSummary(runId) { const current = store.requireRun(runId), request = store.requireRequest(current.requestId); const run = store.resumeResearchSummary(runId, { maxTokens: Math.min(maxOutput, request.resolutionPolicy ? 6000 : 16384) }); notify(); pump(); return publicRun(run) },
     assembleResearchReport(runId) { store.publishResearch(runId, null, { assemble: true }); notify(); return publicRun(store.requireRun(runId)) },
     async resolve(requestId) {
-      const request = store.requireRequest(requestId), old = store.getResult(requestId)
+      const request = store.requireLiveRequest(requestId), old = store.getResult(requestId)
       if (old) return old
       if (![WARNING_POLICY, PRICE_POLICY].includes(request.resolutionPolicy?.version) || !request.normalized || request.status === 'stopped' || request.activeRunId) throw courseFailure('RESOLUTION_UNAVAILABLE', '此任务尚无可核验的固定预测。', 409)
       const target = Date.parse(request.normalized.targetAt), at = Date.parse(clock())
       if (at < target) throw courseFailure('RESULT_NOT_AVAILABLE', '目标时点尚未到达。', 409)
       if (at > target + 300000) throw courseFailure('RESOLUTION_WINDOW', '已错过5分钟观察窗口，保持不可核验。', 409)
-      let source
-      const price = request.resolutionPolicy.version === PRICE_POLICY
-      try { source = await (price ? priceReader || readPriceSnapshot : warningReader || readWarnings)({ now: clock, mode: request.modelMode === 'mock' ? 'mock' : 'live' }) } catch { throw courseFailure('RESULT_SOURCE_UNAVAILABLE', '来源未返回有效快照；不能将网络失败登记为No，可在观察窗口内重试。', 409) }
-      const result = price ? store.recordPriceResult(requestId, source) : store.recordWarningResult(requestId, source); notify(); return result
+      if (resolvingRequests.has(requestId)) throw courseFailure('REQUEST_IN_USE', '本题正在核验结果，请等待完成。', 409)
+      resolvingRequests.add(requestId)
+      try {
+        let source
+        const price = request.resolutionPolicy.version === PRICE_POLICY
+        try { source = await (price ? priceReader || readPriceSnapshot : warningReader || readWarnings)({ now: clock, mode: request.modelMode === 'mock' ? 'mock' : 'live' }) } catch { throw courseFailure('RESULT_SOURCE_UNAVAILABLE', '来源未返回有效快照；不能将网络失败登记为No，可在观察窗口内重试。', 409) }
+        const result = price ? store.recordPriceResult(requestId, source) : store.recordWarningResult(requestId, source); notify(); return result
+      } finally { resolvingRequests.delete(requestId) }
     },
     listRuns: (options) => store.listRuns(options).map(publicRun),
     listEvents: (options) => store.listEvents(options),
     listForecasts: (options) => store.listForecasts(options),
     graph: (options) => ({ relations: store.listRelations(options) }),
     check(requestId) {
-      const requestForTeam = store.requireRequest(requestId)
+      const requestForTeam = store.requireLiveRequest(requestId)
       const existingRun = requestForTeam.activeRunId && store.requireRun(requestForTeam.activeRunId)
       if (!existingRun || terminal.has(existingRun.status)) requireTeam(activeRoleSpecs(), requestForTeam, (requestForTeam.team || []).map(item => item.roleId))
       const run = store.queueRun(requestId, 'manual', configuration)

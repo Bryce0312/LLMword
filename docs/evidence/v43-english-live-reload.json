@@ -1,0 +1,21 @@
+{
+  "checkedAt": "2026-11-23T04:47:31.0997363Z",
+  "mode": "live",
+  "ok": true,
+  "pid": 65016,
+  "outputLanguages": [
+    "zh-CN",
+    "en"
+  ],
+  "historyCountBefore": 5,
+  "historyCountAfter": 5,
+  "deletedCount": 3,
+  "historyPreserved": true,
+  "deletionStatePreserved": true,
+  "budgetPreserved": true,
+  "maxTotalTokens": 1000000,
+  "configuredAfterReload": false,
+  "activeRuns": 0,
+  "activeWatchers": 0,
+  "noUserRecordWrites": true
+}

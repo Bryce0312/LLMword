@@ -374,3 +374,9 @@ h1, h2, h3, .mission strong, .primary-button, .agent-card strong, .speech-header
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; }
 }
+
+/* Legacy UI language controls share the document locale preference. */
+.legacy-language-switch { display: inline-flex; gap: 4px; flex-wrap: wrap; }
+.legacy-language-switch button { padding: 4px 6px; border: 2px solid #b78c65; background: #302631; color: #f7e6ba; font: inherit; cursor: pointer; }
+.legacy-language-switch button[aria-pressed="true"] { border-color: #efb85f; color: #ffdda5; }
+.legacy-language-switch button:focus-visible { outline: 2px solid #8ed4d4; outline-offset: 2px; }

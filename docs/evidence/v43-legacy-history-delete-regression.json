@@ -1,0 +1,32 @@
+{
+  "finishedAt": "2026-11-23T04:12:28.120Z",
+  "nodeVersion": "v24.22.3",
+  "command": "node --test --test-concurrency=4 --test-reporter=tap web/history-deletion.test.mjs web/course-entry.test.mjs server/course/request-deletion.test.mjs",
+  "scope": "targeted",
+  "tests": 36,
+  "passed": 36,
+  "failed": 0,
+  "skipped": 0,
+  "cancelled": 0,
+  "durationMs": 334.2654,
+  "readOnlyLiveCheck": {
+    "affectedRecords": 2,
+    "allCanDelete": true,
+    "allRunsTerminal": true,
+    "noActiveRun": true,
+    "legacyWatchesHaveNoStatusAndNoDueTime": true,
+    "staticStatus": 200,
+    "cacheControl": "no-cache",
+    "servedCodeMatches": true
+  },
+  "verified": [
+    "legacy idle watch metadata no longer disables failed history deletion",
+    "strict confirmation before fake DELETE",
+    "completed watches allowed",
+    "active, unknown, scheduled or in-flight tasks remain protected",
+    "existing history UI and backend deletion contracts"
+  ],
+  "noRealDeletion": true,
+  "noRealModelCalls": true,
+  "noServerRestart": true
+}

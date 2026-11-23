@@ -1,0 +1,85 @@
+{
+  "startedAt": "2026-11-23T04:05:52.574Z",
+  "finishedAt": "2026-11-23T04:06:07.738Z",
+  "nodeVersion": "v24.22.3",
+  "command": "node --test --test-concurrency=4 --test-reporter=tap",
+  "scope": "full",
+  "tests": 608,
+  "passed": 608,
+  "failed": 0,
+  "skipped": 0,
+  "cancelled": 0,
+  "durationMs": 15104.4258,
+  "exitCode": 0,
+  "noRealModelCalls": true,
+  "noUserRecordDeletion": true,
+  "verified": [
+    "persistent soft deletion and restart idempotency",
+    "explicit themed confirmation and stale action guards",
+    "active run/watch/result reader rejection",
+    "immutable archive bytes and read-only deleted records",
+    "monotonic history suppression and linked legacy-card filtering",
+    "verified password input retained through temporary status failures",
+    "new forecasting wording and bilingual disabled action tooltips"
+  ],
+  "limitations": [
+    "No real prediction records deleted",
+    "No browser visual acceptance performed",
+    "No new real model prediction executed",
+    "Full page reload does not restore an API key input"
+  ],
+  "runtime": {
+    "checkedAt": "2026-11-23T04:07:44.382Z",
+    "url": "http://127.0.0.1:4174",
+    "mode": "live",
+    "reloaded": true,
+    "pid": 66952,
+    "historyCountBefore": 7,
+    "historyCountAfter": 7,
+    "historyPreserved": true,
+    "budgetPreserved": true,
+    "maxTotalTokens": 1000000,
+    "deletionMetadataLoaded": true,
+    "deletedRequestCount": 0,
+    "configuredAfterReload": false,
+    "activeRuns": 0,
+    "activeWatchers": 0,
+    "resources": [
+      {
+        "path": "/",
+        "status": 200,
+        "contentVerified": true
+      },
+      {
+        "path": "/workbench-course.js",
+        "status": 200,
+        "contentVerified": true
+      },
+      {
+        "path": "/workbench-provider.js",
+        "status": 200,
+        "contentVerified": true
+      },
+      {
+        "path": "/workbench-views.js",
+        "status": 200,
+        "contentVerified": true
+      },
+      {
+        "path": "/history-deletion.mjs",
+        "status": 200,
+        "contentVerified": true
+      },
+      {
+        "path": "/locale-zh-en.mjs",
+        "status": 200,
+        "contentVerified": true
+      },
+      {
+        "path": "/workbench-room.css",
+        "status": 200,
+        "contentVerified": true
+      }
+    ]
+  }
+}

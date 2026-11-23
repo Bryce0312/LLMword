@@ -1,5 +1,5 @@
 import { $, h, header, empty, button, api } from './workbench-core.js'
-import { createRoomShellNavigation, roomShellTarget, mergeRoomHistory } from './room-shell-navigation.mjs'
+import { createRoomShellNavigation, roomShellTarget, mergeRoomHistory, mergeDeletedHistoryMetadata } from './room-shell-navigation.mjs'
 
 const titles = { predictions: '开始预测', course: '开始预测', agents: '研究室设置', 'model-connection': '模型连接', learning: '学习档案', tools: '工具台', advanced: '高级材料研读', topics: '主题档案', 'course-examples': '流程案例' }
 
@@ -67,7 +67,9 @@ export function createWorkbenchRoomShell({ baseCtx, mountScene, renderWorkspace,
       const value = await api('/course/requests')
       if (disposed || epoch !== historyEpoch || !historyMenu.open) return
       if (!Array.isArray(value.requests)) throw new Error('历史接口返回不完整')
-      baseCtx.cache.courseRequests = mergeRoomHistory(value.requests, baseCtx.cache.courseRequests, baseline); baseCtx.cache.courseHistoryError = null; renderSidebar()
+      mergeDeletedHistoryMetadata(baseCtx.cache, value)
+      baseCtx.cache.courseRequests = mergeRoomHistory(value.requests, baseCtx.cache.courseRequests, baseline, baseCtx.cache.deletedCourseRequestIds); baseCtx.cache.courseHistoryError = null; renderSidebar()
+      if (navigation.sceneId && baseCtx.cache.deletedCourseRequestIds.has(navigation.sceneId)) { historyMenu.open = false; historyEpoch++; history.replaceState(null, '', '#/room'); await navigation.navigate('#/room') }
     } catch { if (!disposed && epoch === historyEpoch && historyMenu.open) { baseCtx.cache.courseHistoryError = '历史记录暂未刷新，下面保留上次读取的真实任务。'; renderSidebar() } }
   }
   const onToggle = () => { if (historyMenu.open) void refreshHistory(); else historyEpoch++ }

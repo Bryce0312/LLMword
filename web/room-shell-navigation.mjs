@@ -63,12 +63,29 @@ export function createRoomShellNavigation(hooks) {
 }
 
 /** Preserve records changed locally while a read was in flight, plus newly created records. */
-export function mergeRoomHistory(incoming, current, baseline) {
+export function mergeRoomHistory(incoming, current, baseline, deletedRequestIds = new Set()) {
   const id = value => value.requestId ?? value.id
   const before = new Map(baseline.map(value => [id(value), value]))
   const now = new Map(current.map(value => [id(value), value]))
   const result = incoming.map(value => now.has(id(value)) && now.get(id(value)) !== before.get(id(value)) ? now.get(id(value)) : value)
   const known = new Set(result.map(id))
   for (const value of current) if (!known.has(id(value)) && !before.has(id(value))) result.push(value)
-  return result
+  return result.filter(value => !value.deleted && !value.deletedAt && !deletedRequestIds.has(id(value)))
+}
+
+/** Tombstones only grow, so an older GET can never make a deleted record visible again. */
+export function mergeDeletedHistoryMetadata(cache, value = {}) {
+  const retain = field => cache[field] instanceof Set ? cache[field] : new Set(Array.isArray(cache[field]) ? cache[field] : [])
+  const requestIds = retain('deletedCourseRequestIds'), predictionIds = retain('deletedCoursePredictionIds')
+  for (const id of Array.isArray(value.deletedRequestIds) ? value.deletedRequestIds : []) if (typeof id === 'string' && id) requestIds.add(id)
+  for (const id of Array.isArray(value.deletedPredictionIds) ? value.deletedPredictionIds : []) if (typeof id === 'string' && id) predictionIds.add(id)
+  for (const record of Array.isArray(value.requests) ? value.requests : []) if (record && (record.deleted || record.deletedAt)) {
+    const id = record.requestId ?? record.id
+    if (typeof id === 'string' && id) requestIds.add(id)
+    if (typeof record.predictionId === 'string' && record.predictionId) predictionIds.add(record.predictionId)
+  }
+  cache.deletedCourseRequestIds = requestIds; cache.deletedCoursePredictionIds = predictionIds
+  cache.courseRequests = (cache.courseRequests ?? []).filter(record => !record.deleted && !record.deletedAt && !requestIds.has(record.requestId ?? record.id))
+  cache.predictions = (cache.predictions ?? []).filter(record => !predictionIds.has(record.predictionId))
+  return { requestIds, predictionIds }
 }

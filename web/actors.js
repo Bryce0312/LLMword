@@ -1,3 +1,5 @@
+import { isLegacyBuiltinText } from './locale-zh-en-legacy.mjs';
+
 const actors = {
   policy: { coat: '#53798f', light: '#8dafbc', hair: '#3d3241', skin: '#f0be93' },
   supply: { coat: '#5d7753', light: '#a5b486', hair: '#704336', skin: '#dfaa7b' },
@@ -23,6 +25,20 @@ const stageTitles = {
 };
 
 const spriteFrames = ['rest', 'blink', 'stride-left', 'stride-right', 'scan', 'write', 'check', 'speak', 'gesture'];
+
+function originalText(value) {
+  const node = document.createElement('span');
+  node.setAttribute('data-i18n-skip', 'true');
+  node.textContent = value;
+  return node;
+}
+function interfaceText(value) {
+  const node = document.createElement('span');
+  node.setAttribute('data-i18n-ui', 'true');
+  node.textContent = value;
+  return node;
+}
+
 
 function drawFrame(ctx, id, palette, frameIndex) {
   const frame = spriteFrames[frameIndex];
@@ -219,8 +235,10 @@ export function createRoomScene({ layer, speaker, speakerName, speakerText, spea
     bubble.dataset.taskStatus = status;
     const title = event.label || '研究任务';
     const result = status === 'complete' && presentation !== 'report' ? event.shortMessage : '';
-    bubble.textContent = status === 'failed' ? `${title}未完成` : result || `${status === 'complete' ? '已完成 · ' : ''}${title}`;
+    const taskTitle = event.label ? originalText(title) : interfaceText(title);
+    bubble.replaceChildren(...(status === 'failed' ? [taskTitle, '未完成'] : result ? [originalText(result)] : [status === 'complete' ? '已完成 · ' : '', taskTitle]));
     bubble.title = status === 'complete' && presentation !== 'report' ? event.message || bubble.textContent : bubble.textContent;
+    bubble.setAttribute('data-i18n-skip-attributes', 'title');
     bubble.hidden = false;
     if (status !== 'start') {
       const duration = status === 'complete' ? 1700 : 1600;
@@ -239,6 +257,8 @@ export function createRoomScene({ layer, speaker, speakerName, speakerText, spea
     status.hidden = !text;
     status.textContent = text;
     status.title = details;
+    status.setAttribute('data-i18n-ui', 'true');
+    status.setAttribute('data-i18n-skip-attributes', 'title');
   }
 
   async function walk(ids, room) {
@@ -260,6 +280,8 @@ export function createRoomScene({ layer, speaker, speakerName, speakerText, spea
     const figure = figures.get(row.agentId);
     if (!figure || !row.message) return;
     clearBubble();
+    speakerName.setAttribute('data-i18n-skip', 'true');
+    speakerText.setAttribute('data-i18n-skip', 'true');
     speakerName.textContent = figure.name;
     speakerText.textContent = row.message;
     if (speakerKind) speakerKind.textContent = kind === 'task' ? '任务完成' : '现场发言';
@@ -381,6 +403,10 @@ export function createRoomScene({ layer, speaker, speakerName, speakerText, spea
       figure.name = agent.name;
       figure.actor.setAttribute('aria-label', `查看${agent.name}的研究员档案`);
       figure.actor.title = `${agent.name} · ${agent.role}`;
+      // Preserve the nickname while translating only the role tied to this built-in ID.
+      if (isLegacyBuiltinText('agent', agent, 'role')) figure.actor.removeAttribute('data-i18n-skip-attributes');
+      else figure.actor.setAttribute('data-i18n-skip-attributes', 'title');
+      figure.actor.setAttribute('data-i18n-data-attributes', 'title aria-label');
       figure.actor.hidden = false;
     }
   }

@@ -69,7 +69,9 @@ export async function providerConnectionView(ctx) {
       syncSettings(); syncCourseProviderCredential(credential, current, { edited: credentialEdited, isActive }); message.hidden = true
     } catch (error) {
       if (!isActive()) return
-      current = undefined; syncCourseProviderCredential(credential, current, { edited: credentialEdited, isActive })
+      // A failed read is not an authoritative connection change. Keep the masked input
+      // and document-only verified credential until a successful status read can compare identities.
+      current = undefined
       message.textContent = courseProviderError(error); message.hidden = false
     } finally { reading = false; update() }
   }

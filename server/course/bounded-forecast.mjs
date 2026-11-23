@@ -78,7 +78,8 @@ export function reportScorecard(assignments = []) {
 }
 
 /** No model/network calls; only aggregate previously validated independent reports. */
-export function assembleForecastCandidate(assignments, evidence) {
+export function assembleForecastCandidate(assignments, evidence, { outputLanguage } = {}) {
+  const english = outputLanguage === 'en'
   const reports = effectiveRoleReports(assignments)
   const sources = new Map(evidence.filter(e => e.text?.trim()).map(e => [e.evidenceId, e]))
   const own = (item, ids) => [...new Set(ids || [])].filter(id => sources.get(id)?.readBy?.includes(item.assignmentId))
@@ -105,21 +106,22 @@ export function assembleForecastCandidate(assignments, evidence) {
   for (const item of ordered) for (const claim of roleClaims.get(item.assignmentId).slice(1)) if (claims.length < 6) claims.push(claim)
   if (!claims.length) return null
   return { probabilityYes, evidenceAdequacy: 'limited', outcomeKnown: false, outcome: null,
-    summary: `有界报告汇集：${estimates.length}个不同职责的研究员已提交带证据的概率估计，按候选概率中位数汇集为Yes ${Math.round(probabilityYes * 100)}%。主Agent未完成有效最终裁决，程序仅整理已核验报告；该估计未校准，来源可能重叠。`,
+    summary: english ? `Bounded report aggregation: ${estimates.length} researchers with distinct roles submitted evidence-backed estimates. Their unweighted median gives Yes ${Math.round(probabilityYes * 100)}%. The lead agent did not complete a valid final decision. This program only assembled validated reports; the estimate is uncalibrated and sources may overlap.` : `有界报告汇集：${estimates.length}个不同职责的研究员已提交带证据的概率估计，按候选概率中位数汇集为Yes ${Math.round(probabilityYes * 100)}%。主Agent未完成有效最终裁决，程序仅整理已核验报告；该估计未校准，来源可能重叠。`,
     evidenceIds: [...new Set(usable.flatMap(item => own(item, item.report.evidenceIds)))], reasoningClaims: claims,
     dissent: [...new Set(usable.flatMap(item => item.report.missingEvidence || []))].slice(0, 5),
-    sourceLimitations: ['程序汇集已有有效报告，不代表主Agent完成独立最终裁决。', '采用无权中位数，不能把多位研究员或重复来源当作统计独立证据。'],
+    sourceLimitations: english ? ['The program assembled existing valid reports; the lead agent did not complete an independent final decision.', 'The aggregation uses an unweighted median. Multiple researchers or repeated sources are not statistically independent evidence.'] : ['程序汇集已有有效报告，不代表主Agent完成独立最终裁决。', '采用无权中位数，不能把多位研究员或重复来源当作统计独立证据。'],
     decisionNotes: usable.map(item => ({ assignmentId: item.assignmentId, disposition: 'qualified',
-      reason: '保留该角色已核验报告及不确定性；仅对有效候选概率作中位数汇集，不追加事实或模型调用。', evidenceIds: own(item, item.report.evidenceIds) })),
+      reason: english ? 'Retains this role’s validated report and uncertainty. Only valid estimates enter the median; no facts or model calls were added.' : '保留该角色已核验报告及不确定性；仅对有效候选概率作中位数汇集，不追加事实或模型调用。', evidenceIds: own(item, item.report.evidenceIds) })),
     publicationMode: 'bounded-report-aggregation', aggregationMethod: 'unweighted-median', scorecard: reportScorecard(usable) }
 }
 
-export function partialForecastSummary(assignments, evidence, reason) {
+export function partialForecastSummary(assignments, evidence, reason, { outputLanguage } = {}) {
+  const english = outputLanguage === 'en'
   const completed = effectiveRoleReports(assignments)
-  const known = completed.map(item => `${item.name || item.roleId}：${item.report.summary.slice(0, 250)}`)
-  const gaps = [...new Set(assignments.flatMap(item => item.report?.missingEvidence || (item.error?.message ? [item.error.message] : [])))].slice(0, 5)
+  const known = completed.map(item => `${item.name || item.roleId}${english ? ': ' : '：'}${item.report.summary.slice(0, 250)}`)
+  const gaps = [...new Set(assignments.flatMap(item => item.report?.missingEvidence || (item.error?.message ? [english ? 'A researcher could not finish; see the saved failure record.' : item.error.message] : [])))].slice(0, 5)
   return { kind: 'partial_research', generatedBy: 'harness', probabilityYes: null,
-    summary: known.length ? `本轮已结束，保留${completed.length}个不同职责的有效报告。${known.join('；')}` : '本轮已结束，尚无足够的有效独立报告；已读取材料与失败原因保留。',
-    reason, evidenceCount: evidence.length, roleScores: reportScorecard(assignments), gaps,
-    notice: '阶段性资料整理，不是正式概率预测；没有补造概率或追加模型调用。' }
+    summary: english ? known.length ? `This run has ended. Valid reports from ${completed.length} distinct roles were retained. ${known.join('; ')}` : 'This run has ended without enough valid independent reports. Read materials and failure records have been retained.' : known.length ? `本轮已结束，保留${completed.length}个不同职责的有效报告。${known.join('；')}` : '本轮已结束，尚无足够的有效独立报告；已读取材料与失败原因保留。',
+    reason: english ? 'The run ended before a valid final assessment was completed; see the saved run record.' : reason, evidenceCount: evidence.length, roleScores: reportScorecard(assignments), gaps,
+    notice: english ? 'Partial research material, not a published probability forecast. No probabilities were fabricated and no model calls were added.' : '阶段性资料整理，不是正式概率预测；没有补造概率或追加模型调用。' }
 }

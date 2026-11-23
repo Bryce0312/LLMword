@@ -1,6 +1,6 @@
 import { createActorSprite } from './actors.js'
 import { h, button, dataContent } from './workbench-core.js'
-import { courseObjective, normalizeCourseRole } from './course-team.mjs'
+import { COURSE_ROLE_LABELS, courseObjective, normalizeCourseRole } from './course-team.mjs'
 import { courseRoomOutcome } from './course-projection.mjs'
 import { courseUsageText, courseModelStatusView } from './course-workflow.mjs'
 
@@ -8,14 +8,25 @@ const pixels = { supervisor: 'chair', official: 'policy', timeline: 'supply', in
 const shortNames = { supervisor: '主 Agent', official: '官方', timeline: '新闻', industry: '行业', people: '人物', statistics: '统计', market: '市场', social: '社群', analogy: '类比', graph: '关系', verification: '核验' }
 const terminal = (status) => ['completed', 'finished', 'insufficient', 'failed', 'cancelled'].includes(status)
 
+function roomUi(tag, cls, ...children) { const node = h(tag, cls, ...children); node.setAttribute('data-i18n-ui', 'true'); return node }
+function setRoomText(node, text, ui = false) {
+  node.removeAttribute(ui ? 'data-i18n-skip' : 'data-i18n-ui')
+  node.setAttribute(ui ? 'data-i18n-ui' : 'data-i18n-skip', 'true')
+  node.textContent = text
+}
+function roomName(member, tag = 'span') {
+  return member && COURSE_ROLE_LABELS[member.roleId] === member.name ? roomUi(tag, '', member.name) : dataContent(tag, '', member?.name ?? '研究员')
+}
+const toolNames = { search_web: '搜索公开资料', fetch_page: '读取网页原文', read_evidence: '核对资料原文', get_market_quote: '读取市场现价 (get_market_quote)' }
+
 export function createCourseRoom(container, { onShowResults } = {}) {
   let runId = null; let generation = -1; let timer
   const figures = new Map()
   const image = h('div', 'wb-room-image cc-room-image')
   const art = h('img'); art.src = '/assets/lab-play.png'; art.alt = '按当前问题派出研究员的像素研究室'
   const phase = h('span', 'wb-room-phase', '等待真实派工')
-  function setPhase(text, data = false) { if (data) phase.setAttribute('data-i18n-skip', 'true'); else phase.removeAttribute('data-i18n-skip'); phase.textContent = text }
-  function phaseWithName(name, action) { phase.removeAttribute('data-i18n-skip'); phase.replaceChildren(dataContent('span', '', name), action) }
+  function setPhase(text, data = false) { setRoomText(phase, text, !data) }
+  function phaseWithName(member, action) { phase.removeAttribute('data-i18n-skip'); phase.setAttribute('data-i18n-ui', 'true'); phase.replaceChildren(member ? roomName(member) : roomUi('span', '', '研究员'), action) }
   const bubble = h('section', 'wb-room-bubble cc-room-bubble'); bubble.hidden = true; bubble.setAttribute('aria-live', 'polite')
   bubble.append(h('strong'), dataContent('p'), h('small'))
   image.append(art, phase, bubble)
@@ -63,12 +74,13 @@ export function createCourseRoom(container, { onShowResults } = {}) {
         figure = { actor, badge, modelBadge, card, name, job, reason, status, modelState, usage }; figures.set(id, figure)
       }
       figure.data = member
-      figure.name.textContent = member.name
+      setRoomText(figure.name, member.name, COURSE_ROLE_LABELS[id] === member.name)
       figure.badge.textContent = shortNames[id] ?? member.name.replace(/研究员$/, '')
-      figure.badge.setAttribute('data-i18n-skip-attributes', 'title')
+      if (COURSE_ROLE_LABELS[id] === member.name) figure.badge.removeAttribute('data-i18n-skip-attributes'); else figure.badge.setAttribute('data-i18n-skip-attributes', 'title')
       if (shortNames[id]) figure.badge.removeAttribute('data-i18n-skip'); else figure.badge.setAttribute('data-i18n-skip', 'true')
       figure.badge.title = member.name
-      figure.job.textContent = courseObjective(member.objective) || (id === 'supervisor' ? '整理问题、选择研究员与汇总公开报告' : '等待实际调查任务')
+      const objective = courseObjective(member.objective)
+      setRoomText(figure.job, objective || (id === 'supervisor' ? '整理问题、选择研究员与汇总公开报告' : '等待实际调查任务'), !objective)
       const reason = member.followUpReason ? '补查原因：' + member.followUpReason : member.reason ? '选我来查：' + member.reason : ''
       figure.reason.replaceChildren(...(reason ? [member.followUpReason ? '补查原因：' : '选我来查：', dataContent('span', '', member.followUpReason || member.reason)] : [])); figure.reason.hidden = !reason
       const seat = workers.findIndex((worker) => worker.roleId === id)
@@ -80,12 +92,12 @@ export function createCourseRoom(container, { onShowResults } = {}) {
     }
     teamNote.textContent = workers.length ? '本轮已选 ' + workers.length + ' 位研究员 · 每人的任务与入选原因见下方。' : '主 Agent 正在按题选择研究员；尚未显示的角色不会预先入场。'
   }
-  function statusFor(roleId, value, objective) {
+  function statusFor(roleId, value, objective, objectiveIsUi = false) {
     const figure = figures.get(roleId); if (!figure) return
     const texts = { queued: '等待派工', pending: '等待派工', running: '调查中', complete: '报告已提交', completed: '报告已提交', checked: '检查完成', published: '判断已保存', insufficient: '资料不足', blocked: '存在缺口', failed: '执行失败', cancelled: '已取消' }
     figure.status.textContent = texts[value] ?? value ?? '等待派工'
     figure.status.dataset.status = value ?? 'pending'
-    if (objective) figure.job.textContent = courseObjective(objective)
+    if (objective) setRoomText(figure.job, courseObjective(objective), objectiveIsUi)
   }
   function modelFor(effect) {
     const figure = figures.get(effect.roleId); if (!figure) return
@@ -113,7 +125,7 @@ export function createCourseRoom(container, { onShowResults } = {}) {
   function finish(effect) {
     const outcome = courseRoomOutcome(effect)
     for (const [roleId, f] of figures) { f.actor.classList.remove('is-working', 'is-tooling', 'is-model-waiting'); modelFor({ roleId, status: 'ended' }) }
-    statusFor('supervisor', outcome.supervisorState, outcome.supervisorObjective)
+    statusFor('supervisor', outcome.supervisorState, outcome.supervisorObjective, true)
     setPhase(outcome.phase)
     if (outcome.teamNote) teamNote.textContent = outcome.teamNote
   }
@@ -142,14 +154,14 @@ export function createCourseRoom(container, { onShowResults } = {}) {
     } else if (effect.type === 'usage') usageFor(effect.assignments, effect.status)
     else if (effect.type === 'model') modelFor(effect)
     else if (effect.type === 'work') {
-      figure?.actor.classList.add('is-working'); statusFor(effect.roleId, 'running', effect.summary); phaseWithName(figure?.data.name ?? '研究员', '正在调查')
+      figure?.actor.classList.add('is-working'); statusFor(effect.roleId, 'running', effect.summary); phaseWithName(figure?.data, '正在调查')
     } else if (effect.type === 'stop') { figure?.actor.classList.remove('is-working', 'is-tooling', 'is-model-waiting'); modelFor({ ...effect, status: 'ended' }) }
     else if (effect.type === 'tool') {
       figure?.actor.classList.toggle('is-tooling', effect.status === 'running')
-      if (effect.status === 'running') phaseWithName(figure?.data.name ?? '研究员', '正在执行工具')
+      if (effect.status === 'running') phaseWithName(figure?.data, '正在执行工具')
       if (effect.roleId === 'supervisor') statusFor('supervisor', effect.status === 'running' ? 'running' : effect.status === 'error' ? '存在资料缺口' : '工具已返回')
-      const name = { search_web: '搜索公开资料', fetch_page: '读取网页原文', read_evidence: '核对资料原文', get_market_quote: '读取市场现价 (get_market_quote)' }[effect.toolId] ?? effect.toolId ?? '工具'
-      tool.replaceChildren(dataContent('span', '', figure?.data.name ?? '研究室'), ' · ', dataContent('span', '', name), ' · ', effect.status === 'running' ? '执行中' : effect.status === 'ok' ? '已取得返回' : effect.status === 'partial' ? '已取得可引用片段' : '未取得资料', ...(effect.summary ? ['：', dataContent('span', '', effect.summary)] : []))
+      const toolLabel = toolNames[effect.toolId] ? roomUi('span', '', toolNames[effect.toolId]) : effect.toolId ? dataContent('span', '', effect.toolId) : roomUi('span', '', '工具')
+      tool.replaceChildren(figure?.data ? roomName(figure.data) : roomUi('span', '', '研究室'), ' · ', toolLabel, ' · ', effect.status === 'running' ? '执行中' : effect.status === 'ok' ? '已取得返回' : effect.status === 'partial' ? '已取得可引用片段' : '未取得资料', ...(effect.summary ? ['：', dataContent('span', '', effect.summary)] : []))
     } else if (effect.type === 'meeting') {
       for (const [id, f] of figures) f.actor.classList.toggle('is-at-table', effect.participants.includes(id))
       setPhase(effect.summary || '正在核对具体分歧', Boolean(effect.summary))
@@ -159,7 +171,7 @@ export function createCourseRoom(container, { onShowResults } = {}) {
       const success = ['complete', 'completed'].includes(effect.status)
       statusFor(effect.roleId, effect.status === 'message' ? '公开讨论' : effect.status)
       bubble.dataset.role = effect.roleId; bubble.dataset.assignmentId = effect.assignmentId ?? ''; bubble.dataset.resultId = effect.resultId ?? ''; bubble.dataset.tone = success ? 'success' : effect.status === 'message' ? 'neutral' : 'insufficient'
-      bubble.querySelector('strong').replaceChildren(dataContent('span', '', figure.data.name), ' · ', success ? '报告已提交' : effect.status === 'message' ? '公开讨论' : '调查反馈')
+      bubble.querySelector('strong').replaceChildren(roomName(figure.data), ' · ', success ? '报告已提交' : effect.status === 'message' ? '公开讨论' : '调查反馈')
       bubble.querySelector('p').textContent = effect.summary
       bubble.querySelector('small').textContent = effect.evidenceIds?.length ? '引用 ' + effect.evidenceIds.length + ' 条资料，完整记录见下方。' : '公开判断摘要，完整记录见下方。'
       const x = figure.actor.classList.contains('is-at-table') ? figure.meetingX : figure.x
@@ -167,7 +179,7 @@ export function createCourseRoom(container, { onShowResults } = {}) {
       bubble.hidden = false; figure.actor.classList.add('is-speaking')
       const token = generation
       timer = setTimeout(() => { if (token === generation) { bubble.hidden = true; figure.actor.classList.remove('is-speaking') } }, 7000)
-    } else if (effect.type === 'phase') setPhase(effect.summary, true)
+    } else if (effect.type === 'phase') setPhase(effect.summary, effect.ui !== true)
     else if (effect.type === 'end') {
       finish(effect)
     }

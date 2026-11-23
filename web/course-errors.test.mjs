@@ -65,3 +65,27 @@ test('failed requests with an active or paused watcher remain stoppable without 
   assert.equal(courseRequestCanStop({ ...request, status: 'closed' }), false)
   assert.equal(courseRequestCanStop({}), false)
 })
+
+
+test('removed failed, paused-watch and published records are read-only for both actions', () => {
+  const completed = { ...failed, status: 'completed', error: null }
+  const scenarios = [
+    { ...request, watch: { status: 'active' } },
+    { ...request, predictionId: 'p', status: 'watching', runs: [completed], latestRun: completed, watch: { status: 'paused_provider', pauseReason: failed.error } },
+    { requestId: 'q', predictionId: 'p', status: 'watching', runs: [completed], latestRun: completed, forecast: { probabilityYes: 0.7 }, watch: { status: 'active' } },
+  ]
+  for (const record of scenarios) {
+    assert.equal(courseRequestAction(record).enabled, true, 'the fixture permits a manual action before removal')
+    assert.equal(courseRequestCanStop(record), true)
+    for (const marker of [{ deleted: true }, { deletedAt: '2026-11-23T10:00:00Z' }]) {
+      const removed = { ...record, ...marker }
+      const before = structuredClone(removed)
+      const action = courseRequestAction(removed)
+      assert.equal(action.enabled, false)
+      assert.equal(action.reason, '这项预测记录已从历史列表移除，仅供查看。')
+      assert.equal(action.automaticRetry, false)
+      assert.equal(courseRequestCanStop(removed), false)
+      assert.deepEqual(removed, before, 'read-only action checks do not alter saved history')
+    }
+  }
+})

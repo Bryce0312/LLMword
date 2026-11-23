@@ -1,9 +1,13 @@
-import { h, fmt, empty, dataContent } from './workbench-core.js'
+import { h, uiContent, dateContent, empty, dataContent } from './workbench-core.js'
 import { courseForecastPoints } from './course-projection.mjs'
 import { directionText, formatProbability, isPriceDirection, priceDirections } from './course-price-direction.mjs'
 import { formatCourseProbability } from './course-probability.mjs'
 const ns = 'http://www.w3.org/2000/svg'
 function svgNode(name, attributes, text) { const el = document.createElementNS(ns, name); for (const [key, value] of Object.entries(attributes)) el.setAttribute(key, value); if (text) el.textContent = text; return el }
+function svgDate(raw, timezone) {
+  const valid = raw && !Number.isNaN(new Date(raw).valueOf())
+  return svgNode('tspan', { ...(valid ? { 'data-i18n-date': new Date(raw).toISOString() } : {}), ...(timezone ? { 'data-i18n-timezone': timezone } : {}) }, valid ? new Date(raw).toISOString() : '尚未设置')
+}
 export function courseChart(records, contract = {}) {
   const points = courseForecastPoints(records, { predictionId: contract.predictionId, predictionVersion: contract.version, targetAt: contract.targetAt, type: contract.type })
   const box = h('section', 'wb-paper cc-chart-panel', h('h2', '', '判断怎样变化'), h('p', 'wb-muted', '横轴放大已观察时间。右侧未来区独立留白，不按未来时长比例，不画外推线。'))
@@ -26,20 +30,19 @@ export function courseChart(records, contract = {}) {
     if (points.length > 1) svg.append(svgNode('path', { d: path, stroke: color, 'stroke-width': 3, fill: 'none' }))
     for (const point of points) {
       const dot = svgNode('circle', { cx: x(Date.parse(point.publishedAt)), cy: y(point[key]), r: 5, fill: directional ? color : '#805936', stroke: '#f7e6ba', 'stroke-width': 2 })
-      dot.append(svgNode('title', {}, fmt(point.publishedAt) + ' · ' + label + ' ' + (directional ? formatProbability(point[key]) : formatCourseProbability(point[key])))); svg.append(dot)
+      const tip = svgNode('title', {}); tip.append(svgDate(point.publishedAt, contract.timezone), ' · ', svgNode('tspan', { 'data-i18n-ui': 'true' }, label), ' ' + (directional ? formatProbability(point[key]) : formatCourseProbability(point[key]))); dot.append(tip); svg.append(dot)
     }
   }
   svg.append(svgNode('line', { x1: nowX, x2: nowX, y1: top, y2: bottom, stroke: '#947555', 'stroke-dasharray': '4 4' }), svgNode('text', { x: right - 48, y: 210 }, '本图截至'), svgNode('text', { x: 590, y: 59 }, '未来未绘制'), svgNode('text', { x: 590, y: 78 }, '不按比例'))
-  const precise = (raw) => new Date(raw).toLocaleString('zh-CN', { hour12: false })
   if (directional) {
     const legend = h('p', 'wb-muted')
     for (const { label, color } of series) { const item = h('span', '', '● ', h('span', '', label), '　'); item.style.color = color; legend.append(item) }
     box.append(legend)
   }
-  box.append(h('div', 'cc-chart-scroll', svg), h('p', 'wb-muted', '本图截至 ' + precise(now) + '；固定目标为 ' + fmt(contract.targetAt ?? points[0].targetAt, contract.timezone)))
+  box.append(h('div', 'cc-chart-scroll', svg), h('p', 'wb-muted', '本图截至 ', dateContent(new Date(now).toISOString()), '；', h('span', '', '固定目标为 '), dateContent(contract.targetAt ?? points[0].targetAt, contract.timezone)))
   const list = h('div', 'cc-chart-points')
   for (const point of points) {
-    const item = h('details', '', h('summary', '', precise(point.publishedAt) + ' · ' + (directional ? directionText(point) : 'Yes ' + formatCourseProbability(point.probabilityYes))), dataContent('p', '', point.summary ?? point.rationale ?? '本次发布未提供公开摘要。'), h('small', '', '固定目标：' + fmt(point.targetAt ?? contract.targetAt, contract.timezone)))
+    const item = h('details', '', h('summary', '', dateContent(point.publishedAt), ' · ', uiContent('span', '', directional ? directionText(point) : 'Yes ' + formatCourseProbability(point.probabilityYes))), point.summary || point.rationale ? dataContent('p', '', point.summary ?? point.rationale) : h('p', '', '本次发布未提供公开摘要。'), h('small', '', '固定目标：', dateContent(point.targetAt ?? contract.targetAt, contract.timezone)))
     item.dataset.forecastId = point.forecastId; list.append(item)
   }
   box.append(list); return box

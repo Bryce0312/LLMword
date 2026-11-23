@@ -47,6 +47,7 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
         CREATE TABLE IF NOT EXISTS course_settings (key TEXT PRIMARY KEY, record_json TEXT NOT NULL) STRICT;
         CREATE TABLE IF NOT EXISTS course_metadata (key TEXT PRIMARY KEY, value TEXT NOT NULL) STRICT;
         CREATE TABLE IF NOT EXISTS course_requests (id TEXT PRIMARY KEY, record_json TEXT NOT NULL) STRICT;
+        CREATE TABLE IF NOT EXISTS course_request_deletions (request_id TEXT PRIMARY KEY REFERENCES course_requests(id), record_json TEXT NOT NULL) STRICT;
         CREATE TABLE IF NOT EXISTS course_runs (id TEXT PRIMARY KEY, request_id TEXT NOT NULL REFERENCES course_requests(id), record_json TEXT NOT NULL) STRICT;
         CREATE TABLE IF NOT EXISTS course_assignments (id TEXT PRIMARY KEY, run_id TEXT NOT NULL REFERENCES course_runs(id), record_json TEXT NOT NULL) STRICT;
         CREATE TABLE IF NOT EXISTS course_events (seq INTEGER PRIMARY KEY AUTOINCREMENT, event_id TEXT UNIQUE NOT NULL, run_id TEXT NOT NULL REFERENCES course_runs(id), record_json TEXT NOT NULL) STRICT;
@@ -69,12 +70,22 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
     })
   } catch (error) { db.close(); throw error }
   const epoch = db.prepare("SELECT value FROM course_metadata WHERE key='epoch'").get().value
-  const getRequest = (requestId) => decode(db.prepare('SELECT record_json FROM course_requests WHERE id=?').get(identifier(requestId)))
+  const getRequestDeletion = (requestId) => decode(db.prepare('SELECT record_json FROM course_request_deletions WHERE request_id=?').get(identifier(requestId)))
+  const getRequest = (requestId) => {
+    const request = decode(db.prepare('SELECT record_json FROM course_requests WHERE id=?').get(identifier(requestId)))
+    const deletion = request && getRequestDeletion(requestId)
+    return deletion ? { ...request, deleted: true, deletedAt: deletion.deletedAt } : request
+  }
   const getRun = (runId) => decode(db.prepare('SELECT record_json FROM course_runs WHERE id=?').get(identifier(runId)))
   const requireRequest = (requestId) => {
     const value = getRequest(requestId)
     if (!value) throw courseFailure('REQUEST_NOT_FOUND', '找不到这项跟踪请求。', 404)
     return value
+  }
+  const requireLiveRequest = (requestId) => {
+    const request = requireRequest(requestId)
+    if (request.deleted) throw courseFailure('REQUEST_DELETED', '这项历史记录已删除，仅保留原始资料供追溯。', 409)
+    return request
   }
   const requireRun = (runId) => {
     const value = getRun(runId)
@@ -83,11 +94,14 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
   }
   const active = (runId) => {
     const run = requireRun(runId)
-    const request = requireRequest(run.requestId)
+    const request = requireLiveRequest(run.requestId)
     if (terminal.has(run.status) || request.status === 'stopped') throw courseFailure('COURSE_CANCELLED', '研究已结束或停止。', 409)
     return run
   }
-  const writeRequest = (value) => db.prepare('UPDATE course_requests SET record_json=? WHERE id=?').run(json(value), value.requestId)
+  const writeRequest = (value) => {
+    requireLiveRequest(value.requestId)
+    return db.prepare('UPDATE course_requests SET record_json=? WHERE id=?').run(json(value), value.requestId)
+  }
   const writeRun = (value) => db.prepare('UPDATE course_runs SET record_json=? WHERE id=?').run(json(value), value.runId)
   function append(run, event) {
     const eventId = event.eventId || id('event')
@@ -103,7 +117,7 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
     return value
   }
   function queue(requestId, trigger, configuration = {}) {
-    const request = requireRequest(requestId)
+    const request = requireLiveRequest(requestId)
     if (isPriceDirection(request)) throw courseFailure('LEGACY_PRICE_DIRECTION', '此三分类任务保留供回看。若需重新调查，请创建新的二元预测。', 409)
     if (request.status === 'stopped') throw courseFailure('REQUEST_STOPPED', '这项跟踪已经停止。', 409)
     if (request.status === 'closed' || db.prepare('SELECT 1 FROM course_results WHERE request_id=?').get(requestId)) throw courseFailure('REQUEST_CLOSED', '本题已有结果，不能重新创建调查或改写预测。', 409)
@@ -129,7 +143,7 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
   }
   const getSettings = () => ({ predictionBudget: decode(db.prepare('SELECT record_json FROM course_settings WHERE key=?').get('predictionBudget')) })
   return {
-    metadata: { schemaVersion: 1, serverEpoch: epoch }, clock, getRequest, requireRequest, getRun, requireRun,
+    metadata: { schemaVersion: 1, serverEpoch: epoch }, clock, getRequest, requireRequest, requireLiveRequest, getRun, requireRun,
     getSettings,
     updateSettings(input) {
       const value = validatePredictionSettings(input)
@@ -138,7 +152,34 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
         return getSettings()
       })
     },
-    listRequests: () => db.prepare('SELECT record_json FROM course_requests ORDER BY rowid DESC').all().map(decode),
+    listRequests: () => db.prepare('SELECT r.record_json FROM course_requests r WHERE NOT EXISTS (SELECT 1 FROM course_request_deletions d WHERE d.request_id=r.id) ORDER BY r.rowid DESC').all().map(decode),
+    listDeletedRequestIds: () => db.prepare('SELECT request_id FROM course_request_deletions ORDER BY rowid').all().map(row => row.request_id),
+    listDeletedPredictionIds: () => [...new Set(db.prepare('SELECT r.record_json FROM course_requests r JOIN course_request_deletions d ON d.request_id=r.id ORDER BY d.rowid').all().map(decode).map(request => request.predictionId).filter(Boolean))],
+    deleteRequest(requestId, input) {
+      if (!input || typeof input !== 'object' || Array.isArray(input) || Object.keys(input).length !== 3 ||
+        input.confirmed !== true || !validDate(input.expectedUpdatedAt) || typeof input.expectedLatestRunId !== 'string' || !/^[a-zA-Z0-9_-]{1,120}$/.test(input.expectedLatestRunId)) {
+        throw courseFailure('INVALID_REQUEST_DELETE', '删除需要明确确认、原更新时间和原最新运行ID。')
+      }
+      return tx(() => {
+        const request = requireRequest(requestId)
+        const deletion = getRequestDeletion(requestId)
+        const previous = deletion || { expectedUpdatedAt: request.updatedAt, expectedLatestRunId: request.latestRunId }
+        if (input.expectedUpdatedAt !== previous.expectedUpdatedAt || input.expectedLatestRunId !== previous.expectedLatestRunId) {
+          throw courseFailure('REQUEST_DELETE_CONFLICT', '这项记录已经变化，请刷新历史后重新确认删除。', 409)
+        }
+        const receipt = value => ({ requestId, deleted: true, deletedAt: value.deletedAt, ...(value.predictionId ? { predictionId: value.predictionId } : {}) })
+        if (deletion) return receipt(deletion)
+        const runs = db.prepare('SELECT record_json FROM course_runs WHERE request_id=?').all(requestId).map(decode)
+        const watch = decode(db.prepare('SELECT record_json FROM course_watches WHERE request_id=?').get(requestId))
+        if (runs.some(run => !terminal.has(run.status)) || watch?.status === 'active') {
+          throw courseFailure('REQUEST_IN_USE', '任务仍在运行、排队或持续预测，请先停止后再删除历史。', 409)
+        }
+        const value = { requestId, deletedAt: clock(), expectedUpdatedAt: input.expectedUpdatedAt, expectedLatestRunId: input.expectedLatestRunId,
+          ...(request.predictionId ? { predictionId: request.predictionId } : {}) }
+        db.prepare('INSERT INTO course_request_deletions VALUES (?,?)').run(requestId, json(value))
+        return receipt(value)
+      })
+    },
     listRuns: ({ requestId } = {}) => (requestId
       ? db.prepare('SELECT record_json FROM course_runs WHERE request_id=? ORDER BY rowid').all(requestId)
       : db.prepare('SELECT record_json FROM course_runs ORDER BY rowid').all()).map(decode),
@@ -149,7 +190,7 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
         const old = idempotencyKey && db.prepare('SELECT * FROM course_operations WHERE operation_key=?').get(idempotencyKey)
         if (old) {
           if (old.input_hash !== hash) throw courseFailure('IDEMPOTENCY_CONFLICT', '此幂等键已用于另一个问题。', 409)
-          return requireRequest(decode(old).requestId)
+          return requireLiveRequest(decode(old).requestId)
         }
         const at = clock()
         const snapshot = predictionBudget && (input.purpose || 'forecast') === 'forecast' ? validatePredictionBudget(predictionBudget) : null
@@ -165,7 +206,7 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
     queueRun: (requestId, trigger = 'manual', configuration = {}) => tx(() => queue(requestId, trigger, configuration)),
     resumeResearchSummary(runId, { maxTokens } = {}) {
       return tx(() => {
-        const run = requireRun(runId), request = requireRequest(run.requestId)
+        const run = requireRun(runId), request = requireLiveRequest(run.requestId)
         if (isPriceDirection(request)) throw courseFailure('LEGACY_PRICE_DIRECTION', '此三分类任务保留供回看。若需重新调查，请创建新的二元预测。', 409)
         const workers = db.prepare('SELECT record_json FROM course_assignments WHERE run_id=?').all(runId).map(decode)
         const unsent = unsentSummaryRequest(run, workers)
@@ -190,7 +231,7 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
     },
     updateRequest(requestId, patch) {
       return tx(() => {
-        const request = requireRequest(requestId)
+        const request = requireLiveRequest(requestId)
         if (request.status === 'stopped') throw courseFailure('REQUEST_STOPPED', '这项跟踪已经停止。', 409)
         const value = { ...request, ...patch, requestId, updatedAt: clock() }
         writeRequest(value); return value
@@ -337,17 +378,17 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
       return tx(() => {
         const recovery = assemble ? requireRun(runId) : null
         if (assemble) {
-          const request = requireRequest(recovery.requestId)
+          const request = requireLiveRequest(recovery.requestId)
           if (request.purpose !== 'research' || request.status === 'stopped' || recovery.status !== 'failed' || recovery.phase !== 'review' || !['MODEL_INCOMPLETE', 'COURSE_BUDGET'].includes(recovery.error?.code) || !recovery.state.summaryResumeCount && recovery.error?.code !== 'MODEL_INCOMPLETE' || recovery.usage.unknownUsage) throw courseFailure('RESEARCH_ASSEMBLY_UNAVAILABLE', '仅汇总截断的研究任务可整理已有报告。', 409)
           const workers = db.prepare('SELECT record_json FROM course_assignments WHERE run_id=?').all(runId).map(decode)
           if (new Set(workers.filter((item) => item.status === 'completed' && item.report?.status === 'complete' && item.report.evidenceIds?.length).map((item) => item.roleId)).size < 2) throw courseFailure('REPORTS_INSUFFICIENT', '至少需要两个不同职责的完整报告。', 409)
-          candidate = assembleResearchCandidate(workers, evidenceFor(runId))
+          candidate = assembleResearchCandidate(workers, evidenceFor(runId), { outputLanguage: request.outputLanguage })
           if (new Set(candidate.decisionNotes.map((note) => workers.find((item) => item.assignmentId === note.assignmentId)?.roleId)).size < 2) throw courseFailure('REPORTS_INSUFFICIENT', '有效已读报告不足。', 409)
         }
         const hash = digest(candidate)
         const old = db.prepare('SELECT * FROM course_research_reports WHERE run_id=?').get(runId)
         if (old) { if (old.input_hash !== hash) throw courseFailure('RESEARCH_CONFLICT', '本轮研报已封存。', 409); return decode(old) }
-        const run = recovery || active(runId), request = requireRequest(run.requestId), at = clock()
+        const run = recovery || active(runId), request = requireLiveRequest(run.requestId), at = clock()
         if (request.purpose !== 'research') throw courseFailure('RESEARCH_PURPOSE', '此任务不是研报任务。', 409)
         if (totalTokenLimitExceeded(run.budget, run.usage.totalTokens)) throw courseFailure('COURSE_BUDGET', '超出预算不能封存研报。', 409)
         const available = evidenceFor(runId).filter((item) => item.text?.trim() && item.readBy.some((reader) => reader !== 'main') && Date.parse(item.obtainedAt) <= Date.parse(at) && (!item.publishedAt || Date.parse(item.publishedAt) <= Date.parse(at)))
@@ -383,7 +424,7 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
           return decode(old)
         }
         const run = recoverRecordedCandidate ? requireRun(runId) : active(runId)
-        const request = requireRequest(run.requestId)
+        const request = requireLiveRequest(run.requestId)
         if (recoverRecordedCandidate) {
           const proposal = run.state.main?.messages?.filter(message => message.role === 'assistant').flatMap(message => message.tool_calls || []).findLast(call => call.function?.name === 'propose_forecast')
           let original; try { original = JSON.parse(proposal?.function.arguments) } catch {}
@@ -500,10 +541,10 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
         runs, assignments, forecasts, relations, evidence: runs.flatMap((run) => evidenceFor(run.runId)) })
     },
     getWatch: (requestId) => decode(db.prepare('SELECT record_json FROM course_watches WHERE request_id=?').get(requestId)),
-    listWatches: () => db.prepare('SELECT record_json FROM course_watches ORDER BY rowid').all().map(decode),
+    listWatches: () => db.prepare('SELECT w.record_json FROM course_watches w WHERE NOT EXISTS (SELECT 1 FROM course_request_deletions d WHERE d.request_id=w.request_id) ORDER BY w.rowid').all().map(decode),
     saveWatch(requestId, patch) {
       return tx(() => {
-        const request = requireRequest(requestId)
+        const request = requireLiveRequest(requestId)
         const previous = decode(db.prepare('SELECT record_json FROM course_watches WHERE request_id=?').get(requestId)) || { requestId, watchId: id('course_watch'), known: {}, checks: 0 }
         const value = { ...previous, ...patch, requestId, updatedAt: clock() }
         if (request.status === 'stopped') value.status = 'stopped'
@@ -513,7 +554,7 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
     },
     recordResult(requestId, result) {
       return tx(() => {
-        const request = requireRequest(requestId)
+        const request = requireLiveRequest(requestId)
         if (request.resolutionPolicy) throw courseFailure('STRUCTURED_RESULT_REQUIRED', '此固定契约只能通过结果核验入口读取来源，不能直接提交结果标签。', 409)
         if (requiresWeatherObservation(request)) throw courseFailure('WEATHER_OBSERVATION_REQUIRED', '预设天气题需要人工或后续结构化实况验证；当前通用网页不能登记降雨YES或NO结果。', 409)
         if (request.normalized?.conditionalOnly) throw courseFailure('CONDITIONAL_RESULT', '条件性估计缺少固定可核验基准，不能冒充已结算结果。', 409)
@@ -530,7 +571,7 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
     getResult: (requestId) => decode(db.prepare('SELECT record_json FROM course_results WHERE request_id=?').get(requestId)),
     recordPriceResult(requestId, source) {
       return tx(() => {
-        const request = requireRequest(requestId), at = clock(), policy = request.resolutionPolicy
+        const request = requireLiveRequest(requestId), at = clock(), policy = request.resolutionPolicy
         const old = decode(db.prepare('SELECT record_json FROM course_results WHERE request_id=?').get(requestId))
         if (old) return old
         const contract = request.normalized, target = Date.parse(contract?.targetAt), observed = Date.parse(source.obtainedAt), base = contract?.baseline
@@ -569,7 +610,7 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
     },
     recordWarningResult(requestId, source) {
       return tx(() => {
-        const request = requireRequest(requestId), at = clock()
+        const request = requireLiveRequest(requestId), at = clock()
         const old = decode(db.prepare('SELECT record_json FROM course_results WHERE request_id=?').get(requestId))
         if (old) return old
         const policy = request.resolutionPolicy, target = Date.parse(request.normalized?.targetAt), observed = Date.parse(source.obtainedAt)
@@ -600,7 +641,7 @@ export function createCourseStore({ path, now = () => new Date() } = {}) {
     },
     stop(requestId) {
       return tx(() => {
-        const request = requireRequest(requestId)
+        const request = requireLiveRequest(requestId)
         writeRequest({ ...request, status: 'stopped', activeRunId: null, updatedAt: clock() })
         for (const run of db.prepare('SELECT record_json FROM course_runs WHERE request_id=?').all(requestId).map(decode)) {
           if (!terminal.has(run.status)) {

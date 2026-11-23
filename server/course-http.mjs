@@ -30,11 +30,13 @@ export async function handleCourseApi(course, req, res) {
     } else if (url.pathname === '/api/v1/course/settings' && req.method === 'PUT') {
       send(res, 200, course.updateSettings(await body(req)))
     } else if (url.pathname === '/api/v1/course/requests' && req.method === 'GET') {
-      send(res, 200, { requests: course.listRequests() })
+      send(res, 200, { requests: course.listRequests(), deletedRequestIds: course.listDeletedRequestIds?.() || [], deletedPredictionIds: course.listDeletedPredictionIds?.() || [] })
     } else if (url.pathname === '/api/v1/course/requests' && req.method === 'POST') {
       send(res, 202, await course.createRequest(await body(req), { idempotencyKey: key }))
     } else if ((match = url.pathname.match(new RegExp(`^/api/v1/course/requests/(${id})$`))) && req.method === 'GET') {
       send(res, 200, course.getRequest(match[1]))
+    } else if ((match = url.pathname.match(new RegExp(`^/api/v1/course/requests/(${id})$`))) && req.method === 'DELETE') {
+      send(res, 200, course.deleteRequest(match[1], await body(req)))
     } else if ((match = url.pathname.match(new RegExp(`^/api/v1/course/requests/(${id})/resolve$`))) && req.method === 'POST') {
       if (Object.keys(await body(req)).length) throw fail('INVALID_ACTION', '结果核验不接受自填标签、来源或时间。')
       send(res, 200, await course.resolve(match[1]))

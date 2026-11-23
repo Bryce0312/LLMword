@@ -59,7 +59,7 @@ export function projectCourseSnapshot(previous, run, { fresh = false } = {}) {
         const id = p.resultId && p.assignmentId ? JSON.stringify([p.assignmentId, p.resultId]) : p.messageId ?? event.eventId
         if (!state.presented.includes(id)) { state.presented.push(id); effects.push({ type: 'speech', roleId, status: 'message', summary, evidenceIds: p.evidenceIds ?? [] }) }
       }
-      if (event.type === 'forecast.published') effects.push({ type: 'phase', summary: '本轮判断已提交' })
+      if (event.type === 'forecast.published') effects.push({ type: 'phase', summary: '本轮判断已提交', ui: true })
       if (['run.finished', 'run.failed', 'run.cancelled'].includes(event.type)) {
         state.status = event.type === 'run.finished' ? (ended(run.status) ? run.status : ended(p.status) ? p.status : 'completed') : event.type.split('.')[1]
         effects.push({ type: 'end', status: state.status, ...outcome, summary: outcome.summary || summary })
@@ -72,7 +72,7 @@ export function projectCourseSnapshot(previous, run, { fresh = false } = {}) {
   if (state.usageSignature !== usageSignature) { effects.push({ type: 'usage', assignments: clone(assignments), status: run.status }); state.usageSignature = usageSignature }
   const phaseLabel = run.phase && !ended(run.status) ? coursePhaseLabel(run) : null
   const activityChanged = effects.some(effect => ['model', 'tool', 'work', 'meeting', 'speech'].includes(effect.type))
-  if (phaseLabel && (state.phaseLabel !== phaseLabel || activityChanged)) { effects.push({ type: 'phase', summary: phaseLabel }); state.phaseLabel = phaseLabel }
+  if (phaseLabel && (state.phaseLabel !== phaseLabel || activityChanged)) { effects.push({ type: 'phase', summary: phaseLabel, ui: true }); state.phaseLabel = phaseLabel }
   state.seen = state.seen.slice(-2000)
   return { state, effects: effects.map((e) => ({ ...e, runId: state.runId, generation: state.generation })) }
 }

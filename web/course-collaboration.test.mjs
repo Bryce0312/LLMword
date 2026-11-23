@@ -71,3 +71,30 @@ test('limited evidence and report correction labels support English without chan
   assert.equal(translateUiText('每位研究员最多 6 次调查决策；资料足够可提前提交报告，最迟第 7 次进入报告阶段，另留 2 次报告修正。调查与报告分开计数，仍受本席总调用与 token 上限约束。', 'en'),
     'Each researcher may make up to 6 research decisions and report early when ready. Reporting starts no later than request 7, with 2 report corrections reserved. Research and reporting are counted separately within the same overall request and token limits.')
 })
+
+
+test('rendered collaboration UI translates around protected names, tasks, report prose, evidence and citations', () => {
+  const saved = globalThis.document
+  globalThis.document = { createElement: tag => new Element(tag) }
+  try {
+    const claim = { basis: 'inference', claim: '资料不足', evidenceIds: ['e'], citations: [{ quote: '开始预测' }] }
+    const report = { assignmentId: 'a', roleId: 'verification', name: '保存预算', objective: '开始预测', reason: '模型连接', summary: '删除记录', reportStatus: 'complete', probability: .67, followUp: false, support: [claim], counterevidence: [{ ...claim, basis: 'fact' }], missingEvidence: ['等待模型'], decision: { disposition: 'qualified', reason: '查看来源原文', evidenceIds: ['e'] } }
+    const review = { ...report, assignmentId: 'b', followUp: true, cycle: 2, responseStatus: 'submitted', newEvidenceIds: ['e'], probabilityBefore: .67, probabilityAfter: .7 }
+    const node = new Element('section')
+    renderCollaboration(node, { runId: 'r', modelMode: 'live', sourceMode: 'live', sources: [{ evidenceId: 'e', title: '保存预算', url: 'https://example.invalid/source' }], team: [report], reviews: [review], reports: [report, review], conclusion: '已发布；可逐项查看补查答复与裁决。', decision: { kind: 'forecast', groundingPolicy: true, reasoningClaims: [claim], probabilityYes: .7, delta: .03, recordedNotes: 1, totalReports: 2, dissent: ['保存预算'] } })
+    const protectedValues = [], translated = []
+    const walk = (element, protectedAncestor = false) => {
+      const protectedHere = protectedAncestor || element.attributes['data-i18n-skip'] === 'true'
+      if (protectedHere && !protectedAncestor) { protectedValues.push(element.textContent); return }
+      for (const child of element.children) {
+        if (typeof child === 'object') walk(child, protectedHere)
+        else translated.push(translateUiText(String(child), 'en'))
+      }
+    }
+    walk(node)
+    assert.doesNotMatch(translated.join(' '), /[\p{Script=Han}]/u)
+    for (const value of ['保存预算', '开始预测', '模型连接', '删除记录', '资料不足', '等待模型', '查看来源原文']) assert(protectedValues.includes(value), value)
+    assert.equal(node.querySelectorAll('.cc-collab-report')[0].children[0].attributes['data-i18n-ui'], 'true')
+    assert.match(node.textContent, /保存预算.*独立调查/u)
+  } finally { if (saved === undefined) delete globalThis.document; else globalThis.document = saved }
+})

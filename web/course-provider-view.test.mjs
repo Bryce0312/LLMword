@@ -155,3 +155,74 @@ test('restore defaults resets the form and leaves the saved connection and statu
   assert.equal(model.value, COURSE_PROVIDER_DEFAULTS.model)
   assert.equal(credential.value, '')
 }))
+
+
+test('verified save leaves the exact credential masked and editable across same-document popup switches', async () => withView(async ({setFetch}) => {
+  let saved = unconfigured
+  let posts = 0
+  const cache = {}
+  setFetch(async (url, options = {}) => {
+    if (url.endsWith('/config')) return response(capability)
+    if (options.method === 'POST') {
+      posts++
+      const body = JSON.parse(options.body)
+      assert.equal(body.apiKey, 'FAKE_EDITABLE_DOCUMENT_KEY')
+      assert.equal(credentialOf(nodes).value, '', 'the input is empty only while transmitting')
+      saved = status()
+    }
+    return response(saved)
+  })
+  const first = owner(cache)
+  const nodes = await providerConnectionView(first.ctx)
+  const credential = credentialOf(nodes)
+  credential.value = 'FAKE_EDITABLE_DOCUMENT_KEY'
+  await credential.fire('input')
+  await formOf(nodes).fire('submit')
+  assert.equal(posts, 1)
+  assert.equal(credential.type, 'password')
+  assert.equal(credential.value, 'FAKE_EDITABLE_DOCUMENT_KEY')
+  assert.equal(credential.disabled, false)
+  assert.notEqual(credential.readOnly, true)
+  assert(!JSON.stringify(cache).includes('FAKE_EDITABLE_DOCUMENT_KEY'))
+  assert(!nodes.at(-1).textContent.includes('FAKE_EDITABLE_DOCUMENT_KEY'))
+  first.active = false
+  const reopened = await providerConnectionView(owner(cache).ctx)
+  assert.equal(credentialOf(reopened).type, 'password')
+  assert.equal(credentialOf(reopened).value, 'FAKE_EDITABLE_DOCUMENT_KEY')
+  credentialOf(reopened).value = 'FAKE_UNSAVED_EDIT'
+  await credentialOf(reopened).fire('input')
+  const refresh = formOf(reopened).query(node => node.textContent === '刷新连接状态')
+  await refresh.fire('click')
+  assert.equal(credentialOf(reopened).value, 'FAKE_UNSAVED_EDIT', 'status reads preserve an active edit')
+  assert.equal(posts, 1, 'reopening and refreshing never resubmit the credential')
+}))
+
+test('a transient failed status refresh keeps a verified masked input and its same-document restoration', async () => withView(async ({setFetch}) => {
+  let failRead = false
+  let saved = status()
+  setFetch(async (url, options = {}) => {
+    if (url.endsWith('/config')) return response(capability)
+    if (options.method === 'POST') return response(saved)
+    if (failRead) throw new Error('FAKE_TEMPORARY_READ_FAILURE')
+    return response(saved)
+  })
+  const first = owner()
+  const nodes = await providerConnectionView(first.ctx)
+  credentialOf(nodes).value = 'FAKE_REFRESH_RESILIENT_KEY'
+  await formOf(nodes).fire('submit')
+  failRead = true
+  await formOf(nodes).query(node => node.textContent === '刷新连接状态').fire('click')
+  assert.equal(credentialOf(nodes).value, 'FAKE_REFRESH_RESILIENT_KEY')
+  assert.equal(credentialOf(nodes).type, 'password')
+  assert.equal(credentialOf(nodes).disabled, false)
+  first.active = false
+  const next = owner()
+  const reopened = await providerConnectionView(next.ctx)
+  assert.equal(credentialOf(reopened).value, '', 'a failed new view does not restore without confirmed status')
+  failRead = false
+  await formOf(reopened).query(node => node.textContent === '刷新连接状态').fire('click')
+  assert.equal(credentialOf(reopened).value, 'FAKE_REFRESH_RESILIENT_KEY', 'a read failure must not erase the last verified document value')
+  saved = status('2026-11-23T17:00:00Z')
+  await formOf(reopened).query(node => node.textContent === '刷新连接状态').fire('click')
+  assert.equal(credentialOf(reopened).value, '', 'a confirmed replacement still invalidates the old document credential')
+}))

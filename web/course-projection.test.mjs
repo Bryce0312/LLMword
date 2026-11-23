@@ -114,3 +114,20 @@ test('no-change check restores and ends without claiming a forecast, worker repo
   assert.equal(finished.effects.some((e) => ['speech', 'work', 'meeting'].includes(e.type)), false)
   assert.equal(courseRoomOutcome({ ...restored, hasForecast: true }).supervisorState, 'published')
 })
+
+
+test('only generated phase summaries are marked as interface text, not original reports or meeting summaries', () => {
+  const snapshot = run([
+    event(1, 'meeting.opened', { summary: '模型连接' }),
+    event(2, 'assignment.completed', { summary: '保存预算', resultId: 'locale-report', status: 'complete' }),
+    event(3, 'forecast.published'),
+  ], { phase: 'workers' })
+  const result = projectCourseSnapshot(createCourseProjection(), snapshot, { fresh: true })
+  const phases = result.effects.filter(effect => effect.type === 'phase')
+  assert(phases.length >= 1)
+  assert(phases.every(effect => effect.ui === true))
+  assert.equal(result.effects.find(effect => effect.type === 'meeting').summary, '模型连接')
+  assert.equal(result.effects.find(effect => effect.type === 'meeting').ui, undefined)
+  assert.equal(result.effects.find(effect => effect.type === 'speech').summary, '保存预算')
+  assert.equal(result.effects.find(effect => effect.type === 'speech').ui, undefined)
+})

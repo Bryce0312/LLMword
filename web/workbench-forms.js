@@ -1,10 +1,13 @@
-import { h, dataContent, link, header, empty, field, input, textarea, select, formError, api, write, toast, goto, route } from './workbench-core.js'
+import { isWorkspaceBuiltinText } from './locale-zh-en-workspace.mjs'
+import { h, uiContent, dataContent, link, header, empty, field, input, textarea, select, formError, api, write, toast, goto, route } from './workbench-core.js'
 
 export function topicForm(container, cache) {
   const form = h('form', 'wb-paper wb-form')
   field(form, 'title', '关注主题', input(''), '例如：某公司管理层变化、某项政策是否落地。')
   field(form, 'background', '背景与关注理由', textarea(''))
-  field(form, 'sourceMode', '资料模式', select([['provided', '用户提供材料'], ['live', '实时主题（自动监听待后续开放）']]))
+  const sourceModes = select([['provided', '用户提供材料'], ['live', '实时主题（自动监听待后续开放）']])
+  for (const option of sourceModes.children) { option.removeAttribute('data-i18n-skip'); option.setAttribute('data-i18n-ui', 'true') }
+  field(form, 'sourceMode', '资料模式', sourceModes)
   const submit = h('button', 'wb-button wb-primary', '保存关注主题'); submit.type = 'submit'; form.append(submit)
   form.addEventListener('submit', async (event) => {
     event.preventDefault(); submit.disabled = true
@@ -81,21 +84,23 @@ export function agentForm(cache, a, onSaved, { isActive } = {}) {
   const ownerActive = () => typeof isActive !== 'function' || isActive()
   const creating = !a.agentSpecId
   const form = h('form', 'wb-paper wb-form')
-  form.append(h('div', 'wb-card-top', creating ? h('h2', '', '定义一位新研究员') : dataContent('h2', '', a.name), h('span', 'wb-badge', creating ? '尚未保存' : '定义 v' + a.specVersion)))
+  form.append(h('div', 'wb-card-top', creating ? h('h2', '', '定义一位新研究员') : (isWorkspaceBuiltinText('role', a) ? uiContent : dataContent)('h2', '', a.name), h('span', 'wb-badge', creating ? '尚未保存' : '定义 v' + a.specVersion)))
   field(form, 'name', '研究员名称', input(a.name))
   field(form, 'instructions', '职责与技能指令', textarea(a.instructions, 6), '说明调查方法、引用要求和资料不足时怎样报告。')
+  form.append(h('p', 'wb-muted', '已保存的职责与技能指令保持原文；界面语言切换不会改写配置。'))
   const refs = field(form, 'skillRefs', '已登记的技能版本', input((a.skillRefs ?? []).map((ref) => typeof ref === 'string' ? ref : ref.skillId + '@' + ref.version).join(', ')), '保留已注册方法版本。上方可编辑本角色的调查指令；技能引用不能替代实际工具。'); refs.readOnly = true
-  if (a.description) form.append(dataContent('p', 'wb-purpose', a.description))
-  if (a.plannedTools?.length) form.append(h('p', 'wb-muted', '专用能力尚未接入：' + a.plannedTools.join('、') + '。当前仅使用下方实际注册的工具。'))
+  if (a.description) form.append((isWorkspaceBuiltinText('role', a, 'description') ? uiContent : dataContent)('p', 'wb-purpose', a.description))
+  if (a.plannedTools?.length) form.append(h('p', 'wb-muted', '专用能力尚未接入：', dataContent('span', '', a.plannedTools.join(', ')), '。当前仅使用下方实际注册的工具。'))
   const tools = h('fieldset', 'wb-checks'); tools.append(h('legend', '', '允许使用的已注册工具'))
   for (const tool of cache.tools) {
     const box = input('', 'checkbox'); box.value = tool.toolId ?? tool.id; box.name = 'allowedTools'; box.checked = a.allowedTools.includes(box.value)
-    tools.append(h('label', '', box, dataContent('span', '', tool.name ?? tool.description ?? box.value, h('small', '', box.value))))
+    tools.append(h('label', '', box, (isWorkspaceBuiltinText('tool', tool) ? uiContent : dataContent)('span', '', tool.name ?? tool.description ?? box.value, dataContent('small', '', box.value))))
   }
   form.append(tools)
   const slots = h('div', 'wb-form-grid'); form.append(slots)
   for (let i = 0; i < 2; i++) {
     const slot = select([['', '空槽位'], ...cache.tools.map((t) => [t.toolId ?? t.id, t.name ?? t.toolId ?? t.id])], a.extensionSlots?.[i] ?? '')
+    for (const [index, option] of [...slot.children].entries()) if (index > 0 && isWorkspaceBuiltinText('tool', cache.tools[index - 1])) { option.removeAttribute('data-i18n-skip'); option.setAttribute('data-i18n-ui', 'true') }
     const placeholder = slot.children[0]; placeholder.removeAttribute('data-i18n-skip'); placeholder.setAttribute('data-i18n-ui', 'true')
     field(slots, 'extension' + i, '扩展槽 ' + (i + 1), slot)
   }

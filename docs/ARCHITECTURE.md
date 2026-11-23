@@ -308,6 +308,22 @@ flowchart TD
 - 取消后迟到结果只写审计，不改预测/图/计划。
 - 历史封存不可被摘要改写；记忆窗口滑动只改下次输入。
 
+### 7.1 V4.3 预测历史移除（D051，2026-11-23）
+
+课程预测历史使用独立的 `course_request_deletions` 表记录删除标记；原请求、运行、派工角色快照、事件、证据、判断和结果不改写。默认列表隐藏已移除记录，直接 GET 档案仍可读取 `deleted/deletedAt`，但不可检查、恢复、监听或核验结果。活动任务、后台作业、监听及进行中的结果核验拒绝删除；本功能不自动停止任务。
+
+`DELETE /api/v1/course/requests/:id` 需要 `{ confirmed: true, expectedUpdatedAt, expectedLatestRunId }`。更新时间与最新运行 ID 必须匹配确认时的记录；过期确认返回 409 `REQUEST_DELETE_CONFLICT`，活动记录返回 409 `REQUEST_IN_USE`。成功返回 `{ requestId, deleted: true, deletedAt, predictionId? }`；同一确认参数重复提交返回原回执。服务端在事务内重新检查状态。
+
+`GET /api/v1/course/requests` 返回 `requests`、`deletedRequestIds` 和 `deletedPredictionIds`。前端合并只增的删除 ID 集合，过滤迟到的旧读取响应及关联的旧 domain 预测卡，防止刷新后重新出现。独立 legacy domain 记录仍只读，不提供伪删除操作。确认对话框沿用页面主题，取消、Escape 或切换页面都不发送删除请求。
+
+### 7.2 V4.3 English 界面与任务输出语言（D052，2026-11-23）
+
+界面词条按 shell、workspace、course、room、legacy 分区汇入 `locale-zh-en.mjs`。`locale.mjs`原位更新固定文字、标题、placeholder、alt和无障碍属性，异步新增节点同样处理；显式 `data-i18n-ui` 只越过旧样式类／PRE等隐式保护，不越过 `data-i18n-skip`、user/model/content原文边界。日期节点保存ISO元数据，按界面语言与原时区格式化，可双向切换。输入值、Key、URL/model、报告、引用和证据不由本地化引擎读写。只保存语言偏好，不调用翻译服务；组件语言通知仅更新当前DOM中的本地状态。
+
+`POST /api/v1/course/requests` 接受可选 `outputLanguage: "en" | "zh-CN"`，能力接口公开 `outputLanguages`。前端以提交瞬间的语言及新读取能力决定请求：支持时保存语言，不支持英文则保留输入提示更新服务；旧中文服务不发送未知字段。未传字段的旧调用保留旧输入哈希及行为，已有档案不补写字段。
+
+请求语言随SQLite请求保存，后续检查、监听、恢复和汇总均读取该请求；不取进程全局或浏览器当前语言。统一provider边界克隆messages，在所有主Agent／研究员调用的预算预留前追加固定输出语言策略，协议键、enum、固定strict契约、原问题和证据引文不翻译。语言指令计入原有预算，无单独翻译调用；程序生成的阶段性报告和资料整理固定说明亦按保存语言生成，概率、证据归属和封存历史不改。
+
 ## 8 HTTP 与事件契约
 
 ### 8.1 路由分组

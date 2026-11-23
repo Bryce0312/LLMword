@@ -2,6 +2,8 @@ import { isPriceDirection } from './course-price-direction.mjs'
 import { courseRuns } from './course-runs.mjs'
 import { courseRequestProgress, isCourseTerminal } from './course-status.mjs'
 
+const isDeletedRequest = (data) => data.deleted === true || Boolean(data.deletedAt)
+
 const recovery = {
   MODEL_BALANCE_REQUIRED: ['本轮模型账户额度不足', '本轮模型调用因账户额度问题停止。', '额度恢复后可直接重试本次调查，不需要重填问题。', true],
   SOURCE_BALANCE_REQUIRED: ['本轮资料服务额度不足', '本轮搜索或取证因来源服务额度问题停止。', '额度恢复后可直接重试本次调查，不需要重填问题。', true],
@@ -21,7 +23,7 @@ const recovery = {
 export function courseErrorPresentation(error = {}) {
   const known = recovery[error.code]
   const [title, detail, nextStep, requiresAction] = known ?? ['本轮调查未完成', typeof error.message === 'string' && error.message.trim() ? error.message : '服务没有提供可区分的安全错误原因。', '问题和运行记录已保留，可手动重试本次调查。', error.actionRequired === true]
-  return { title, detail, nextStep, requiresAction, automaticRetry: false, ...(error.code === 'MODEL_RATE_LIMITED' && Number.isFinite(error.retryAfterMs) && error.retryAfterMs > 0 && error.retryAfterMs <= 30000 ? { waitHint: '服务建议的重试间隔约 ' + Math.ceil(error.retryAfterMs / 1000) + ' 秒。' } : {}) }
+  return { title, detail, detailIsSystem: Boolean(known || !(typeof error.message === 'string' && error.message.trim())), nextStep, requiresAction, automaticRetry: false, ...(error.code === 'MODEL_RATE_LIMITED' && Number.isFinite(error.retryAfterMs) && error.retryAfterMs > 0 && error.retryAfterMs <= 30000 ? { waitHint: '服务建议的重试间隔约 ' + Math.ceil(error.retryAfterMs / 1000) + ' 秒。' } : {}) }
 }
 
 export function courseRequestFailure(data = {}) {
@@ -41,6 +43,7 @@ export function courseRequestAction(data = {}, { now = Date.now() } = {}) {
   const kind = retry ? 'retry' : 'check'
   const label = retry ? '重试本次调查' : '检查一次新资料'
   const disabled = (reason) => ({ enabled: false, kind, label, reason, automaticRetry: false })
+  if (isDeletedRequest(data)) return disabled('这项预测记录已从历史列表移除，仅供查看。')
   if (isPriceDirection(data)) return disabled('此三分类任务保留供回看。若需重新调查，请创建新的二元预测。')
   if (['stopped', 'closed'].includes(data.status)) return disabled('本题已停止或到期。')
   if (data.result) return disabled('本题已有结果记录。')
@@ -59,5 +62,5 @@ export function courseRequestAction(data = {}, { now = Date.now() } = {}) {
 
 /** Failure ends one run, not the user's ability to stop the request's watcher. */
 export function courseRequestCanStop(data = {}, { busy = false } = {}) {
-  return Boolean((data.requestId ?? data.id) && !busy && !['stopped', 'closed'].includes(data.status))
+  return Boolean((data.requestId ?? data.id) && !busy && !isDeletedRequest(data) && !['stopped', 'closed'].includes(data.status))
 }

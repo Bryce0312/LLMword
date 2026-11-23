@@ -1,4 +1,5 @@
-import { h, dataContent, dataLink, link, button, header, empty, field, input, textarea, formError, api, write, toast, goto, fmt, sourceLink } from './workbench-core.js'
+import { getLocale } from './locale.mjs'
+import { h, uiContent, dataContent, dataLink, link, button, header, empty, field, input, textarea, formError, api, write, toast, goto, dateContent, sourceLink } from './workbench-core.js'
 import { createCourseProjection, projectCourseSnapshot, courseForecastPoints } from './course-projection.mjs'
 import { createCourseRoom } from './workbench-course-room.js'
 import { courseChart } from './workbench-course-chart.js'
@@ -13,6 +14,11 @@ import { renderCollaboration } from './course-collaboration.js'
 import { recoverCourseBudgetRequest, recoverCourseBudgetRun } from './course-budget-summary.mjs'
 import { directionLabel, directionText, formatProbability, isPriceDirection, priceDirections, validDirectionProbabilities } from './course-price-direction.mjs'
 import { formatCourseProbability, courseProbabilityPair } from './course-probability.mjs'
+
+// Explicit UI nodes may contain system templates; saved content always has its own data boundary.
+const contentOrPlaceholder = (tag, cls, value, placeholder) => value ? dataContent(tag, cls, value) : uiContent(tag, cls, placeholder)
+const controlledFactText = new Set(['基准', '估计类型', '计分', '资料充分度', '条件估计', '概率预测', '可计分', '不计分', '充分', '有限', '合成／模拟基准，不可计分', '未取得可核验数值基准'])
+const controlledContent = (tag, cls, value) => controlledFactText.has(value) ? uiContent(tag, cls, value) : dataContent(tag, cls, value)
 
 const requestId = (record) => record.requestId ?? record.id
 const requestRunId = (record) => record.activeRunId ?? record.latestRunId ?? record.runId ?? record.run?.runId ?? record.latestRun?.runId
@@ -45,6 +51,7 @@ export function courseStartForm(ctx, { standalone = false, headingId } = {}) {
   let strictTarget
   const localTime = (date) => new Date(date.valueOf() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16)
   const form = h('form', financialEntry ? 'cc-start-form cc-financial-form' : 'cc-start-form'); form.noValidate = true
+  form.setAttribute('data-i18n-language-control', 'true')
   const modes = h('div', 'cc-mode-tabs'); modes.setAttribute('role', 'group'); modes.setAttribute('aria-label', '题目模式')
   const strict = h('div', 'cc-strict-fields wb-form-grid'); strict.hidden = mode !== 'strict'
   const presetButton = button('直接提问', () => setMode('preset'), 'cc-mode')
@@ -52,11 +59,11 @@ export function courseStartForm(ctx, { standalone = false, headingId } = {}) {
   function setMode(value) { mode = strictModeHidden() ? 'preset' : value; strict.hidden = mode !== 'strict'; presetButton.setAttribute('aria-pressed', String(mode === 'preset')); strictButton.setAttribute('aria-pressed', String(mode === 'strict')) }
   modes.append(presetButton, strictButton); setMode(mode)
   const purpose = document.createElement('select'); purpose.setAttribute('aria-label', '研究目的')
-  for (const [value, label] of [['forecast', '事件预测'], ['research', '财报解读与表述核验']]) { const option = h('option', '', label); option.value = value; purpose.append(option) }
+  for (const [value, label] of [['forecast', '事件预测'], ['research', '财报解读与表述核验']]) { const option = uiContent('option', '', label); option.value = value; purpose.append(option) }
   purpose.value = prior.purpose || 'forecast'
   let question
   if (financialEntry) {
-    const title = h('h2', 'cc-financial-question-title', '写下一个你关注的股票'); title.id = 'cc-financial-question-title'
+    const title = h('h2', 'cc-financial-question-title', '写下一个你想预测的股票'); title.id = 'cc-financial-question-title'
     question = input(prior.question ?? ''); question.name = 'question'; question.id = 'field-question'; question.autocomplete = 'off'; question.spellcheck = false
     question.setAttribute('aria-labelledby', headingId || title.id)
     const questionError = h('small', 'wb-field-error'); questionError.dataset.fieldError = 'question'
@@ -76,16 +83,17 @@ export function courseStartForm(ctx, { standalone = false, headingId } = {}) {
       for (const b of chipButtons) b.setAttribute('aria-pressed', String(Number(financialEntry ? b.dataset.tradingDays : b.dataset.hours) === value))
       if (!financialEntry && strictTarget && !strictTarget.dataset.userEdited) strictTarget.value = localTime(new Date(Date.now() + value * 3600000))
     }, 'cc-time-chip')
+    chip.setAttribute('data-i18n-ui', 'true')
     if (financialEntry) chip.dataset.tradingDays = value; else chip.dataset.hours = value
     chip.setAttribute('aria-pressed', String((financialEntry ? horizonTradingDays : horizonHours) === value)); chips.append(chip); chipButtons.push(chip)
   }
   const horizonHint = financialEntry ? '代码和市场优先；英伟达、苹果等已识别美股名称采用美股日历线索，其余未注明默认港股，身份仍须核验。按对应市场休市日计算，从创建日期后的下一交易日起计数，第 N 个交易日收盘截止。' : '宽泛地问也可以。系统补全研究口径、选择研究员并找资料；默认 48 小时，可选上方窗口。问“今天”时跟踪到当地今天结束，明确日期优先。结果会说明“按这个意思研究”，你可以纠正。'
-  form.append(h('div', 'cc-duration', h('span', '', '关注多久'), chips), h('p', 'cc-form-hint', horizonHint))
+  form.append(h('div', 'cc-duration', h('span', '', '预测多久'), chips), h('p', 'cc-form-hint', horizonHint), h('p', 'cc-form-hint cc-output-language-hint', '新预测报告使用开始时选择的界面语言；已有报告和引用原文保持原样。'))
   let forecastWatch = courseWatchEnabled(prior)
   const watchEnabled = input('', 'checkbox'); watchEnabled.name = 'watch'; watchEnabled.id = 'field-watch'; watchEnabled.checked = forecastWatch
   const watchHint = h('small', '', '默认只研究一次；勾选后，服务器会定时检查新信息并可能继续调用模型。'); watchHint.id = 'course-watch-hint'
   watchEnabled.setAttribute('aria-describedby', watchHint.id)
-  const watchChoice = h('div', 'cc-watch-choice wb-checks', h('label', '', watchEnabled, h('span', '', '持续关注')), watchHint)
+  const watchChoice = h('div', 'cc-watch-choice wb-checks', h('label', '', watchEnabled, h('span', '', '持续预测')), watchHint)
   watchEnabled.addEventListener('change', () => { forecastWatch = watchEnabled.checked === true })
   form.append(watchChoice)
   const priorTarget = prior.strict?.targetAt ? new Date(prior.strict.targetAt) : new Date(Date.now() + horizonHours * 3600000)
@@ -100,9 +108,11 @@ export function courseStartForm(ctx, { standalone = false, headingId } = {}) {
   let submitting = false; let checking = false
   const capabilityNotice = h('div', 'cc-capability-notice'); capabilityNotice.setAttribute('aria-live', 'polite')
   const recheck = button('重新检查当前服务', () => { void checkCurrentService() }, 'wb-button')
-  function formCapability(capability = ctx.cache.courseCapability) {
+  function formCapability(capability = ctx.cache.courseCapability, outputLanguage = getLocale()) {
+    const config = capability?.config
+    const languages = config?.outputLanguages ?? config?.capabilities?.outputLanguages
+    if (outputLanguage === 'en' && capability?.available === true && !(Array.isArray(languages) && languages.includes('en'))) return { ...unavailableCourseCapability('restart-required'), outputLanguageRequired: true, message: '当前服务尚未加载英文报告功能，请重启当前服务后点击“重新检查当前服务”。输入内容会保留。' }
     if (!financialEntry || purpose.value === 'research' || capability?.available !== true) return capability
-    const config = capability.config
     const trading = config?.tradingDayHorizons ?? config?.capabilities?.tradingDayHorizons
     const supported = Array.isArray(trading?.options) && [1, 3, 5, 20].every(days => trading.options.includes(days)) && trading.default === 5 && trading.defaultMarket === 'HK'
     return supported ? capability : { ...unavailableCourseCapability('restart-required'), tradingDayHorizonsRequired: true, message: '当前服务尚未加载交易日窗口功能，请重启当前服务后点击“重新检查当前服务”。输入内容会保留。' }
@@ -116,9 +126,10 @@ export function courseStartForm(ctx, { standalone = false, headingId } = {}) {
     capabilityNotice.hidden = capability?.available === true && !checking && !ctx.cache.courseHistoryError
     capabilityNotice.replaceChildren(h('p', '', checking ? '正在检查当前地址的服务能力，输入内容会保留。' : capability?.available ? ctx.cache.courseHistoryError : capability?.message ?? '正在检查当前服务的自动跟踪能力。'), h('div', 'wb-actions', recheck, link('使用高级材料研读', '#/advanced', 'wb-text-button')))
   }
-  async function checkCurrentService() {
+  form.addEventListener('world-lab:localechange', renderCapability)
+  async function checkCurrentService(outputLanguage = getLocale()) {
     checking = true; renderCapability()
-    try { return formCapability(await ctx.checkCourseCapability()) }
+    try { return formCapability(await ctx.checkCourseCapability(), outputLanguage) }
     finally { checking = false; renderCapability() }
   }
   if (!financialEntry) form.append(strict)
@@ -131,7 +142,7 @@ export function courseStartForm(ctx, { standalone = false, headingId } = {}) {
     submitting = true; renderCapability()
     try {
       if (!question.value.trim()) throw Object.assign(new Error(financialEntry ? '请先输入你关注的股票、证券或基金。' : '请先写下希望跟踪的问题。'), { fields: ['question'] })
-      const data = Object.fromEntries(new FormData(form)); const payload = { purpose: purpose.value, question: question.value.trim(), mode: purpose.value === 'research' || strictModeHidden() ? 'preset' : mode, watch: purpose.value !== 'research' && watchEnabled.checked === true }
+      const data = Object.fromEntries(new FormData(form)); const outputLanguage = getLocale() === 'en' ? 'en' : 'zh-CN'; const payload = { purpose: purpose.value, question: question.value.trim(), mode: purpose.value === 'research' || strictModeHidden() ? 'preset' : mode, watch: purpose.value !== 'research' && watchEnabled.checked === true }
       if (financialEntry) {
         if (purpose.value !== 'research') {
           payload.horizonTradingDays = horizonTradingDays
@@ -140,8 +151,15 @@ export function courseStartForm(ctx, { standalone = false, headingId } = {}) {
         }
       } else payload.horizonHours = horizonHours
       if (purpose.value !== 'research' && payload.mode === 'strict') payload.strict = Object.fromEntries(['timezone', 'resolutionRule', 'resolutionSourceUrl', 'targetAt'].filter((k) => data[k]?.trim()).map((k) => [k, k === 'targetAt' ? new Date(data[k]).toISOString() : data[k]]))
-      const created = await guardCourseSubmission(checkCurrentService, () => {
+      let submissionCapability
+      const created = await guardCourseSubmission(async () => {
+        submissionCapability = await checkCurrentService(outputLanguage)
+        return submissionCapability
+      }, () => {
         if (!form.isConnected) throw new Error('页面已切换，本次没有创建跟踪。')
+        const config = submissionCapability?.config
+        const languages = config?.outputLanguages ?? config?.capabilities?.outputLanguages
+        if (Array.isArray(languages) && languages.includes(outputLanguage)) payload.outputLanguage = outputLanguage
         return api('/course/requests', write('POST', payload))
       }); saveRequest(ctx, created)
       const id = requestId(created); if (!id) throw new Error('服务端没有返回跟踪编号，请重新读取公告栏确认。')
@@ -149,7 +167,7 @@ export function courseStartForm(ctx, { standalone = false, headingId } = {}) {
       if (form.isConnected) { ctx.courseFreshRequests.add(id); goto('/course/' + id) }
     } catch (error) {
       if (error.capability || isMissingCourseApi(error)) {
-        if (!error.capability?.tradingDayHorizonsRequired) ctx.setCourseCapability(error.capability ?? unavailableCourseCapability('restart-required'))
+        if (!error.capability?.tradingDayHorizonsRequired && !error.capability?.outputLanguageRequired) ctx.setCourseCapability(error.capability ?? unavailableCourseCapability('restart-required'))
         renderCapability(); capabilityNotice.scrollIntoView({ block: 'nearest' })
       } else formError(form, error)
     } finally { submitting = false; renderCapability() }
@@ -172,15 +190,15 @@ export function courseBoard(ctx) {
     const p = record.forecast?.probabilityYes
     const questionLink = dataLink(record.question?.trim() || normalized.question || '准备中的题目', '#/course/' + requestId(record))
     questionLink.title = normalized.question ?? questionLink.textContent
+    const boardProbability = isPriceDirection(record.forecast) ? uiContent('p', '', directionText(record.forecast)) : null
     if (record.purpose === 'research') {
-      const boardProbability = isPriceDirection(record.forecast) ? h('p', '', directionText(record.forecast)) : null
-    cards.append(h('article', 'wb-paper wb-board-card', h('span', 'wb-badge', requestStateLabel(record)), h('h3', '', questionLink), h('p', '', record.researchReport ? '财报核验研报已保存' : '财报资料调查中'), h('p', 'wb-muted', '核验已披露事实与管理层表述'), link('打开研报研究室', '#/course/' + requestId(record), 'wb-button')))
+    cards.append(h('article', 'wb-paper wb-board-card', uiContent('span', 'wb-badge', requestStateLabel(record)), h('h3', '', questionLink), h('p', '', record.researchReport ? '财报核验研报已保存' : '财报资料调查中'), h('p', 'wb-muted', '核验已披露事实与管理层表述'), link('打开研报研究室', '#/course/' + requestId(record), 'wb-button')))
       continue
     }
-    cards.append(h('article', 'wb-paper wb-board-card', h('div', 'wb-card-top', h('span', 'wb-badge', requestStateLabel(record)), h('span', '', modelText(record, ctx) + ' / ' + sourceText(record))), h('h3', '', questionLink), boardProbability || h('div', 'wb-card-probability', formatCourseProbability(p), h('small', '', Number.isFinite(p) ? 'Yes 发生概率' : '暂未发布判断')), h('p', '', '固定到期：' + fmt(normalized.targetAt ?? record.targetAt)), link('打开研究室', '#/course/' + requestId(record), 'wb-button')))
+    cards.append(h('article', 'wb-paper wb-board-card', h('div', 'wb-card-top', uiContent('span', 'wb-badge', requestStateLabel(record)), h('span', '', h('span', '', modelText(record, ctx)), ' / ', h('span', '', sourceText(record)))), h('h3', '', questionLink), boardProbability || h('div', 'wb-card-probability', formatCourseProbability(p), h('small', '', Number.isFinite(p) ? 'Yes 发生概率' : '暂未发布判断')), h('p', '', '固定到期：', dateContent(normalized.targetAt ?? record.targetAt)), link('打开研究室', '#/course/' + requestId(record), 'wb-button')))
   }
   const financialEntry = document.body.dataset.financialEntry === 'true'
-  const heading = header(financialEntry ? '写下一个你关注的股票' : '我的事件研究', '主 Agent 按题选择研究员，查来源、讨论并生成预测结果')
+  const heading = header(financialEntry ? '写下一个你想预测的股票' : '我的事件研究', '主 Agent 按题选择研究员，查来源、讨论并生成预测结果')
   const headingId = financialEntry ? 'cc-financial-question-title' : undefined
   if (headingId) heading.querySelector('h1').id = headingId
   return [heading, courseStartForm(ctx, { headingId }), requests.length ? h('section', '', h('h2', 'wb-section-title', '正在关注与历史任务'), cards) : empty('第一张委托纸签还在等你', '直接说你关心的事，不需要先建主题、选角色或准备材料。'), link('高级：材料研读与旧案例管理', '#/advanced', 'wb-side-link')]
@@ -203,10 +221,10 @@ function renderInterpretation(data) {
   const reference = data.forecast?.currentReference ?? p.currentReference
   if (reference) {
     const value = Number.isFinite(reference.value) ? String(reference.value) + (reference.unit ? ' ' + reference.unit : '') : reference.kind === 'directional' ? '方向参照，未提供可核验数值' : '尚无可核验数值'
-    detail.append(h('p', 'cc-reference', h('strong', '', reference.verified === true ? '已核对的近期参照：' : '未核实的研究参照：'), dataContent('span', '', value), reference.observedAt ? ' · 观测于 ' + fmt(reference.observedAt, p.timezone) : '', reference.url ? sourceLink(reference) : null))
+    detail.append(h('p', 'cc-reference', h('strong', '', reference.verified === true ? '已核对的近期参照：' : '未核实的研究参照：'), Number.isFinite(reference.value) ? dataContent('span', '', value) : uiContent('span', '', value), ...(reference.observedAt ? [' · ', h('span', '', '观测于 '), dateContent(reference.observedAt, p.timezone)] : []), reference.url ? sourceLink(reference) : null))
   }
   const time = p.timeContext
-  if (time?.nowLocalLabel || time?.targetAtLocalLabel) detail.append(h('small', '', [time.nowLocalLabel ? '研究起点 ' + time.nowLocalLabel : '', time.targetAtLocalLabel ? '固定到期 ' + time.targetAtLocalLabel : ''].filter(Boolean).join('；')))
+  if (time?.nowLocalLabel || time?.targetAtLocalLabel) detail.append(h('small', '', ...(time.nowLocalLabel ? [h('span', '', '研究起点 '), time.nowUtc ? dateContent(time.nowUtc, time.timezone ?? p.timezone) : dataContent('span', '', time.nowLocalLabel)] : []), ...(time.nowLocalLabel && time.targetAtLocalLabel ? ['；'] : []), ...(time.targetAtLocalLabel ? [h('span', '', '固定到期 '), time.targetAtUtc ? dateContent(time.targetAtUtc, time.timezone ?? p.timezone) : dataContent('span', '', time.targetAtLocalLabel)] : [])))
   if (p.defaultAssumptions?.length || reference || time) block.append(detail)
   block.append(h('small', '', '口径与你的意思不符？用下方“修改理解后重新跟踪”创建纠正后的题目。'))
   return block
@@ -220,7 +238,7 @@ function renderAdequacy(data) {
   const conditional = basis?.mode === 'conditional'
   const level = adequacy === 'adequate' ? '可用资料较充分' : adequacy === 'limited' ? '可用资料有限' : '尚未标注充分度'
   const kind = conditional ? '条件估计' : basis?.mode === 'alternative-public' ? '公开替代来源估计' : basis?.mode === 'verified-source' ? '可核验来源估计' : forecast ? '本轮概率估计' : '研究准备中'
-  const block = h('div', 'cc-adequacy', h('div', 'cc-adequacy-heading', h('strong', '', kind), h('span', '', '资料充分度：' + level)), basis?.summary ? dataContent('p', '', basis.summary) : null)
+  const block = h('div', 'cc-adequacy', h('div', 'cc-adequacy-heading', h('strong', '', kind), h('span', '', '资料充分度：', h('span', '', level))), basis?.summary ? dataContent('p', '', basis.summary) : null)
   block.dataset.basis = basis?.mode ?? 'unspecified'
   if (conditional) block.append(h('p', '', '概率依赖本题说明中的假设与参照，不能当作已核验事实。'))
   if (limitations.length) { const list = h('ul'); for (const text of limitations) list.append(dataContent('li', '', text)); block.append(list) }
@@ -255,7 +273,7 @@ function renderBudgetSummary(run) {
     .map(source => h('li', '', dataContent('span', '', source.title ?? source.evidenceId), ' ', sourceLink(source),
       includeExcerpts && source.text ? dataContent('p', 'wb-prewrap', source.text.slice(0, 280)) : null)))
   const panel = h('section', 'cc-resolution', h('h3', '', '预算收尾 · 阶段性结果'),
-    dataContent('p', '', summary.summary), dataContent('p', 'wb-muted', summary.reason),
+    uiContent('p', '', summary.summary), dataContent('p', 'wb-muted', summary.reason),
     h('p', '', run.directionOutlook ? '以下是本轮已保存的材料。' : summary.recovered ? '已从历史记录整理材料。本轮未发布正式预测。' : '以下是本轮已保存的材料，最终判断尚未完成。'))
   for (const report of summary.reports) {
     panel.append(h('h4', '', dataContent('span', '', report.name), report.status === 'insufficient' ? ' · 资料不足' : ''),
@@ -272,7 +290,7 @@ function renderBudgetSummary(run) {
 function renderDirectionOutlook(run) {
   const { direction, summary, evidenceIds, missingFields } = run.directionOutlook
   const sources = evidenceIds.map(id => run.evidence?.find(source => source.evidenceId === id)).filter(Boolean)
-  return h('section', 'cc-resolution', h('h3', '', '暂定走势：' + directionLabel(direction)),
+  return h('section', 'cc-resolution', h('h3', '', '暂定走势：', h('span', '', directionLabel(direction))),
     dataContent('p', '', summary),
     h('ul', '', ...sources.map(source => h('li', '', dataContent('span', '', source.title), ' ', sourceLink(source)))),
     h('p', 'wb-muted', '资料缺口：', dataContent('span', '', missingFields.join('；'))))
@@ -284,7 +302,7 @@ function renderAnswer(node, data, ctx) {
     node.replaceChildren(h('span', 'wb-tag', '财报与表述核验研报'), dataContent('h2', '', data.question), report?.summary ? dataContent('p', '', report.summary) : h('p', '', '研究员正在查阅原文与核对口径；研报完成后显示发现与限制。'))
     if (report) {
       if (report.assemblyMode === 'harness') node.append(h('strong', 'cc-collab-gap', '研究员资料整理版：程序整理已有报告；主Agent最终裁决未完成。'))
-      node.append(h('p', 'wb-muted', '封存于 ' + fmt(report.publishedAt, data.timezone) + ' · ' + (report.modelMode === 'live' && report.sourceMode === 'live' ? '真实模型与公开来源' : '模拟／回放资料')))
+      node.append(h('p', 'wb-muted', '封存于 ', dateContent(report.publishedAt, data.timezone), ' · ', h('span', '', report.modelMode === 'live' && report.sourceMode === 'live' ? '真实模型与公开来源' : '模拟／回放资料')))
       for (const finding of report.findings) node.append(dataContent('p', '', finding.claim), h('div', 'cc-collab-refs', ...finding.evidenceIds.map((id) => {
         const source = (data.evidence || []).find((item) => item.evidenceId === id)
         return source ? h('span', '', dataContent('span', '', source.title), ' ', sourceLink(source)) : null
@@ -311,14 +329,20 @@ function renderAnswer(node, data, ctx) {
     h('div', '', h('small', '', label), h('strong', '', formatProbability(published ? forecast[key] : null)))))
     : h('div', 'wb-yes-no', h('div', '', h('small', '', '是 Yes'), h('strong', '', probabilityLabels.yes)), h('div', '', h('small', '', '否 No'), h('strong', '', probabilityLabels.no)))
   const rule = p.resolutionRule ?? p.rule
-  const questionHeading = dataContent('h2', '', data.question?.trim() || p.question || '正在把问题整理成可验证的命题…')
+  const questionHeading = contentOrPlaceholder('h2', '', data.question?.trim() || p.question, '正在把问题整理成可验证的命题…')
   questionHeading.title = p.question ?? questionHeading.textContent
   const judgmentAt = outlookRun?.directionOutlook.issuedAt ?? forecast?.publishedAt
-  const factRows = [h('dt', '', '固定到期'), h('dd', '', fmt(p.targetAt, p.timezone)), h('dt', '', '判定规则'), rule ? dataContent('dd', '', rule) : h('dd', '', '正在核对可验证的判定规则'), h('dt', '', outlookRun ? '判断时间' : '最新发布'), h('dd', '', judgmentAt ? fmt(judgmentAt, p.timezone) : '尚无发布记录'), h('dt', '', '运行状态'), h('dd', '', statusLabel(data.status)), h('dt', '', '模型模式'), h('dd', '', modelText(data, ctx)), h('dt', '', '来源模式'), h('dd', '', sourceText(data))]
-  for (const fact of forecast?.statusFacts ?? []) { if (fact.key === 'target') continue; factRows.push(h('dt', '', fact.label), dataContent('dd', '', fact.text)) }
+  const factRows = [h('dt', '', '固定到期'), dateContent(p.targetAt, p.timezone, 'dd'), h('dt', '', '判定规则'), rule ? dataContent('dd', '', rule) : h('dd', '', '正在核对可验证的判定规则'), h('dt', '', outlookRun ? '判断时间' : '最新发布'), judgmentAt ? dateContent(judgmentAt, p.timezone, 'dd') : h('dd', '', '尚无发布记录'), h('dt', '', '运行状态'), uiContent('dd', '', statusLabel(data.status)), h('dt', '', '模型模式'), h('dd', '', modelText(data, ctx)), h('dt', '', '来源模式'), h('dd', '', sourceText(data))]
+  for (const fact of forecast?.statusFacts ?? []) {
+    if (fact.key === 'target') continue
+    const observed = fact.key === 'baseline' && fact.status === 'verified' && Number.isFinite(fact.value)
+      ? `${fact.pair ? fact.pair + ' ' : ''}${fact.value}${fact.unit ? ' ' + fact.unit : ''}` : null
+    factRows.push(controlledContent('dt', '', fact.label), observed && fact.text === observed + '（系统观测）'
+      ? h('dd', '', dataContent('span', '', observed), h('span', '', '（系统观测）')) : controlledContent('dd', '', fact.text))
+  }
   const conflict = forecast?.summaryConflict?.detected === true
-  const summaryNode = forecast?.summary ? dataContent('p', conflict ? 'cc-answer-summary cc-summary-conflict' : 'cc-answer-summary', forecast.summary) : budgetRun || outlookRun ? null : h('p', 'wb-forecast-explain', emptyReason)
-  node.replaceChildren(h('span', 'wb-tag', '系统理解与当前判断'), questionHeading, outlookRun ? renderDirectionOutlook(outlookRun) : h('p', 'cc-tendency', tendency), distribution, h('p', 'wb-probability-empty', outlookRun ? '资料有限，本轮未估算概率' : published ? '对这道题的估计概率，不是模型正确率' : '资料不足或尚未发布时，概率保持缺值'), h('dl', 'wb-facts', ...factRows), summaryNode, ...(conflict ? [h('div', 'cc-conflict-warning', h('strong', '', '摘要与结构化事实不一致'), h('p', '', '下方模型摘要包含与上方事实段不一致的表述，请以上方结构化事实为准。'), h('ul', '', ...(forecast.summaryConflict.reasons ?? []).map((reason) => dataContent('li', '', reason))))] : []))
+  const summaryNode = forecast?.summary ? dataContent('p', conflict ? 'cc-answer-summary cc-summary-conflict' : 'cc-answer-summary', forecast.summary) : budgetRun || outlookRun ? null : progress.message && !courseRequestFailure(data) ? dataContent('p', 'wb-forecast-explain', emptyReason) : progress.active && !courseRequestFailure(data) ? h('p', 'wb-forecast-explain', uiContent('span', '', progress.label), h('span', '', '；尚未发布新的概率。')) : uiContent('p', 'wb-forecast-explain', emptyReason)
+  node.replaceChildren(h('span', 'wb-tag', '系统理解与当前判断'), questionHeading, outlookRun ? renderDirectionOutlook(outlookRun) : uiContent('p', 'cc-tendency', tendency), distribution, h('p', 'wb-probability-empty', outlookRun ? '资料有限，本轮未估算概率' : published ? '对这道题的估计概率，不是模型正确率' : '资料不足或尚未发布时，概率保持缺值'), h('dl', 'wb-facts', ...factRows), summaryNode, ...(conflict ? [h('div', 'cc-conflict-warning', h('strong', '', '摘要与结构化事实不一致'), h('p', '', '下方模型摘要包含与上方事实段不一致的表述，请以上方结构化事实为准。'), h('ul', '', ...(forecast.summaryConflict.reasons ?? []).map((reason) => uiContent('li', '', reason))))] : []))
   if (recoveredNotice) node.append(recoveredNotice)
   if (budgetRun) {
     node.append(renderBudgetSummary(budgetRun))
@@ -333,11 +357,11 @@ function renderAnswer(node, data, ctx) {
   if (adequacy) node.insertBefore(adequacy, node.querySelector('.wb-facts'))
   const interpretation = renderInterpretation(outlookRun ? { ...data, forecast: null } : data)
   if (interpretation) node.insertBefore(interpretation, node.querySelector('.wb-facts'))
-  if (forecast?.label) node.append(h('p', 'cc-result-label', forecast.label))
+  if (forecast?.label) node.append(uiContent('p', 'cc-result-label', forecast.label))
   if (data.result) {
     const value = data.result.outcome
     const outcome = directionLabel(value) ?? (value === true || value === 1 ? '发生（Yes）' : value === false || value === 0 ? '未发生（No）' : '待核验')
-    node.append(h('div', 'cc-resolution', h('strong', '', '实际结果：' + outcome), dataContent('p', '', data.result.summary ?? '结果记录已保存。'), h('small', '', '实际结果单列保存，不追加为 0% 或 100% 的预测点。')))
+    node.append(h('div', 'cc-resolution', h('strong', '', '实际结果：', h('span', '', outcome)), contentOrPlaceholder('p', '', data.result.summary, '结果记录已保存。'), h('small', '', '实际结果单列保存，不追加为 0% 或 100% 的预测点。')))
   }
   attachFold(node)
   requestAnimationFrame(() => syncFold(node))
@@ -352,16 +376,17 @@ function renderMemory(node, run, data) {
   const validPrevious = Number.isFinite(previous?.probabilityYes)
   const validCurrent = Number.isFinite(current?.probabilityYes)
   const change = validPrevious && validCurrent ? Math.round((current.probabilityYes - previous.probabilityYes) * 1000) / 10 : null
-  const previousText = isPriceDirection(previous) ? directionText(previous) + ' · ' + fmt(previous.issuedAt ?? previous.publishedAt) : validPrevious ? 'Yes ' + formatCourseProbability(previous.probabilityYes) + ' · ' + fmt(previous.issuedAt ?? previous.publishedAt) : '此前尚无已发布判断'
+  const previousText = isPriceDirection(previous) ? directionText(previous) : validPrevious ? 'Yes ' + formatCourseProbability(previous.probabilityYes) : '此前尚无已发布判断'
+  const previousDisplay = uiContent('p', '', uiContent('span', '', previousText), ...(isPriceDirection(previous) || validPrevious ? [' · ', dateContent(previous.issuedAt ?? previous.publishedAt)] : []))
   const newSources = (triage.newEvidenceIds ?? []).map((id) => (data.evidence ?? run.evidence ?? []).find((source) => source.evidenceId === id)).filter(Boolean)
   const newInfo = h('div', 'cc-memory-item', h('h3', '', '这轮新信息'))
   if (newSources.length) for (const source of newSources) newInfo.append(h('p', '', dataContent('span', '', source.title ?? source.evidenceId), ' ', sourceLink(source)))
   else newInfo.append(h('p', '', triage.kind === 'initial' ? '首轮调查，尚无上一轮可比较。' : triage.newEvidenceIds?.length ? '新增资料已记录，当前未提供题名。' : '未记录新增的独立证据。'))
   const why = current?.summary ?? triage.reason
   const adjustment = isPriceDirection(current) ? directionText(current) : change === null ? validCurrent ? '这是首次发布' : '本轮尚未发布新概率' : change === 0 ? '当前概率保持不变' : '较上一判断' + (change > 0 ? '上调 ' : '下调 ') + Math.abs(change) + ' 个百分点'
-  node.replaceChildren(h('h2', '', '这轮怎样接着上次查'), h('p', 'wb-muted', '对应房间所选轮次。历史摘要用于比较，不算新的外部证据。'), h('div', 'cc-memory-grid', h('div', 'cc-memory-item', h('h3', '', '上一判断'), h('p', '', previousText), previous?.statusLabel ? h('span', 'cc-status-badge', previous.statusLabel) : null, memory.summary ? dataContent('small', '', memory.summary) : null), newInfo, h('div', 'cc-memory-item', h('h3', '', '为什么调整'), h('strong', '', adjustment), why ? dataContent('p', '', why) : h('p', '', '尚无已保存的调整说明。'), triage.reason && why !== triage.reason ? h('small', '', '本轮触发：', dataContent('span', '', triage.reason)) : null)), h('small', 'wb-muted', '实际读取历史：' + (memory.sourceRunIds?.length ?? 0) + ' 轮，' + (memory.reportCount ?? 0) + ' 份报告，' + (memory.relationCount ?? 0) + ' 条资料关系。'))
+  node.replaceChildren(h('h2', '', '这轮怎样接着上次查'), h('p', 'wb-muted', '对应房间所选轮次。历史摘要用于比较，不算新的外部证据。'), h('div', 'cc-memory-grid', h('div', 'cc-memory-item', h('h3', '', '上一判断'), previousDisplay, previous?.statusLabel ? uiContent('span', 'cc-status-badge', previous.statusLabel) : null, memory.summary ? dataContent('small', '', memory.summary) : null), newInfo, h('div', 'cc-memory-item', h('h3', '', '为什么调整'), uiContent('strong', '', adjustment), why ? dataContent('p', '', why) : h('p', '', '尚无已保存的调整说明。'), triage.reason && why !== triage.reason ? h('small', '', '本轮触发：', dataContent('span', '', triage.reason)) : null)), uiContent('small', 'wb-muted', '实际读取历史：' + (memory.sourceRunIds?.length ?? 0) + ' 轮，' + (memory.reportCount ?? 0) + ' 份报告，' + (memory.relationCount ?? 0) + ' 条资料关系。'))
   const policy = courseMemoryPolicyLines(memory)
-  if (policy.length) node.insertBefore(h('div', 'cc-memory-policy', h('strong', '', '本轮记忆范围'), policy.map(line => h('p', '', line))), node.querySelector('.cc-memory-grid'))
+  if (policy.length) node.insertBefore(h('div', 'cc-memory-policy', h('strong', '', '本轮记忆范围'), policy.map(line => uiContent('p', '', line))), node.querySelector('.cc-memory-grid'))
 }
 function renderWatch(node, data) {
   const w = data.watch
@@ -369,13 +394,13 @@ function renderWatch(node, data) {
   const nextCheck = w.nextCheckAt ?? w.nextDueAt; const lastCheck = w.lastCheckAt ?? w.lastCheckedAt
   const triage = w.lastTriage
   const queries = Array.isArray(w.query) ? w.query : w.query ? [w.query] : []
-  node.replaceChildren(h('h3', '', '现在在看什么'), h('p', '', '跟踪状态：' + statusLabel(w.status ?? data.status) + (nextCheck ? ' · 下次检查 ' + fmt(nextCheck) : '') + (lastCheck ? ' · 上次检查 ' + fmt(lastCheck) : '')))
+  node.replaceChildren(h('h3', '', '现在在看什么'), h('p', '', '跟踪状态：', uiContent('span', '', statusLabel(w.status ?? data.status)), ...(nextCheck ? [' · ', h('span', '', '下次检查 '), dateContent(nextCheck)] : []), ...(lastCheck ? [' · ', h('span', '', '上次检查 '), dateContent(lastCheck)] : [])))
   if (queries.length) node.append(h('p', '', '正在留意：', dataContent('span', '', queries.join('；'))))
   if (w.status === 'paused_provider') node.append(h('small', '', '监听已暂停，不会自动重试。服务恢复后，可使用上方“重试本次调查”手动继续。'))
   if (typeof w.policySummary === 'string' && w.policySummary.trim()) node.append(h('p', 'cc-watch-policy', h('strong', '', '何时召集研究员：'), dataContent('span', '', w.policySummary)))
   if (triage) {
     const kinds = { initial: '首次调查', no_change: '没有新变化，不召集研究员', local: '局部补查', team: '召集团队复核' }
-    node.append(...[h('p', '', h('strong', '', '最近分流：' + (kinds[triage.kind] ?? triage.kind)), triage.reason ? dataContent('span', '', '。' + triage.reason) : ''), triage.selectedRoleIds?.length ? h('p', '', '本次请到：' + triage.selectedRoleIds.map((id) => courseRoleName(id)).join('、')) : null, Number.isFinite(triage.duplicateCount) && triage.duplicateCount > 0 ? h('small', '', '已排除 ' + triage.duplicateCount + ' 条重复线索。') : null].filter(Boolean))
+    node.append(...[h('p', '', h('strong', '', '最近分流：', kinds[triage.kind] ? h('span', '', kinds[triage.kind]) : dataContent('span', '', triage.kind)), triage.reason ? dataContent('span', '', '。' + triage.reason) : ''), triage.selectedRoleIds?.length ? h('p', '', '本次请到：', ...triage.selectedRoleIds.flatMap((id, index) => [...(index ? ['、'] : []), h('span', '', courseRoleName(id))])) : null, Number.isFinite(triage.duplicateCount) && triage.duplicateCount > 0 ? uiContent('small', '', '已排除 ' + triage.duplicateCount + ' 条重复线索。') : null].filter(Boolean))
   }
   node.append(h('small', '', '只有实际取得新信息并发布判断，曲线才增加一个点。检查安排与本次分流均来自已保存记录。'))
 }
@@ -384,17 +409,17 @@ function renderSources(node, data) {
   node.replaceChildren(h('h2', '', '来源与关系'), h('p', 'wb-muted', '支持与反证保留具体出处；新闻、判断与实际结果分别处理。'))
   if (!evidence.length) node.append(empty('尚未取得可显示的来源', '只有实际读取并保存的材料会出现在这里。'))
   for (const source of evidence) {
-    const detail = h('details', 'cc-source', dataContent('summary', '', source.title ?? source.evidenceId ?? '资料来源'), dataContent('p', 'wb-prewrap', source.summary ?? source.text ?? source.snippet ?? '正文快照已保存，摘要未提供。'), h('div', 'wb-evidence-meta', sourceLink(source), source.publishedAt ? h('span', '', '原发布 ' + fmt(source.publishedAt)) : null, h('span', '', '取得 ' + fmt(source.firstSeenAt ?? source.retrievedAt ?? source.obtainedAt))))
+    const detail = h('details', 'cc-source', contentOrPlaceholder('summary', '', source.title ?? source.evidenceId, '资料来源'), contentOrPlaceholder('p', 'wb-prewrap', source.summary ?? source.text ?? source.snippet, '正文快照已保存，摘要未提供。'), h('div', 'wb-evidence-meta', sourceLink(source), source.publishedAt ? h('span', '', '原发布 ', dateContent(source.publishedAt)) : null, h('span', '', '取得 ', dateContent(source.firstSeenAt ?? source.retrievedAt ?? source.obtainedAt))))
     node.append(detail)
     if (source.language) detail.append(h('small', 'wb-muted', source.language === 'zh' ? '正文语言提示：中文' : source.language === 'en' ? '正文语言提示：外文' : '正文语言待核验'))
-    if (source.readObservations?.length > 1) detail.append(h('p', 'wb-muted', '同一正文的实际读取时刻：' + [...new Set(source.readObservations.map(item => fmt(item.obtainedAt)))].join('；') + '。正文内容不变时仍保留各次读取记录。'))
+    if (source.readObservations?.length > 1) detail.append(uiContent('p', 'wb-muted', '同一正文的实际读取时刻：', ...[...new Set(source.readObservations.map(item => item.obtainedAt))].flatMap((at, index) => [...(index ? ['；'] : []), dateContent(at)]), '。正文内容不变时仍保留各次读取记录。'))
   }
   const edges = h('div', 'cc-relations')
   for (const relation of relations) {
     const kind = relation.kind ?? relation.type ?? relation.relation
     const id = relation.evidenceId ?? relation.fromEvidenceId ?? relation.sourceId
     const source = evidence.find((e) => e.evidenceId === id)
-    edges.append(h('div', 'cc-relation', dataContent('span', '', source?.title ?? id ?? '已记录的材料关系'), h('strong', kind === 'contradicts' ? 'cc-against' : '', kind === 'supports' ? '支持' : kind === 'contradicts' ? '反对' : kind === 'updates' ? '更新' : '关联'), dataContent('span', '', relation.claim ?? relation.statement ?? relation.summary ?? relation.to ?? '当前预测题')))
+    edges.append(h('div', 'cc-relation', contentOrPlaceholder('span', '', source?.title ?? id, '已记录的材料关系'), h('strong', kind === 'contradicts' ? 'cc-against' : '', kind === 'supports' ? '支持' : kind === 'contradicts' ? '反对' : kind === 'updates' ? '更新' : '关联'), contentOrPlaceholder('span', '', relation.claim ?? relation.statement ?? relation.summary ?? relation.to, '当前预测题')))
   }
   if (relations.length) node.append(h('h3', 'wb-section-title', '本题关键关系'), edges)
   attachFold(node)
@@ -409,14 +434,14 @@ function runRecords(run) {
   details.open = run?.runId ? recordsOpenByRun.get(run.runId) === true : false
   details.addEventListener('toggle', () => { if (run?.runId) recordsOpenByRun.set(run.runId, details.open) })
   const body = h('div', 'cc-records-body')
-  if (run?.summary) body.append(h('p', 'wb-muted wb-prewrap', '所选轮次 · ' + statusLabel(run.status) + '：' + run.summary))
+  if (run?.summary) body.append(h('p', 'wb-muted', h('span', '', '所选轮次'), ' · ', uiContent('span', '', statusLabel(run.status)), '：', dataContent('span', 'wb-prewrap', run.summary)))
   const team = courseTeam(run)
   for (const event of rows) {
     const p = event.payload ?? {}; const summary = p.summary ?? p.message ?? p.report?.summary ?? p.reason ?? p.memory?.summary ?? p.triage?.reason
     const roleId = normalizeCourseRole(p.roleId ?? p.agentSpecId)
     const role = team.find((member) => member.roleId === roleId)
-    const members = event.type === 'team.selected' ? (p.team ?? []).map((member) => dataContent('p', '', courseRoleName(member.roleId, member.name) + '：' + (member.reason ?? member.objective ?? '已入选本轮调查'))) : []
-    body.append(h('details', 'wb-execution-row', h('summary', '', names[event.type], ...(roleId ? [' · ', dataContent('span', '', courseRoleName(roleId, role?.name))] : []), ...(p.toolId ? [' · ', dataContent('span', '', p.toolId)] : [])), summary ? dataContent('p', 'wb-prewrap', summary) : h('p', 'wb-muted', '该动作已记录。'), members, p.evidenceIds?.length ? h('small', '', '引用：' + p.evidenceIds.join('、')) : null))
+    const members = event.type === 'team.selected' ? (p.team ?? []).map((member) => h('p', '', dataContent('span', '', courseRoleName(member.roleId, member.name)), '：', contentOrPlaceholder('span', '', member.reason ?? member.objective, '已入选本轮调查'))) : []
+    body.append(h('details', 'wb-execution-row', h('summary', '', names[event.type], ...(roleId ? [' · ', dataContent('span', '', courseRoleName(roleId, role?.name))] : []), ...(p.toolId ? [' · ', dataContent('span', '', p.toolId)] : [])), summary ? dataContent('p', 'wb-prewrap', summary) : h('p', 'wb-muted', '该动作已记录。'), members, p.evidenceIds?.length ? h('small', '', '引用：', dataContent('span', '', p.evidenceIds.join('、'))) : null))
   }
   if (!events.length) body.append(h('p', 'wb-muted', '尚无执行事件。只展示公开计划、工具、来源与判断摘要。'))
   details.append(body)
@@ -425,26 +450,26 @@ function runRecords(run) {
 
 function renderWorkflow(node, run, purpose) {
   const view = courseWorkflowView(run)
-  const stage = h('p', 'cc-workflow-stage', view.status); stage.setAttribute('role', 'status')
+  const stage = uiContent('p', 'cc-workflow-stage', view.status); stage.setAttribute('role', 'status')
   const head = h('div', 'cc-workflow-heading', h('h2', '', '这一轮怎样协作'), h('span', '', view.versionLabel))
-  const loop = view.version === 3 ? h('p', 'cc-workflow-loop', [
+  const loop = view.version === 3 ? uiContent('p', 'cc-workflow-loop', [
     view.cycle ? `第 ${view.cycle} 个调查周期${view.maxCycles ? ` / 最多 ${view.maxCycles} 个` : ''}` : '',
     view.maxFollowUps !== null && view.maxFollowUps !== false ? `争议补查 ${view.followUpsUsed ?? '—'} / ${view.maxFollowUps} 次` : '',
   ].filter(Boolean).join(' · ')) : null
-  const total = h('p', 'cc-workflow-budget', h('strong', '', '整轮已用：'),
+  const total = uiContent('p', 'cc-workflow-budget', h('strong', '', '整轮已用：'),
     '模型 ' + courseUsageText(view.usage.modelRequests, view.budget.maxModelRequests, ' 次') + ' · 工具 ' + courseUsageText(view.usage.toolCalls, view.budget.maxToolCalls, ' 次') + ' · token ' + courseUsageText(view.usage.totalTokens, view.budget.maxTotalTokens, '', { unlimited: view.budget.unlimitedTotalTokens }),
     view.usage.unknownUsage ? h('small', '', '部分用量未返回，数字不是完整账单。') : null)
   const draft = purpose !== 'research' && !run.predictionId && run.draft?.status === 'draft' ? h('div', 'cc-workflow-draft', h('strong', '', '待核定草稿'),
-    dataContent('p', '', run.draft.interpretation || run.draft.question || ''), run.draft.targetAt ? h('small', '', '观察至 ' + fmt(run.draft.targetAt, run.draft.timezone) + '；来源与正式规则由子 Agent 取证后再核定。') : null) : null
+    dataContent('p', '', run.draft.interpretation || run.draft.question || ''), run.draft.targetAt ? h('small', '', '观察至 ', dateContent(run.draft.targetAt, run.draft.timezone), '；来源与正式规则由子 Agent 取证后再核定。') : null) : null
   const workers = h('div', 'cc-workflow-workers')
   for (const row of view.rows) {
-    const item = h('div', 'cc-workflow-worker', dataContent('strong', '', row.name), h('span', '', row.activityText), h('small', '',
+    const item = h('div', 'cc-workflow-worker', dataContent('strong', '', row.name), uiContent('span', '', row.activityText), uiContent('small', '',
       (row.cycle ? `周期 ${row.cycle} · ` : '') + '模型 ' + courseUsageText(row.usage.modelRequests, row.budget.maxModelRequests, ' 次') + ' · 工具 ' + courseUsageText(row.usage.toolCalls, row.budget.maxToolCalls, ' 次')))
     item.dataset.state = row.waiting ? 'waiting' : row.status ?? 'pending'; workers.append(item)
   }
   if (!view.rows.length) workers.append(h('p', 'wb-muted', '尚无真实研究员派工记录；名单会在主 Agent 完成分配后出现。'))
   const method = view.version === 3 && view.investigationSteps && view.reportStep ? Number.isSafeInteger(view.reportRepairRequests) ? `每位研究员最多 ${view.investigationSteps} 次调查决策；资料足够可提前提交报告，最迟第 ${view.reportStep} 次进入报告阶段，另留 ${view.reportRepairRequests} 次报告修正。调查与报告分开计数，仍受本席总调用与 token 上限约束。` : `每位研究员最多 ${view.investigationSteps} 次调查决策，第 ${view.reportStep} 次只提交报告；资料足够可提前提交。模型次数与调查周期分开计数。` : '仅展示本轮保存的执行记录；历史流程和预算不会套用当前配置。'
-  node.replaceChildren(...[head, stage, h('p', 'cc-workflow-flow', purpose === 'research' ? '整理问题 → 独立取证 → 必要补查 → 引用研报；核验已披露事实与表述。' : view.flow), loop, draft, total, workers, h('small', 'cc-workflow-method', method)].filter(child => child !== null && child !== undefined))
+  node.replaceChildren(...[head, stage, h('p', 'cc-workflow-flow', purpose === 'research' ? '整理问题 → 独立取证 → 必要补查 → 引用研报；核验已披露事实与表述。' : view.flow), loop, draft, total, workers, uiContent('small', 'cc-workflow-method', method)].filter(child => child !== null && child !== undefined))
   node.dataset.protocol = String(view.version ?? 'unknown')
 }
 
@@ -510,7 +535,7 @@ export async function mountCourseRequest(ctx, id, token) {
   window.addEventListener('resize', syncPanelLimits)
   const runSelector = document.createElement('select'); runSelector.setAttribute('aria-label', '选择房间显示的研判轮次')
   const notice = h('div', 'cc-round-notice'); notice.hidden = true
-  const originText = h('p'); const roomContext = h('small')
+  const originText = uiContent('p'); const roomContext = uiContent('small')
   const answerProcess = button('查看预测协作过程', () => chooseRun(courseAnswerProvenance(currentData).forecastRunId), 'wb-button')
   const latestCheck = button('查看最近监听检查', () => chooseRun(courseAnswerProvenance(currentData).latestCheckRunId), 'wb-text-button')
   const origin = h('section', 'cc-answer-origin', originText, roomContext, h('div', 'wb-actions', answerProcess, latestCheck))
@@ -524,10 +549,10 @@ export async function mountCourseRequest(ctx, id, token) {
     resolution.hidden = !data.resolutionPolicy
     if (resolution.hidden) return
     const result = data.result, target = Date.parse(data.normalized?.targetAt || data.resolutionPolicy.targetAt), at = Date.now()
-    resolution.replaceChildren(h('h2', '', '到期结果核验'), dataContent('p', '', data.strict?.resolutionRule || ''), h('p', '', '目标时点：' + fmt(data.normalized?.targetAt || data.resolutionPolicy.targetAt)))
+    resolution.replaceChildren(h('h2', '', '到期结果核验'), dataContent('p', '', data.strict?.resolutionRule || ''), h('p', '', '目标时点：', dateContent(data.normalized?.targetAt || data.resolutionPolicy.targetAt)))
     if (result) {
-      resolution.append(dataContent('strong', '', result.summary), h('p', '', '实际取得：' + fmt(result.observedAt)), ...result.evidence.map(source => h('details', '', dataContent('summary', '', source.title), dataContent('pre', 'wb-prewrap', source.text), sourceLink(source))))
-      for (const score of result.scores || []) resolution.append(h('p', '', `${isPriceDirection(score) ? directionText(score) : 'Yes预测 ' + formatCourseProbability(score.probabilityYes)} · Brier ${score.brier.toFixed(4)} · ${score.label}`))
+      resolution.append(dataContent('strong', '', result.summary), h('p', '', '实际取得：', dateContent(result.observedAt)), ...result.evidence.map(source => h('details', '', dataContent('summary', '', source.title), dataContent('pre', 'wb-prewrap', source.text), sourceLink(source))))
+      for (const score of result.scores || []) resolution.append(h('p', '', uiContent('span', '', isPriceDirection(score) ? directionText(score) : 'Yes预测 ' + formatCourseProbability(score.probabilityYes)), ' · ', dataContent('span', '', 'Brier ' + score.brier.toFixed(4)), ' · ', uiContent('span', '', score.label)))
       return
     }
     const resolve = button(resolving ? '正在读取官方快照…' : '读取官方结果并核验', async () => {
@@ -537,7 +562,7 @@ export async function mountCourseRequest(ctx, id, token) {
       catch (error) { if (!disposed) resolution.append(h('p', 'wb-error', error.message)) }
       finally { resolving = false; if (!disposed) resolve.disabled = false }
     }, 'wb-button')
-    resolve.disabled = resolving || !data.forecast || at < target || at > target + 300000 || data.status === 'stopped'
+    resolve.disabled = resolving || Boolean(data.deleted || data.deletedAt) || !data.forecast || at < target || at > target + 300000 || data.status === 'stopped'
     resolution.append(h('p', '', at < target ? '尚未到期；当前警告不能代替未来结果。' : at > target + 300000 ? '未在5分钟观察窗口取得快照，保持不可核验。' : '此操作读取固定官方JSON，不调用模型或消耗模型tokens。'), resolve)
   }
   const check = button('检查一次新资料', async () => {
@@ -623,11 +648,11 @@ export async function mountCourseRequest(ctx, id, token) {
       const progress = courseRequestProgress(data)
       const failure = courseRequestFailure(data)
       plan.dataset.state = failure ? 'error' : progress.active ? 'active' : 'idle'
-      plan.textContent = progress.label + (!failure && progress.message ? ' · ' + progress.message : '')
+      plan.replaceChildren(uiContent('span', '', progress.label), ...(!failure && progress.message ? [' · ', dataContent('span', '', progress.message)] : []))
       errorBox.hidden = !failure
       if (failure && failureSig !== JSON.stringify(failure)) {
         errorBox.classList.add('cc-run-error')
-        errorBox.replaceChildren(h('strong', '', failure.title), h('p', '', failure.detail), h('p', '', failure.nextStep), failure.waitHint ? h('small', '', failure.waitHint) : h('small', '', '本次未安排自动重试；原问题、固定期限和已有判断保留。'), retry)
+        errorBox.replaceChildren(h('strong', '', failure.title), failure.detailIsSystem === false ? dataContent('p', '', failure.detail) : h('p', '', failure.detail), h('p', '', failure.nextStep), failure.waitHint ? uiContent('small', '', failure.waitHint) : h('small', '', '本次未安排自动重试；原问题、固定期限和已有判断保留。'), retry)
       }
       failureSig = failure ? JSON.stringify(failure) : null
       const aSig = JSON.stringify([p, data.forecast, data.researchReport, data.latestRun?.budgetSummary, courseAnswerOutlook(data)?.directionOutlook, progress, data.result, ctx.cache.courseCapability?.config?.reasoningSettings])
@@ -646,9 +671,9 @@ export async function mountCourseRequest(ctx, id, token) {
       if (selectNext && latestId && latestId !== previousLatest) { selectedRunId = latestId; fresh = true; selectNext = false }
       const optionsSig = uniqueRuns.map((r, index) => r.runId + ':' + courseRunLabel(r, index)).join('|')
       if (runSelector.dataset.signature !== optionsSig) {
-        runSelector.replaceChildren(...uniqueRuns.map((r, i) => { const option = h('option', '', courseRunLabel(r, i)); option.value = r.runId; return option })); runSelector.dataset.signature = optionsSig
+        runSelector.replaceChildren(...uniqueRuns.map((r, i) => { const option = uiContent('option', '', courseRunLabel(r, i)); option.value = r.runId; return option })); runSelector.dataset.signature = optionsSig
       }
-      if (selectedRunId && ![...runSelector.options].some((o) => o.value === selectedRunId)) { const option = h('option', '', '已选历史轮次'); option.value = selectedRunId; runSelector.append(option) }
+      if (selectedRunId && ![...runSelector.options].some((o) => o.value === selectedRunId)) { const option = uiContent('option', '', '已选历史轮次'); option.value = selectedRunId; runSelector.append(option) }
       runSelector.value = selectedRunId ?? ''
       const provenance = courseAnswerProvenance(data)
       originText.textContent = data.purpose === 'research' ? '财报研报与引用来自已保存的研究员报告；下方显示所选轮次的协作记录。' : provenance.summary

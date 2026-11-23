@@ -3,7 +3,7 @@ import { h, dataContent, button } from './workbench-core.js'
 let sequence = 0
 
 /** A themed, transient confirmation; every dismissal resolves false. */
-export function confirmationDialog(message, { trigger, title = '删除研究员席位' } = {}) {
+export function confirmationDialog(message, { trigger, title = '删除研究员席位', subject } = {}) {
   return new Promise(resolve => {
     const id = 'wb-confirmation-' + (++sequence)
     const dialog = h('dialog', 'wb-confirm-dialog')
@@ -11,7 +11,11 @@ export function confirmationDialog(message, { trigger, title = '删除研究员�
     dialog.setAttribute('aria-labelledby', id + '-title'); dialog.setAttribute('aria-describedby', id + '-description')
     const heading = h('h2', '', title); heading.id = id + '-title'
     const description = h('div', 'wb-confirm-dialog-body'); description.id = id + '-description'
-    for (const [index, paragraph] of String(message).split(/\n\n+/).entries()) description.append((index === 0 ? dataContent : h)('p', index === 0 ? 'wb-confirm-dialog-name' : paragraph.includes('新预测无法启动') ? 'wb-confirm-dialog-warning' : '', paragraph))
+    for (const [index, paragraph] of String(message).split(/\n\n+/).entries()) {
+      if (index === 0 && ['researcher', 'prediction'].includes(subject?.kind) && typeof subject.name === 'string') {
+        description.append(h('p', '', h('span', '', subject.kind === 'researcher' ? '确认删除研究员“' : '确认删除预测记录“'), dataContent('span', 'wb-confirm-dialog-name', subject.name), h('span', '', '”？')))
+      } else description.append((index === 0 ? dataContent : h)('p', index === 0 ? 'wb-confirm-dialog-name' : paragraph.includes('新预测无法启动') ? 'wb-confirm-dialog-warning' : '', paragraph))
+    }
     const cancel = button('取消', () => finish(false), 'wb-button')
     cancel.autofocus = true
     const approve = button('确认删除', () => finish(true), 'wb-button wb-confirm-delete')

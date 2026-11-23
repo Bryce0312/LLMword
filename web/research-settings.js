@@ -1,4 +1,4 @@
-import { h, dataContent, button, header, api, write, fmt, sourceLink } from './workbench-core.js'
+import { h, dateContent, dataContent, button, header, api, write, sourceLink } from './workbench-core.js'
 import { PREDICTION_TOKEN_BUDGET_PRESETS, predictionBudgetPayload, createPredictionBudgetEditor, receivePredictionBudget, researchPricingPresentation } from './research-settings-model.mjs'
 
 export function researchSettingsPanel() {
@@ -113,7 +113,7 @@ export function researchSettingsPanel() {
     priceTable.append(h('thead', '', h('tr', '', columns)), body); pricing.append(priceTable)
     if (view.schedule) pricing.append(h('small', 'wb-budget-price-schedule', view.schedule))
     const source = sourceLink({ url: view.sourceUrl }); if (source) source.textContent = '价格来源'
-    pricing.append(h('div', 'wb-budget-price-meta', source, view.checkedAt ? h('small', '', '更新 ' + fmt(view.checkedAt)) : null))
+    pricing.append(h('div', 'wb-budget-price-meta', source, view.checkedAt ? h('small', '', '更新 ', dateContent(view.checkedAt)) : null))
   }
   async function load() {
     if (loading || saving) return

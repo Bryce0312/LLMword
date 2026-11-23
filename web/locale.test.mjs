@@ -42,6 +42,7 @@ class FakeElement extends FakeNode {
   removeEventListener(name, handler) { this.listeners.get(name)?.delete(handler) }
   click() { for (const handler of this.listeners.get('click') ?? []) handler({ target: this }) }
   focus() { this.ownerDocument.activeElement = this }
+  dispatchEvent(event) { for (const listener of this.listeners.get(event.type) ?? []) listener(event); return !event.defaultPrevented }
   matches(selector) {
     if (selector.includes(' > ')) { const [parent, child] = selector.split(' > '); return this.matches(child) && this.parentElement?.matches(parent) === true }
     if (selector.includes(' ')) { const index = selector.lastIndexOf(' '), ancestor = selector.slice(0, index), target = selector.slice(index + 1); if (!this.matches(target)) return false; for (let owner = this.parentElement; owner; owner = owner.parentElement) if (owner.matches(ancestor)) return true; return false }
@@ -101,7 +102,7 @@ function fixture(storage = null) {
 test('exact UI translation preserves whitespace and leaves arbitrary source text untouched', () => {
   assert.equal(translateUiText('  开始预测\n', 'en'), '  Start prediction\n')
   assert.equal(translateUiText('模型连接', 'en'), 'Model connection')
-  assert.equal(translateUiText('持续关注', 'en'), 'Keep monitoring')
+  assert.equal(translateUiText('持续预测', 'en'), 'Continuous forecasting')
   assert.equal(translateUiText('默认只研究一次；勾选后，服务器会定时检查新信息并可能继续调用模型。', 'en'), 'Research once by default. If selected, the server checks for new information periodically and may call the model again.')
   assert.equal(translateUiText('用户关于保存预算的观点与模型报告', 'en'), '用户关于保存预算的观点与模型报告')
   assert.equal(translateUiText('开始预测', 'zh-CN'), '开始预测')
@@ -227,5 +228,89 @@ test('external characterData and attribute updates replace old sources instead o
   assert.equal(ui.childNodes[0], sameNode); assert.equal(ui.textContent, 'Save budget'); assert.equal(input.getAttribute('placeholder'), 'Model connection')
   controller.setLocale('zh-CN'); doc.flush()
   assert.equal(ui.textContent, '保存预算'); assert.equal(input.getAttribute('placeholder'), '模型连接')
+  controller.dispose()
+})
+
+
+test('disabled history deletion actions translate both ways while question text and title remain data', () => {
+  const { doc, controller } = fixture()
+  const card = element(doc, 'article', undefined, { class: 'wb-task-slip' })
+  const question = element(doc, 'strong', undefined, { title: '删除记录', 'data-i18n-skip': 'true' })
+  const protectedQuestion = new FakeText(doc, '删除记录', true); question.append(protectedQuestion)
+  const title = '请先停止持续预测，再删除这条记录。'
+  const remove = element(doc, 'button', '删除记录', { class: 'wb-badge wb-history-delete', disabled: '', title, 'aria-label': '删除这条预测记录' })
+  card.append(question, remove); doc.body.append(card)
+  const text = remove.childNodes[0]
+  controller.setLocale('en'); doc.flush()
+  assert.equal(remove.textContent, 'Delete record')
+  assert.equal(remove.getAttribute('title'), 'Stop continuous forecasting before deleting this record.')
+  assert.equal(remove.getAttribute('aria-label'), 'Delete this prediction record')
+  assert.equal(question.title, '删除记录'); assert.equal(protectedQuestion.reads, 0)
+  assert.equal(remove.hasAttribute('disabled'), true); assert.equal(remove.childNodes[0], text)
+  controller.setLocale('zh-CN'); doc.flush()
+  assert.equal(remove.textContent, '删除记录'); assert.equal(remove.getAttribute('title'), title)
+  assert.equal(remove.getAttribute('aria-label'), '删除这条预测记录')
+  assert.equal(question.title, '删除记录'); assert.equal(protectedQuestion.reads, 0)
+  controller.dispose()
+})
+
+
+test('explicit system UI escapes fallback selectors and pre blocks but never captured-content boundaries', () => {
+  const {doc,controller}=fixture()
+  const fallback=element(doc,'section',undefined,{class:'cc-answer'})
+  const heading=element(doc,'h2',undefined)
+  const system=element(doc,'span','模型连接',{'data-i18n-ui':'true'})
+  const report=element(doc,'span',undefined,{'data-model-content':'true','data-i18n-ui':'true'})
+  const original=new FakeText(doc,'模型连接',true);report.append(original)
+  heading.append(system,report);fallback.append(heading)
+  const pre=element(doc,'pre',undefined)
+  const status=element(doc,'span','资料不足',{'data-i18n-ui':'true'})
+  const captured=element(doc,'span',undefined,{'data-i18n-skip':'true'});const source=new FakeText(doc,'资料不足',true);captured.append(source)
+  pre.append(status,captured);doc.body.append(fallback,pre)
+  controller.setLocale('en');doc.flush()
+  assert.equal(system.textContent,'Model connection');assert.equal(status.textContent,'Insufficient evidence')
+  assert.equal(original.reads,0);assert.equal(source.reads,0)
+  controller.setLocale('zh-CN');doc.flush()
+  assert.equal(system.textContent,'模型连接');assert.equal(status.textContent,'资料不足')
+  controller.dispose()
+})
+
+test('date metadata switches locale both ways, updates from ISO attributes and leaves captured dates alone', () => {
+  const {doc,controller}=fixture()
+  const raw='2026-11-23T04:00:00.000Z',timezone='America/New_York'
+  const date=element(doc,'time','',{'data-i18n-date':raw,'data-i18n-timezone':timezone})
+  const captured=element(doc,'div',undefined,{'data-user-content':'true'})
+  const original=element(doc,'span',undefined,{'data-i18n-date':raw});const protectedDate=new FakeText(doc,'2026年11月23日',true);original.append(protectedDate);captured.append(original)
+  doc.body.append(date,captured)
+  const expected=locale=>new Intl.DateTimeFormat(locale,{dateStyle:'medium',timeStyle:'short',timeZone:timezone}).format(new Date(date.getAttribute('data-i18n-date')))+' ('+timezone+')'
+  controller.setLocale('en');doc.flush();assert.equal(date.textContent,expected('en-US'))
+  assert(!/\p{Script=Han}/u.test(date.textContent));assert.equal(protectedDate.reads,0)
+  date.setAttribute('data-i18n-date','2026-12-01T04:00:00.000Z');doc.flush();assert.equal(date.textContent,expected('en-US'))
+  controller.setLocale('zh-CN');doc.flush();assert.equal(date.textContent,expected('zh-CN'));assert.equal(protectedDate.reads,0)
+  const node=date;controller.setLocale('en');doc.flush();assert.equal(date,node);assert.equal(doc.flush(),0)
+  controller.dispose()
+})
+
+test('image alt text and accessible dynamic values translate without changing source URLs or user metadata', () => {
+  const {doc,controller}=fixture()
+  const image=element(doc,'img',undefined,{src:'/assets/lab-play.png',alt:'研究室',title:'研究室'})
+  const meter=element(doc,'div',undefined,{'aria-valuetext':'资料不足','aria-description':'预测结果与进度'})
+  const original=element(doc,'img',undefined,{'data-i18n-skip':'true',alt:'研究室',src:'USER_SOURCE_URL'})
+  doc.body.append(image,meter,original);controller.setLocale('en');doc.flush()
+  assert.equal(image.getAttribute('alt'),'Research room');assert.equal(image.getAttribute('src'),'/assets/lab-play.png')
+  assert.equal(meter.getAttribute('aria-valuetext'),'Insufficient evidence');assert.equal(meter.getAttribute('aria-description'),'Prediction results and progress')
+  assert.equal(original.getAttribute('alt'),'研究室');assert.equal(original.getAttribute('src'),'USER_SOURCE_URL')
+  controller.setLocale('zh-CN');doc.flush();assert.equal(image.getAttribute('alt'),'研究室');assert.equal(meter.getAttribute('aria-valuetext'),'资料不足')
+  controller.dispose()
+})
+
+
+test('language changes notify only connected local controls without rebuilding their inputs or using the network', () => {
+  const {doc,controller,form,input}=fixture()
+  form.setAttribute('data-i18n-language-control','true')
+  const changes=[];form.addEventListener('world-lab:localechange',event=>changes.push(event.detail.locale))
+  controller.setLocale('en');doc.flush();controller.setLocale('zh-CN');doc.flush()
+  assert.deepEqual(changes,['en','zh-CN']);assert.equal(form.childNodes[0],input);assert.equal(input.actualValue,'USER_UNSAVED_VALUE')
+  form.remove();controller.setLocale('en');doc.flush();assert.deepEqual(changes,['en','zh-CN'])
   controller.dispose()
 })

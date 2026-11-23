@@ -1,4 +1,5 @@
-import { $, h, header, empty, button, api, toast, route, goto, terminal, labels, fmt } from './workbench-core.js'
+import { isWorkspaceBuiltinText } from './locale-zh-en-workspace.mjs'
+import { dataContent, uiContent, dateContent, $, h, header, empty, button, api, toast, route, goto, terminal, labels, fmt } from './workbench-core.js'
 import { createProjectionState, selectRun, projectEvent } from './run-projection.mjs'
 import { topicForm, predictionForm } from './workbench-forms.js'
 import { sidebar, board, inbox, learning, agents, topicView } from './workbench-views.js'
@@ -8,11 +9,12 @@ import { probeCourseCapability, unavailableCourseCapability, isMissingCourseApi,
 import { providerConnectionView } from './workbench-provider.js'
 import { courseExamples } from './course-examples.js'
 import { createWorkbenchRoomShell } from './workbench-room-shell.js'
+import { mergeDeletedHistoryMetadata, mergeRoomHistory } from './room-shell-navigation.mjs'
 import { initLocaleUI } from './locale.mjs'
 
 initLocaleUI()
 
-const cache = { topics: [], predictions: [], agents: [], tools: [], config: {}, courseRequests: [], courseAvailable: false, courseCapability: null, courseHistoryError: null, runs: new Map(), events: new Map() }
+const cache = { topics: [], predictions: [], agents: [], tools: [], config: {}, courseRequests: [], courseAvailable: false, courseCapability: null, courseHistoryError: null, deletedCourseRequestIds: new Set(), deletedCoursePredictionIds: new Set(), historyDeletionPending: new Set(), runs: new Map(), events: new Map() }
 let projection = createProjectionState()
 let serial = 0
 let stream
@@ -63,6 +65,10 @@ function checkCourseCapability() {
   return capabilityCheck
 }
 function renderSidebar() { const container = $('wb-sidebar'); if (container) container.replaceChildren(...sidebar(ctx)) }
+function toolsWorkspace() {
+  const field = (tool, name, tag) => (isWorkspaceBuiltinText('tool', tool, name) ? uiContent : dataContent)(tag, '', tool[name] ?? tool.toolId ?? tool.id)
+  return [header('工具台', '只有已注册且获授权的能力才能实际执行。'), h('div', 'wb-paper', cache.tools.map(tool => h('article', 'wb-evidence-item', field(tool, 'name', 'h3'), field(tool, 'description', 'p'), dataContent('small', '', tool.toolId ?? tool.id))))]
+}
 function showError(error) {
   $('wb-global-error').hidden = false
   $('wb-global-error').replaceChildren(h('span', '', error.message + ' '), button('重新读取', initialize, 'wb-text-button'))
@@ -83,13 +89,13 @@ function updateLive(run) {
   const latest = $('wb-contract-latest')
   const contract = activeCtx.content.querySelector('.wb-forecast-note')
   if (latest && run.predictionVersion === Number(contract?.dataset.predictionVersion) && (!latest.dataset.createdAt || Date.parse(run.createdAt) >= Date.parse(latest.dataset.createdAt))) {
-    latest.textContent = (labels[effective] ?? effective) + ' · ' + fmt(run.updatedAt, p.timezone)
+    latest.replaceChildren(h('span', '', labels[effective] ?? effective), ' · ', dateContent(run.updatedAt, p.timezone))
     latest.dataset.createdAt = run.createdAt
   }
   if (run.runId !== projection.selectedRunId) return
   reportView(activeCtx, p, run)
   const history = activeCtx.content.querySelector('[data-run-id="' + CSS.escape(run.runId) + '"]')
-  if (history) history.textContent = '契约 v' + run.predictionVersion + ' · ' + fmt(run.createdAt) + ' · ' + (labels[effective] ?? effective)
+  if (history) history.replaceChildren(h('span', '', '契约 v' + run.predictionVersion), ' · ', dateContent(run.createdAt), ' · ', h('span', '', labels[effective] ?? effective))
   const start = $('wb-start-run')
   if (start) start.disabled = start.dataset.canStart !== 'true' || !terminal({ status: projection.runs[run.runId]?.status ?? run.status })
 }
@@ -141,7 +147,7 @@ async function renderLegacyRoute() {
       const historical = parts[1] && query.has('specVersion') ? await api('/agents/' + parts[1] + '?specVersion=' + encodeURIComponent(query.get('specVersion'))) : null
       nodes = agents(ctx, parts[1], historical)
     }
-    else if (parts[0] === 'tools') nodes = [header('工具台', '只有已注册且获授权的能力才能实际执行。'), h('div', 'wb-paper', cache.tools.map((t) => h('article', 'wb-evidence-item', h('h3', '', t.name ?? t.toolId ?? t.id), h('p', '', t.description), h('small', '', t.toolId ?? t.id))))]
+    else if (parts[0] === 'tools') nodes = toolsWorkspace()
     else if (parts[0] === 'topics' && parts[1] === 'new') { topicForm(ctx.content, cache); return }
     else if (parts[0] === 'topics' && parts[2] === 'inbox') nodes = await inbox(ctx, parts[1], query.get('predictionId'))
     else if (parts[0] === 'topics' && parts[1]) nodes = topicView(cache, parts[1])
@@ -169,7 +175,7 @@ async function renderShellWorkspace(owner, target, token) {
     return agents(owner, parts[1], historical)
   }
   if (parts[0] === 'learning') return learning()
-  if (parts[0] === 'tools') return [header('工具台', '只有已注册且获授权的能力才能实际执行。'), h('div', 'wb-paper', cache.tools.map(tool => h('article', 'wb-evidence-item', h('h3', '', tool.name ?? tool.toolId ?? tool.id), h('p', '', tool.description))))]
+  if (parts[0] === 'tools') return toolsWorkspace()
   if (parts[0] === 'topics' && parts[1] === 'new') { topicForm(owner.content, cache); return null }
   if (parts[0] === 'topics' && parts[2] === 'inbox') return inbox(owner, parts[1], query.get('predictionId'))
   if (parts[0] === 'topics' && parts[1]) return topicView(cache, parts[1])
@@ -206,9 +212,10 @@ async function renderRoute(options = {}) {
 }
 
 async function initialize() {
+  const historyBaseline = [...cache.courseRequests]
   try {
     const [topics, predictions, agents, tools, config] = await Promise.all([api('/topics'), api('/predictions'), api('/agents'), api('/tools'), api('/config')])
-    cache.topics = topics.topics; cache.predictions = predictions.predictions; cache.agents = agents.agents; cache.tools = tools.tools; cache.config = config
+    cache.topics = topics.topics; cache.predictions = predictions.predictions.filter(value => !cache.deletedCoursePredictionIds.has(value.predictionId)); cache.agents = agents.agents; cache.tools = tools.tools; cache.config = config
     renderEnvironmentBadge(config)
     void refreshEnvironmentBadge()
     const capability = await checkCourseCapability()
@@ -217,10 +224,13 @@ async function initialize() {
       try {
         const course = await api('/course/requests')
         if (!Array.isArray(course.requests)) setCourseCapability(unavailableCourseCapability('restart-required'))
-        else cache.courseRequests = course.requests
+        else {
+          mergeDeletedHistoryMetadata(cache, course)
+          cache.courseRequests = mergeRoomHistory(course.requests, cache.courseRequests, historyBaseline, cache.deletedCourseRequestIds)
+        }
       } catch (error) {
         if (isMissingCourseApi(error)) setCourseCapability(unavailableCourseCapability('restart-required'))
-        else cache.courseHistoryError = '自动跟踪能力已连接，但历史任务暂时未能读取：' + error.message
+        else cache.courseHistoryError = '历史任务暂时无法读取，请重试。'
       }
     }
     $('wb-global-error').hidden = true; markDataConnected(); await renderRoute()

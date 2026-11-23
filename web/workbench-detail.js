@@ -1,4 +1,5 @@
-import { h, dataContent, link, button, header, empty, select, badge, api, write, toast, goto, fmt, sourceLink, terminal, labels, fieldLabel } from './workbench-core.js'
+import { isWorkspaceBuiltinText } from './locale-zh-en-workspace.mjs'
+import { h, dateContent, dataContent, link, button, header, empty, select, badge, api, write, toast, goto, sourceLink, terminal, labels, fieldLabel } from './workbench-core.js'
 import { selectRun, hydrateRun } from './run-projection.mjs'
 import { createWorkbenchRoom } from './workbench-room.js'
 
@@ -15,10 +16,10 @@ export function reportView(ctx, p, run) {
   for (const evt of rows) {
     if (!names[evt.type]) continue
     const data = evt.payload ?? evt
-    trace.append(h('details', 'wb-execution-row', h('summary', '', names[evt.type] + ' ' + (data.toolId ?? '')), h('p', 'wb-prewrap', data.summary ?? data.message ?? '已记录执行状态。'), data.evidenceIds?.length ? h('small', '', '引用材料：' + data.evidenceIds.join('，')) : null))
+    trace.append(h('details', 'wb-execution-row', h('summary', '', h('span', '', names[evt.type]), ' ', dataContent('span', '', data.toolId ?? '')), h('p', 'wb-prewrap', data.summary ?? data.message ?? '已记录执行状态。'), data.evidenceIds?.length ? h('small', '', '引用材料：', dataContent('span', '', data.evidenceIds.join(', '))) : null))
   }
-  const body = report ? h('div', 'wb-report-body', badge(report.status), h('p', 'wb-prewrap', report.summary), report.evidenceIds?.length ? h('small', '', '引用 ' + report.evidenceIds.length + ' 条材料：' + report.evidenceIds.join('，')) : null) : empty(terminal(run) ? '本轮未生成研读报告' : '研究员正在阅读材料', run.error?.message ?? (terminal(run) ? '检查执行记录，补充材料后可重新研读。' : '工具与报告将在真实执行后更新。'))
-  section.replaceChildren(h('div', 'wb-card-top', h('h2', '', '本轮研读记录'), badge(projected?.status ?? run.status)), h('p', 'wb-muted', '运行 ' + run.runId + ' · 题目契约 v' + (run.predictionVersion ?? p.version) + ' · ' + fmt(run.createdAt)), body, h('h3', 'wb-section-title', '公开执行记录'), trace.children.length ? trace : h('p', 'wb-muted', '尚无工具执行记录。此处不显示模型隐藏思维链。'))
+  const body = report ? h('div', 'wb-report-body', badge(report.status), h('p', 'wb-prewrap', report.summary), report.evidenceIds?.length ? h('small', '', '引用 ', report.evidenceIds.length, ' 条材料：', dataContent('span', '', report.evidenceIds.join(', '))) : null) : empty(terminal(run) ? '本轮未生成研读报告' : '研究员正在阅读材料', (run.error?.message ? dataContent('span', '', run.error.message) : null) ?? (terminal(run) ? '检查执行记录，补充材料后可重新研读。' : '工具与报告将在真实执行后更新。'))
+  section.replaceChildren(h('div', 'wb-card-top', h('h2', '', '本轮研读记录'), badge(projected?.status ?? run.status)), h('p', 'wb-muted', '运行 ', dataContent('span', '', run.runId), ' · 题目契约 v', run.predictionVersion ?? p.version, ' · ', dateContent(run.createdAt)), body, h('h3', 'wb-section-title', '公开执行记录'), trace.children.length ? trace : h('p', 'wb-muted', '尚无工具执行记录。此处不显示模型隐藏思维链。'))
   const status = document.getElementById('wb-latest-status'); if (status) status.textContent = labels[projected?.status ?? run.status] ?? run.status
   const cancel = document.getElementById('wb-cancel-run'); if (cancel) cancel.hidden = terminal({ status: projected?.status ?? run.status })
 }
@@ -46,19 +47,20 @@ export async function detail(ctx, p, requestedRun, mode, token) {
   if (run) { ctx.selectedRuns.set(p.predictionId, runId); ctx.accept(hydrateRun(ctx.projection, run)) }
   const roomNode = h('div', 'wb-room')
   const latest = h('dd', '', run ? labels[run.status] ?? run.status : '尚无研读报告'); latest.id = 'wb-latest-status'
-  const note = h('aside', 'wb-forecast-note', h('span', 'wb-tag', '当前预测目标'), dataContent('h2', '', p.question || '尚未填写问题'), h('div', 'wb-yes-no', h('div', '', h('small', '', '是 Yes'), h('strong', '', '—')), h('div', '', h('small', '', '否 No'), h('strong', '', '—'))), h('p', 'wb-probability-empty', '尚未发布预测概率'), h('dl', 'wb-facts', h('dt', '', '目标日期'), h('dd', '', fmt(p.targetAt, p.timezone)), h('dt', '', '停止发布'), h('dd', '', fmt(p.forecastClosesAt, p.timezone)), h('dt', '', '材料截点'), h('dd', '', run?.cutoff ? fmt(run.cutoff, p.timezone) : '创建研读时固定材料快照'), h('dt', '', '结算来源'), h('dd', '', sourceLink(p.resolutionSource ?? {}) ?? '尚未设置'), h('dt', '', '最新报告'), latest), h('p', 'wb-forecast-explain', '本阶段只研读材料，不生成或封存正式概率。'))
+  const note = h('aside', 'wb-forecast-note', h('span', 'wb-tag', '当前预测目标'), dataContent('h2', '', p.question || '尚未填写问题'), h('div', 'wb-yes-no', h('div', '', h('small', '', '是 Yes'), h('strong', '', '—')), h('div', '', h('small', '', '否 No'), h('strong', '', '—'))), h('p', 'wb-probability-empty', '尚未发布预测概率'), h('dl', 'wb-facts', h('dt', '', '目标日期'), h('dd', '', dateContent(p.targetAt, p.timezone)), h('dt', '', '停止发布'), h('dd', '', dateContent(p.forecastClosesAt, p.timezone)), h('dt', '', '材料截点'), h('dd', '', run?.cutoff ? dateContent(run.cutoff, p.timezone) : '创建研读时固定材料快照'), h('dt', '', '结算来源'), h('dd', '', sourceLink(p.resolutionSource ?? {}) ?? '尚未设置'), h('dt', '', '最新报告'), latest), h('p', 'wb-forecast-explain', '本阶段只研读材料，不生成或封存正式概率。'))
   const cut = note.querySelectorAll('dd')[2]
-  cut.textContent = run?.inputSnapshotAt ? fmt(run.inputSnapshotAt, p.timezone) : '创建研读时固定材料快照'
-  note.querySelector('dl').append(h('dt', '', '最近更新'), h('dd', '', fmt(run?.updatedAt ?? p.updatedAt, p.timezone)))
+  cut.replaceChildren(run?.inputSnapshotAt ? dateContent(run.inputSnapshotAt, p.timezone) : '创建研读时固定材料快照')
+  note.querySelector('dl').append(h('dt', '', '最近更新'), h('dd', '', dateContent(run?.updatedAt ?? p.updatedAt, p.timezone)))
   note.querySelectorAll('dt')[4].textContent = '本轮报告'
   const latestForVersion = runs.find((r) => r.predictionVersion === p.version)
-  note.querySelector('dl').append(h('dt', '', '本契约最新研读'), h('dd', '', latestForVersion ? (labels[latestForVersion.status] ?? latestForVersion.status) + ' · ' + fmt(latestForVersion.updatedAt, p.timezone) : '尚无研读记录'))
+  note.querySelector('dl').append(h('dt', '', '本契约最新研读'), h('dd', '', ...(latestForVersion ? [h('span', '', labels[latestForVersion.status] ?? latestForVersion.status), ' · ', dateContent(latestForVersion.updatedAt, p.timezone)] : ['尚无研读记录'])))
   note.querySelector('dd:last-child').id = 'wb-contract-latest'
   note.dataset.predictionVersion = String(p.version)
   note.querySelector('dd:last-child').dataset.createdAt = latestForVersion?.createdAt ?? ''
   const missing = p.validation?.missingFields ?? []
-  const validation = h('div', 'wb-validation' + (missing.length ? ' is-incomplete' : ''), badge(p.status), h('span', '', missing.length ? '仍需补充：' + missing.map(fieldLabel).join('、') : '题目已具备研读条件；正式预测发布尚未开放。'), link('编辑题目', '#/predictions/' + p.predictionId + '/edit', 'wb-text-button'))
+  const validation = h('div', 'wb-validation' + (missing.length ? ' is-incomplete' : ''), badge(p.status), h('span', '', missing.length ? [h('span', '', '仍需补充：'), ...missing.map((name, index) => [index ? ', ' : '', h('span', '', fieldLabel(name))])] : '题目已具备研读条件；正式预测发布尚未开放。'), link('编辑题目', '#/predictions/' + p.predictionId + '/edit', 'wb-text-button'))
   const roles = select(ctx.cache.agents.map((a) => [a.agentSpecId, a.name + ' · v' + a.specVersion]), run?.assignment?.agentSpecId ?? 'official')
+  for (const [index, option] of [...roles.children].entries()) if (isWorkspaceBuiltinText('role', ctx.cache.agents[index])) { option.removeAttribute('data-i18n-skip'); option.setAttribute('data-i18n-ui', 'true') }
   roles.setAttribute('aria-label', '本轮研读研究员')
   const materialChoices = h('details', 'wb-material-choices', h('summary', '', '选择本轮研读材料（最多 12 份）'))
   const choices = h('div', 'wb-checks')
@@ -90,11 +92,11 @@ export async function detail(ctx, p, requestedRun, mode, token) {
   const record = h('section', 'wb-paper'); record.id = 'wb-run-record'; record.dataset.mode = mode === 'world' || mode === 'timeline' ? mode : 'report'
   const runLinks = h('div', 'wb-run-tabs')
   for (const r of runs) {
-    const item = link('契约 v' + (r.predictionVersion ?? '?') + ' · ' + fmt(r.createdAt) + ' · ' + (labels[r.status] ?? r.status), '#/predictions/' + p.predictionId + '/runs/' + r.runId, r.runId === runId ? 'is-selected' : '')
+    const item = link([h('span', '', '契约 v' + (r.predictionVersion ?? '?')), ' · ', dateContent(r.createdAt), ' · ', h('span', '', labels[r.status] ?? r.status)], '#/predictions/' + p.predictionId + '/runs/' + r.runId, r.runId === runId ? 'is-selected' : '')
     item.dataset.runId = r.runId; runLinks.append(item)
   }
   const objects = h('nav', 'wb-object-links', link('☷ 证据收报台', '#/topics/' + p.topicId + '/inbox?predictionId=' + p.predictionId), link('⌘ 关系黑板', '#/predictions/' + p.predictionId + '/world'), link('◷ 任务时间轴', '#/predictions/' + p.predictionId + '/timeline'), link('▤ 学习档案柜', '#/learning'))
-  ctx.content.replaceChildren(header(ctx.cache.topics.find((t) => t.topicId === p.topicId)?.title ?? '当前研究室', '题目契约 v' + p.version + ' · 当前材料研读只用一位研究员', link('编辑预测题', '#/predictions/' + p.predictionId + '/edit', 'wb-button')), validation, h('div', 'wb-research-layout', roomNode, note), objects, actions, h('p', 'wb-muted', replayOnly ? '历史导入题只读，请从旧历史案例入口回放。' : materials.evidence.length ? '本题可读 ' + materials.evidence.length + ' 份材料，每轮最多 12 份。' : '还不能开始：请先添加本题可用的材料。'), materialChoices, runLinks, record)
+  ctx.content.replaceChildren(header(dataContent('span', '', ctx.cache.topics.find((t) => t.topicId === p.topicId)?.title ?? '当前研究室'), [h('span', '', '题目契约 v' + p.version), ' · 当前材料研读只用一位研究员'], link('编辑预测题', '#/predictions/' + p.predictionId + '/edit', 'wb-button')), validation, h('div', 'wb-research-layout', roomNode, note), objects, actions, h('p', 'wb-muted', replayOnly ? '历史导入题只读，请从旧历史案例入口回放。' : materials.evidence.length ? '本题可读 ' + materials.evidence.length + ' 份材料，每轮最多 12 份。' : '还不能开始：请先添加本题可用的材料。'), materialChoices, runLinks, record)
   if (historical) {
     actions.hidden = true; materialChoices.hidden = true
     validation.replaceChildren(h('span', 'wb-badge', '只读历史契约 v' + p.version), h('span', '', '要开始新的研读，请返回当前题目。'))
@@ -120,7 +122,7 @@ export async function detail(ctx, p, requestedRun, mode, token) {
   roles.addEventListener('change', () => { if (!run) { const a = ctx.cache.agents.find((v) => v.agentSpecId === roles.value); ctx.room?.setRole(a ? { ...a, index: ctx.cache.agents.indexOf(a) } : null, null) } })
   reportView(ctx, p, run)
   if (record.dataset.mode === 'world') record.append(h('h2', '', '关系黑板'), empty('时序关系图尚未开放', 'M3 将在这里显示带时间、支持材料及反例的关系。本阶段只保存和研读关联原文。', link('查看本题证据', '#/topics/' + p.topicId + '/inbox?predictionId=' + p.predictionId, 'wb-button')))
-  if (record.dataset.mode === 'timeline') record.append(h('h2', '', '任务时间轴'), h('ol', 'wb-timeline', h('li', '', '创建：' + fmt(p.createdAt)), h('li', '', '停止发布：' + fmt(p.forecastClosesAt, p.timezone)), h('li', '', '目标日期：' + fmt(p.targetAt, p.timezone)), h('li', '', '结算：尚未结算')))
+  if (record.dataset.mode === 'timeline') record.append(h('h2', '', '任务时间轴'), h('ol', 'wb-timeline', h('li', '', '创建：', dateContent(p.createdAt)), h('li', '', '停止发布：', dateContent(p.forecastClosesAt, p.timezone)), h('li', '', '目标日期：', dateContent(p.targetAt, p.timezone)), h('li', '', '结算：尚未结算')))
   if (runId) {
     try { const data = await api('/runs/' + runId + '/events'); ctx.cache.events.set(runId, data.events); if (ctx.isCurrent(token)) reportView(ctx, p, ctx.cache.runs.get(runId)) } catch (error) { if (ctx.isCurrent(token)) toast('执行记录暂不可读：' + error.message) }
   }
