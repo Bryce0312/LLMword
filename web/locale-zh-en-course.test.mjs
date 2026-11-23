@@ -9,6 +9,8 @@ import { courseMemoryPolicyLines } from './course-memory.mjs'
 import { courseErrorPresentation, courseRequestAction } from './course-errors.mjs'
 import { assembleBudgetSummary } from './course-budget-summary.mjs'
 import { directionText } from './course-price-direction.mjs'
+import { courseMessageContent, courseWorkerName, renderAdequacy } from './workbench-course.js'
+import { COURSE_ROLE_LABELS } from './course-team.mjs'
 import { buildForecastFacts, forecastStatusLabel } from '../server/course/forecast-facts.mjs'
 
 const noChinese = text => { const translated = translateUiText(text, 'en'); assert.doesNotMatch(translated, /[\p{Script=Han}]/u, text); return translated }
@@ -77,4 +79,60 @@ test('deterministic forecast facts and scoring labels translate without treating
     for (const fact of buildForecastFacts({ kind, scoringEligible, baseline: null })) { noChinese(fact.label); noChinese(fact.text) }
   }
   for (const label of ['协议模拟或回放资料结果，不是真实预测', '模型事件概率估计', '程序汇集的研究员概率估计（主Agent未完成最终裁决）', '有公开依据的初步条件估计（资料有限，需复核）', '单题Brier，不代表总体准确率', '模拟协议分数，不计真实成绩', '（系统观测）']) noChinese(label)
+})
+
+
+test('saved completion receipt and canonical worker names are UI, while custom names and model prose retain data boundaries', () => {
+  const previousDocument = globalThis.document
+  globalThis.document = { createElement: tag => ({ tagName: tag.toUpperCase(), children: [], attributes: {},
+    append(...children) { this.children.push(...children) }, setAttribute(name, value) { this.attributes[name] = String(value) },
+    get textContent() { return this.children.join('') }, getAttribute(name) { return this.attributes[name] ?? null },
+  }) }
+  try {
+    const receipt = '本轮判断已封存，可查看概率、证据关系及下一次检查。'
+    const finished = courseMessageContent('span', '', receipt)
+    assert.equal(finished.getAttribute('data-i18n-ui'), 'true'); noChinese(finished.textContent)
+    for (const original of ['保存预算', '模型报告原文：' + receipt]) {
+      const node = courseMessageContent('span', '', original)
+      assert.equal(node.getAttribute('data-i18n-skip'), 'true'); assert.equal(node.textContent, original)
+    }
+    for (const roleId of ['market', 'statistics', 'verification']) {
+      const name = courseWorkerName({ roleId, name: COURSE_ROLE_LABELS[roleId] })
+      assert.equal(name.getAttribute('data-i18n-ui'), 'true'); noChinese(name.textContent)
+    }
+    for (const row of [{ roleId: 'market', name: '我的市场席位' }, { roleId: 'custom-role', name: COURSE_ROLE_LABELS.market }, { roleId: 'market', name: COURSE_ROLE_LABELS.verification }]) {
+      const name = courseWorkerName(row)
+      assert.equal(name.getAttribute('data-i18n-skip'), 'true'); assert.equal(name.textContent, row.name)
+    }
+  } finally { if (previousDocument === undefined) delete globalThis.document; else globalThis.document = previousDocument }
+})
+
+
+test('actual adequacy DOM translates only service-authored basis receipts and protects original summaries and quoted limitations', () => {
+  const previousDocument = globalThis.document
+  class Element {
+    constructor(tag) { this.tagName = tag.toUpperCase(); this.children = []; this.attributes = {}; this.dataset = {} }
+    append(...children) { this.children.push(...children) }
+    setAttribute(name, value) { this.attributes[name] = String(value) }
+    getAttribute(name) { return this.attributes[name] ?? null }
+    get textContent() { return this.children.map(child => typeof child === 'object' ? child.textContent : String(child)).join('') }
+  }
+  globalThis.document = { createElement: tag => new Element(tag) }
+  try {
+    const conditional = '实际读取公开资料的条件性估计；缺少数值基准，不计分。'
+    const publicBasis = '已读取公开研究依据；这不等同于官方已经确认未来结果。'
+    for (const [summary, system] of [[conditional, true], [publicBasis, true], ['模型原文：' + conditional, false], ['保存预算', false]]) {
+      const data = { forecast: { evidenceAdequacy: 'limited', researchBasis: { mode: 'conditional', summary }, sourceLimitations: [conditional, '原始引文：保存预算'] } }
+      const before = structuredClone(data)
+      const panel = renderAdequacy(data)
+      const basis = panel.children[1]
+      assert.equal(basis.tagName, 'P'); assert.equal(basis.textContent, summary)
+      assert.equal(basis.getAttribute(system ? 'data-i18n-ui' : 'data-i18n-skip'), 'true')
+      if (system) noChinese(basis.textContent)
+      const limitations = panel.children.find(child => child.tagName === 'UL').children
+      assert.equal(limitations[0].textContent, conditional); assert.equal(limitations[0].getAttribute('data-i18n-skip'), 'true')
+      assert.equal(limitations[1].textContent, '原始引文：保存预算'); assert.equal(limitations[1].getAttribute('data-i18n-skip'), 'true')
+      assert.deepEqual(data, before)
+    }
+  } finally { if (previousDocument === undefined) delete globalThis.document; else globalThis.document = previousDocument }
 })

@@ -4,7 +4,7 @@ import { createCourseProjection, projectCourseSnapshot, courseForecastPoints } f
 import { createCourseRoom } from './workbench-course-room.js'
 import { courseChart } from './workbench-course-chart.js'
 import { guardCourseSubmission, isMissingCourseApi, unavailableCourseCapability } from './course-capability.mjs'
-import { courseTeam, courseRoleName, normalizeCourseRole } from './course-team.mjs'
+import { COURSE_ROLE_LABELS, courseTeam, courseRoleName, normalizeCourseRole } from './course-team.mjs'
 import { courseRequestProgress, courseStatusLabel as statusLabel, isCourseTerminal as isTerminal, courseReasoningLabel } from './course-status.mjs'
 import { courseAnswerOutlook, courseRuns, selectCourseRoomRun, courseRunLabel, courseAnswerProvenance, courseRunBelongsToRequest } from './course-runs.mjs'
 import { courseRequestFailure, courseRequestAction, courseRequestCanStop } from './course-errors.mjs'
@@ -19,6 +19,20 @@ import { formatCourseProbability, courseProbabilityPair } from './course-probabi
 const contentOrPlaceholder = (tag, cls, value, placeholder) => value ? dataContent(tag, cls, value) : uiContent(tag, cls, placeholder)
 const controlledFactText = new Set(['基准', '估计类型', '计分', '资料充分度', '条件估计', '概率预测', '可计分', '不计分', '充分', '有限', '合成／模拟基准，不可计分', '未取得可核验数值基准'])
 const controlledContent = (tag, cls, value) => controlledFactText.has(value) ? uiContent(tag, cls, value) : dataContent(tag, cls, value)
+// These exact receipts are authored by course-service, never model prose.
+const COURSE_SYSTEM_MESSAGES = new Set([
+  '本轮判断已封存，可查看概率、证据关系及下一次检查。',
+  '实际读取公开资料的条件性估计；缺少数值基准，不计分。',
+  '已读取公开研究依据；这不等同于官方已经确认未来结果。',
+])
+export function courseMessageContent(tag, cls, message) {
+  return (COURSE_SYSTEM_MESSAGES.has(message) ? uiContent : dataContent)(tag, cls, message)
+}
+export function courseWorkerName(row) {
+  const canonical = COURSE_ROLE_LABELS[normalizeCourseRole(row.roleId)]
+  return (canonical && canonical === row.name ? uiContent : dataContent)('strong', '', row.name)
+}
+
 
 const requestId = (record) => record.requestId ?? record.id
 const requestRunId = (record) => record.activeRunId ?? record.latestRunId ?? record.runId ?? record.run?.runId ?? record.latestRun?.runId
@@ -229,7 +243,7 @@ function renderInterpretation(data) {
   block.append(h('small', '', '口径与你的意思不符？用下方“修改理解后重新跟踪”创建纠正后的题目。'))
   return block
 }
-function renderAdequacy(data) {
+export function renderAdequacy(data) {
   const forecast = data.forecast; const p = publicContract(data)
   const basis = forecast?.researchBasis ?? p.researchBasis
   const limitations = forecast?.sourceLimitations ?? p.sourceLimitations ?? []
@@ -238,7 +252,7 @@ function renderAdequacy(data) {
   const conditional = basis?.mode === 'conditional'
   const level = adequacy === 'adequate' ? '可用资料较充分' : adequacy === 'limited' ? '可用资料有限' : '尚未标注充分度'
   const kind = conditional ? '条件估计' : basis?.mode === 'alternative-public' ? '公开替代来源估计' : basis?.mode === 'verified-source' ? '可核验来源估计' : forecast ? '本轮概率估计' : '研究准备中'
-  const block = h('div', 'cc-adequacy', h('div', 'cc-adequacy-heading', h('strong', '', kind), h('span', '', '资料充分度：', h('span', '', level))), basis?.summary ? dataContent('p', '', basis.summary) : null)
+  const block = h('div', 'cc-adequacy', h('div', 'cc-adequacy-heading', h('strong', '', kind), h('span', '', '资料充分度：', h('span', '', level))), basis?.summary ? courseMessageContent('p', '', basis.summary) : null)
   block.dataset.basis = basis?.mode ?? 'unspecified'
   if (conditional) block.append(h('p', '', '概率依赖本题说明中的假设与参照，不能当作已核验事实。'))
   if (limitations.length) { const list = h('ul'); for (const text of limitations) list.append(dataContent('li', '', text)); block.append(list) }
@@ -341,7 +355,7 @@ function renderAnswer(node, data, ctx) {
       ? h('dd', '', dataContent('span', '', observed), h('span', '', '（系统观测）')) : controlledContent('dd', '', fact.text))
   }
   const conflict = forecast?.summaryConflict?.detected === true
-  const summaryNode = forecast?.summary ? dataContent('p', conflict ? 'cc-answer-summary cc-summary-conflict' : 'cc-answer-summary', forecast.summary) : budgetRun || outlookRun ? null : progress.message && !courseRequestFailure(data) ? dataContent('p', 'wb-forecast-explain', emptyReason) : progress.active && !courseRequestFailure(data) ? h('p', 'wb-forecast-explain', uiContent('span', '', progress.label), h('span', '', '；尚未发布新的概率。')) : uiContent('p', 'wb-forecast-explain', emptyReason)
+  const summaryNode = forecast?.summary ? dataContent('p', conflict ? 'cc-answer-summary cc-summary-conflict' : 'cc-answer-summary', forecast.summary) : budgetRun || outlookRun ? null : progress.message && !courseRequestFailure(data) ? courseMessageContent('p', 'wb-forecast-explain', emptyReason) : progress.active && !courseRequestFailure(data) ? h('p', 'wb-forecast-explain', uiContent('span', '', progress.label), h('span', '', '；尚未发布新的概率。')) : uiContent('p', 'wb-forecast-explain', emptyReason)
   node.replaceChildren(h('span', 'wb-tag', '系统理解与当前判断'), questionHeading, outlookRun ? renderDirectionOutlook(outlookRun) : uiContent('p', 'cc-tendency', tendency), distribution, h('p', 'wb-probability-empty', outlookRun ? '资料有限，本轮未估算概率' : published ? '对这道题的估计概率，不是模型正确率' : '资料不足或尚未发布时，概率保持缺值'), h('dl', 'wb-facts', ...factRows), summaryNode, ...(conflict ? [h('div', 'cc-conflict-warning', h('strong', '', '摘要与结构化事实不一致'), h('p', '', '下方模型摘要包含与上方事实段不一致的表述，请以上方结构化事实为准。'), h('ul', '', ...(forecast.summaryConflict.reasons ?? []).map((reason) => uiContent('li', '', reason))))] : []))
   if (recoveredNotice) node.append(recoveredNotice)
   if (budgetRun) {
@@ -434,7 +448,7 @@ function runRecords(run) {
   details.open = run?.runId ? recordsOpenByRun.get(run.runId) === true : false
   details.addEventListener('toggle', () => { if (run?.runId) recordsOpenByRun.set(run.runId, details.open) })
   const body = h('div', 'cc-records-body')
-  if (run?.summary) body.append(h('p', 'wb-muted', h('span', '', '所选轮次'), ' · ', uiContent('span', '', statusLabel(run.status)), '：', dataContent('span', 'wb-prewrap', run.summary)))
+  if (run?.summary) body.append(h('p', 'wb-muted', h('span', '', '所选轮次'), ' · ', uiContent('span', '', statusLabel(run.status)), '：', courseMessageContent('span', 'wb-prewrap', run.summary)))
   const team = courseTeam(run)
   for (const event of rows) {
     const p = event.payload ?? {}; const summary = p.summary ?? p.message ?? p.report?.summary ?? p.reason ?? p.memory?.summary ?? p.triage?.reason
@@ -463,7 +477,7 @@ function renderWorkflow(node, run, purpose) {
     dataContent('p', '', run.draft.interpretation || run.draft.question || ''), run.draft.targetAt ? h('small', '', '观察至 ', dateContent(run.draft.targetAt, run.draft.timezone), '；来源与正式规则由子 Agent 取证后再核定。') : null) : null
   const workers = h('div', 'cc-workflow-workers')
   for (const row of view.rows) {
-    const item = h('div', 'cc-workflow-worker', dataContent('strong', '', row.name), uiContent('span', '', row.activityText), uiContent('small', '',
+    const item = h('div', 'cc-workflow-worker', courseWorkerName(row), uiContent('span', '', row.activityText), uiContent('small', '',
       (row.cycle ? `周期 ${row.cycle} · ` : '') + '模型 ' + courseUsageText(row.usage.modelRequests, row.budget.maxModelRequests, ' 次') + ' · 工具 ' + courseUsageText(row.usage.toolCalls, row.budget.maxToolCalls, ' 次')))
     item.dataset.state = row.waiting ? 'waiting' : row.status ?? 'pending'; workers.append(item)
   }
@@ -648,7 +662,7 @@ export async function mountCourseRequest(ctx, id, token) {
       const progress = courseRequestProgress(data)
       const failure = courseRequestFailure(data)
       plan.dataset.state = failure ? 'error' : progress.active ? 'active' : 'idle'
-      plan.replaceChildren(uiContent('span', '', progress.label), ...(!failure && progress.message ? [' · ', dataContent('span', '', progress.message)] : []))
+      plan.replaceChildren(uiContent('span', '', progress.label), ...(!failure && progress.message ? [' · ', courseMessageContent('span', '', progress.message)] : []))
       errorBox.hidden = !failure
       if (failure && failureSig !== JSON.stringify(failure)) {
         errorBox.classList.add('cc-run-error')

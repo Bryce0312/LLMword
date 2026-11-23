@@ -1,5 +1,8 @@
 // Course interface labels only. User questions, reports and original evidence remain data.
 export const courseTranslations = Object.freeze({
+  "实际读取公开资料的条件性估计；缺少数值基准，不计分。": "A conditional estimate based on public sources actually read; no numeric baseline is available, so it is not scored.",
+  "已读取公开研究依据；这不等同于官方已经确认未来结果。": "Public research sources have been read; this does not mean the future outcome has been officially confirmed.",
+  "本轮判断已封存，可查看概率、证据关系及下一次检查。": "This round’s forecast is archived. View its probability, evidence relationships and next check.",
   "研究员候选概率：": "Researcher candidate probability: ",
   "固定到期：": "Fixed deadline: ",
   "基准": "Baseline",
