@@ -98,3 +98,24 @@ test('rendered collaboration UI translates around protected names, tasks, report
     assert.match(node.textContent, /保存预算.*独立调查/u)
   } finally { if (saved === undefined) delete globalThis.document; else globalThis.document = saved }
 })
+
+
+test('collaboration localizes exact round-scope and executor receipts without exposing arbitrary reports to UI translation', () => {
+  const saved = globalThis.document
+  globalThis.document = { createElement: tag => new Element(tag) }
+  try {
+    const receipt = '执行器预算收尾回执：本研究员已取得2项资料，但未在本次额度内完成有效判断。以下资料供主Agent整理，不代表完整研究报告或已验证概率。'
+    const gap = '研究员的最终证据判断未完成；需保留本次额度和校验限制。'
+    const report = { assignmentId: 'a', roleId: 'official', summary: receipt, objective: '保存预算', reason: '模型连接', reportStatus: 'insufficient', probability: null, support: [], counterevidence: [], missingEvidence: [gap, '删除记录'] }
+    const trace = { runId: 'r', modelMode: 'live', sourceMode: 'live', sources: [], triage: { reason: '首次按题选择差异职责。' }, team: [report], reviews: [], reports: [report], decision: null }
+    const node = new Element('section'); renderCollaboration(node, trace)
+    const translate = element => element.attributes['data-i18n-skip'] === 'true' ? element.textContent : element.children.map(child => typeof child === 'object' ? translate(child) : translateUiText(String(child), 'en')).join('')
+    const english = translate(node)
+    assert.match(english, /The initial team is selected for distinct responsibilities/u)
+    assert.match(english, /Executor budget close-out receipt: this researcher obtained 2 materials/u)
+    assert.match(english, /The researcher’s final evidence assessment is incomplete/u)
+    for (const original of ['保存预算', '模型连接', '删除记录']) assert(english.includes(original))
+    renderCollaboration(node, { ...trace, triage: { reason: '保存预算' }, team: [{ ...report, summary: '模型连接' }] })
+    assert(translate(node).includes('保存预算')); assert(translate(node).includes('模型连接'))
+  } finally { if (saved === undefined) delete globalThis.document; else globalThis.document = saved }
+})

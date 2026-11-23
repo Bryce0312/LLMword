@@ -3,7 +3,7 @@ import { initLocaleUI } from './locale.mjs';
 import { dateContent } from './workbench-core.js';
 import { isLegacyBuiltinText } from './locale-zh-en-legacy.mjs';
 
-initLocaleUI();
+initLocaleUI({ englishOnly: true });
 
 const byId = (id) => document.getElementById(id);
 

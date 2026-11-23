@@ -1,5 +1,7 @@
 // Public welcome page copy. Tutorial cards reuse guideTranslations.
 export const welcomeTranslations = Object.freeze({
+  '像素风格的研究室': 'A pixel-style research room',
+  '三个回放：一次完整协作、一次新证据补查、一次失败后恢复。': 'Three replays: a complete collaboration, a new-evidence follow-up, and recovery after failure.',
   '你写下股票和期限，主 Agent 分头找人查公开资料，再把支持、反对和没解决的问题一起写进报告。': 'You name the stock and horizon. The lead agent sends researchers to public sources, then puts supporting evidence, counterevidence and open questions into one report.',
   '把股票和期限交给一队独立研究员。': 'Hand a stock and a horizon to a team of independent researchers.',
   '进去看一次真实预测怎样开始。': 'See how a live forecast starts.',

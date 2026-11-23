@@ -2,6 +2,7 @@ import { createActorSprite } from './actors.js'
 import { h, button, dataContent } from './workbench-core.js'
 import { COURSE_ROLE_LABELS, courseObjective, normalizeCourseRole } from './course-team.mjs'
 import { courseRoomOutcome } from './course-projection.mjs'
+import { courseSystemContent } from './course-system-text.mjs'
 import { courseUsageText, courseModelStatusView } from './course-workflow.mjs'
 
 const pixels = { supervisor: 'chair', official: 'policy', timeline: 'supply', industry: 'company', people: 'market', statistics: 'supply', market: 'market', social: 'company', analogy: 'policy', graph: 'supply', verification: 'company' }
@@ -172,7 +173,9 @@ export function createCourseRoom(container, { onShowResults } = {}) {
       statusFor(effect.roleId, effect.status === 'message' ? '公开讨论' : effect.status)
       bubble.dataset.role = effect.roleId; bubble.dataset.assignmentId = effect.assignmentId ?? ''; bubble.dataset.resultId = effect.resultId ?? ''; bubble.dataset.tone = success ? 'success' : effect.status === 'message' ? 'neutral' : 'insufficient'
       bubble.querySelector('strong').replaceChildren(roomName(figure.data), ' · ', success ? '报告已提交' : effect.status === 'message' ? '公开讨论' : '调查反馈')
-      bubble.querySelector('p').textContent = effect.summary
+      const speech = bubble.querySelector('p')
+      speech.removeAttribute('data-i18n-skip'); speech.setAttribute('data-i18n-ui', 'true')
+      speech.replaceChildren(courseSystemContent('span', '', effect.summary, 'closeout'))
       bubble.querySelector('small').textContent = effect.evidenceIds?.length ? '引用 ' + effect.evidenceIds.length + ' 条资料，完整记录见下方。' : '公开判断摘要，完整记录见下方。'
       const x = figure.actor.classList.contains('is-at-table') ? figure.meetingX : figure.x
       bubble.style.setProperty('--tail', Math.max(8, Math.min(92, (x - 12.5) / .75)) + '%')

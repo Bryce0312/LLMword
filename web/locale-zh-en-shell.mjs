@@ -1,5 +1,18 @@
 // Navigation and shared UI. Never applies to protected record content.
 export const shellTranslations = Object.freeze({
+  "请先在“模型连接”保存 DeepSeek API Key，再开始任务。": "Save a DeepSeek API key in Model connection before starting a task.",
+  "正在保存模型连接，请稍后继续。": "The model connection is being saved. Please wait before continuing.",
+  "所选角色的模型引用尚未配置，请选择当前主模型。": "The selected researcher’s model is not configured. Select the current primary model.",
+  "所选角色包含尚未接通的工具。": "The selected researcher includes tools that are not available yet.",
+  "同一验证问题已有运行，请等待结束或取消。": "This question already has an active run. Wait for it to finish or cancel it.",
+  "此研究员已经删除，不能用于新的调查；历史运行和版本仍保留。": "This researcher was deleted and cannot join new investigations. Historical runs and versions are retained.",
+  "这项历史记录已删除，仅保留原始资料供追溯。": "This history item was removed. Its original material is retained for audit.",
+  "这项跟踪已经停止。": "This task has been stopped.",
+  "本题已有结果，不能重新创建调查或改写预测。": "This question already has an outcome. Its investigation and forecast cannot be recreated or rewritten.",
+  "记录版本已变化。": "The record version has changed.",
+  "请求未完成，请稍后重试。": "The request could not be completed. Please try again later.",
+  "尚未配置模型凭据。": "Model credentials are not configured.",
+
   "预测问题": "Forecast question",
   "题型": "Question type",
   "时区": "Time zone",

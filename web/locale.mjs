@@ -1,5 +1,6 @@
 import { uiTranslations, dynamicRules } from './locale-zh-en.mjs'
 import { formatUiDate } from './locale-format.mjs'
+import { createLocalTranslator, hasChineseText } from './locale-local-translator.mjs'
 
 const PREFERENCE_KEY = 'world-lab.locale'
 const ATTRIBUTE_NAMES = ['placeholder', 'title', 'aria-label', 'alt', 'aria-description', 'aria-valuetext']
@@ -7,6 +8,8 @@ const DATE_ATTRIBUTES = ['data-i18n-date', 'data-i18n-timezone', 'data-i18n-date
 const HARD_BLOCKED_TAGS = new Set(['SCRIPT', 'STYLE', 'TEMPLATE', 'NOSCRIPT'])
 const BLOCKED_TAGS = new Set(['SCRIPT', 'STYLE', 'PRE', 'CODE', 'BLOCKQUOTE', 'TEMPLATE', 'NOSCRIPT'])
 const VALUE_ELEMENTS = new Set(['INPUT', 'TEXTAREA'])
+const ENGLISH_PUNCTUATION = { '。': '.', '、': ', ', '，': ', ', '；': '; ', '：': ': ', '！': '!', '？': '?', '（': ' (', '）': ')' }
+const englishPunctuation = text => text.replace(/[。、，；：！？（）] */gu, part => ENGLISH_PUNCTUATION[part[0]])
 const CONTENT_SELECTORS = [
   '.wb-prewrap', '[data-i18n-skip]', '[data-i18n-content]', '[data-user-content]', '[data-model-content]',
   '.wb-task-slip strong', '.wb-board-card h3',
@@ -70,28 +73,61 @@ export function initLocaleUI(options = {}) {
   try { if (storage?.getItem(PREFERENCE_KEY) === 'en') locale = 'en' } catch {}
   activeLocale = locale
   const texts = new WeakMap(), attributes = new WeakMap(), listeners = new Map()
+  const englishOnly = options.englishOnly === true
+  const localTranslator = englishOnly ? createLocalTranslator(doc.defaultView) : null
   let disposed = false
+  let translationAttempt = 0
+
+  function display(record, isSourceContent, current, apply) {
+    const translated = isSourceContent ? record.source : translateUiText(record.source, locale)
+    if (!englishOnly || locale !== 'en') return translated
+    if (!hasChineseText(translated)) return englishPunctuation(translated)
+    if (record.english) return record.english
+    const fallback = isSourceContent ? 'English translation unavailable for this text.' : 'English text unavailable.'
+    if (!record.translating && record.attempt !== translationAttempt) {
+      record.attempt = translationAttempt
+      const result = localTranslator.translate(record.source)
+      if (result) {
+        record.translating = true
+        void result.then(english => {
+          record.translating = false
+          if (english) record.english = englishPunctuation(english)
+          if (!disposed && locale === 'en' && current()) {
+            record.rendered = record.english || fallback
+            apply(record.rendered)
+          }
+        })
+      }
+    }
+    return record.translating ? 'Translating…' : fallback
+  }
 
   function textNode(node) {
-    if (node.isConnected === false || skipped(node.parentElement) || VALUE_ELEMENTS.has(node.parentElement?.tagName) || node.parentElement?.hasAttribute?.('data-i18n-date')) return
+    const parent = node.parentElement
+    if (!parent || node.isConnected === false || HARD_BLOCKED_TAGS.has(parent.tagName) || VALUE_ELEMENTS.has(parent.tagName) || parent.hasAttribute?.('data-i18n-date')) return
+    const isSourceContent = skipped(parent)
+    if (isSourceContent && !englishOnly) return
     const value = node.data
     let record = texts.get(node)
     if (!record || value !== record.rendered) { record = { source: value, rendered: value }; texts.set(node, record) }
-    const rendered = translateUiText(record.source, locale)
+    const rendered = display(record, isSourceContent, () => node.isConnected !== false && texts.get(node) === record && node.data === record.rendered, english => { node.data = english })
+    // The HTML default value of an option is its label. Keep that submitted
+    // value when rendering a different display label.
+    if (rendered !== value && parent.tagName === 'OPTION' && !parent.hasAttribute('value') && englishOnly && typeof parent.value === 'string') parent.setAttribute('value', parent.value)
     record.rendered = rendered
     if (value !== rendered) node.data = rendered
   }
   function attribute(element, name) {
-    if (skipped(element)) return
     const excluded = element.getAttribute('data-i18n-skip-attributes')
-    if (excluded?.split(/\s+/).includes(name)) return
+    const isSourceContent = skipped(element) || excluded?.split(/\s+/).includes(name)
+    if (isSourceContent && !englishOnly) return
     const value = element.getAttribute(name)
     let records = attributes.get(element)
     if (value === null) { records?.delete(name); return }
     if (!records) { records = new Map(); attributes.set(element, records) }
     let record = records.get(name)
     if (!record || value !== record.rendered) { record = { source: value, rendered: value }; records.set(name, record) }
-    const rendered = translateUiText(record.source, locale)
+    const rendered = display(record, isSourceContent, () => element.isConnected !== false && records.get(name) === record && element.getAttribute(name) === record.rendered, english => element.setAttribute(name, english))
     record.rendered = rendered
     if (value !== rendered) element.setAttribute(name, rendered)
   }
@@ -99,12 +135,12 @@ export function initLocaleUI(options = {}) {
     if (!root || root.isConnected === false) return
     if (root.nodeType === 3) { textNode(root); return }
     if (root.nodeType === 1) {
-      if (protectedContent(root)) return
-      if (root.hasAttribute?.('data-i18n-date')) {
+      if (HARD_BLOCKED_TAGS.has(root.tagName) || (!englishOnly && protectedContent(root)) || root.id === 'wb-language-switch') return
+      if (root.hasAttribute?.('data-i18n-date') && !protectedContent(root)) {
         const rendered = formatUiDate(root.getAttribute('data-i18n-date'), { locale, timezone: root.getAttribute('data-i18n-timezone') || undefined, kind: root.getAttribute('data-i18n-date-format') || 'date-time' })
         if (root.textContent !== rendered) root.textContent = rendered
       }
-      if (!skipped(root)) for (const name of ATTRIBUTE_NAMES) attribute(root, name)
+      for (const name of ATTRIBUTE_NAMES) attribute(root, name)
       if (VALUE_ELEMENTS.has(root.tagName)) return
     }
     for (const child of root.childNodes ?? []) scan(child)
@@ -115,6 +151,10 @@ export function initLocaleUI(options = {}) {
     const groupLabel = locale === 'en' ? 'Interface language' : '界面语言'
     if (group.getAttribute('aria-label') !== groupLabel) group.setAttribute('aria-label', groupLabel)
     for (const control of group.querySelectorAll('[data-locale]')) {
+      if (englishOnly && control.getAttribute('data-locale') === 'zh-CN') {
+        const label = locale === 'en' ? 'Simplified Chinese' : '简体中文'
+        if (control.textContent !== label) control.textContent = label
+      }
       const pressed = String(control.getAttribute('data-locale') === locale)
       if (control.getAttribute('aria-pressed') !== pressed) control.setAttribute('aria-pressed', pressed)
       if (!listeners.has(control)) {
@@ -128,6 +168,10 @@ export function initLocaleUI(options = {}) {
     if (disposed) return locale
     locale = value === 'en' ? 'en' : 'zh-CN'; activeLocale = locale
     doc.documentElement.lang = locale
+    if (englishOnly && locale === 'en' && doc.defaultView?.navigator?.userActivation?.isActive) {
+      translationAttempt++
+      localTranslator.prepare()
+    }
     updateSwitch(); scan(doc.documentElement)
     const EventType = doc.defaultView?.CustomEvent ?? globalThis.CustomEvent
     if (typeof EventType === 'function') for (const control of doc.documentElement.querySelectorAll('[data-i18n-language-control="true"]')) {
@@ -152,7 +196,7 @@ export function initLocaleUI(options = {}) {
   const controller = {
     getLocale: () => locale, setLocale,
     refresh(root = doc.documentElement) { if (!disposed) { updateSwitch(); scan(root) } },
-    dispose() { if (disposed) return; disposed = true; observer?.disconnect(); for (const [control, listener] of listeners) control.removeEventListener('click', listener); listeners.clear(); initialized.delete(doc) },
+    dispose() { if (disposed) return; disposed = true; observer?.disconnect(); localTranslator?.dispose(); for (const [control, listener] of listeners) control.removeEventListener('click', listener); listeners.clear(); initialized.delete(doc) },
   }
   initialized.set(doc, controller)
   return controller

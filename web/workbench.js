@@ -15,7 +15,7 @@ import { initialRouteHash, isGuideIndex, isPublicRoute, mergeDeletedHistoryMetad
 import { consumeTutorialFocus, rememberRoute } from './route-history.mjs'
 import { initLocaleUI } from './locale.mjs'
 
-initLocaleUI()
+initLocaleUI({ englishOnly: true })
 
 const cache = { topics: [], predictions: [], agents: [], tools: [], config: {}, courseRequests: [], courseAvailable: false, courseCapability: null, courseHistoryError: null, deletedCourseRequestIds: new Set(), deletedCoursePredictionIds: new Set(), historyDeletionPending: new Set(), runs: new Map(), events: new Map() }
 let projection = createProjectionState()

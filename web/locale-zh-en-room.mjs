@@ -2,6 +2,11 @@
 export const roomTranslations = Object.freeze({
   '按当前问题派出研究员的像素研究室': 'A pixel research room with researchers assigned to the current question',
   '夜间像素研究室，设有圆桌、黑板和收报台': 'A pixel research room with a round table, board and evidence desk',
+  '显示当前AI模型配置状态。当前AI模型未配置，请先在“模型连接”保存 API Key。': 'The AI model is unconfigured. Save an API key in Model connection.',
+  '显示当前AI模型配置状态。AI模型已配置且连接校验通过；官方搜索与网页读取尚未配置。': 'The model connection passed verification. Official search and page reading are unconfigured.',
+  '显示当前AI模型配置状态。AI模型已配置且连接校验通过，实际任务仍受余额与权限影响。': 'The model connection passed verification. Tasks depend on account balance and permissions.',
+  '显示当前AI模型配置状态。AI模型已配置，但连接校验未通过；请检查 Key、账户权限或网络。': 'Model verification failed. Check the API key, account permissions and network.',
+  '显示当前AI模型配置状态。AI模型已配置，连接状态待校验。': 'The AI model is configured. Connection verification is pending.',
   '主 Agent': 'Lead agent',
   '官方': 'Official', '新闻': 'News', '行业': 'Industry', '人物': 'People', '统计': 'Statistics',
   '市场': 'Markets', '社群': 'Community', '类比': 'Analogy', '关系': 'Relations', '核验': 'Verification',
@@ -74,19 +79,20 @@ export const roomTranslations = Object.freeze({
 })
 
 const canonicalRoles = '主 Agent|官方资料研究员|新闻时间线研究员|行业与专业研究员|人物与组织研究员|统计与指标研究员|预测市场研究员|社群与舆情研究员|历史类比研究员|关系图研究员|反证与核验研究员'
+const legacyNicknames = new Map([['小策', 'Xiao Ce'], ['小链', 'Xiao Lian'], ['小财', 'Xiao Cai'], ['小盘', 'Xiao Pan'], ['主持人', 'Chair']])
 const known = (text) => roomTranslations[text] ?? text
 const countValue = (text) => text === '未记录' ? 'Not recorded' : text.replace('无限', 'Unlimited')
 // Only generated room UI templates are matched. Free-form model/user text never enters these rules.
 export const roomDynamicRules = Object.freeze([
   { pattern: new RegExp('^查看研究员定义：(' + canonicalRoles + ')( v[1-9]\\d*)?$', 'u'), replace: (_, name, version) => 'View the definition of ' + known(name) + (version || '') },
   { pattern: new RegExp('^(' + canonicalRoles + ')( v[1-9]\\d*)?$', 'u'), replace: (_, name, version) => known(name) + (version || '') },
-  { pattern: /^([\s\S]+) · (政策研究|供应链研究|公司基本面|市场研究|会议主持)$/u, replace: (_, nickname, role) => nickname + ' · ' + known(role) },
+  { pattern: /^([\s\S]+) · (政策研究|供应链研究|公司基本面|市场研究|会议主持)$/u, replace: (_, nickname, role) => (legacyNicknames.get(nickname) ?? nickname) + ' · ' + known(role) },
   { pattern: /^(\d+(?:\.\d+)?)%，(等待派工|整理题意与派工|研究员独立调查|核定预测题目|选择研究员|定向补查|汇总与核对|检查新资料|评估新资料|调查中)$/u, replace: (_, percent, step) => percent + '%, ' + known(step) },
   { pattern: /^本轮已选 (\d+) 位研究员 · 每人的任务与入选原因见下方。$/u, replace: 'Selected $1 researchers. Assignments and selection reasons are shown below.' },
   { pattern: /^引用 (\d+) 条资料，完整记录见下方。$/u, replace: '$1 sources cited; see the full record below.' },
   { pattern: /^引用 (\d+) 条材料 · 全文见研读记录$/u, replace: '$1 sources cited · Full text in the research record' },
   { pattern: /^查看([\s\S]+)的定义$/u, replace: 'View the definition of $1' },
-  { pattern: /^查看([\s\S]+)的研究员档案$/u, replace: 'View the researcher profile for $1' },
+  { pattern: /^查看([\s\S]+)的研究员档案$/u, replace: (_, name) => 'View the researcher profile for ' + (legacyNicknames.get(name) ?? name) },
   { pattern: /^(?:调查周期 (\d+) · )?模型 (未记录|[\d,]+(?: \/ (?:[\d,]+|无限))?) 次 · 工具 (未记录|[\d,]+(?: \/ [\d,]+)?) 次$/u, replace: (_, cycle, models, tools) => (cycle ? 'Research cycle ' + cycle + ' · ' : '') + 'Model calls ' + countValue(models) + ' · Tool calls ' + countValue(tools) },
   { pattern: /^第 (\d+) 次模型判断 · (等待真实返回|本次未完成|已返回)$/u, replace: (_, index, state) => 'Model assessment ' + index + ' · ' + ({ '等待真实返回': 'Awaiting response', '本次未完成': 'Incomplete', '已返回': 'Response received' })[state] },
   { pattern: /^模型请求 · (等待真实返回|本次未完成|已返回)$/u, replace: (_, state) => 'Model request · ' + ({ '等待真实返回': 'Awaiting response', '本次未完成': 'Incomplete', '已返回': 'Response received' })[state] },

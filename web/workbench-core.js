@@ -1,5 +1,6 @@
 import { getLocale } from './locale.mjs'
 import { formatUiDate } from './locale-format.mjs'
+import { apiErrorPresentation } from './course-errors.mjs'
 
 export const $ = (id) => document.getElementById(id)
 export const labels = { draft: '草稿', ready: '可研读', active: '进行中', queued: '排队中', running: '研读中', completed: '报告已保存', failed: '研读失败', cancelled: '已取消', waiting: '等待资料', cancelling: '取消中', closed: '已关闭', resolved: '已结算', void: '无法结算', complete: '已完成', insufficient: '资料不足', blocked: '暂被阻塞' }
@@ -66,7 +67,8 @@ export function field(form, name, label, control, note = '') {
 export function formError(form, error) {
   let box = form.querySelector('.wb-form-error')
   if (!box) { box = h('div', 'wb-form-error'); box.setAttribute('role', 'alert'); form.prepend(box) }
-  box.replaceChildren(h('span', '', error.message), ...(error.status === 409 ? [h('span', '', ' 请刷新读取最新版本；当前输入仍保留。')] : []))
+  const presentation = apiErrorPresentation(error)
+  box.replaceChildren(uiContent('span', '', presentation.message), ...(presentation.refreshVersion ? [uiContent('span', '', ' 请刷新读取最新版本；当前输入仍保留。')] : []))
   for (const note of form.querySelectorAll('[data-field-error]')) note.textContent = ''
   const missing = Array.isArray(error.fields) ? error.fields : Object.keys(error.fields ?? {})
   for (const name of missing) { const note = form.querySelector('[data-field-error="' + CSS.escape(name) + '"]'); if (note) note.textContent = '请补充或修正此项。' }

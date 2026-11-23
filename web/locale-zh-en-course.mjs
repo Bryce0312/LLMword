@@ -1,5 +1,16 @@
 // Course interface labels only. User questions, reports and original evidence remain data.
 export const courseTranslations = Object.freeze({
+  "研究员的最终证据判断未完成；需保留本次额度和校验限制。": "The researcher’s final evidence assessment is incomplete; this run’s budget and validation limits remain in force.",
+  "根据已经保存的资料给出阶段性结果，明确缺口；不为收尾继续付费调查。": "Use the saved material for a partial result and state its gaps; do not add paid research just to close the run.",
+  "首次按题选择差异职责。": "The initial team is selected for distinct responsibilities suited to this question.",
+  "首批新原文已取得，立即交主 Agent 分诊。": "The first new source texts are available for lead-agent triage.",
+  "内容重复、价格变化未达阈值或来源不可读，不新增概率。": "No new probability is issued: content is duplicated, the price change is below the threshold, or sources are unreadable.",
+  "未追加模型调用，按有效研究员报告作明确标记的程序汇集；保留独立核验和引用守卫。": "No model calls added. Valid researcher reports were assembled with an explicit program-aggregation label; verification and citation checks remain in force.",
+  "阶段性资料整理，不是正式概率预测；没有补造概率或追加模型调用。": "Partial research material, not a published probability forecast. No probabilities were fabricated and no model calls were added.",
+  "本轮已结束，尚无足够的有效独立报告；已读取材料与失败原因保留。": "This run has ended without enough valid independent reports. Read materials and failure records have been retained.",
+  "本轮已结束：已汇集研究员的有据估计；主Agent最终裁决未完成，结果标记为程序汇集、需复核。": "This run has ended. Evidence-backed researcher estimates were assembled by the program and require review; the lead agent’s final decision is incomplete.",
+  "【程序失败回执，非研究报告】该席未完成有效报告，不能当作核验已经完成。": "[Program failure receipt, not a research report] This role did not complete a valid report; verification is not complete.",
+  "该席没有通过本轮实质证据与模型概率检查；原报告已封存，此处不将访问失败、免责声明或程序回执作为预测依据。": "This role did not pass this round’s substantive-evidence and model-probability checks. The original report is archived; access failures, disclaimers and program receipts are not used as forecast evidence.",
   "研究员候选概率：": "Researcher candidate probability: ",
   "固定到期：": "Fixed deadline: ",
   "基准": "Baseline",
@@ -403,6 +414,12 @@ const provenanceBase = {
 
 // Anchored system templates. Captures are counts, enum labels or dates rendered in separate date nodes.
 export const courseDynamicRules = Object.freeze([
+  { pattern: /^历史记忆：近(\d+)天(\d+)次实质研判、(\d+)份报告；近(\d+)天(\d+)条来源关系。旧概率和资料只作历史比较与检索线索，本轮引用必须重新读取；检索窗口不删除封存档案。$/u, replace: (_all, shortDays, judgments, reports, longDays, relations) => `Historical memory: ${judgments} substantive judgments and ${reports} reports over ${shortDays} days; ${relations} source relationships over ${longDays} days. Past probabilities and materials are for comparison and retrieval only. Sources must be reread before citation in this round; retrieval windows do not delete archived records.` },
+  { pattern: /^执行器预算收尾回执：本研究员已取得(\d+)项资料，但未在本次额度内完成有效判断。以下资料供主Agent整理，不代表完整研究报告或已验证概率。$/u, replace: (_all, n) => `Executor budget close-out receipt: this researcher obtained ${n} materials but did not complete a valid assessment within the available budget. These materials are retained for the lead agent; they are not a complete research report or a verified probability.` },
+  { pattern: /^程序生成的预算回执：已读取(\d+)份原文，但研究员未完成内容核验；以下引用不表示认可原文主张。$/u, replace: (_all, n) => `Program-generated budget receipt: ${n} source texts were read, but the researcher did not finish content verification. The citations below do not endorse the sources’ claims.` },
+  { pattern: /^有界报告汇集：(\d+)个不同职责的研究员已提交带证据的概率估计，按候选概率中位数汇集为Yes (\d+)%。主Agent未完成有效最终裁决，程序仅整理已核验报告；该估计未校准，来源可能重叠。$/u, replace: (_all, n, percent) => `Bounded report aggregation: ${n} distinct researcher roles submitted evidence-backed probability estimates. Their median is Yes ${percent}%. The lead agent did not complete a valid final decision; the program only assembled validated reports. This estimate is uncalibrated, and sources may overlap.` },
+  { pattern: /^本轮已结束，保留(\d+)个不同职责的有效报告。$/u, replace: (_all, n) => `This run has ended. Valid reports from ${n} distinct roles were retained. ` },
+
   { pattern: /^(\d+) 小时$/u, replace: (_all, n) => `${n} hours` },
   { pattern: /^(\d+) 天$/u, replace: (_all, n) => `${n} days` },
   { pattern: /^(条件估计|概率预测)( · 基准未核验)? · (可计分|不计分)$/u, replace: (_all, kind, baseline, scoring) => `${kind === '条件估计' ? 'Conditional estimate' : 'Probability forecast'}${baseline ? ' · unverified baseline' : ''} · ${scoring === '可计分' ? 'eligible for scoring' : 'not scored'}` },

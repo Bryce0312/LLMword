@@ -5,6 +5,7 @@ import { guideView } from './guide.js'
 import { welcomeView } from './welcome.js'
 import { initialRouteHash, isGuideIndex, isPublicRoute } from './room-shell-navigation.mjs'
 import { guideProgressKey } from './guide-content.mjs'
+import { initLocaleUI } from './locale.mjs'
 
 const cases = JSON.parse(readFileSync(new URL('./demo/cases.json', import.meta.url), 'utf8'))
 
@@ -32,6 +33,7 @@ class Element {
   getAttribute(name) { return this.attributes[name] ?? null }
   removeAttribute(name) { delete this.attributes[name] }
   addEventListener(name, handler) { (this.listeners[name] ??= []).push(handler) }
+  dispatchEvent(event) { for (const listener of this.listeners[event.type] ?? []) listener(event); return true }
   focus() {}
   scrollIntoView() {}
   get textContent() { return this.children.map(item => typeof item === 'object' ? item.textContent : String(item)).join('') }
@@ -140,6 +142,69 @@ test('finishing a path offers a prefilled live prediction without submitting or 
   assert.equal(globalThis.location.hash, '#/course')
   assert.deepEqual(ctx.courseRetryInput, { question: '预测腾讯股票未来 5 个交易日会涨吗', purpose: 'forecast', mode: 'preset' })
   assert.equal(JSON.parse(globalThis.localStorage.getItem(guideProgressKey)).paths.recovery.done, true)
+})
+
+
+function localeController() {
+  const html = new Element('html')
+  const doc = {
+    documentElement: html,
+    getElementById: () => null,
+    defaultView: { CustomEvent: class { constructor(type, options) { this.type = type; this.detail = options.detail } } },
+  }
+  return { html, controller: initLocaleUI({ document: doc, storage: null }) }
+}
+
+test('the untouched tutorial sample follows the interface language and stages English without a request', async () => {
+  installDom()
+  let fetches = 0
+  globalThis.fetch = async () => { fetches++; throw new Error('language and prefill must not fetch') }
+  const { html, controller } = localeController()
+  try {
+    controller.setLocale('en', { persist: false })
+    const ctx = { courseRetryInput: null }
+    const root = rootOf(await guideView(ctx, ['guide', 'collaboration', 'done']))
+    html.append(root)
+    const input = root.querySelector('.guide-prefill-input')
+    assert.equal(input.value, 'Predict Tencent stock')
+    controller.setLocale('zh-CN', { persist: false })
+    assert.equal(input.value, '预测腾讯股票')
+    controller.setLocale('en', { persist: false })
+    assert.equal(input.value, 'Predict Tencent stock')
+    assert.equal(ctx.courseRetryInput, null)
+    root.querySelectorAll('button').find(node => node.textContent === '开始一次真实预测').dispatchEvent({ type: 'click' })
+    assert.deepEqual(ctx.courseRetryInput, { question: 'Predict Tencent stock', purpose: 'forecast', mode: 'preset' })
+    assert.equal(globalThis.location.hash, '#/course')
+    assert.equal(fetches, 0)
+  } finally { controller.setLocale('zh-CN', { persist: false }); controller.dispose() }
+})
+
+test('tutorial language changes preserve user edits, cleared drafts, and programmatically staged text', async () => {
+  installDom()
+  globalThis.fetch = async () => { throw new Error('language changes must not fetch') }
+  const { html, controller } = localeController()
+  try {
+    for (const { value, typed } of [
+      { value: 'Research my own company', typed: true },
+      { value: '', typed: true },
+      { value: '预测腾讯股票', typed: true },
+      { value: '用户自己输入的问题', typed: false },
+    ]) {
+      controller.setLocale('zh-CN', { persist: false })
+      const ctx = { courseRetryInput: null }
+      const root = rootOf(await guideView(ctx, ['guide', 'recovery', 'done']))
+      html.replaceChildren(root)
+      const input = root.querySelector('.guide-prefill-input')
+      input.value = value
+      if (typed) input.dispatchEvent({ type: 'input' })
+      controller.setLocale('en', { persist: false })
+      assert.equal(input.value, value)
+      controller.setLocale('zh-CN', { persist: false })
+      assert.equal(input.value, value)
+      assert.equal(ctx.courseRetryInput, null)
+      assert.equal(globalThis.location.hash, '#/guide')
+    }
+  } finally { controller.setLocale('zh-CN', { persist: false }); controller.dispose() }
 })
 
 test('an unknown tutorial path falls back to the index without reading demo files', async () => {

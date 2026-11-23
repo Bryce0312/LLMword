@@ -1,3 +1,4 @@
+import { getLocale } from './locale.mjs'
 import { h, header, button, link, dataContent } from './workbench-core.js'
 import { renderCollaboration } from './course-collaboration.js'
 import { goBack, requestTutorialFocus } from './route-history.mjs'
@@ -147,12 +148,23 @@ function guideDone(ctx, path) {
   writeGuideProgress(storage, markGuideDone(readGuideProgress(storage), path.id))
   const example = h('input', 'guide-prefill-input')
   example.type = 'text'
-  example.value = guideRealTaskQuestion
+  const builtInQuestion = locale => locale === 'en' ? 'Predict Tencent stock' : guideRealTaskQuestion
+  let defaultQuestion = builtInQuestion(getLocale())
+  let exampleEdited = false
+  example.value = defaultQuestion
+  example.setAttribute('data-i18n-language-control', 'true')
+  example.addEventListener('input', () => { exampleEdited = true })
+  example.addEventListener('world-lab:localechange', event => {
+    // This owned sample input is the sole exception: never translate a user-edited draft.
+    if (example.value !== defaultQuestion) exampleEdited = true
+    defaultQuestion = builtInQuestion(event.detail?.locale ?? getLocale())
+    if (!exampleEdited) example.value = defaultQuestion
+  })
   example.maxLength = 2000
   example.autocomplete = 'off'
   example.setAttribute('aria-label', '示例预测问题，可修改')
   const start = button('开始一次真实预测', () => {
-    ctx.courseRetryInput = { question: example.value.trim() || guideRealTaskQuestion, purpose: 'forecast', mode: 'preset' }
+    ctx.courseRetryInput = { question: example.value.trim() || builtInQuestion(getLocale()), purpose: 'forecast', mode: 'preset' }
     location.hash = '#/course'
   }, 'wb-button wb-primary')
   return [

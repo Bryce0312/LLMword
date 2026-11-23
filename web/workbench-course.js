@@ -5,11 +5,13 @@ import { createCourseRoom } from './workbench-course-room.js'
 import { courseChart } from './workbench-course-chart.js'
 import { guardCourseSubmission, isMissingCourseApi, unavailableCourseCapability } from './course-capability.mjs'
 import { courseTeam, courseRoleName, normalizeCourseRole } from './course-team.mjs'
+import { courseRoleNameContent } from './course-role-ui.js'
 import { courseRequestProgress, courseStatusLabel as statusLabel, isCourseTerminal as isTerminal, courseReasoningLabel } from './course-status.mjs'
 import { courseAnswerOutlook, courseRuns, selectCourseRoomRun, courseRunLabel, courseAnswerProvenance, courseRunBelongsToRequest } from './course-runs.mjs'
 import { courseRequestFailure, courseRequestAction, courseRequestCanStop } from './course-errors.mjs'
 import { courseWorkflowView, courseUsageText, courseProgressPercent, courseBoardStep } from './course-workflow.mjs'
 import { courseMemoryPolicyLines } from './course-memory.mjs'
+import { courseSystemContent } from './course-system-text.mjs'
 import { renderCollaboration } from './course-collaboration.js'
 import { recoverCourseBudgetRequest, recoverCourseBudgetRun } from './course-budget-summary.mjs'
 import { directionLabel, directionText, formatProbability, isPriceDirection, priceDirections, validDirectionProbabilities } from './course-price-direction.mjs'
@@ -273,11 +275,11 @@ function renderBudgetSummary(run) {
     .map(source => h('li', '', dataContent('span', '', source.title ?? source.evidenceId), ' ', sourceLink(source),
       includeExcerpts && source.text ? dataContent('p', 'wb-prewrap', source.text.slice(0, 280)) : null)))
   const panel = h('section', 'cc-resolution', h('h3', '', '预算收尾 · 阶段性结果'),
-    uiContent('p', '', summary.summary), dataContent('p', 'wb-muted', summary.reason),
+    uiContent('p', '', summary.summary), courseSystemContent('p', 'wb-muted', summary.reason, 'closeout'),
     h('p', '', run.directionOutlook ? '以下是本轮已保存的材料。' : summary.recovered ? '已从历史记录整理材料。本轮未发布正式预测。' : '以下是本轮已保存的材料，最终判断尚未完成。'))
   for (const report of summary.reports) {
     panel.append(h('h4', '', dataContent('span', '', report.name), report.status === 'insufficient' ? ' · 资料不足' : ''),
-      dataContent('p', '', report.summary))
+      courseSystemContent('p', '', report.summary, 'closeout'))
     if (report.evidenceIds.length) panel.append(sourceList(report.evidenceIds))
     if (report.missingEvidence.length) panel.append(h('p', 'wb-muted', '待核验：', dataContent('span', '', report.missingEvidence.join('；'))))
   }
@@ -366,7 +368,7 @@ function renderAnswer(node, data, ctx) {
   attachFold(node)
   requestAnimationFrame(() => syncFold(node))
 }
-function renderMemory(node, run, data) {
+export function renderMemory(node, run, data) {
   const memory = run?.memory
   node.hidden = !memory
   if (!memory) { node.replaceChildren(); return }
@@ -384,7 +386,7 @@ function renderMemory(node, run, data) {
   else newInfo.append(h('p', '', triage.kind === 'initial' ? '首轮调查，尚无上一轮可比较。' : triage.newEvidenceIds?.length ? '新增资料已记录，当前未提供题名。' : '未记录新增的独立证据。'))
   const why = current?.summary ?? triage.reason
   const adjustment = isPriceDirection(current) ? directionText(current) : change === null ? validCurrent ? '这是首次发布' : '本轮尚未发布新概率' : change === 0 ? '当前概率保持不变' : '较上一判断' + (change > 0 ? '上调 ' : '下调 ') + Math.abs(change) + ' 个百分点'
-  node.replaceChildren(h('h2', '', '这轮怎样接着上次查'), h('p', 'wb-muted', '对应房间所选轮次。历史摘要用于比较，不算新的外部证据。'), h('div', 'cc-memory-grid', h('div', 'cc-memory-item', h('h3', '', '上一判断'), previousDisplay, previous?.statusLabel ? uiContent('span', 'cc-status-badge', previous.statusLabel) : null, memory.summary ? dataContent('small', '', memory.summary) : null), newInfo, h('div', 'cc-memory-item', h('h3', '', '为什么调整'), uiContent('strong', '', adjustment), why ? dataContent('p', '', why) : h('p', '', '尚无已保存的调整说明。'), triage.reason && why !== triage.reason ? h('small', '', '本轮触发：', dataContent('span', '', triage.reason)) : null)), uiContent('small', 'wb-muted', '实际读取历史：' + (memory.sourceRunIds?.length ?? 0) + ' 轮，' + (memory.reportCount ?? 0) + ' 份报告，' + (memory.relationCount ?? 0) + ' 条资料关系。'))
+  node.replaceChildren(h('h2', '', '这轮怎样接着上次查'), h('p', 'wb-muted', '对应房间所选轮次。历史摘要用于比较，不算新的外部证据。'), h('div', 'cc-memory-grid', h('div', 'cc-memory-item', h('h3', '', '上一判断'), previousDisplay, previous?.statusLabel ? uiContent('span', 'cc-status-badge', previous.statusLabel) : null, memory.summary ? courseSystemContent('small', '', memory.summary, 'memory') : null), newInfo, h('div', 'cc-memory-item', h('h3', '', '为什么调整'), uiContent('strong', '', adjustment), why ? courseSystemContent('p', '', why, current?.summary ? 'closeout' : 'triage') : h('p', '', '尚无已保存的调整说明。'), triage.reason && why !== triage.reason ? h('small', '', '本轮触发：', courseSystemContent('span', '', triage.reason, 'triage')) : null)), uiContent('small', 'wb-muted', '实际读取历史：' + (memory.sourceRunIds?.length ?? 0) + ' 轮，' + (memory.reportCount ?? 0) + ' 份报告，' + (memory.relationCount ?? 0) + ' 条资料关系。'))
   const policy = courseMemoryPolicyLines(memory)
   if (policy.length) node.insertBefore(h('div', 'cc-memory-policy', h('strong', '', '本轮记忆范围'), policy.map(line => uiContent('p', '', line))), node.querySelector('.cc-memory-grid'))
 }
@@ -400,7 +402,7 @@ function renderWatch(node, data) {
   if (typeof w.policySummary === 'string' && w.policySummary.trim()) node.append(h('p', 'cc-watch-policy', h('strong', '', '何时召集研究员：'), dataContent('span', '', w.policySummary)))
   if (triage) {
     const kinds = { initial: '首次调查', no_change: '没有新变化，不召集研究员', local: '局部补查', team: '召集团队复核' }
-    node.append(...[h('p', '', h('strong', '', '最近分流：', kinds[triage.kind] ? h('span', '', kinds[triage.kind]) : dataContent('span', '', triage.kind)), triage.reason ? dataContent('span', '', '。' + triage.reason) : ''), triage.selectedRoleIds?.length ? h('p', '', '本次请到：', ...triage.selectedRoleIds.flatMap((id, index) => [...(index ? ['、'] : []), h('span', '', courseRoleName(id))])) : null, Number.isFinite(triage.duplicateCount) && triage.duplicateCount > 0 ? uiContent('small', '', '已排除 ' + triage.duplicateCount + ' 条重复线索。') : null].filter(Boolean))
+    node.append(...[h('p', '', h('strong', '', '最近分流：', kinds[triage.kind] ? h('span', '', kinds[triage.kind]) : dataContent('span', '', triage.kind)), triage.reason ? h('span', '', '。', courseSystemContent('span', '', triage.reason, 'triage')) : ''), triage.selectedRoleIds?.length ? h('p', '', '本次请到：', ...triage.selectedRoleIds.flatMap((id, index) => [...(index ? ['、'] : []), h('span', '', courseRoleName(id))])) : null, Number.isFinite(triage.duplicateCount) && triage.duplicateCount > 0 ? uiContent('small', '', '已排除 ' + triage.duplicateCount + ' 条重复线索。') : null].filter(Boolean))
   }
   node.append(h('small', '', '只有实际取得新信息并发布判断，曲线才增加一个点。检查安排与本次分流均来自已保存记录。'))
 }
@@ -426,7 +428,7 @@ function renderSources(node, data) {
   requestAnimationFrame(() => syncFold(node))
 }
 
-function runRecords(run) {
+export function runRecords(run) {
   const events = run?.events ?? []
   const names = { 'team.selected': '按题选择研究员', 'memory.loaded': '读取历史摘要', 'watch.triaged': '判断本轮调查范围', 'assignment.started': '真实派工', 'assignment.completed': '提交报告', 'tool.started': '执行工具', 'tool.completed': '工具返回', 'tool.failed': '工具失败', 'meeting.started': '核对分歧', 'meeting.message': '公开通信', 'communication.sent': '公开通信', 'forecast.published': '发布判断', 'run.finished': '本轮结束' }
   const rows = events.filter((event) => names[event.type])
@@ -434,14 +436,14 @@ function runRecords(run) {
   details.open = run?.runId ? recordsOpenByRun.get(run.runId) === true : false
   details.addEventListener('toggle', () => { if (run?.runId) recordsOpenByRun.set(run.runId, details.open) })
   const body = h('div', 'cc-records-body')
-  if (run?.summary) body.append(h('p', 'wb-muted', h('span', '', '所选轮次'), ' · ', uiContent('span', '', statusLabel(run.status)), '：', dataContent('span', 'wb-prewrap', run.summary)))
+  if (run?.summary) body.append(h('p', 'wb-muted', h('span', '', '所选轮次'), ' · ', uiContent('span', '', statusLabel(run.status)), '：', courseSystemContent('span', 'wb-prewrap', run.summary, 'closeout')))
   const team = courseTeam(run)
   for (const event of rows) {
     const p = event.payload ?? {}; const summary = p.summary ?? p.message ?? p.report?.summary ?? p.reason ?? p.memory?.summary ?? p.triage?.reason
     const roleId = normalizeCourseRole(p.roleId ?? p.agentSpecId)
     const role = team.find((member) => member.roleId === roleId)
-    const members = event.type === 'team.selected' ? (p.team ?? []).map((member) => h('p', '', dataContent('span', '', courseRoleName(member.roleId, member.name)), '：', contentOrPlaceholder('span', '', member.reason ?? member.objective, '已入选本轮调查'))) : []
-    body.append(h('details', 'wb-execution-row', h('summary', '', names[event.type], ...(roleId ? [' · ', dataContent('span', '', courseRoleName(roleId, role?.name))] : []), ...(p.toolId ? [' · ', dataContent('span', '', p.toolId)] : [])), summary ? dataContent('p', 'wb-prewrap', summary) : h('p', 'wb-muted', '该动作已记录。'), members, p.evidenceIds?.length ? h('small', '', '引用：', dataContent('span', '', p.evidenceIds.join('、'))) : null))
+    const members = event.type === 'team.selected' ? (p.team ?? []).map((member) => h('p', '', courseRoleNameContent(member.roleId, member.name), '：', contentOrPlaceholder('span', '', member.reason ?? member.objective, '已入选本轮调查'))) : []
+    body.append(h('details', 'wb-execution-row', h('summary', '', names[event.type], ...(roleId ? [' · ', courseRoleNameContent(roleId, role?.name)] : []), ...(p.toolId ? [' · ', dataContent('span', '', p.toolId)] : [])), summary ? courseSystemContent('p', 'wb-prewrap', summary, ({ 'memory.loaded': 'memory', 'watch.triaged': 'triage', 'assignment.completed': 'closeout', 'run.finished': 'closeout' })[event.type]) : h('p', 'wb-muted', '该动作已记录。'), members, p.evidenceIds?.length ? h('small', '', '引用：', dataContent('span', '', p.evidenceIds.join('、'))) : null))
   }
   if (!events.length) body.append(h('p', 'wb-muted', '尚无执行事件。只展示公开计划、工具、来源与判断摘要。'))
   details.append(body)
@@ -463,7 +465,7 @@ function renderWorkflow(node, run, purpose) {
     dataContent('p', '', run.draft.interpretation || run.draft.question || ''), run.draft.targetAt ? h('small', '', '观察至 ', dateContent(run.draft.targetAt, run.draft.timezone), '；来源与正式规则由子 Agent 取证后再核定。') : null) : null
   const workers = h('div', 'cc-workflow-workers')
   for (const row of view.rows) {
-    const item = h('div', 'cc-workflow-worker', dataContent('strong', '', row.name), uiContent('span', '', row.activityText), uiContent('small', '',
+    const item = h('div', 'cc-workflow-worker', courseRoleNameContent(row.roleId, row.name, 'strong'), uiContent('span', '', row.activityText), uiContent('small', '',
       (row.cycle ? `周期 ${row.cycle} · ` : '') + '模型 ' + courseUsageText(row.usage.modelRequests, row.budget.maxModelRequests, ' 次') + ' · 工具 ' + courseUsageText(row.usage.toolCalls, row.budget.maxToolCalls, ' 次')))
     item.dataset.state = row.waiting ? 'waiting' : row.status ?? 'pending'; workers.append(item)
   }

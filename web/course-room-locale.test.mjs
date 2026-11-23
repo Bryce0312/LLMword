@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { createCourseRoom } from './workbench-course-room.js'
+import { renderMemory, runRecords } from './workbench-course.js'
+import { buildMemorySnapshot } from '../server/course/memory-policy.mjs'
 import { createWorkbenchRoom } from './workbench-room.js'
 import { createRoomScene } from './actors.js'
 import { initLocaleUI, translateUiText } from './locale.mjs'
@@ -131,7 +133,7 @@ test('advanced room translates a canonical role plus display version while prese
   assert.equal(actor.getAttribute('data-i18n-data-attributes'), 'aria-label')
 }))
 
-test('legacy actor attributes translate UI prefixes and known roles while preserving nicknames', () => withRoom(({ root, locale, setRoom }) => {
+test('legacy actor attributes translate UI prefixes and known roles and built-in nicknames', () => withRoom(({ root, locale, setRoom }) => {
   const previous = globalThis.ResizeObserver
   globalThis.ResizeObserver = class { observe() {} }
   try {
@@ -141,17 +143,17 @@ test('legacy actor attributes translate UI prefixes and known roles while preser
     const scene = createRoomScene({ layer, speaker, speakerName, speakerText, speakerKind, status, onAgent() {}, onActivity() {}, onAnnouncement() {} })
     setRoom({ destroy: () => scene.resetStream() })
     const agents = [
-      { id: 'policy', name: '小策', role: '政策研究', english: 'Policy research' },
-      { id: 'supply', name: '小链', role: '供应链研究', english: 'Supply-chain research' },
-      { id: 'company', name: '小财', role: '公司基本面', english: 'Company fundamentals' },
-      { id: 'market', name: '小盘', role: '市场研究', english: 'Market research' },
-      { id: 'chair', name: '主持人', role: '会议主持', english: 'Meeting chair' },
+      { id: 'policy', name: '小策', englishName: 'Xiao Ce', role: '政策研究', english: 'Policy research' },
+      { id: 'supply', name: '小链', englishName: 'Xiao Lian', role: '供应链研究', english: 'Supply-chain research' },
+      { id: 'company', name: '小财', englishName: 'Xiao Cai', role: '公司基本面', english: 'Company fundamentals' },
+      { id: 'market', name: '小盘', englishName: 'Xiao Pan', role: '市场研究', english: 'Market research' },
+      { id: 'chair', name: '主持人', englishName: 'Chair', role: '会议主持', english: 'Meeting chair' },
     ]
     scene.setAgents(agents); update(locale)
     for (const agent of agents) {
       const actor = layer.querySelectorAll('.world-actor').find(node => node.dataset.agent === agent.id)
-      assert.equal(actor.title, agent.name + ' · ' + agent.english, 'the role is really English, not merely ignored by an audit marker')
-      assert.equal(actor.getAttribute('aria-label'), 'View the researcher profile for ' + agent.name)
+      assert.equal(actor.title, agent.englishName + ' · ' + agent.english, 'the role is really English, not merely ignored by an audit marker')
+      assert.equal(actor.getAttribute('aria-label'), 'View the researcher profile for ' + agent.englishName)
       assert.equal(actor.getAttribute('data-i18n-data-attributes'), 'title aria-label')
     }
     locale.setLocale('zh-CN', { persist: false })
@@ -161,4 +163,59 @@ test('legacy actor attributes translate UI prefixes and known roles while preser
     assert.equal(custom.title, '自定义昵称 · 模型连接', 'custom role text is original data')
     assert.equal(custom.getAttribute('aria-label'), 'View the researcher profile for 自定义昵称')
   } finally { if (previous === undefined) delete globalThis.ResizeObserver; else globalThis.ResizeObserver = previous }
+}))
+
+
+test('course memory renders translated program scope while preserving model summaries and arbitrary historical prose', () => withRoom(({ root, locale }) => {
+  const memory = buildMemorySnapshot({ requestId: 'q', asOf: '2026-11-23T00:00:00Z' })
+  const run = { memory, triage: { kind: 'initial', reason: '首次按题选择差异职责。' } }
+  const before = structuredClone(run)
+  renderMemory(root, run, { evidence: [] }); update(locale)
+  assert.match(root.textContent, /Historical memory: 0 substantive judgments/u)
+  assert.match(root.textContent, /The initial team is selected for distinct responsibilities/u)
+  assert.doesNotMatch(root.textContent, /历史记忆：|首次按题选择/u)
+  locale.setLocale('zh-CN', { persist: false })
+  assert(root.textContent.includes(memory.summary))
+  assert.deepEqual(run, before)
+  const original = { memory: { ...memory, summary: '保存预算' }, triage: { kind: 'local', reason: '模型连接' }, forecast: { summary: '删除记录' } }
+  renderMemory(root, original, { evidence: [] }); update(locale)
+  for (const text of ['保存预算', '模型连接', '删除记录']) assert(root.textContent.includes(text), text)
+  assert.equal(root.querySelectorAll('[data-i18n-skip]').filter(node => ['保存预算', '模型连接', '删除记录'].includes(node.textContent)).length, 3)
+}))
+
+test('budget closeout speech is English and reversible while later model speech retains its data boundary', () => withRoom(({ root, locale, setRoom }) => {
+  const room = createCourseRoom(root); setRoom(room)
+  const emit = effect => room.apply({ runId: 'r', generation: 1, ...effect })
+  emit({ type: 'reset' }); emit({ type: 'team', team: [{ roleId: 'official', name: '官方资料研究员' }] })
+  const receipt = '执行器预算收尾回执：本研究员已取得2项资料，但未在本次额度内完成有效判断。以下资料供主Agent整理，不代表完整研究报告或已验证概率。'
+  emit({ type: 'speech', roleId: 'official', status: 'insufficient', summary: receipt })
+  update(locale)
+  const body = root.querySelector('.wb-room-bubble').querySelector('p')
+  assert.match(body.textContent, /^Executor budget close-out receipt: this researcher obtained 2 materials/u)
+  assert.doesNotMatch(body.textContent, /\p{Script=Han}/u)
+  locale.setLocale('zh-CN', { persist: false }); assert.equal(body.textContent, receipt)
+  emit({ type: 'speech', roleId: 'official', status: 'complete', summary: '保存预算' }); update(locale)
+  assert.equal(body.textContent, '保存预算')
+  assert.equal(body.querySelector('span').getAttribute('data-i18n-skip'), 'true')
+}))
+
+
+test('execution records translate canonical memory and budget receipts while preserving free-form event prose', () => withRoom(({ root, locale }) => {
+  const memory = buildMemorySnapshot({ requestId: 'q', asOf: '2026-11-23T00:00:00Z' })
+  const receipt = '执行器预算收尾回执：本研究员已取得4项资料，但未在本次额度内完成有效判断。以下资料供主Agent整理，不代表完整研究报告或已验证概率。'
+  const run = { runId: 'r', status: 'completed', events: [
+    { type: 'memory.loaded', payload: { memory } },
+    { type: 'watch.triaged', payload: { triage: { reason: '首次按题选择差异职责。' } } },
+    { type: 'assignment.completed', payload: { summary: receipt, agentSpecId: 'official' } },
+    { type: 'meeting.message', payload: { summary: '保存预算' } },
+    { type: 'assignment.completed', payload: { summary: '模型连接' } },
+  ] }
+  const before = structuredClone(run)
+  root.append(runRecords(run)); update(locale)
+  assert.match(root.textContent, /Historical memory: 0 substantive judgments/u)
+  assert.match(root.textContent, /Executor budget close-out receipt: this researcher obtained 4 materials/u)
+  assert.match(root.textContent, /The initial team is selected for distinct responsibilities/u)
+  assert(root.textContent.includes('保存预算')); assert(root.textContent.includes('模型连接'))
+  assert.deepEqual(run, before)
+  locale.setLocale('zh-CN', { persist: false }); assert(root.textContent.includes(receipt)); assert(root.textContent.includes(memory.summary))
 }))

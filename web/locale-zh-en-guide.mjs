@@ -1,5 +1,9 @@
 // Guided tutorial copy. Case records themselves stay in their original language.
 export const guideTranslations = Object.freeze({
+  '正在打开…': 'Loading page…',
+  '教程 · 股票预测事务所': 'Tutorial · Stock Forecast Office',
+  '这个页面暂时未能打开': 'This page could not be opened',
+  '材料能作为调查线索，但还不足以消除未来不确定性；这不是涨跌结论。': 'The material provides research leads but does not resolve uncertainty about the future; it is not a price-direction conclusion.',
   '教程': 'Tutorial',
   '教程：从案例看懂研究室': 'Tutorial: learn the lab from archived cases',
   '三条学习路径，用已封存的模拟／回放案例说明协作、复核和恢复。教程不调用模型，也不会写入真实预测历史。': 'Three paths use archived simulated/replay cases to explain collaboration, re-checks and recovery. The tutorial calls no model and writes nothing to live prediction history.',

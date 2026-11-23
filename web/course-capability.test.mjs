@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { assessCourseCapability, probeCourseCapability, guardCourseSubmission, isMissingCourseApi, environmentPresentation } from './course-capability.mjs'
+import { translateUiText } from './locale.mjs'
 
 const config = { stage: 'course-vertical', supervisor: true, forecastPublishing: true, nativeToolProtocol: true, modelMode: 'live', sourceMode: 'live' }
 const response = (status, body) => ({ status, ok: status >= 200 && status < 300, json: async () => body })
@@ -20,6 +21,8 @@ test('environment badge only reflects AI model configuration', () => {
   const failed = environmentPresentation({ modelMode: 'live' }, { configured: true, connection: 'failed' })
   assert.equal(failed.text, 'AI模型已配置')
   assert.equal(failed.dot, 'warning')
+  const noSources = environmentPresentation({ modelMode: 'live', sources: { available: false } }, { configured: true, connection: 'connected' })
+  for (const badge of [keyless, pending, ready, failed, noSources]) assert.doesNotMatch(translateUiText(badge.title, 'en'), /\p{Script=Han}/u)
   assert.equal(environmentPresentation({}), null)
   assert.equal(environmentPresentation({ modelMode: 'replay' }), null)
 })

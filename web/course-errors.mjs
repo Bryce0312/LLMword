@@ -19,9 +19,30 @@ const recovery = {
   MODEL_NOT_CONFIGURED: ['尚未配置模型 Key', '真实环境需要在“模型连接”保存 DeepSeek API Key 后才能开始。', '打开“模型连接”保存 Key，然后重新提交。', true],
 }
 
+// Direct form/API failures arrive before a saved run exists. Stable public codes
+// select UI text; arbitrary service prose remains available to the display layer.
+const apiMessages = Object.freeze({
+  MODEL_NOT_CONFIGURED: '请先在“模型连接”保存 DeepSeek API Key，再开始任务。',
+  PROVIDER_UPDATE_BUSY: '正在保存模型连接，请稍后继续。',
+  MODEL_UNAVAILABLE: '所选角色的模型引用尚未配置，请选择当前主模型。',
+  TOOL_UNAVAILABLE: '所选角色包含尚未接通的工具。',
+  PREDICTION_BUSY: '同一验证问题已有运行，请等待结束或取消。',
+  AGENT_DELETED: '此研究员已经删除，不能用于新的调查；历史运行和版本仍保留。',
+  REQUEST_DELETED: '这项历史记录已删除，仅保留原始资料供追溯。',
+  REQUEST_STOPPED: '这项跟踪已经停止。',
+  REQUEST_CLOSED: '本题已有结果，不能重新创建调查或改写预测。',
+  VERSION_CONFLICT: '记录版本已变化。',
+})
+export function apiErrorPresentation(error = {}) {
+  const message = (Object.hasOwn(apiMessages, error.code) ? apiMessages[error.code] : null)
+    ?? (Object.hasOwn(recovery, error.code) ? recovery[error.code][1] : null)
+    ?? (typeof error.message === 'string' && error.message.trim() ? error.message : '请求未完成，请稍后重试。')
+  return { message, refreshVersion: error.status === 409 && error.code === 'VERSION_CONFLICT' }
+}
+
 /** Only public safe codes select specific causes. Raw vendor bodies never reach the UI. */
 export function courseErrorPresentation(error = {}) {
-  const known = recovery[error.code]
+  const known = Object.hasOwn(recovery, error.code) ? recovery[error.code] : null
   const [title, detail, nextStep, requiresAction] = known ?? ['本轮调查未完成', typeof error.message === 'string' && error.message.trim() ? error.message : '服务没有提供可区分的安全错误原因。', '问题和运行记录已保留，可手动重试本次调查。', error.actionRequired === true]
   return { title, detail, detailIsSystem: Boolean(known || !(typeof error.message === 'string' && error.message.trim())), nextStep, requiresAction, automaticRetry: false, ...(error.code === 'MODEL_RATE_LIMITED' && Number.isFinite(error.retryAfterMs) && error.retryAfterMs > 0 && error.retryAfterMs <= 30000 ? { waitHint: '服务建议的重试间隔约 ' + Math.ceil(error.retryAfterMs / 1000) + ' 秒。' } : {}) }
 }

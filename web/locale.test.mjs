@@ -99,6 +99,56 @@ function fixture(storage = null) {
   return { doc, controller, group, zh, en, room, form, input, ui, title }
 }
 
+test('English-only presentation translates saved content without changing input or original text', async () => {
+  const doc = new FakeDocument()
+  const source = element(doc, 'blockquote', '保存预算', { 'data-i18n-skip': 'true' })
+  const newReport = element(doc, 'p', 'Price increased. 股票市场', { 'data-model-content': 'true', title: '研究备注' })
+  const field = element(doc, 'textarea', undefined, { placeholder: '开始预测' })
+  const draft = new FakeText(doc, '我的草稿', true)
+  field.append(draft)
+  const zh = element(doc, 'button', '简体中文', { 'data-locale': 'zh-CN' })
+  const group = element(doc, 'div', undefined, { id: 'wb-language-switch', 'data-i18n-skip': 'true' })
+  group.append(zh); doc.body.append(group, source, newReport, field)
+  const translated = { '保存预算': 'Set aside the budget', 'Price increased. 股票市场': 'Price increased. Stock market', '研究备注': 'Research notes' }
+  const requests = []
+  doc.defaultView.Translator = {
+    availability: async () => 'available',
+    create: async () => ({ translate: async text => { requests.push(text); return translated[text] } }),
+  }
+  const ui = initLocaleUI({ document: doc, englishOnly: true })
+  try {
+    ui.setLocale('en'); doc.flush()
+    assert.equal(source.textContent, 'Translating…')
+    assert.equal(zh.textContent, 'Simplified Chinese')
+    await new Promise(resolve => setImmediate(resolve)); doc.flush()
+    assert.equal(source.textContent, translated['保存预算'])
+    assert.equal(newReport.textContent, translated['Price increased. 股票市场'])
+    assert.equal(newReport.getAttribute('title'), 'Research notes')
+    assert.equal(field.getAttribute('placeholder'), 'Start prediction')
+    assert.equal(draft.reads, 0)
+    assert.deepEqual(requests.sort(), Object.keys(translated).sort())
+
+    ui.setLocale('zh-CN'); doc.flush()
+    assert.equal(source.textContent, '保存预算')
+    assert.equal(newReport.textContent, 'Price increased. 股票市场')
+    assert.equal(newReport.getAttribute('title'), '研究备注')
+    assert.equal(zh.textContent, '简体中文')
+  } finally { ui.dispose() }
+})
+
+test('English-only display uses an English notice when local translation is unavailable', () => {
+  const doc = new FakeDocument()
+  const source = element(doc, 'p', '这是原报告', { 'data-i18n-skip': 'true' })
+  doc.body.append(source)
+  const ui = initLocaleUI({ document: doc, englishOnly: true })
+  try {
+    ui.setLocale('en'); doc.flush()
+    assert.equal(source.textContent, 'English translation unavailable for this text.')
+    ui.setLocale('zh-CN'); doc.flush()
+    assert.equal(source.textContent, '这是原报告')
+  } finally { ui.dispose() }
+})
+
 test('exact UI translation preserves whitespace and leaves arbitrary source text untouched', () => {
   assert.equal(translateUiText('  开始预测\n', 'en'), '  Start prediction\n')
   assert.equal(translateUiText('模型连接', 'en'), 'Model connection')
