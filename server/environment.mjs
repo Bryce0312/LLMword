@@ -9,7 +9,7 @@ export function assertEnvironmentRuns(environment, runs = []) {
   if (!['mock', 'live'].includes(environment)) return
   const modes = new Set(runs.map(run => run?.modelMode).filter(mode => mode === 'mock' || mode === 'live'))
   if (environment === 'mock' && modes.has('live')) throw new Error('模拟数据目录中存在真实运行记录。请改用 npm run start:live，或换一个空的模拟数据目录。')
-  if (environment === 'live' && modes.has('mock')) throw new Error('真实数据目录中存在模拟运行记录。请改用 npm run start:mock，或换一个空的真实数据目录。')
+  if (environment === 'live' && modes.has('mock')) throw new Error('真实数据目录中存在模拟运行记录。请换一个空的真实数据目录。')
 }
 
 /** Force one environment's defaults so a stale shell variable cannot mix mock and live data. */

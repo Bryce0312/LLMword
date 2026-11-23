@@ -8,6 +8,23 @@ export function roomShellTarget(value = '') {
   return { kind: 'overlay', hash, parts, query: url.searchParams }
 }
 
+export const publicRouteIds = Object.freeze(['welcome', 'guide'])
+
+/** The root address opens the public welcome page; deep links keep their destination. */
+export function initialRouteHash(value = '') {
+  const hash = String(value || '')
+  return hash && hash !== '#' && hash !== '#/' ? hash : '#/welcome'
+}
+
+export function isPublicRoute(value = '') {
+  return publicRouteIds.includes(roomShellTarget(initialRouteHash(value)).parts[0])
+}
+
+export function isGuideIndex(value = '') {
+  const parts = roomShellTarget(initialRouteHash(value)).parts
+  return parts[0] === 'guide' && !parts[1]
+}
+
 /** Scene and workspace generations are independent; this controller has no write operations. */
 export function createRoomShellNavigation(hooks) {
   let sceneSerial = 0, overlaySerial = 0, sceneId = null, sceneHash = '#/room', overlayHash = null, overlayOpen = false, idleMounted = false

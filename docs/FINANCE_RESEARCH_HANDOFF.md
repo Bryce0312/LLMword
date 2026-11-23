@@ -18,10 +18,10 @@
 npm.cmd ci
 npm.cmd run cases
 npm.cmd run cases:finance
-npm.cmd run start:mock
+npm.cmd start
 ```
 
-默认模拟环境 http://127.0.0.1:4173 ，顶部「财报案例」。两个虚构财报案例验证中英文原文、金额口径、真实工具计算、新闻时间线及研报封存；原有七个流程案例仍可查看。真实环境用 `npm.cmd run start:live`，默认 4174，在「模型连接」输入临时 Key；Key 只留在当前进程。
+默认 http://127.0.0.1:4174 ，根地址为欢迎页与教程入口；进入研究室后可从顶部案例页查看财报归档。两个虚构财报案例验证中英文原文、金额口径、真实工具计算、新闻时间线及研报封存；原有七个流程案例仍可查看。真实预测在「模型连接」输入临时 Key；Key 只留在当前进程。mock 启动入口已下线，mock provider 只供自动化测试使用。
 
 `npm.cmd run verify:collaboration` 生成全量测试汇总。Node v22.17.1 已验证；完整测试需要本机 HTTP 与正常临时文件改名权限。
 

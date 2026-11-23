@@ -8,8 +8,11 @@ import { courseBoard, courseStartForm, mountCourseRequest } from './workbench-co
 import { probeCourseCapability, unavailableCourseCapability, isMissingCourseApi, environmentPresentation } from './course-capability.mjs'
 import { providerConnectionView } from './workbench-provider.js'
 import { courseExamples } from './course-examples.js'
+import { guideView } from './guide.js'
+import { welcomeView } from './welcome.js'
 import { createWorkbenchRoomShell } from './workbench-room-shell.js'
-import { mergeDeletedHistoryMetadata, mergeRoomHistory } from './room-shell-navigation.mjs'
+import { initialRouteHash, isGuideIndex, isPublicRoute, mergeDeletedHistoryMetadata, mergeRoomHistory } from './room-shell-navigation.mjs'
+import { consumeTutorialFocus, rememberRoute } from './route-history.mjs'
 import { initLocaleUI } from './locale.mjs'
 
 initLocaleUI()
@@ -128,7 +131,7 @@ async function renderLegacyRoute() {
   const token = ++serial; const { parts, query } = route()
   const courseRoute = parts[0] === 'course' || parts[0] === 'course-examples' || (parts[0] === 'predictions' && (!parts[1] || parts[1] === 'new'))
   document.body.classList.toggle('wb-course-route', courseRoute)
-  if (courseRoute || parts[0] === 'model-connection') { stream?.close(); stream = null }
+  if (courseRoute || parts[0] === 'guide' || parts[0] === 'model-connection') { stream?.close(); stream = null }
   else if (!stream) connectEvents()
   ctx.courseCleanup?.(); ctx.courseCleanup = null
   ctx.room?.destroy(); ctx.room = null
@@ -139,6 +142,7 @@ async function renderLegacyRoute() {
   try {
     let nodes
     if (parts[0] === 'course-examples') nodes = await courseExamples({ finance: query.get('set') === 'finance' })
+    else if (parts[0] === 'guide') nodes = await guideView(ctx, parts)
     else if (parts[0] === 'course' && parts[1] && parts[1] !== 'new') { await mountCourseRequest(ctx, parts[1], token); return }
     else if ((parts[0] === 'course' && (!parts[1] || parts[1] === 'new')) || (parts[0] === 'predictions' && parts[1] === 'new')) nodes = courseStartForm(ctx, { standalone: true })
     else if (parts[0] === 'learning') nodes = await learning()
@@ -166,6 +170,7 @@ async function renderLegacyRoute() {
 }
 async function renderShellWorkspace(owner, target, token) {
   const { parts, query } = target
+  if (parts[0] === 'guide') return guideView(owner, parts)
   if (parts[0] === 'course-examples') return courseExamples({ finance: query.get('set') === 'finance' })
   if (parts[0] === 'course' || (parts[0] === 'predictions' && (!parts[1] || parts[1] === 'new'))) return courseStartForm(owner, { standalone: true })
   if (parts[0] === 'model-connection') return providerConnectionView(owner)
@@ -192,8 +197,50 @@ async function renderShellWorkspace(owner, target, token) {
   return [header('找不到这个工作区'), empty('请使用顶部菜单选择操作', '当前研究室和历史记录保持不变。')]
 }
 
+async function renderPublicRoute() {
+  const token = ++serial
+  const { parts } = route()
+  const focusTutorial = consumeTutorialFocus()
+  if (roomShell) { roomShell.dispose(); roomShell = null }
+  stream?.close(); stream = null
+  ctx.courseCleanup?.(); ctx.courseCleanup = null
+  ctx.room?.destroy(); ctx.room = null
+  liveCtx = ctx
+  ctx.accept(selectRun(projection, null))
+  document.body.dataset.publicPage = 'true'
+  document.body.classList.remove('wb-course-route')
+  $('wb-global-error').hidden = true
+  for (const a of document.querySelectorAll('[data-nav]')) a.classList.toggle('is-selected', a.dataset.nav === parts[0])
+  ctx.content.replaceChildren(h('p', 'wb-loading', '正在打开…'))
+  try {
+    const nodes = parts[0] === 'welcome' ? welcomeView() : await guideView(ctx, parts)
+    if (token !== serial) return
+    ctx.content.replaceChildren(...nodes)
+    document.title = parts[0] === 'welcome' ? '股票预测事务所' : '教程 · 股票预测事务所'
+    window.scrollTo({ top: 0 })
+    if (parts[0] === 'welcome' && focusTutorial) {
+      requestAnimationFrame(() => document.getElementById('welcome-tutorial')?.scrollIntoView({ behavior: 'smooth', block: 'start' }))
+    }
+  } catch (error) {
+    if (token !== serial) return
+    ctx.content.replaceChildren(header('这个页面暂时未能打开'), empty(error.message, '已保存的数据不会因此清除。', button('重新读取', renderRoute)))
+  }
+}
+
 async function renderRoute(options = {}) {
   if (document.body.dataset.roomShell !== 'true') return renderLegacyRoute()
+  let targetHash = initialRouteHash(location.hash)
+  if (isGuideIndex(targetHash)) targetHash = '#/welcome'
+  if (targetHash !== location.hash) history.replaceState(null, '', targetHash)
+  rememberRoute(targetHash)
+  if (isPublicRoute(targetHash)) return renderPublicRoute()
+  if (!workspaceLoaded) return initialize()
+  document.title = '股票预测事务所'
+  if (document.body.dataset.publicPage === 'true') {
+    delete document.body.dataset.publicPage
+    ctx.content.replaceChildren()
+    $('wb-room-host')?.replaceChildren()
+  }
   if (!roomShell) {
     ctx.courseCleanup?.(); ctx.courseCleanup = null; ctx.room?.destroy(); ctx.room = null
     stream?.close(); stream = null
@@ -211,7 +258,10 @@ async function renderRoute(options = {}) {
   return roomShell.render(location.hash || '#/room', options)
 }
 
-async function initialize() {
+let workspaceLoaded = false
+let workspaceLoad = null
+
+async function loadWorkspace() {
   const historyBaseline = [...cache.courseRequests]
   try {
     const [topics, predictions, agents, tools, config] = await Promise.all([api('/topics'), api('/predictions'), api('/agents'), api('/tools'), api('/config')])
@@ -233,11 +283,19 @@ async function initialize() {
         else cache.courseHistoryError = '历史任务暂时无法读取，请重试。'
       }
     }
-    $('wb-global-error').hidden = true; markDataConnected(); await renderRoute()
+    workspaceLoaded = true
+    $('wb-global-error').hidden = true; markDataConnected()
   } catch (error) {
     $('wb-connection').textContent = '服务未连接'; showError(error)
-    ctx.content.replaceChildren(header('研究室等待连接'), empty('暂时无法读取真实数据', '请启动本地服务后重试。这里不会用模拟任务冒充已保存的数据。', button('重新连接', initialize)))
+    if (!isPublicRoute(location.hash)) ctx.content.replaceChildren(header('研究室等待连接'), empty('暂时无法读取真实数据', '请启动本地服务后重试。这里不会用模拟任务冒充已保存的数据。', button('重新连接', initialize)))
   }
+}
+
+async function initialize() {
+  if (isPublicRoute(location.hash)) return renderRoute()
+  if (!workspaceLoad) workspaceLoad = loadWorkspace().finally(() => { workspaceLoad = null })
+  await workspaceLoad
+  if (workspaceLoaded) await renderRoute()
 }
 addEventListener('hashchange', event => { let previousHash; try { previousHash = new URL(event.oldURL).hash } catch {} void renderRoute({ previousHash }) })
 addEventListener('workbench:datachanged', renderSidebar)

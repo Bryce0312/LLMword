@@ -27,6 +27,7 @@
 | 预测历史删除 | 已有判断、资料不足和调查失败记录的状态后显示“删除记录”，沿用徽章样式及页面主题二次确认。删除后刷新或重启不会重新出现。 | 活动调查／持续预测禁止删除，需先停止；原始运行、判断、角色快照和证据保留供追溯。独立 legacy domain 记录维持只读。 |
 | API Key 脱敏保留 | 连接成功后，Key 保留在可编辑密码框中，以圆点显示；同一网页切换弹窗可恢复。临时状态读取失败不再清除已验证的值。 | 仅当前文档与服务器会话内存；不写浏览器持久或会话存储，状态接口不返回 Key，整页刷新后输入框不回填。 |
 | 预测文案 | 开始预测页统一为“写下一个你想预测的股票”“预测多久”“持续预测”，同步英文切换。 | 不改变交易日期限、任务预算或持续预测默认关闭的行为。 |
+| 教程入口 | 欢迎页正文三条学习路径，使用已封存模拟／回放案例讲解完整协作、新证据局部复核和失败恢复；章节先给导读、术语卡和研究员速览，原始记录默认折叠。欢迎页底部介绍主 Agent 与十个研究员席位，完成后可预填示例进入真实预测。 | 教程只读本地演示档案，不创建任务、不调用模型，也不写入 mock 或 live 数据库；进度仅存本机浏览器，完成页示例可编辑但不会自动提交预测。 |
 
 历史删除与 Key 优化的首次全量本地回归 **608/608 通过**，覆盖取消确认、过期状态、活动任务保护、持久移除、旧读取响应、原档案不变及 Key 暂时读取失败等路径。真实服务空闲时已重载，并只读核对历史、预算和静态资源；未删除真实记录或新增付费模型调用，未进行浏览器视觉验收。证据见 [V4.3 回归记录](docs/evidence/v43-history-key-regression.json)，接口与档案边界见 [架构说明](docs/ARCHITECTURE.md#71-v43-预测历史移除d0512026-11-23)。
 
@@ -54,6 +55,7 @@ English 现覆盖当前工作台、辅助页面及旧案例入口，包括菜单
 | 2026-11-23 | Codex 辅助；团队成员／提交待填 | 开始预测页文案统一为“写下一个你想预测的股票”“预测多久”“持续预测”，同步中英切换。 | 既有表单与语言回归通过，纳入[645/645 全量检查](docs/evidence/v43-english-regression.json)。 | 只调整展示文案，交易日选项、预算及持续预测默认关闭的行为不变。 |
 | 2026-11-23 | Codex 辅助；团队成员／提交待填 | 全面补齐当前工作台、辅助页面和旧案例入口的 English 模式，共1,314条固定文案、105类动态模板；覆盖动态进度、默认角色／工具、预算、日期、图表、协作、提示、确认框及无障碍属性。 | [全量回归 645/645](docs/evidence/v43-english-regression.json)；[隔离浏览器巡检37个页面／状态](docs/evidence/v43-english-browser-audit.json)，覆盖1440／900／390px及确认取消；[英文截图](docs/screenshots/v43-english-lab.png)。 | 原位切换，不重建表单或房间；原问题、自定义名称、配置值、报告、证据及引文保持原文，未新增付费模型验证。 |
 | 2026-11-23 | Codex 辅助；团队成员／提交待填 | 新任务保存创建时的报告语言：English对应en，中文对应zh-CN；主Agent、研究员、补查、恢复汇总和持续预测沿用任务语言，程序生成的阶段性报告固定说明同步支持英文。 | [任务语言与预算回归](docs/evidence/v43-english-regression.json)，覆盖重启、并发隔离、恢复、旧中文后端兼容及切换语言后的按钮状态。 | 语言指令计入原预算，不额外发起翻译调用；旧无字段任务及历史封存不改写，后续切换界面不改变已有任务的报告语言。 |
+| 2026-11-23 | Codex 辅助；团队成员／提交待填 | 新增常驻“教程”入口：三条学习路径复用已封存模拟／回放案例讲解完整协作、新证据局部复核和失败恢复，逐章展示观察点并记录本机学习进度；完成页可预填示例进入真实预测。 | 定向回归 8/8、全量 653/653 通过；覆盖案例读取、进度容错、中英覆盖和完成 CTA。 | 只读前端教程：不新增后端接口、不创建任务、不调用模型、不写数据库，也不自动提交真实预测。 |
 | 2026-11-23 | Codex 辅助；团队成员／提交待填 | 补充README、PRD、架构、实现状态、D051／D052决策和验证证据；真实服务重载后核对历史记录、删除标记与预算保留，加载双语报告能力。 | [真实服务核对](docs/evidence/v43-english-live-reload.json)；本次累计全量回归645/645通过，阶段性测试数量不重复相加。 | 代码与界面验收分别记录；未以模拟回归宣称真实模型语言服从率或预测准确率，团队成员归属及Git提交号待填写。 |
 
 ## 设计背景与版本延续
@@ -115,10 +117,12 @@ V3.0 延续前面同学建立的 mock/live 隔离、模型连接、像素界面�
 
 ```powershell
 npm.cmd ci
-npm.cmd run start:mock
+npm.cmd start
 ```
 
-打开 [模拟工作台](http://127.0.0.1:4173)。模拟入口不需要 Key，模型和来源均明确标为 mock/replay，只验证流程。默认显示全屏研究室。顶部依次为开始预测、预测历史记录、研究室设置和模型连接；三个操作菜单打开站内编辑弹窗，预测历史记录下拉展示实际保存任务。其他辅助入口暂时隐藏，页面与路由保留，旧版研究室仍位于 `/legacy.html`。
+打开 [工作台](http://127.0.0.1:4174)。根地址先进入欢迎页，介绍研究室流程并列出三条教程路径；点击“先看教程”会在欢迎页内滚动到教程区，点击 Hero 的“进入研究室”进入全屏研究室。首次使用不需要 Key，可先读完教程的归档案例；真实预测需要在“模型连接”保存 DeepSeek Key。模拟启动入口已下线，测试夹具与 `web/demo` 归档只供自动化测试和教程读取。
+
+欢迎页的“研究室怎样工作”和“教程”区域说明协作、复核与恢复；教程不调用模型、不写入预测历史，学习进度只保存在本机浏览器。
 
 重新生成本地只读案例：
 
@@ -131,13 +135,11 @@ npm.cmd run cases:price
 
 对应七个原流程受控案例、财报案例、警告闭环和金融价格闭环。生成器保留各自公开真实存档，失败与恢复单独显示。查看真实存档不会重新调用模型，mock 分数不能计入真实预测成绩。
 
-### 真实环境与 Key
+### 模型 Key
 
-```powershell
-npm.cmd run start:live
-```
+`npm.cmd start` 已使用真实环境入口（等价 `npm.cmd run start:live`）。
 
-打开 [真实工作台](http://127.0.0.1:4174)，先在“模型连接”保存 DeepSeek Key。
+打开 [工作台](http://127.0.0.1:4174)，先在“模型连接”保存 DeepSeek Key；未配置前可以浏览欢迎页和教程，但不会创建真实预测。
 
 V4.0 的模型连接页可同时编辑 Key、完整聊天 URL 与 model；URL/model 都支持下拉预设及手动输入。默认 `https://api.deepseek.com/chat/completions` ＋ `deepseek-flash`；校园预设为 `https://genai.comp.polyu.edu.hk/api/v1//chat/completions` ＋ `DeepSeek-V4-Flash`，选择 URL 自动匹配模型。保存后只在当前服务进程生效。校园/自定义模型凭据不会发送给官方搜索/正文服务；如需这些来源工具，可在服务端独立配置官方 `WORLD_SEARCH_API_KEY`。校园接口的实际账户权限与工具协议需使用自己的 Key 调试，连接状态仅反映对应 `/models` 检查。连接成功后，当前页面会以密码框圆点保留本次输入的 Key，并支持直接编辑与菜单切换后恢复。Key 仅在当前页面文档及后台进程内存中保留，不写入浏览器本地存储或项目文件；刷新整个网页后不会自动恢复输入值；通过网页保存的会话 Key 在服务重启后需重新填写，显式配置的环境变量凭据按启动环境加载。保存本身不创建预测。角色、工具及用量以实际执行回执为准。
 
@@ -163,8 +165,9 @@ node scripts/live-price-case.mjs --start --base=http://127.0.0.1:4174
 
 | 入口 | 默认端口 | 默认数据目录 |
 | --- | --- | --- |
-| `start:mock` | 4173 | `.data/mock/` |
-| `start:live` | 4174 | `.data/live/` |
+| `npm start`（`start:live`） | 4174 | `.data/live/` |
+
+`.data/mock/` 仅作为历史与测试归档保留，不再有公开启动入口。
 
 同一目录只供一个实例使用。需要单独端口/存档时：
 
@@ -224,7 +227,7 @@ V3.0 的 **333/333** 回归保留在[历史机器记录](docs/evidence/collabora
 
 ## 下一位同学从哪里接手
 
-1. 先用无 Key 模拟环境复现案例，核对[交接说明](docs/DELIVERY_HANDOFF.md)、公开运行证据及已知限制。
+1. 先用 `npm start` 打开欢迎页和教程，核对[交接说明](docs/DELIVERY_HANDOFF.md)、公开运行证据及已知限制；未配置 Key 时不会创建真实预测。
 2. 优先做小规模同题对照：相同资料截点与预算，比较单 Agent/三席或有无记忆，记录事实/引用错误、完成率、成本和耗时；不要以一个样本声称准确率提升。
 3. 完成演示视频、PPT、运行说明和课程提交材料；成员身份、实际贡献及贡献声明由团队填写。
 4. 完整时序图、全平台社交连接、任意股票行情、通用自动结算和大规模校准属于后续扩展，按需单独验收。
@@ -255,7 +258,7 @@ V3.0 的 **333/333** 回归保留在[历史机器记录](docs/evidence/collabora
 
 | 入口 | 用途 |
 | --- | --- |
-| [start-mock.mjs](start-mock.mjs) / [start-live.mjs](start-live.mjs) | 模式、端口及数据隔离 |
+| [start-live.mjs](start-live.mjs) | 唯一公开入口：端口、数据目录与模式
 | [course-service.mjs](server/course/course-service.mjs) / [course-store.mjs](server/course/course-store.mjs) | 编排、预算、持久回执、封存与结果 |
 | [investigation-profiles.mjs](server/course/investigation-profiles.mjs) / [research-profiles.mjs](server/course/research-profiles.mjs) | 十类通用方法和财报专项方法 |
 | [web-tools.mjs](server/course/web-tools.mjs) / [news-search.mjs](server/course/news-search.mjs) / [bing-search.mjs](server/course/bing-search.mjs) | 搜索、正文、语言与可选渠道 |
@@ -383,21 +386,21 @@ V3.0 的 **333/333** 回归保留在[历史机器记录](docs/evidence/collabora
 
 ```powershell
 npm.cmd ci
-npm.cmd run start:mock
+npm.cmd start
 ```
 
-打开 [世界事务所](http://127.0.0.1:4173)，输入问题、点击“开始跟踪”。可选24小时、48小时和7天；明确时长优先，“今天”固定到当地当天结束。该入口是明确标识的虚构演示，不能拿来预测现实问题；模型连接在此入口已锁定，真实运行请改用 `start:live` 入口。
+打开 [工作台](http://127.0.0.1:4174)，根地址为欢迎页与教程入口；进入研究室后输入问题、点击“开始跟踪”。可选24小时、48小时和7天；明确时长优先，“今天”固定到当地当天结束。未配置 Key 时不会创建或恢复调查，请先在“模型连接”保存自己的 DeepSeek API Key。
 
-两个启动入口分别使用`.data/mock/`和`.data/live/`；目录内`world.json.domain.sqlite`保存领域记录、`world.json.course.sqlite`保存课程协作与预测、`world.json.runtime.sqlite`保存单人运行。用`WORLD_DATA_DIR`和`PORT`设置隔离实例；环境入口清除旧分库路径覆盖，防止混用。刷新网页不会自动创建付费重试。
+保存 Key 后会自动调用 `/models` 校验连接：成功显示“已连接”，失败显示“已配置，未连接”，Key 仍保留在当前服务进程内。Key 不写入浏览器存储、不回显输入框，刷新后需要重新输入。也可复制 `.env.example` 为被忽略的 `.env`，填好后运行 `node --env-file=.env start-live.mjs`，此时 Key 从服务端环境读取；模型、搜索、思考与轮询变量见该文件。`WORLD_COURSE=off` 可关闭课程入口后端；调试自定义端口或旧版自动模式时可直接运行内部装配入口 `node server/app.mjs`。
 
-真实调查用 `npm.cmd run start:live`：入口默认监听 4174、使用 `.data/live/`，可以不带 Key 先启动；打开 [真实环境](http://127.0.0.1:4174) 后先在“模型连接”保存自己的 DeepSeek API Key，未保存前不会创建或恢复任何调查。保存后会自动调用 `/models` 校验连接：成功显示“已连接”，失败显示“已配置，未连接”，但 Key 仍会保留在当前服务进程内。Key 不写入浏览器存储、不回显输入框，刷新后需要重新输入。模型名、端点、思考与超时已有 DeepSeek 默认值。也可复制 `.env.example` 为被忽略的 `.env`，填好后运行 `node --env-file=.env start-live.mjs`，此时 Key 从服务端环境读取。`WORLD_COURSE_POLL_MS` 默认一小时，演示可缩短；真实网络使用时自行控制调用费用。`WORLD_COURSE=off` 可关闭课程入口后端。需要自定义端口、存档路径或旧版自动模式的调试场景，直接运行内部装配入口 `node server/app.mjs`，它不做模拟/真实环境锁。
+公开启动只有一个入口：`npm.cmd start`（等价 `npm.cmd run start:live`）。它使用 `.data/live/`；`.data/mock/` 与 `web/demo` 仅作为测试和教程归档保留。目录内`world.json.domain.sqlite`保存领域记录、`world.json.course.sqlite`保存课程协作与预测、`world.json.runtime.sqlite`保存单人运行。用`WORLD_DATA_DIR`和`PORT`设置隔离实例；环境入口清除旧分库路径覆盖，防止混用。刷新网页不会自动创建付费重试。
 
-默认端口 4173/4174、数据目录 `.data/mock/` / `.data/live/`。需要同模式多实例时，用 `PORT` 和 `WORLD_DATA_DIR` 指定独立端口与目录；同一数据目录仍只能有一个进程：
+需要独立端口或目录时，用 `PORT` 和 `WORLD_DATA_DIR` 指定；同一数据目录仍只能有一个进程：
 
 ```powershell
 $env:PORT = '5173'
-$env:WORLD_DATA_DIR = '.data/mock-b'
-npm.cmd run start:mock
+$env:WORLD_DATA_DIR = '.data/live-b'
+npm.cmd start
 ```
 
 旧 `.data/world.json*` 混合归档可用 `node scripts/legacy-data.mjs` 预览；停止相关服务后运行 `node scripts/legacy-data.mjs --apply`，会按课程运行记录迁移到 `.data/mock/legacy/`、`.data/live/legacy/`；混合或无法判断时放入 `.data/legacy/`。

@@ -29,7 +29,7 @@
 
 ## 3 进程装配（server/app.mjs）
 
-`server/app.mjs` 是唯一的装配点，不从根目录暴露固定入口；它按环境变量决定启用哪些子系统，然后起一个只监听 `127.0.0.1` 的 HTTP 服务。日常启动只通过 `start-mock.mjs` / `start-live.mjs` 两个包装入口调用它。
+`server/app.mjs` 是唯一的装配点，不从根目录暴露固定入口；它按环境变量决定启用哪些子系统，然后起一个只监听 `127.0.0.1` 的 HTTP 服务。日常启动只通过 `start-live.mjs`（`npm start`）调用它。
 
 ```mermaid
 flowchart TD
@@ -54,33 +54,33 @@ flowchart TD
 - 课程入口依赖工作台；`WORLD_COURSE=on` 但没有工作台会抛错。
 - 课程 provider 在 live 时复用 runtime provider，mock 时用 `createCourseMockProvider`。
 - `providerConnection` 的 `applyKey` 会用新 Key 重建 provider 与搜索网关，再原子替换 `course` 实例；替换期间所有课程写操作返回 409 `PROVIDER_UPDATE_BUSY`。
-- 默认端口 mock 4173、live 4174；`PORT` 可覆盖，用于同模式多实例。默认数据目录 `.data/mock/` / `.data/live/`；`WORLD_DATA_DIR` 可覆盖为其他独立目录，但不能指向相反模式的默认目录或 `.data` 根目录。同一数据目录仍只允许一个进程。
+- 公开入口默认端口 4174、数据目录 `.data/live/`；内部测试可用 mock 模式并默认 4173 / `.data/mock/`。`PORT` 可覆盖，用于同模式多实例。`WORLD_DATA_DIR` 可覆盖为其他独立目录，但不能指向相反模式的默认目录或 `.data` 根目录。同一数据目录仍只允许一个进程。
 - 根目录旧 `.data/world.json*` 归档不在启动时读取；`scripts/legacy-data.mjs` 默认 dry-run，`--apply` 按课程运行记录迁移到对应环境的 `legacy/`，混合或未知放入 `.data/legacy/`。
 - 启动时 `monitor.start()`、`runtime.resume()`、`course.resume()` 恢复未完成任务。
 
-### 3.1 模拟/真实双入口
+### 3.1 单一公开入口与测试模式
 
 | 入口 | 端口 | 数据目录 | 模型与来源 | 安全边界 |
 | --- | --- | --- | --- | --- |
-| `npm run start:mock` | 4173 | `.data/mock/` | mock + fixture | 删除进程内 Key；模型连接 `locked`，保存返回 `MODE_LOCKED` |
-| `npm run start:live` | 4174 | `.data/live/` | DeepSeek 真实模型与搜索 | 可无 Key 启动；未在网页保存 Key 前拒绝创建/恢复，搜索保持不可用 |
+| `npm start` / `npm run start:live` | 4174 | `.data/live/` | DeepSeek 真实模型与搜索 | 可无 Key 启动；未在网页保存 Key 前拒绝创建/恢复，搜索保持不可用 |
+| `node server/app.mjs`（`WORLD_MODEL=mock`） | 自定义 | 自定义 | mock + fixture | 仅供测试与调试；无公开包装入口 |
 
-- 两个入口强制各自的端口、数据文件和来源，并拒绝使用对方的数据目录。
+- 公开启动只保留 `start-live.mjs`；`start:mock` 与 `start-mock.mjs` 已删除。mock provider、fixture 与 `web/demo` 归档保留给自动化测试和教程读取。
+- 入口强制自身端口、数据文件和来源，并拒绝使用另一模式的数据目录。
 - 真实入口允许无 `WORLD_API_KEY` 启动：装配层使用未配置占位 provider，`/api/v1/course/requests` 与 `check` 返回 409 `MODEL_NOT_CONFIGURED`，启动时也不恢复历史运行；在“模型连接”保存 Key 后才恢复创建与恢复能力。
-- 顶栏 `#wb-environment` 徽章按 `modelMode` 与连接状态显示“模拟环境 · 未配置 / 真实环境 · 未配置 / 真实环境 · 已配置待校验 / 真实环境 · 已配置已连接 / 真实环境 · 已配置未连接”；圆点绿色=已连接、琥珀色=已配置未连接或待校验、灰色=未配置。连接状态读取 `/api/v1/course/provider-connection`，保存 Key 后自动刷新。
+- 顶栏 `#wb-environment` 徽章只显示“AI模型已配置 / AI模型未配置”，并按连接状态显示圆点：绿色=已连接、琥珀色=已配置未连接或待校验、灰色=未配置。非 live 模式不显示徽章；连接状态读取 `/api/v1/course/provider-connection`，保存 Key 后自动刷新。
 - 保存 Key 后自动调用 `GET {WORLD_BASE_URL}/models` 校验：不消耗生成 token、消费并丢弃响应正文（不解析、不记录、不回显）；校验失败仍保存 Key，只把状态标为“已配置，未连接”。Key 不写入浏览器存储，输入框不回显，刷新后需重新输入。
 - 输入框与保存按钮始终可用；已配置 Key 时，若存在正在执行、排队或持续监听的任务，保存会被拒绝（`PROVIDER_UPDATE_BUSY`），原 Key 保持不变，并在表单下方提示。首次配置没有原 Key，不受监听限制。
-- 模拟环境的“模型连接”仍可输入与提交，但后端 `MODE_LOCKED` 会拒绝保存，前端明确提示“模拟环境配置失败”，不接收 Key。
 - 打开课程库后、恢复任务前，`assertEnvironmentRuns` 检查历史 run 的 `modelMode`，发现相反模式即拒绝启动。
-- `node server/app.mjs` 保留原有的自动模式（按 `WORLD_MODEL` 判断），不再作为根目录公开入口，仅供测试与自定义端口/路径调试，也不做数据库守卫。
+- `node server/app.mjs` 保留自动模式（按 `WORLD_MODEL` 判断），仅供测试与自定义端口/路径调试，不做数据库守卫。
 - 已有混合数据库不自动迁移；旧文件作为归档保留，新环境从空目录开始。
 
 ### 环境变量
 
 | 变量 | 作用 |
 | --- | --- |
-| `PORT` | 监听端口，默认 4173 |
-| `WORLD_ENV` | `mock` / `live` 双入口模式锁；未设置时为 `auto`，保留旧行为 |
+| `PORT` | 监听端口，公开入口默认 4174 |
+| `WORLD_ENV` | `mock` / `live` 模式锁（mock 仅内部测试）；未设置时为 `auto`，保留旧行为 |
 | `WORLD_MODEL` | `openai` 为真实模型，其余为 mock |
 | `WORLD_MODEL_NAME` / `WORLD_BASE_URL` / `WORLD_API_KEY` | 模型名、端点、凭据（只从服务端环境读） |
 | `WORLD_MODEL_THINKING` / `WORLD_MODEL_REASONING_EFFORT` | 思考模式与强度 |
@@ -102,8 +102,8 @@ flowchart TD
 
 | 文件 | 职责 |
 | --- | --- |
-| `start-mock.mjs` / `start-live.mjs` | 模拟/真实双入口：固定端口、独立数据目录、模式锁定 |
-| `package.json` | 唯一依赖 `ajv`；`start:mock`、`start:live`、`npm test` |
+| `start-live.mjs` | 唯一公开入口：固定端口、独立数据目录、真实来源 |
+| `package.json` | 唯一依赖 `ajv`；`start`、`start:live`、`npm test` |
 | `AGENTS.md` | 开发工作流约束（改前读 PRD、从最早未验证里程碑开始、记录 A01–A14） |
 | `smoke.test.mjs` | 进程级冒烟 |
 | `runtime-http.test.mjs` / `workbench-http.test.mjs` / `course-http.test.mjs` | 三套子系统的 HTTP 集成测试 |
@@ -113,12 +113,12 @@ flowchart TD
 
 | 文件 | 职责 |
 | --- | --- |
-| `app.mjs` | 进程装配、静态托管、本机同源校验、`/api/*` 分发入口；仅由双入口或测试直接调用 |
+| `app.mjs` | 进程装配、静态托管、本机同源校验、`/api/*` 分发入口；由 `start-live.mjs` 或测试直接调用 |
 | `http.mjs` | 总路由：`/api/v1/` 依次尝试 course → workbench → runtime；其余旧版路由；请求体 4KB 上限；Origin 校验 |
 | `course-http.mjs` | 课程路由：config、requests 增查、`check`/`stop`、run 快照、events |
 | `workbench-http.mjs` | M1 路由：config、topics、predictions、evidence、agents、tools、learning、imports、run events；支持 `Idempotency-Key` |
 | `v1-http.mjs` | M0 路由：能力查询、`/api/v1/events` SSE、probes 增查、run 查询与 cancel |
-| `provider-connection.mjs` | `GET/POST /api/v1/course/provider-connection`；Key 格式校验、忙碌拒绝、只返回是否已配置；模拟环境 `locked` 时返回 `MODE_LOCKED` |
+| `provider-connection.mjs` | `GET/POST /api/v1/course/provider-connection`；Key 格式校验、忙碌拒绝、只返回是否已配置；测试用 mock 进程 `locked` 时返回 `MODE_LOCKED` |
 | `environment.mjs` | 纯配置解析：模拟/真实入口的端口、数据文件、来源与 Key 默认值；`assertEnvironmentRuns` 数据库模式守卫 |
 | `events.mjs` | 旧版持久事件 journal + SSE，游标补收，慢客户端断开 |
 | `monitor.mjs` | 旧版后台监测（public/demo/off），去重后触发会议 |
@@ -190,9 +190,12 @@ flowchart TD
 
 | 文件 | 职责 |
 | --- | --- |
-| `index.html` | 新工作台外壳，加载 `workbench.js`；顶栏含 `#wb-environment` 环境徽章 |
+| `index.html` | 新工作台外壳，加载 `workbench.js`；顶栏含环境徽章与公开页导航 |
 | `legacy.html` | 旧版回放入口，加载 `app.js` |
-| `workbench.js` | 主控制器：缓存、Hash 路由、事件投影、渲染调度、能力探测、环境徽章 |
+| `workbench.js` | 主控制器：缓存、Hash 路由、公开页／研究室切换、事件投影、渲染调度、能力探测、环境徽章 |
+| `welcome.js` | 公开欢迎页：用途、四步流程、教程卡片和边界说明；不发起请求 |
+| `guide.js` / `guide-content.mjs` | 公开教程目录与章节，读取 `web/demo/cases.json` 归档快照 |
+| `workbench-welcome.css` | 公开页全宽布局、导航显隐与欢迎页样式 |
 | `workbench-core.js` | DOM/`api`/toast/路由/格式化基础 |
 | `workbench-views.js` | 公告栏、收件箱、学习档案、研究室设置、主题视图 |
 | `workbench-detail.js` | 运行详情与报告视图 |
@@ -204,7 +207,7 @@ flowchart TD
 | `workbench-course-chart.js` | 概率阶梯曲线（只画实际提交点） |
 | `run-projection.mjs` | 持久事件 → M1 运行 UI 状态 |
 | `course-projection.mjs` | 课程事件 → 房间状态、轨迹点 |
-| `course-capability.mjs` | 能力探测与提交守卫；`environmentPresentation` 生成模拟/真实环境标签 |
+| `course-capability.mjs` | 能力探测与提交守卫；`environmentPresentation` 生成 AI 模型配置徽章 |
 | `course-workflow.mjs` | 阶段标签、模型活动、用量文案 |
 | `course-runs.mjs` | 运行列表、房间归属选择、答案来源 |
 | `course-status.mjs` | 终态判定、进度、推理标签 |
@@ -337,6 +340,8 @@ flowchart TD
 | `/`、`/legacy.html`、静态资源 | `web/` |
 
 所有 `/api/*` 只接受本机 Host（`127.0.0.1`/`localhost`）且 Origin 必须同源。
+
+前端 Hash 路由：空地址与 `/` 每次改写为 `#/welcome`；`#/welcome` 为公开欢迎页，教程目录已移除，`#/guide` 会改写为 `#/welcome`。教程入口是欢迎页正文卡片，直接进入 `#/guide/:id/:step` 章节；`#/room`、`#/predictions`、`#/course/:id` 等深链接直接进入研究室。公开页不请求预测或运行数据。研究室右下角只保留“欢迎页”链接。教程章节使用“导读、术语卡、研究员速览、折叠归档”四层：原始协作记录默认收起，教程层只增加解释，不改写归档原文。欢迎页底部用一段主 Agent 说明和十张独立撰写的介绍卡列出研究员席位，不复制研究室角色定义。教程完成页的可编辑示例只写入 `courseRetryInput`，由研究室开始表单预填，不自动提交。从教程返回欢迎页时定位到教程区，便于继续选择路径；教程页的“← 返回上一页”使用站内路由栈，不依赖浏览器跨站历史。
 
 ### 8.2 课程事件类型（前端据此渲染）
 

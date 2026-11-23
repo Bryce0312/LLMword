@@ -1,7 +1,7 @@
 import { $, h, header, empty, button, api } from './workbench-core.js'
 import { createRoomShellNavigation, roomShellTarget, mergeRoomHistory, mergeDeletedHistoryMetadata } from './room-shell-navigation.mjs'
 
-const titles = { predictions: '开始预测', course: '开始预测', agents: '研究室设置', 'model-connection': '模型连接', learning: '学习档案', tools: '工具台', advanced: '高级材料研读', topics: '主题档案', 'course-examples': '流程案例' }
+const titles = { predictions: '开始预测', course: '开始预测', guide: '教程', agents: '研究室设置', 'model-connection': '模型连接', learning: '学习档案', tools: '工具台', advanced: '高级材料研读', topics: '主题档案', 'course-examples': '流程案例' }
 
 export function createWorkbenchRoomShell({ baseCtx, mountScene, renderWorkspace, renderSidebar, onWorkspaceContext, onWorkspaceDispose }) {
   const main = $('wb-content'), host = $('wb-room-host'), scene = $('wb-scene')

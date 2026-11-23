@@ -1,5 +1,7 @@
 import { legacyTranslations, legacyDynamicRules } from './locale-zh-en-legacy.mjs'
 import { courseTranslations, courseDynamicRules } from './locale-zh-en-course.mjs'
+import { guideTranslations, guideDynamicRules } from './locale-zh-en-guide.mjs'
+import { welcomeTranslations } from './locale-zh-en-welcome.mjs'
 import { shellTranslations, shellDynamicRules } from './locale-zh-en-shell.mjs'
 import { workspaceTranslations, workspaceDynamicRules } from './locale-zh-en-workspace.mjs'
 import { roomTranslations, roomDynamicRules } from './locale-zh-en-room.mjs'
@@ -9,6 +11,8 @@ export const uiTranslations = Object.freeze({
   ...workspaceTranslations,
   ...shellTranslations,
   ...courseTranslations,
+  ...guideTranslations,
+  ...welcomeTranslations,
   ...legacyTranslations,
   '股票预测事务所': 'Stock Forecast Office',
   '等待派工': 'Waiting for assignment',
@@ -90,9 +94,8 @@ export const uiTranslations = Object.freeze({
   '这项预测记录已从历史列表移除，仅供查看。': 'This prediction record has been removed from history and is read-only.',
   '删除研究员席位': 'Delete researcher seat',
   '取消并关闭弹框': 'Cancel and close dialog',
-  '真实环境 · AI模型未配置': 'Live environment · AI model not configured',
-  '真实环境 · AI模型已配置': 'Live environment · AI model configured',
-  '模拟环境 · 未配置': 'Demo environment · Not configured',
+  'AI模型未配置': 'AI model not configured',
+  'AI模型已配置': 'AI model configured',
   '数据已连接': 'Data connected',
   '正在连接': 'Connecting',
   '服务未连接': 'Service disconnected',
@@ -355,6 +358,7 @@ export const dynamicRules = Object.freeze([
   ...workspaceDynamicRules,
   ...shellDynamicRules,
   ...courseDynamicRules,
+  ...guideDynamicRules,
   ...legacyDynamicRules,
   { pattern: /^每位研究员最多 (\d+) 次调查决策；资料足够可提前提交报告，最迟第 (\d+) 次进入报告阶段，另留 (\d+) 次报告修正。调查与报告分开计数，仍受本席总调用与 token 上限约束。$/, replace: (_all, research, report, repairs) => `Each researcher may make up to ${research} research decisions and report early when ready. Reporting starts no later than request ${report}, with ${repairs} report corrections reserved. Research and reporting are counted separately within the same overall request and token limits.` },
   { pattern: /^本席 Yes 估计 (\d+(?:\.\d)?)%（未校准）$/, replace: (_all, n) => `This researcher’s Yes estimate: ${n}% (uncalibrated)` },

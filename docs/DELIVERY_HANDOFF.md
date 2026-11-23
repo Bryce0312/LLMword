@@ -4,7 +4,7 @@
 
 ## 先运行
 
-使用Node22.17或更高版本（本机验证22.17.1，版本提示见`.nvmrc`）。只需Node/npm；mock不需要API Key或本机Edge插件。
+使用Node22.17或更高版本（本机验证22.17.1，版本提示见`.nvmrc`）。只需Node/npm；未配置Key也可以打开欢迎页和教程。
 
 ```powershell
 npm.cmd ci
@@ -12,12 +12,12 @@ npm.cmd run cases
 npm.cmd run cases:finance
 npm.cmd run cases:warning
 npm.cmd run cases:price
-npm.cmd run start:mock
+npm.cmd start
 ```
 
-默认http://127.0.0.1:4173，顶部案例页包括原流程、财报和新增警告核验例子。mock模型、来源与分数均显著标记为模拟，不能作为真实准确率。真实存档可以在mock页面只读查看，标签仍是live存档，不转换成新实跑。
+默认http://127.0.0.1:4174，根地址为欢迎页与教程入口；进入研究室后顶部案例页包括原流程、财报和新增警告核验例子。归档案例继续显著标记为模拟／回放，不能作为真实准确率；旧live存档只读查看，不转换成新实跑。
 
-真实运行：`npm.cmd run start:live`，默认4174，在模型连接页保存临时Key；只在当前服务器会话内存中保存。运行数据分别放`.data/mock`和`.data/live`，不得混用。可设置`PORT`、`WORLD_DATA_DIR`启动隔离实例；本轮实际测试使用4195及`.data/delivery-closure-live`。
+真实预测在“模型连接”页保存临时Key；只在当前服务器会话内存中保存。运行数据放`.data/live`；`.data/mock`仅保留为历史与测试归档，不再有公开启动入口。可设置`PORT`、`WORLD_DATA_DIR`启动隔离实例；本轮实际测试使用4195及`.data/delivery-closure-live`。
 
 真实新案例脚本：`node scripts/live-warning-case.mjs --start`（自定义端口加`--base=http://127.0.0.1:4195`）。必须显式传`--start`才开始付费预测；中断后`--resume`继续同一requestId，不重复创建案例。新固定警告题上限80000tokens；研究员模型请求顺序执行而上下文仍独立，避免并发预算预留挤占报告修正。其他题保留通用并行调查。状态文件`.data/warning-live-driver.json`不含Key；此文件存在时`--start`也不会另开一题。下一批确需新题时先妥善归档原状态，不能误把旧题当新题。
 

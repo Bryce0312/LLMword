@@ -9,10 +9,10 @@
 ```powershell
 npm.cmd ci
 npm.cmd run cases
-npm.cmd run start:mock
+npm.cmd start
 ```
 
-打开 http://127.0.0.1:4173 ，点击顶部「协作案例」。真实环境用 `npm.cmd run start:live`，默认 http://127.0.0.1:4174 。在「模型连接」输入临时 Key，Key 留在服务端进程内存。测试选 `watch:false`，避免后台持续消费。
+打开 http://127.0.0.1:4174 ，根地址为欢迎页与教程入口；进入研究室后点击顶部「协作案例」。真实预测在「模型连接」输入临时 Key，Key 留在服务端进程内存。测试选 `watch:false`，避免后台持续消费。mock 启动入口已下线，归档案例仍可在教程和案例页只读查看。
 
 本地工作副本已整合 GitHub V2.0 提交 `9add50bf4392ee2f921c6e23b6a9aa7e3cfff1e0` 的环境拆分，并保留原市场补丁；未推送 GitHub。`../tmp/before-integration.zip` 是集成前十个修改文件的备份，不含密钥或运行数据库。
 

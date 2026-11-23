@@ -2,18 +2,16 @@ const restartMessage = '当前地址的服务未加载新版自动跟踪接口�
 const unavailableMessage = '暂时无法检查当前服务的自动跟踪能力。请确认当前服务正在运行后重试；输入内容会保留。'
 
 export function environmentPresentation(config = {}, connection = {}) {
-  const mode = config.modelMode
-  if (!['mock', 'live'].includes(mode)) return null
-  const live = mode === 'live'
-  const configured = live && connection?.configured === true
+  if (config.modelMode !== 'live') return null
+  const configured = connection?.configured === true
   const state = ['connected', 'failed', 'unknown'].includes(connection?.connection) ? connection.connection : 'unknown'
   const dot = !configured ? 'idle' : state === 'connected' ? 'ready' : 'warning'
   const detail = !configured ? '当前AI模型未配置，请先在“模型连接”保存 API Key。'
     : state === 'connected' ? config.sources?.available === false ? 'AI模型已配置且连接校验通过；官方搜索与网页读取尚未配置。' : 'AI模型已配置且连接校验通过，实际任务仍受余额与权限影响。'
       : state === 'failed' ? 'AI模型已配置，但连接校验未通过；请检查 Key、账户权限或网络。' : 'AI模型已配置，连接状态待校验。'
-  return { mode, configured, connection: state, dot,
-    text: live ? `真实环境 · AI模型${configured ? '已配置' : '未配置'}` : '模拟环境 · 未配置',
-    title: '显示当前运行环境和AI模型配置状态。' + (live ? detail : '本地协议模拟与历史 / 测试快照；不能作为真实预测证据，也不会接收真实 Key。') }
+  return { mode: 'live', configured, connection: state, dot,
+    text: `AI模型${configured ? '已配置' : '未配置'}`,
+    title: '显示当前AI模型配置状态。' + detail }
 }
 
 export function isMissingCourseApi(error = {}) {
