@@ -170,7 +170,7 @@
     var title = document.createElement('h1')
     title.textContent = '封存模拟回放任务'
     var detail = document.createElement('p')
-    detail.textContent = '数据来自 mock 环境的封存运行，只读展示，不代表真实模型结果或预测准确率。'
+    detail.textContent = '数据来自模拟环境的封存运行，只读展示，不代表真实模型结果或预测准确率。'
     copy.appendChild(title)
     copy.appendChild(detail)
     heading.appendChild(copy)
