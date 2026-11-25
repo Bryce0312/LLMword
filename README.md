@@ -1,10 +1,10 @@
 # LLMword — Stock Prediction Studio
 
-**V4.4 · Current release on `main` · COMP5584 course project**
+**V4.4 · Current release on `main` · Multi-agent forecasting research**
 
 LLMword turns a short stock question into a visible multi-agent investigation. A lead agent clarifies the question and deadline, delegates research to specialists, compares their cited reports, and publishes a **Yes/No judgment with an estimated probability**. The pixel research room shows assignments, tool activity, reports, and disagreements as the investigation runs.
 
-The current product focuses on stock, security, and fund questions. It is a research and teaching prototype: its probabilities are model estimates, not measured accuracy or guaranteed returns.
+The current product focuses on stock, security, and fund questions. It is a research prototype: its probabilities are model estimates, not measured accuracy or guaranteed returns.
 
 **[Read the English User Guide](docs/USER_GUIDE.md)** for a complete walkthrough, model setup, result interpretation, and troubleshooting. For version changes, see [Development History](DEVELOPMENT_HISTORY.md).
 
@@ -103,7 +103,7 @@ Then open `http://127.0.0.1:4196`.
 
 ## Your first prediction
 
-1. **Choose English.** Select English before creating the task if you want English reports. A task keeps its creation-time report language; switching the interface later does not translate existing reports or source text.
+1. **Choose English.** Select English before creating the task if you want English reports. A task keeps its creation-time generation language; switching the interface does not rewrite saved reports or source text. Where supported, optional browser-local translation can change how historical Chinese content is displayed.
 2. **Explore the tutorials.** On the welcome page, choose **See the tutorial first**. No key is needed. An example at the end can prefill a live form, but it is never submitted automatically.
 3. **Connect your model.** Choose **Enter the research room**, then **Model connection**. Enter your API key, chat-completions URL, and model name. The default preset uses the official DeepSeek endpoint. Save the connection and inspect its status.
 4. **Start a prediction.** Choose **Start prediction**, enter a question such as **“Will Apple (AAPL) shares rise?”**, and select the horizon. Leave **Continuous forecasting** off for a single investigation. Review any interpretation or clarification shown by the app.
@@ -144,11 +144,88 @@ The ten roles cover official sources, news timelines, industry, people and organ
 
 The frontend uses native JavaScript modules, HTML, and CSS. The backend uses Node.js, built-in SQLite, and Ajv schema validation; the orchestration is implemented in this repository.
 
+## Technical implementation
+
+### Stack and runtime architecture
+
+| Layer | Implementation |
+| --- | --- |
+| Browser | Native JavaScript ES modules, HTML, and CSS. Hash-based navigation keeps the pixel room separate from forms, results, and tutorials. No frontend compilation is required. |
+| Service | Node.js HTTP server with asynchronous orchestration and cancellation through `AbortSignal`. |
+| Model adapter | DeepSeek or an OpenAI-compatible Chat Completions endpoint, with native function-tool messages and provider-specific configuration. |
+| Validation | Ajv JSON Schema checks for action arguments, role-specific tool contracts, reports, and tool results. |
+| Storage | Built-in `node:sqlite`, using separate domain, research, and runtime databases under the selected data directory. |
+| UI updates | The current research screen polls request/run snapshots, waits 1.5 seconds between refreshes, and projects saved events into the selected room. |
+
+```text
+Browser: question, settings, selected run
+                | HTTP JSON
+Node.js service: research state machine
+                |-- Lead agent / independent worker contexts
+                |-- Model adapter -> configured model endpoint
+                |-- Tool gateway -> public information services
+                `-- SQLite -> runs, receipts, evidence, reports, forecasts
+                |
+Public snapshots -> run-scoped projection -> actors, bubbles, result panels
+```
+
+The [service entry](server/app.mjs) assembles these components. The project uses its own orchestration and persistence code; the external systems listed under design credits are references, not runtime dependencies.
+
+### Agent communication and the research loop
+
+The [research orchestrator](server/course/course-service.mjs) turns model actions into explicit state transitions. A new general-purpose investigation follows this sequence:
+
+1. Seal the deadline, language, budget, and relevant role versions. The lead agent clarifies the question and delegates to three distinct responsibilities, including verification.
+2. Create separate worker assignments with objectives, context, permitted tools, and checkpoints. General-purpose workers run independently and concurrently; fixed single-source resolution policies serialize them to protect their reporting budgets.
+3. Run each worker through the [tool loop](server/runtime/worker-loop.mjs). The model requests a registered function; the server validates and executes it, then returns a tool message with the matching `tool_call_id`. The worker can investigate again or call `submit_report`.
+4. Hand structured reports back to the lead agent: summaries, evidence IDs, supporting and contrary claims, gaps, and individual probability estimates. The lead agent records which findings it adopts, qualifies, or rejects, and can request bounded follow-up.
+5. Publish an immutable binary forecast when the contract permits it, or preserve a limited/failed result with its reason. Later research creates another run and retains the earlier record.
+
+The [model adapter](server/runtime/model-provider.mjs) handles provider protocol, timeouts, usage receipts, and safe error classification. Agents communicate through assignments, tool returns, reports, and stored review records; their private protocol context is not exposed as room dialogue.
+
+### Tools, evidence, and the harness
+
+Tools are executable backend functions with input schemas and per-assignment permissions. The [web gateway](server/course/web-tools.mjs) supplies registered operations. The [worker loop](server/runtime/worker-loop.mjs) limits execution to the intersection of assignment permissions, agent permissions, enabled tools, and registered handlers.
+
+| Tool | Role in the investigation |
+| --- | --- |
+| `search_web` | Discover public pages and candidate sources. |
+| `search_news` | Search news across relevant languages and publication contexts, when allowed for the role. |
+| `fetch_page` | Retrieve source text or a usable fragment, recording partial reads and retrieval failures. |
+| `read_run_evidence` | Explicitly reread evidence saved in the same run, including during follow-up. |
+| `get_market_quote` / `get_market_history` | Retrieve supported market observations for the relevant asset/rule subset; these are not universal stock-data APIs. |
+| `compare_financial_metrics` | Check financial quantities and comparisons for permitted statistical research. |
+
+Evidence records preserve source URLs, content hashes, publication/retrieval times, and the assignments that actually read them. [Grounding checks](server/domain/claim-grounding.mjs) validate references and quoted text against those reads and applicable time boundaries. Search snippets alone do not count as a source read or citable evidence. These checks provide traceability; they do not prove every interpretation is correct.
+
+The harness also enforces per-run and per-worker model, tool, token, and timeout limits, reserves room for reporting, and bounds follow-up. Recorded receipts and input hashes detect conflicting reuse of call identifiers. Cancellation checks prevent a stopped run from publishing late results. Public receipts retain failures and partial results so they can be inspected.
+
+### Memory, relationships, and continuous forecasting
+
+The [memory policy](server/course/memory-policy.mjs) retrieves history for the **same question and prediction version**, using a fixed cutoff for each new run:
+
+- **Short term:** at most four substantive judgments from the previous seven days, together with bounded report summaries, probabilities, influencing factors, and unresolved gaps.
+- **Long term:** source leads and evidence-to-claim relationships from the previous 90 days. These records are marked historical and require refresh before serving as new evidence.
+
+These are retrieval windows, not deletion deadlines. Earlier archives remain stored. Memory helps the next investigation compare what changed, revisit a weak source, or test an earlier assumption; it does not update model weights or automatically transfer conclusions between unrelated questions.
+
+Relationships are stored as evidence-backed `supports` or `contradicts` records, with provenance and timestamps. They are not fitted correlation coefficients or proof of causality, and no separate graph database is required.
+
+Optional continuous forecasting is scheduled by the server. It checks candidate sources, deduplicates content, and triages meaningful changes before commissioning more research. Routine changes can involve a relevant researcher plus verification; larger changes or conflicts can recall the team. A check that produces no new judgment preserves the previous probability without inventing another chart point. The browser does not own this scheduler; the Node.js service and usable credentials must remain available.
+
+### Persistence, recovery, and the pixel interface
+
+The [research store](server/course/course-store.mjs) uses SQLite transactions, foreign keys, and WAL journaling for requests, runs, assignments, public events, receipts, evidence, source-read records, relationships, forecasts, and monitoring state. Current research checkpoints stay with their runs and assignments; the domain and advanced-runtime services have separate databases. Durable checkpoints support recoverable tool loops; retry behavior still follows the task's recovery policy, so an ordinary failed investigation can create a new run instead of continuing at an arbitrary model step.
+
+The browser's [run projection](web/course-projection.mjs) and [room renderer](web/workbench-course-room.js) convert saved public activity into movement, status, and speech bubbles. The selected run owns the room. Historical views reconstruct that run without inserting dialogue from another task or replaying every old utterance as a new event. This snapshot-polling path is separate from the older workspace's SSE event channel.
+
+Interface labels, report generation, and optional display translation have separate lifecycles. New tasks save their output language; original reports and evidence remain unchanged in storage. Where the browser supports it, [local display translation](web/locale-local-translator.mjs) can render historical Chinese content in English without sending another model request.
+
 ## Model and information-service setup
 
-The easiest setup is through **Model connection**. Defaults are `https://api.deepseek.com/chat/completions` and `deepseek-flash`; campus and custom compatible presets are also available. Use the exact model ID and endpoint permitted by your provider.
+The easiest setup is through **Model connection**. Defaults are `https://api.deepseek.com/chat/completions` and `deepseek-flash`; custom compatible endpoints are also supported. Use the exact model ID and endpoint permitted by your provider.
 
-**Model access and source access are separate.** A campus/custom model key is not automatically forwarded to the official search/document service. Such setups can require a separate `WORLD_SEARCH_API_KEY`. A successful model connection does not prove that every research tool is available.
+**Model access and source access are separate.** A key for a custom model endpoint is not automatically forwarded to the official search/document service. Such setups can require a separate `WORLD_SEARCH_API_KEY`. A successful model connection does not prove that every research tool is available.
 
 For environment-based setup, copy `.env.example` to your own ignored `.env`, fill in the required values, and start with:
 
@@ -176,11 +253,11 @@ Dedicated authorized integrations for every social platform, a full temporal cau
 | --- | --- |
 | [English User Guide](docs/USER_GUIDE.md) | Installation, daily operation, results, recovery, and troubleshooting. |
 | [Development History](DEVELOPMENT_HISTORY.md) | Version changes and historical verification records. |
-| [PRD](docs/PRD.md) / [Course Scope](docs/COURSE_MVP.md) | Product contract and course deliverable boundaries. |
+| [PRD](docs/PRD.md) | Product contract, research workflow, and implementation boundaries. |
 | [Architecture](docs/ARCHITECTURE.md) / [Decision Log](docs/DECISION_LOG.md) | Code structure and design decisions. |
 | [Implementation Status](docs/IMPLEMENTATION_STATUS.md) | Dated implementation and validation evidence. |
 | `web/` | Welcome page, tutorials, research room, and bilingual UI. |
-| `server/course/` | Current multi-agent research, tools, reports, memory, and outcome checks. |
+| [Research orchestration](server/course/course-service.mjs) | Current multi-agent research, tools, reports, memory, and outcome checks. |
 | `server/domain/` / `server/runtime/` | Persistent domain records and tool-loop runtime. |
 
 After installing dependencies, developers can run:
