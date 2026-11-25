@@ -12,6 +12,48 @@ The current product focuses on stock, security, and fund questions. It is a rese
 
 *Lab-settings screenshot from V4.3, showing the budget and researcher seats. V4.4 retains this room and adds a welcome page and expanded tutorials. Historical screenshots and results remain tied to their original versions.*
 
+## A quick visual tour
+
+The screenshots below show the current V4.4 interface in English. The NVDA result, evidence, and tool views reopen a saved live-model/live-source investigation from **23 November 2026** in a preview without model credentials. Their figures are historical model estimates, not a new market forecast or an accuracy benchmark.
+
+### 1. Understand the project before starting
+
+The welcome page explains the research workflow and introduces the team. Choose **Enter the research room** to use the app, or **See the tutorial first** to explore the read-only collaboration, follow-up, and recovery examples without a model key.
+
+![English welcome page with the project overview, pixel research room, and tutorial entry](docs/screenshots/readme/01-welcome.jpg)
+
+### 2. Ask one question and choose a horizon
+
+Enter the stock question, select **1, 3, 5, or 20 trading days**, and decide whether to enable **Continuous forecasting**. A single investigation is the default. The lead agent chooses the research team; you do not need to upload evidence or assign researchers manually. This screenshot shows an unsubmitted example; connect your model before starting live research.
+
+![Prediction form showing an NVDA question, trading-day choices, optional continuous forecasting, and the Start prediction button](docs/screenshots/readme/02-new-prediction.jpg)
+
+### 3. See which agents belong to the investigation
+
+The pixel room represents the selected question's lead agent and researchers. During a live investigation, saved assignments and public activity drive the characters and bubbles. This completed NVDA record shows the **Markets**, **Statistics**, and **Verification** researchers alongside the lead agent; opening another record restores its own team and activity.
+
+![Saved NVDA investigation displayed in the pixel room with three specialist researchers and a lead agent](docs/screenshots/readme/03-research-room.jpg)
+
+### 4. Read the answer together with its limitations
+
+The result panel separates the **Yes/No probability**, the question's meaning, and evidence adequacy. This saved five-trading-day NVDA investigation estimated **Yes 46% / No 54%**. It remains a **conditional estimate** with limited evidence and no system-verified numeric benchmark, so it is **not scored**. Read the fixed deadline and resolution rule before interpreting a result.
+
+![Historical NVDA probability card showing Yes 46 percent, No 54 percent, and the conditional-estimate and limited-evidence notices](docs/screenshots/readme/04-forecast-result.jpg)
+
+### 5. Inspect the evidence behind a claim
+
+Expand a claim in **How collaboration influenced the forecast** to inspect its quotation and **View original source** link. The surrounding record distinguishes direct facts, inferences, qualifications, and unresolved issues. A matching excerpt helps trace a claim, but does not guarantee that the model's interpretation is correct.
+
+![Expanded historical claim showing its quoted source fragment, original-source link, and qualification context](docs/screenshots/readme/05-evidence-and-citations.jpg)
+
+### 6. Check what the tools actually returned
+
+**Public collaboration records** preserve assignments, tool requests, returns, failures, and submitted reports. Here, `fetch_page` returned a saved body fragment with an evidence reference and a warning that the requested focus text was not found. This makes a partial retrieval visible instead of presenting it as a fully verified source. These are public execution records, not private model reasoning.
+
+![Public collaboration records showing researchers' fetch_page calls and a returned partial-read receipt with an evidence reference](docs/screenshots/readme/06-tool-receipts.jpg)
+
+For the full operating instructions, continue to the [English User Guide](docs/USER_GUIDE.md).
+
 ## What you can do
 
 - **Ask a short question.** Enter a stock question and choose 1, 3, 5, or 20 trading days. Five trading days is the default.
