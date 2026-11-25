@@ -23,6 +23,9 @@ const BANNER = `
   .pages-demo-note a { color: #efb85f; }
   .pages-demo-note code { font-family: var(--mono, monospace); }
   .wb-replay-board { margin: 0 0 18px; }
+  .wb-replay-board .wb-page-heading h1 { color: #2f2418; font-weight: 700; text-shadow: none; }
+  .wb-replay-board .wb-page-heading p { color: #6b5540; }
+  .wb-replay-board .wb-board-card h3 { color: #2f2418; font-weight: 600; }
   .wb-replay-board .wb-board-grid { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
   .wb-replay-board .wb-card-probability small { display: block; font-size: 11px; opacity: .8; }
   .wb-replay-readonly strong { color: #efb85f; }
