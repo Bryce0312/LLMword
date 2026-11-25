@@ -90,4 +90,7 @@ export const welcomeTranslations = Object.freeze({
   '教程读取本机归档的模拟／回放快照，不调用模型，也不写入真实预测历史。': 'The tutorial reads archived simulated/replay snapshots, calls no model and writes nothing to live forecast history.',
   '案例里的概率和来源状态只用于说明流程，不代表真实预测成绩或准确率。': 'Probabilities and source states in the cases explain the workflow only; they are not live results or accuracy claims.',
   '真实预测需要你在研究室填写标的并确认开始；教程只会预填示例，不会自动提交。': 'A live forecast needs you to enter a security and confirm the start. The tutorial only pre-fills an example and never submits for you.',
+  '自己部署一份': 'Deploy your own copy',
+  '本地运行、GitHub Codespaces 和静态展示页三种方式，都写在部署文档里。': 'Local setup, GitHub Codespaces and the static showcase are all covered in the deployment guide.',
+  '立即部署': 'Deploy now',
 })

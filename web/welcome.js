@@ -94,6 +94,9 @@ export function welcomeView() {
   const art = h('img', 'welcome-hero-image')
   art.src = '/assets/lab-play.png'
   art.alt = '像素风格的研究室'
+  const deploy = link('立即部署', 'https://github.com/Bryce0312/LLMword/blob/main/docs/DEPLOYMENT.md', 'wb-button wb-primary')
+  deploy.target = '_blank'
+  deploy.rel = 'noopener noreferrer'
   const tutorial = h('section', 'welcome-section welcome-tutorial',
     h('div', 'welcome-section-head',
       h('div', '',
@@ -130,5 +133,9 @@ export function welcomeView() {
           h('p', 'welcome-person-text', lead.text),
           h('p', 'welcome-person-not', lead.not))),
       h('div', 'welcome-team-grid', ...researchers.map(researcherCard))),
+    h('section', 'welcome-section welcome-deploy',
+      h('h2', '', '自己部署一份'),
+      h('p', 'welcome-section-lede', '本地运行、GitHub Codespaces 和静态展示页三种方式，都写在部署文档里。'),
+      h('div', 'welcome-actions', deploy)),
   ]
 }
