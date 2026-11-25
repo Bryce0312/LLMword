@@ -39,6 +39,16 @@ The npm startup banner still uses the package metadata version `4.2.0`; this gui
 
 An API key is **not required to start the app or read the tutorials**. Live investigations require a configured model and working information services. The public startup is live-only; there is no `start:mock` command in V4.4.
 
+### View it in a browser with GitHub Codespaces
+
+To look at the interface without a local install, open the repository on GitHub and choose **Code → Codespaces → Create codespace on main**. `.devcontainer/devcontainer.json` installs dependencies and starts `npm start` on port 4174 for you.
+
+1. In the **Ports** panel, open port **4174**; the browser tab usually opens by itself.
+2. Right-click that port and choose **Port Visibility → Public** to get a shareable `https://<codespace>-4174.app.github.dev` link.
+3. Configure the model API key on the **模型连接 / Model connection** page. The key lives only in the running session and is never committed.
+
+Stop or delete the codespace when the demo is over. It runs the same live build as a local install, so tutorials and archive replays work without a key while real investigations still need your own model access.
+
 ### Use another port or data directory
 
 If another copy is running, choose a separate port **and** a separate data directory. Use one service instance per data directory.

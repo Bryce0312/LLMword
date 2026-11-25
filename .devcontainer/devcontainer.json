@@ -1,0 +1,13 @@
+{
+  "name": "LLMword",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
+  "postCreateCommand": "node -v && npm ci",
+  "postStartCommand": "nohup npm start > /tmp/llmword.log 2>&1 &",
+  "forwardPorts": [4174],
+  "portsAttributes": {
+    "4174": {
+      "label": "LLMword live studio",
+      "onAutoForward": "openBrowser"
+    }
+  }
+}
