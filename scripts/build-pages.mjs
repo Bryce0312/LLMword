@@ -1,25 +1,31 @@
-// 生成 GitHub Pages 静态展示版：只包含欢迎页与教程，两者都不依赖后端接口。
+// 生成 GitHub Pages 只读回放版：欢迎页、教程，以及用封存 mock 数据渲染的研究室。
 // 用法：node scripts/build-pages.mjs（输出到 pages-dist/，再把该目录发布到 gh-pages 分支）
 import { mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises'
 import { extname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { trimReplaySnapshot } from './pages-replay/trim.mjs'
 
 const root = fileURLToPath(new URL('..', import.meta.url))
 const source = join(root, 'web')
 const out = join(root, 'pages-dist')
+const replaySource = join(root, 'scripts', 'pages-replay')
 const OMIT = new Set(['legacy.html', 'app.js', 'records.css', 'actors.css'])
 const BINARY = new Set(['.png', '.woff2', '.ico'])
 
 const BANNER = `
 <div class="pages-demo-note" role="note">
-  <strong>静态展示页</strong>
-  <span>只有欢迎页与教程能离线浏览。要做真实预测，请 <a href="https://codespaces.new/Bryce0312/LLMword">在 Codespaces 打开</a>，或在本地运行 <code>npm start</code>。</span>
+  <strong>模拟回放演示</strong>
+  <span>· 数据来自封存的模拟运行，不代表真实模型结果；发起真实预测请<a href="https://codespaces.new/Bryce0312/LLMword">用 Codespaces</a> 或本地 <code>npm start</code>。</span>
 </div>
 <style>
   .pages-demo-note { position: fixed; left: 12px; bottom: 12px; z-index: 60; max-width: 52ch; display: grid; gap: 4px; padding: 10px 12px; border: 3px solid #efb85f; background: #251f2c; color: #f7e6ba; font-size: 12px; line-height: 1.5; box-shadow: 4px 4px 0 #120f15; }
   .pages-demo-note strong { font-size: 13px; color: #efb85f; }
   .pages-demo-note a { color: #efb85f; }
   .pages-demo-note code { font-family: var(--mono, monospace); }
+  .wb-replay-board { margin: 0 0 18px; }
+  .wb-replay-board .wb-board-grid { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  .wb-replay-board .wb-card-probability small { display: block; font-size: 11px; opacity: .8; }
+  .wb-replay-readonly strong { color: #efb85f; }
 </style>`
 
 function rewrite(name, text) {
@@ -51,5 +57,26 @@ async function walk(dir) {
 
 await rm(out, { recursive: true, force: true })
 await walk(source)
+
+const snapshot = trimReplaySnapshot(JSON.parse(await readFile(join(replaySource, 'snapshot.json'), 'utf8')))
+await mkdir(join(out, 'replay'), { recursive: true })
+await writeFile(join(out, 'replay', 'snapshot.json'), JSON.stringify(snapshot))
+await writeFile(join(out, 'replay', 'replay-data.js'), 'window.__LLMWORD_REPLAY__ = ' + JSON.stringify(snapshot) + ';\n')
+await writeFile(join(out, 'replay', 'replay-shim.js'), await readFile(join(replaySource, 'replay-shim.js'), 'utf8'))
+
+const indexPath = join(out, 'index.html')
+const index = await readFile(indexPath, 'utf8')
+const moduleTag = '<script type="module" src="workbench.js"></script>'
+if (!index.includes(moduleTag)) throw new Error('index.html 缺少 workbench.js 模块入口，无法注入回放脚本。')
+
+// 首帧：同步改写空 hash，并在 <body> 上预置公开页标记，避免先把研究室画出来再跳转。
+const bootHead = '<script>(function(){var h=location.hash;if(!h||h==="#"||h==="#/"){try{history.replaceState(null,"","#/welcome")}catch(e){location.replace("#/welcome")}}})();<\/script>'
+const bootBody = '<script>(function(){var h=location.hash;if(h&&h!=="#"&&h!=="#/"&&h.indexOf("#/welcome")!==0&&h.indexOf("#/guide")!==0)document.body.removeAttribute("data-public-page")})();<\/script>'
+
+let html = index.replace('<head>', '<head>\n  ' + bootHead)
+html = html.replace('<body class="wb-body"', '<body data-public-page="true" class="wb-body"')
+html = html.replace(/(<body\b[^>]*>)/, '$1\n  ' + bootBody)
+html = html.replace(moduleTag, '<script src="replay/replay-data.js"></script>\n  <script src="replay/replay-shim.js"></script>\n  ' + moduleTag)
+await writeFile(indexPath, html)
 await writeFile(join(out, '.nojekyll'), '')
 console.log('pages-dist ready: ' + out)
