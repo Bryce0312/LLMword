@@ -37,6 +37,8 @@ body[data-public-page="true"] [data-room-only] { display: none !important; }
 .welcome-tutorial .guide-path-grid { margin-bottom: 0; }
 .welcome-tutorial { scroll-margin-top: 86px; }
 .welcome-team { margin-bottom: 0; }
+.welcome-deploy { margin: clamp(28px, 3.4vw, 44px) 0 0; padding-top: 22px; border-top: 2px dashed rgba(239,184,95,0.35); }
+.welcome-deploy .welcome-actions { margin-top: 16px; }
 .welcome-team h2 { color: #3a2a20; }
 .welcome-team .welcome-section-lede { color: #5a4636; }
 .welcome-team-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,220px),1fr)); gap: 14px; margin-top: 12px; }
