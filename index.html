@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#251f2c">
+  <title>股票预测事务所</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23251f2c' d='M1 1h22v22H1z'/%3E%3Cpath fill='%23efb85f' d='M10 4h4v6h6v4h-6v6h-4v-6H4v-4h6z'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="workbench.css">
+  <link rel="stylesheet" href="workbench-course.css">
+  <link rel="stylesheet" href="workbench-guide.css">
+  <link rel="stylesheet" href="workbench-room.css">
+  <link rel="stylesheet" href="workbench-welcome.css">
+  <script type="module" src="workbench.js"></script>
+</head>
+<body class="wb-body" data-hide-secondary-navigation="true" data-hide-strict-mode="true" data-financial-entry="true" data-room-shell="true">
+  <a class="wb-skip" href="#wb-content">跳到当前工作区</a>
+  <section id="wb-scene" class="wb-scene" aria-label="研究室主视图">
+    <div class="wb-room-camera" aria-hidden="true"><img src="assets/lab-play.png" alt=""></div>
+    <div id="wb-room-host" class="wb-room-host" aria-label="当前预测研究室"></div>
+  </section>
+  <div class="wb-shell">
+    <header class="wb-header">
+      <a class="wb-brand" href="#/welcome"><span class="brand-icon" aria-hidden="true"></span><span>股票预测事务所</span></a>
+      <nav aria-label="主要工作区"><a href="#/predictions" data-nav="predictions" data-public-hidden="true">开始预测</a><details id="wb-history-menu" class="wb-history-menu" data-public-hidden="true"><summary>预测历史记录 <span aria-hidden="true">▾</span></summary><aside id="wb-sidebar" class="wb-sidebar wb-history-popover" aria-label="预测历史记录"></aside></details><a href="#/agents" data-nav="agents" data-public-hidden="true">研究室设置</a><a href="#/model-connection" data-nav="model-connection" data-public-hidden="true">模型连接</a><a href="#/learning" data-nav="learning" data-public-hidden="true">学习档案</a></nav>
+      <a href="#/course-examples?set=finance" class="wb-text-button" data-public-hidden="true">财报案例</a>
+      <span id="wb-environment" class="wb-environment" data-public-hidden="true" hidden></span>
+      <span id="wb-connection" class="wb-connection" data-public-hidden="true" role="status" title="显示当前网页与本机后端的数据连接状态，用于读取任务、研究员配置和运行进度。AI模型是否配置请查看旁边的环境徽章。">正在连接</span>
+      <div id="wb-language-switch" class="wb-language-switch" role="group" aria-label="界面语言" data-i18n-skip="true"><button type="button" data-locale="zh-CN" lang="zh-CN" aria-pressed="true">简体中文</button><button type="button" data-locale="en" lang="en" aria-pressed="false">English</button></div>
+    </header>
+    <div id="wb-global-error" class="wb-error" role="alert" hidden></div>
+    <main id="wb-content" class="wb-content" tabindex="-1" aria-label="预测结果与进度"><p class="wb-loading">正在打开研究室…</p></main>
+  </div>
+  <nav id="wb-room-footer" class="wb-room-footer" aria-label="帮助与返回" data-room-only="true"><a href="#/welcome">回到欢迎页</a></nav>
+  <dialog id="wb-workspace-dialog" class="wb-workspace-dialog" aria-labelledby="wb-workspace-title">
+    <div class="wb-workspace-toolbar"><h2 id="wb-workspace-title">操作面板</h2><button id="wb-workspace-close" class="wb-button" type="button" aria-label="关闭操作窗口">关闭 ×</button></div>
+    <div id="wb-workspace-content" class="wb-workspace-content" tabindex="-1"></div>
+  </dialog>
+  <div id="wb-toast" class="wb-toast" role="status" hidden></div>
+
+<div class="pages-demo-note" role="note">
+  <strong>静态展示页</strong>
+  <span>只有欢迎页与教程能离线浏览。要做真实预测，请 <a href="https://codespaces.new/Bryce0312/LLMword">在 Codespaces 打开</a>，或在本地运行 <code>npm start</code>。</span>
+</div>
+<style>
+  .pages-demo-note { position: fixed; left: 12px; bottom: 12px; z-index: 60; max-width: 52ch; display: grid; gap: 4px; padding: 10px 12px; border: 3px solid #efb85f; background: #251f2c; color: #f7e6ba; font-size: 12px; line-height: 1.5; box-shadow: 4px 4px 0 #120f15; }
+  .pages-demo-note strong { font-size: 13px; color: #efb85f; }
+  .pages-demo-note a { color: #efb85f; }
+  .pages-demo-note code { font-family: var(--mono, monospace); }
+</style>
+</body>
+</html>
